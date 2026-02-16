@@ -374,8 +374,12 @@ textarea:focus {
   </form>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const API_URL = 'http://localhost:3000/api';
+
+const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Word count
 const contentTextarea = document.getElementById('content');
@@ -458,49 +462,33 @@ async function publishPost() {
   publishBtn.disabled = true;
   publishBtn.textContent = 'Publishing...';
 
-  try {
-    const response = await fetch(`${API_URL}/posts`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        title,
-        excerpt,
-        content,
-        tags,
-        access
-      })
-    });
+  const words = content.split(/\s+/).filter(w => w.length > 0).length;
+  const readtime = Math.max(1, Math.ceil(words / 200));
 
-    if (!response.ok) {
-      throw new Error('Failed to publish');
+  const { error } = await supabase.from('posts').insert([
+    {
+      title,
+      excerpt,
+      content,
+      tags: tags.join(", "),
+      access,
+      readtime
     }
+  ]);
 
-    const data = await response.json();
-
-    showMessage('success', 'Published');
-
-    // Clear form
-    setTimeout(() => {
-      document.getElementById('postForm').reset();
-      tags = [];
-      renderTags();
-      document.getElementById('freeOption').classList.add('active');
-      document.getElementById('paidOption').classList.remove('active');
-      document.getElementById('wordCount').textContent = '0 words';
-      document.getElementById('readTime').textContent = '0 min read';
-      publishBtn.disabled = false;
-      publishBtn.textContent = 'Publish';
-    }, 1000);
-
-  } catch (error) {
-    console.error('Error publishing:', error);
+  if (error) {
+    console.error(error);
     showMessage('error', 'Failed to publish');
     publishBtn.disabled = false;
     publishBtn.textContent = 'Publish';
+    return;
   }
+
+  showMessage('success', 'Published');
+
+  setTimeout(() => location.reload(), 1000);
 }
+
 </script>
 
 </body>
