@@ -577,40 +577,45 @@ header {
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const API_URL = 'http://localhost:3000/api';
+
+const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 let allPosts = [];
 
 async function loadPosts() {
-  try {
-    const response = await fetch(`${API_URL}/posts`);
-    if (!response.ok) throw new Error('Failed to load posts');
+  const { data, error } = await supabase
+    .from('posts')
+    .select('*')
+    .order('created_at', { ascending: false });
 
-    allPosts = await response.json();
-    renderPosts(allPosts);
-    updateStats(allPosts);
-    updateRecentUpdates(allPosts);
-  } catch (error) {
-    console.error('Error loading posts:', error);
+  if (error) {
+    console.error("Database error:", error);
     document.getElementById('entryList').innerHTML = `
-      <div style="padding: 3rem; text-align: center; color: var(--muted);">
-        <p style="font-family: var(--mono); font-size: 0.875rem; margin-bottom: 1rem;">No entries yet</p>
-        <a href="/write.html" style="color: var(--blue); text-decoration: none; border-bottom: 1px solid var(--blue);">Write your first entry →</a>
-      </div>
-    `;
+      <div style="padding:3rem;text-align:center;color:var(--muted);">
+        Error loading posts
+      </div>`;
+    return;
   }
+
+  allPosts = data || [];
+  renderPosts(allPosts);
+  updateStats(allPosts);
+  updateRecentUpdates(allPosts);
 }
 
 function renderPosts(posts) {
   const entryList = document.getElementById('entryList');
 
-  if (posts.length === 0) {
+  if (!posts.length) {
     entryList.innerHTML = `
-      <div style="padding: 3rem; text-align: center; color: var(--muted);">
-        <p style="font-family: var(--mono); font-size: 0.875rem; margin-bottom: 1rem;">No entries yet</p>
-        <a href="/write.html" style="color: var(--blue); text-decoration: none; border-bottom: 1px solid var(--blue);">Write your first entry →</a>
-      </div>
-    `;
+      <div style="padding:3rem;text-align:center;color:var(--muted);">
+        No entries yet
+      </div>`;
     return;
   }
 
@@ -618,66 +623,49 @@ function renderPosts(posts) {
     <div class="entry-card ${post.access === 'paid' ? 'locked' : ''}">
       <div class="entry-header">
         <h2 class="entry-title">${post.title}</h2>
-        <span class="entry-meta">${post.meta}</span>
+        <span class="entry-meta">${new Date(post.created_at).toLocaleDateString()}</span>
       </div>
-      <p class="entry-excerpt">${post.excerpt}</p>
+      <p class="entry-excerpt">${post.excerpt || ""}</p>
       <div class="entry-footer">
         <div class="entry-tags">
-          ${post.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+          ${(post.tags || "").split(",").map(tag => `<span class="tag">${tag.trim()}</span>`).join("")}
         </div>
-        <span class="read-time">${post.readTime} min read</span>
+        <span class="read-time">${post.readtime || 1} min read</span>
       </div>
     </div>
   `).join('');
 }
 
 function updateStats(posts) {
-  const freeCount = posts.filter(p => p.access === 'free').length;
-  const paidCount = posts.filter(p => p.access === 'paid').length;
+  const free = posts.filter(p => p.access === "free").length;
+  const paid = posts.filter(p => p.access === "paid").length;
 
   document.getElementById('totalEntries').textContent = posts.length;
-  document.getElementById('freeEntries').textContent = freeCount;
-  document.getElementById('paidEntries').textContent = paidCount;
+  document.getElementById('freeEntries').textContent = free;
+  document.getElementById('paidEntries').textContent = paid;
 }
 
 function updateRecentUpdates(posts) {
   const updatesList = document.getElementById('updatesList');
-  const recentPosts = posts.slice(0, 4);
+  const recent = posts.slice(0,4);
 
-  updatesList.innerHTML = recentPosts.map(post => {
-    const date = new Date(post.date);
-    const timeAgo = getTimeAgo(date);
-
-    return `
-      <div class="update-item">
-        <div class="update-date">${timeAgo}</div>
-        <div class="update-content">Added: ${post.title}</div>
-      </div>
-    `;
-  }).join('');
-}
-
-function getTimeAgo(date) {
-  const now = new Date();
-  const diff = now - date;
-  const minutes = Math.floor(diff / 60000);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-
-  if (minutes < 60) return minutes <= 1 ? 'Just now' : `${minutes} min ago`;
-  if (hours < 24) return hours === 1 ? '1 hour ago' : `${hours} hours ago`;
-  if (days === 0) return 'Today';
-  if (days === 1) return 'Yesterday';
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  updatesList.innerHTML = recent.map(post => `
+    <div class="update-item">
+      <div class="update-date">${new Date(post.created_at).toLocaleDateString()}</div>
+      <div class="update-content">Added: ${post.title}</div>
+    </div>
+  `).join('');
 }
 
 // Search
 document.getElementById('searchBox').addEventListener('input', (e) => {
   const search = e.target.value.toLowerCase();
+
   const filtered = allPosts.filter(post =>
     post.title.toLowerCase().includes(search) ||
-    post.excerpt.toLowerCase().includes(search)
+    (post.excerpt || "").toLowerCase().includes(search)
   );
+
   renderPosts(filtered);
 });
 
@@ -692,7 +680,7 @@ document.querySelectorAll('.filter-tag').forEach(tag => {
       renderPosts(allPosts);
     } else {
       const filtered = allPosts.filter(post =>
-        post.tags.some(t => t.toLowerCase().includes(filter))
+        (post.tags || "").toLowerCase().includes(filter)
       );
       renderPosts(filtered);
     }
@@ -701,6 +689,7 @@ document.querySelectorAll('.filter-tag').forEach(tag => {
 
 // Load on start
 loadPosts();
+
 </script>
 
 </body>
