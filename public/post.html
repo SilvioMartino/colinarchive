@@ -5,93 +5,228 @@
 <title>Post — Colin Archive</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-body{
-  margin:0;
-  font-family: Georgia, serif;
-  background:#0d0d0d;
-  color:#e8e8e8;
+:root{
+--bg:#0d0d0d;
+--paper:#1a1a1a;
+--fg:#e8e8e8;
+--muted:#8a8a8a;
+--border:#2a2a2a;
+--highlight:#1f1f1f;
+--red:#ff6b6b;
+--blue:#4ecdc4;
+--serif:'Crimson Text','Georgia',serif;
+--mono:'IBM Plex Mono','Courier New',monospace;
 }
 
+*{
+box-sizing:border-box;
+margin:0;
+padding:0;
+}
+
+body{
+background:var(--bg);
+color:var(--fg);
+font-family:var(--serif);
+line-height:1.75;
+min-height:100vh;
+}
+
+/* subtle texture */
+body::before{
+content:'';
+position:fixed;
+inset:0;
+background-image:
+repeating-linear-gradient(
+0deg,
+transparent,
+transparent 2px,
+rgba(255,255,255,0.01) 2px,
+rgba(255,255,255,0.01) 4px
+);
+pointer-events:none;
+z-index:0;
+}
+
+/* header */
+header{
+padding:2rem 3rem;
+border-bottom:1px solid var(--border);
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:var(--paper);
+position:sticky;
+top:0;
+z-index:10;
+}
+
+.logo{
+font-family:var(--mono);
+font-size:.75rem;
+letter-spacing:.15em;
+text-transform:uppercase;
+text-decoration:none;
+color:var(--fg);
+}
+
+.logo::after{
+content:'|';
+color:var(--red);
+margin-left:2px;
+animation:blink 1s step-end infinite;
+}
+
+@keyframes blink{
+0%,50%{opacity:1;}
+51%,100%{opacity:0;}
+}
+
+/* layout */
 .container{
-  max-width:800px;
-  margin:60px auto;
-  padding:20px;
+max-width:900px;
+margin:0 auto;
+padding:3rem 2rem;
+position:relative;
+z-index:2;
+}
+
+/* article card */
+.article{
+background:var(--paper);
+border:1px solid var(--border);
+padding:3rem;
+animation:fade 0.6s ease forwards;
+}
+
+@keyframes fade{
+from{opacity:0;transform:translateY(15px);}
+to{opacity:1;transform:translateY(0);}
 }
 
 .title{
-  font-size:2.4rem;
-  margin-bottom:10px;
+font-size:2.7rem;
+margin-bottom:1rem;
+font-weight:600;
 }
 
 .meta{
-  color:#888;
-  font-size:.8rem;
-  margin-bottom:30px;
-  text-transform:uppercase;
+font-family:var(--mono);
+font-size:.7rem;
+color:var(--muted);
+letter-spacing:.05em;
+text-transform:uppercase;
+margin-bottom:2rem;
 }
 
 .content{
-  line-height:1.8;
-  font-size:1.15rem;
-  white-space:pre-wrap;
+font-size:1.2rem;
+line-height:1.95;
+white-space:pre-wrap;
 }
 
+/* tags */
+.tags{
+margin-top:2.5rem;
+display:flex;
+flex-wrap:wrap;
+gap:.5rem;
+}
+
+.tag{
+font-family:var(--mono);
+font-size:.65rem;
+padding:.35rem .6rem;
+border:1px solid var(--border);
+color:var(--muted);
+text-transform:uppercase;
+}
+
+/* loading */
 .loading{
-  text-align:center;
-  margin-top:100px;
-  color:#777;
+text-align:center;
+margin-top:140px;
+color:var(--muted);
+font-family:var(--mono);
+font-size:.8rem;
 }
 </style>
 </head>
 
 <body>
 
+<header>
+<a href="/" class="logo">Colin Archive</a>
+</header>
+
 <div class="container" id="container">
-  <div class="loading">Loading post...</div>
+<div class="loading">Loading entry...</div>
 </div>
 
 <script>
 const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
+const SUPABASE_KEY = "YOUR_KEY_HERE"; // keep this key
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+/* get post id from URL */
 function getId(){
-  const params = new URLSearchParams(window.location.search);
-  return params.get("id");
+const params = new URLSearchParams(window.location.search);
+return params.get("id");
 }
 
+/* load post */
 async function loadPost(){
-  const id = getId();
 
-  if(!id){
-    document.getElementById("container").innerHTML = "<h2>No post ID</h2>";
-    return;
-  }
+const id = getId();
 
-  const { data, error } = await db
-    .from("posts")
-    .select("*")
-    .eq("id", id)
-    .single();
-
-  if(error || !data){
-    document.getElementById("container").innerHTML = "<h2>Post not found</h2>";
-    return;
-  }
-
-  document.getElementById("container").innerHTML = `
-    <h1 class="title">${data.title}</h1>
-    <div class="meta">
-      ${new Date(data.created_at).toLocaleDateString()} • ${data.readtime} min read
-    </div>
-    <div class="content">${data.content}</div>
-  `;
+if(!id){
+document.getElementById("container").innerHTML="<h2>No post ID</h2>";
+return;
 }
 
+const { data, error } = await db
+.from("posts")
+.select("*")
+.eq("id", id)
+.single();
+
+if(error || !data){
+document.getElementById("container").innerHTML="<h2>Post not found</h2>";
+return;
+}
+
+/* render */
+document.getElementById("container").innerHTML = `
+<div class="article">
+
+<h1 class="title">${data.title}</h1>
+
+<div class="meta">
+${new Date(data.created_at).toLocaleDateString()} • ${data.readtime} min read
+</div>
+
+<div class="content">${data.content}</div>
+
+<div class="tags">
+${(data.tags || "").split(",").map(tag =>
+`<span class="tag">${tag.trim()}</span>`
+).join("")}
+</div>
+
+</div>
+`;
+
+}
+
+/* start */
 loadPost();
 </script>
 
