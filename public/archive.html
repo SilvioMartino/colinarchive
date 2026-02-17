@@ -619,8 +619,8 @@ function renderPosts(posts) {
     return;
   }
 
-  entryList.innerHTML = posts.map(post => `
-    <div class="entry-card ${post.access === 'paid' ? 'locked' : ''}">
+ entryList.innerHTML = posts.map(post => `
+  <a href="/post.html?id=${post.id}" class="entry-card ${post.access === 'paid' ? 'locked' : ''}">
       <div class="entry-header">
         <h2 class="entry-title">${post.title}</h2>
         <span class="entry-meta">${new Date(post.created_at).toLocaleDateString()}</span>
@@ -694,5 +694,6 @@ loadPosts();
 
 </body>
 </html>
+
 
 
