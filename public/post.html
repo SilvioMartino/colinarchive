@@ -6,227 +6,225 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root{
---bg:#0d0d0d;
---paper:#1a1a1a;
---fg:#e8e8e8;
---muted:#8a8a8a;
---border:#2a2a2a;
---highlight:#1f1f1f;
---red:#ff6b6b;
---blue:#4ecdc4;
---serif:'Crimson Text','Georgia',serif;
---mono:'IBM Plex Mono','Courier New',monospace;
+  --bg:#0d0d0d;
+  --paper:#1a1a1a;
+  --fg:#e8e8e8;
+  --muted:#8a8a8a;
+  --border:#2a2a2a;
+  --highlight:#1f1f1f;
+  --blue:#4ecdc4;
+  --red:#ff6b6b;
+  --serif:'Crimson Text',serif;
+  --mono:'IBM Plex Mono',monospace;
 }
 
-*{
-box-sizing:border-box;
-margin:0;
-padding:0;
-}
+*{box-sizing:border-box;margin:0;padding:0;}
 
 body{
-background:var(--bg);
-color:var(--fg);
-font-family:var(--serif);
-line-height:1.75;
-min-height:100vh;
+  background:var(--bg);
+  color:var(--fg);
+  font-family:var(--serif);
+  line-height:1.7;
 }
 
-/* subtle texture */
-body::before{
-content:'';
-position:fixed;
-inset:0;
-background-image:
-repeating-linear-gradient(
-0deg,
-transparent,
-transparent 2px,
-rgba(255,255,255,0.01) 2px,
-rgba(255,255,255,0.01) 4px
-);
-pointer-events:none;
-z-index:0;
-}
-
-/* header */
 header{
-padding:2rem 3rem;
-border-bottom:1px solid var(--border);
-display:flex;
-justify-content:space-between;
-align-items:center;
-background:var(--paper);
-position:sticky;
-top:0;
-z-index:10;
+  padding:2rem 3rem;
+  border-bottom:1px solid var(--border);
+  background:var(--paper);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 
 .logo{
-font-family:var(--mono);
-font-size:.75rem;
-letter-spacing:.15em;
-text-transform:uppercase;
-text-decoration:none;
-color:var(--fg);
+  font-family:var(--mono);
+  font-size:.75rem;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  color:var(--fg);
+  text-decoration:none;
 }
 
-.logo::after{
-content:'|';
-color:var(--red);
-margin-left:2px;
-animation:blink 1s step-end infinite;
+.nav a{
+  font-family:var(--mono);
+  font-size:.7rem;
+  text-transform:uppercase;
+  letter-spacing:.1em;
+  color:var(--muted);
+  text-decoration:none;
+  margin-left:2rem;
 }
 
-@keyframes blink{
-0%,50%{opacity:1;}
-51%,100%{opacity:0;}
-}
+.nav a:hover{color:var(--blue);}
 
-/* layout */
 .container{
-max-width:900px;
-margin:0 auto;
-padding:3rem 2rem;
-position:relative;
-z-index:2;
+  max-width:900px;
+  margin:60px auto;
+  padding:0 20px;
 }
 
-/* article card */
-.article{
-background:var(--paper);
-border:1px solid var(--border);
-padding:3rem;
-animation:fade 0.6s ease forwards;
-}
-
-@keyframes fade{
-from{opacity:0;transform:translateY(15px);}
-to{opacity:1;transform:translateY(0);}
+.loading{
+  text-align:center;
+  color:var(--muted);
+  margin-top:120px;
+  font-family:var(--mono);
 }
 
 .title{
-font-size:2.7rem;
-margin-bottom:1rem;
-font-weight:600;
+  font-size:2.6rem;
+  margin-bottom:10px;
 }
 
 .meta{
-font-family:var(--mono);
-font-size:.7rem;
-color:var(--muted);
-letter-spacing:.05em;
-text-transform:uppercase;
-margin-bottom:2rem;
+  font-family:var(--mono);
+  font-size:.7rem;
+  color:var(--muted);
+  text-transform:uppercase;
+  margin-bottom:25px;
 }
 
-.content{
-font-size:1.2rem;
-line-height:1.95;
-white-space:pre-wrap;
-}
-
-/* tags */
 .tags{
-margin-top:2.5rem;
-display:flex;
-flex-wrap:wrap;
-gap:.5rem;
+  margin-bottom:30px;
 }
 
 .tag{
-font-family:var(--mono);
-font-size:.65rem;
-padding:.35rem .6rem;
-border:1px solid var(--border);
-color:var(--muted);
-text-transform:uppercase;
+  display:inline-block;
+  border:1px solid var(--border);
+  padding:3px 8px;
+  margin-right:6px;
+  margin-bottom:6px;
+  font-family:var(--mono);
+  font-size:.65rem;
+  color:var(--muted);
 }
 
-/* loading */
-.loading{
-text-align:center;
-margin-top:140px;
-color:var(--muted);
-font-family:var(--mono);
-font-size:.8rem;
+.content{
+  font-size:1.15rem;
+  white-space:pre-wrap;
 }
+
+.locked{
+  border:1px solid var(--red);
+  padding:30px;
+  text-align:center;
+  font-family:var(--mono);
+  margin-top:40px;
+}
+
+.back{
+  display:inline-block;
+  margin-top:50px;
+  font-family:var(--mono);
+  font-size:.7rem;
+  color:var(--muted);
+  text-decoration:none;
+}
+
+.back:hover{color:var(--blue);}
 </style>
 </head>
 
 <body>
 
 <header>
-<a href="/" class="logo">Colin Archive</a>
+<a href="/archive.html" class="logo">Colin Archive</a>
+<div class="nav">
+<a href="/archive.html">Archive</a>
+<a href="/write.html">Write</a>
+</div>
 </header>
 
 <div class="container" id="container">
-<div class="loading">Loading entry...</div>
+<div class="loading">Loading post...</div>
 </div>
 
 <script>
-const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
-const SUPABASE_KEY = "YOUR_KEY_HERE"; // keep this key
+const SUPABASE_URL="https://lbpkgvmxxcubzbzwoswd.supabase.co";
+const SUPABASE_KEY="YOUR_KEY_HERE";
 
-const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-/* get post id from URL */
-function getId(){
-const params = new URLSearchParams(window.location.search);
-return params.get("id");
+function getPostId(){
+  const params=new URLSearchParams(window.location.search);
+  return params.get("id");
 }
 
-/* load post */
 async function loadPost(){
 
-const id = getId();
+  const id=getPostId();
 
-if(!id){
-document.getElementById("container").innerHTML="<h2>No post ID</h2>";
-return;
+  if(!id){
+    showError("Missing post ID");
+    return;
+  }
+
+  const {data,error}=await db
+    .from("posts")
+    .select("*")
+    .eq("id",id)
+    .maybeSingle();
+
+  if(error || !data){
+    showError("Post not found");
+    return;
+  }
+
+  renderPost(data);
 }
 
-const { data, error } = await db
-.from("posts")
-.select("*")
-.eq("id", id)
-.single();
+function renderPost(post){
 
-if(error || !data){
-document.getElementById("container").innerHTML="<h2>Post not found</h2>";
-return;
+  if(post.access==="paid"){
+    document.getElementById("container").innerHTML=`
+      <div class="locked">
+        🔒 This post is locked
+      </div>
+      <a href="/archive.html" class="back">← Back to archive</a>
+    `;
+    return;
+  }
+
+  const tags=(post.tags||"").split(",").map(t=>t.trim()).filter(Boolean);
+
+  document.title=post.title+" — Colin Archive";
+
+  document.getElementById("container").innerHTML=`
+    <h1 class="title">${escapeHTML(post.title)}</h1>
+
+    <div class="meta">
+      ${new Date(post.created_at).toLocaleDateString()} • ${post.readtime||1} min read
+    </div>
+
+    <div class="tags">
+      ${tags.map(t=>`<span class="tag">${escapeHTML(t)}</span>`).join("")}
+    </div>
+
+    <div class="content">${escapeHTML(post.content)}</div>
+
+    <a href="/archive.html" class="back">← Back to archive</a>
+  `;
 }
 
-/* render */
-document.getElementById("container").innerHTML = `
-<div class="article">
-
-<h1 class="title">${data.title}</h1>
-
-<div class="meta">
-${new Date(data.created_at).toLocaleDateString()} • ${data.readtime} min read
-</div>
-
-<div class="content">${data.content}</div>
-
-<div class="tags">
-${(data.tags || "").split(",").map(tag =>
-`<span class="tag">${tag.trim()}</span>`
-).join("")}
-</div>
-
-</div>
-`;
-
+function showError(msg){
+  document.getElementById("container").innerHTML=`
+    <div class="locked">${msg}</div>
+    <a href="/archive.html" class="back">← Back</a>
+  `;
 }
 
-/* start */
+function escapeHTML(str){
+  return str
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;");
+}
+
 loadPost();
 </script>
 
