@@ -588,7 +588,7 @@ window.db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let allPosts = [];
 
 async function loadPosts() {
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from('posts')
     .select('*')
     .order('created_at', { ascending: false });
@@ -694,4 +694,5 @@ loadPosts();
 
 </body>
 </html>
+
 
