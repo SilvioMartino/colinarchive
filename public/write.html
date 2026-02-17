@@ -379,7 +379,7 @@ textarea:focus {
 
 const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+window.db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Word count
 const contentTextarea = document.getElementById('content');
@@ -465,7 +465,7 @@ async function publishPost() {
   const words = content.split(/\s+/).filter(w => w.length > 0).length;
   const readtime = Math.max(1, Math.ceil(words / 200));
 
-  const { error } = await supabase.from('posts').insert([
+  const { error } = await db.from('posts').insert([
     {
       title,
       excerpt,
