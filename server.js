@@ -13,6 +13,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public')); // Serve static files from public/
 
+// Homepage route
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "archive.html"));
+});
+
 // Ensure posts directory exists
 async function ensurePostsDir() {
   try {
@@ -187,4 +192,5 @@ ensurePostsDir().then(() => {
 ╚═══════════════════════════════════════╝
     `);
   });
+
 });
