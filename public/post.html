@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Post — Colin Archive</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body{
+  margin:0;
+  font-family: Georgia, serif;
+  background:#0d0d0d;
+  color:#e8e8e8;
+}
+
+.container{
+  max-width:800px;
+  margin:60px auto;
+  padding:20px;
+}
+
+.title{
+  font-size:2.4rem;
+  margin-bottom:10px;
+}
+
+.meta{
+  color:#888;
+  font-size:.8rem;
+  margin-bottom:30px;
+  text-transform:uppercase;
+}
+
+.content{
+  line-height:1.8;
+  font-size:1.15rem;
+  white-space:pre-wrap;
+}
+
+.loading{
+  text-align:center;
+  margin-top:100px;
+  color:#777;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container" id="container">
+  <div class="loading">Loading post...</div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
+
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function getId(){
+  const params = new URLSearchParams(window.location.search);
+  return params.get("id");
+}
+
+async function loadPost(){
+  const id = getId();
+
+  if(!id){
+    document.getElementById("container").innerHTML = "<h2>No post ID</h2>";
+    return;
+  }
+
+  const { data, error } = await db
+    .from("posts")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if(error || !data){
+    document.getElementById("container").innerHTML = "<h2>Post not found</h2>";
+    return;
+  }
+
+  document.getElementById("container").innerHTML = `
+    <h1 class="title">${data.title}</h1>
+    <div class="meta">
+      ${new Date(data.created_at).toLocaleDateString()} • ${data.readtime} min read
+    </div>
+    <div class="content">${data.content}</div>
+  `;
+}
+
+loadPost();
+</script>
+
+</body>
+</html>
