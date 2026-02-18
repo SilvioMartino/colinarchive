@@ -69,7 +69,7 @@
     nav {
       background: var(--paper);
       border-bottom: 1px solid var(--border);
-      padding: 1.2rem 3rem;  /* increased horizontal padding */
+      padding: 1.2rem 3rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -116,16 +116,16 @@
       color: var(--blue);
     }
 
-    /* ----- MAIN CONTENT (now full-width) ----- */
+    /* ----- MAIN CONTENT (full-width, no card) ----- */
     .wrapper {
       width: 100%;
-      margin: 70px 0;        /* removed auto centering */
-      padding: 0 3rem;       /* horizontal padding for breathing room */
+      margin: 70px 0;
+      padding: 0 3rem;
       position: relative;
       z-index: 2;
     }
 
-    /* ----- BACK LINK (archive navigation) ----- */
+    /* Back link remains */
     .back-link {
       margin-bottom: 2rem;
       font-family: var(--mono);
@@ -148,45 +148,13 @@
       color: var(--blue);
     }
 
-    /* ----- POST CARD (full-width background, but content max-width) ----- */
-    .card {
-      background: var(--paper);
-      border: 1px solid var(--border);
-      padding: 3rem;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-      animation: fadeUp 0.7s ease;
-      position: relative;
-      width: 100%;
-    }
-
-    /* inner content wrapper for readability */
-    .card-content {
+    /* ----- POST CONTENT (directly on background, Wikipedia‑style) ----- */
+    .post-content {
       max-width: 900px;
       margin: 0 auto;
+      /* No background, no border, no shadow – just text */
     }
 
-    /* torn‑paper top edge (full width) */
-    .card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 6px;
-      background:
-        linear-gradient(135deg, var(--paper) 4px, transparent 0),
-        linear-gradient(225deg, var(--paper) 4px, transparent 0);
-      background-size: 8px 6px;
-      background-repeat: repeat-x;
-      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* ----- TYPOGRAPHY & ELEMENTS ----- */
     .title {
       font-family: var(--serif);
       font-size: 2.5rem;
@@ -236,7 +204,7 @@
       color: var(--fg);
     }
 
-    /* ----- LOCKED / PAID STYLES ----- */
+    /* ----- LOCKED / PAID STYLES (still a subtle box) ----- */
     .locked {
       text-align: center;
       padding: 3rem 2rem;
@@ -302,9 +270,6 @@
         padding: 0 1rem;
         margin: 40px 0;
       }
-      .card {
-        padding: 2rem 1.5rem;
-      }
       .title {
         font-size: 2rem;
       }
@@ -341,11 +306,9 @@
     <a href="/archive.html">← Back to Archive</a>
   </div>
 
-  <div class="card" id="postBox">
-    <!-- inner content wrapper for max-width readability -->
-    <div class="card-content">
-      <div class="loading">Loading post...</div>
-    </div>
+  <!-- Post content directly on background -->
+  <div class="post-content" id="postContent">
+    <div class="loading">Loading post...</div>
   </div>
 </div>
 
@@ -362,7 +325,7 @@
   async function loadPost() {
     const id = getPostId();
     if (!id) {
-      document.querySelector("#postBox .card-content").innerHTML = "<div class='loading'>No post ID specified</div>";
+      document.getElementById("postContent").innerHTML = "<div class='loading'>No post ID specified</div>";
       return;
     }
 
@@ -373,7 +336,7 @@
       .single();
 
     if (error || !data) {
-      document.querySelector("#postBox .card-content").innerHTML = "<div class='loading'>Post not found</div>";
+      document.getElementById("postContent").innerHTML = "<div class='loading'>Post not found</div>";
       return;
     }
 
@@ -390,9 +353,8 @@
     const metaDate = new Date(post.created_at).toLocaleDateString();
     const readTime = post.readtime || 1;
 
-    // If the post is paid, show locked view with a teaser
     if (post.access === "paid") {
-      document.querySelector("#postBox .card-content").innerHTML = `
+      document.getElementById("postContent").innerHTML = `
         <h1 class="title">${escapeHtml(post.title)}</h1>
         <div class="meta">${metaDate} • ${readTime} min read</div>
         ${tags ? `<div class="tags">${tags}</div>` : ""}
@@ -406,8 +368,7 @@
       return;
     }
 
-    // Free post – show full content
-    document.querySelector("#postBox .card-content").innerHTML = `
+    document.getElementById("postContent").innerHTML = `
       <h1 class="title">${escapeHtml(post.title)}</h1>
       <div class="meta">${metaDate} • ${readTime} min read</div>
       ${tags ? `<div class="tags">${tags}</div>` : ""}
