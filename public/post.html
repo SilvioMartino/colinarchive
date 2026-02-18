@@ -12,10 +12,10 @@
 
   <style>
     :root {
-      --bg: #0d0d0d;
+      --bg: #0a0a0b;        /* match aurora background */
       --paper: #1a1a1a;
       --fg: #e8e8e8;
-      --muted: #8a8a8a;
+      --muted: #b0b0b0;
       --border: #2a2a2a;
       --accent: #e8e8e8;
       --highlight: #1f1f1f;
@@ -32,59 +32,56 @@
       padding: 0;
     }
 
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      background: transparent; /* let aurora show */
+    }
+
     body {
-      background: var(--bg);
       color: var(--fg);
       font-family: var(--serif);
-      min-height: 100vh;
       line-height: 1.6;
       position: relative;
+      overflow-x: hidden;
     }
 
-    /* ----- AMBIENT BACKGROUND (now visible) ----- */
-    .ambient-bg {
+    /* ----- SANGVIRA BACKGROUND (full, no black) ----- */
+    .aurora {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: 
-        radial-gradient(circle at 20% 30%, rgba(100, 180, 200, 0.15) 0%, transparent 35%),
-        radial-gradient(circle at 80% 70%, rgba(200, 150, 100, 0.15) 0%, transparent 40%),
-        repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 2px, transparent 2px, transparent 8px);
+      inset: 0;
+      z-index: -2;
+      filter: saturate(120%) blur(30px);
+      background:
+        radial-gradient(1200px 600px at 85% 10%, rgba(255,54,94,0.23), transparent 60%),
+        radial-gradient(900px 500px at 10% 20%, rgba(185,76,255,0.22), transparent 60%),
+        radial-gradient(700px 400px at 50% 90%, rgba(255,80,150,0.18), transparent 60%),
+        linear-gradient(180deg, #07070a, #0b0b12 60%, #0a0a0b);
       pointer-events: none;
-      z-index: -1;
-      animation: ambientDrift 25s infinite alternate ease-in-out;
+      animation: hue 18s linear infinite;
     }
 
-    @keyframes ambientDrift {
-      0% { opacity: 0.5; background-position: 0% 0%, 0% 0%, 0% 0%; }
-      50% { opacity: 0.8; background-position: 5% 5%, -5% -5%, 2% 2%; }
-      100% { opacity: 0.5; background-position: -5% -5%, 5% 5%, -2% -2%; }
+    @keyframes hue {
+      from { filter: hue-rotate(0deg) saturate(120%) blur(30px); }
+      to   { filter: hue-rotate(360deg) saturate(120%) blur(30px); }
     }
 
-    /* Extra faint hand-drawn pattern */
-    .ambient-pattern {
+    /* Kinetic grid overlay (mouse‑following) */
+    .grid {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: url('data:image/svg+xml;utf8,<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle cx="30" cy="40" r="8" stroke="rgba(200,180,160,0.06)" fill="none" stroke-width="1.2"/><circle cx="160" cy="120" r="12" stroke="rgba(160,200,200,0.06)" fill="none" stroke-width="1"/><path d="M80 160 Q100 140 120 160" stroke="rgba(180,160,140,0.06)" fill="none" stroke-width="1.5"/><path d="M150 30 L170 50 L150 70 L130 50 Z" stroke="rgba(200,180,160,0.05)" fill="none" stroke-width="1"/></svg>');
-      background-repeat: repeat;
-      background-size: 200px 200px;
-      pointer-events: none;
+      inset: 0;
       z-index: -1;
-      opacity: 0.4;
-      animation: patternShift 40s infinite linear;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.08), transparent 25%),
+        linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 60px 60px, 60px 60px;
+      mask-image: radial-gradient(600px 600px at var(--mx,50%) var(--my,50%), rgba(0,0,0,0.9), transparent 70%);
+      transition: background-position 0.2s ease-out;
     }
 
-    @keyframes patternShift {
-      0% { background-position: 0 0; }
-      100% { background-position: 200px 200px; }
-    }
-
-    /* Paper texture overlay (kept, but now over ambient) */
+    /* Paper texture overlay (kept for tactile feel) */
     body::before {
       content: '';
       position: fixed;
@@ -99,7 +96,7 @@
         );
       pointer-events: none;
       z-index: 0;
-      animation: paperSlide 20s linear infinite;
+      animation: paperSlide 30s linear infinite;
     }
 
     @keyframes paperSlide {
@@ -107,10 +104,12 @@
       100% { transform: translateY(4px); }
     }
 
-    /* ----- NAVBAR ----- */
+    /* ----- NAVBAR (semi‑transparent, matching archive) ----- */
     nav {
-      background: var(--paper);
-      border-bottom: 1px solid var(--border);
+      background: rgba(26, 26, 26, 0.8);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      border-bottom: 1px solid rgba(42, 42, 42, 0.5);
       padding: 1.2rem 3rem;
       display: flex;
       justify-content: space-between;
@@ -158,7 +157,7 @@
       color: var(--blue);
     }
 
-    /* ----- MAIN CONTENT ----- */
+    /* ----- MAIN CONTENT (post) ----- */
     .wrapper {
       width: 100%;
       margin: 70px 0;
@@ -200,6 +199,7 @@
       font-weight: 600;
       margin-bottom: 0.5rem;
       line-height: 1.3;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5); /* ensure readability */
     }
 
     .meta {
@@ -225,15 +225,17 @@
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      background: rgba(0,0,0,0.2);
     }
 
     .excerpt {
       font-size: 1.3rem;
-      color: #bdbdbd;
+      color: #ddd;
       margin-bottom: 2.2rem;
       font-style: italic;
       border-left: 3px solid var(--blue);
       padding-left: 1rem;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
     }
 
     .content {
@@ -241,14 +243,16 @@
       line-height: 1.85;
       white-space: pre-wrap;
       color: var(--fg);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
     }
 
     .locked {
       text-align: center;
       padding: 3rem 2rem;
       border: 1px dashed var(--red);
-      background: rgba(255, 107, 107, 0.05);
+      background: rgba(255, 107, 107, 0.1);
       margin-top: 2rem;
+      backdrop-filter: blur(4px);
     }
 
     .locked h3 {
@@ -289,6 +293,10 @@
       font-family: var(--mono);
       color: var(--muted);
       padding: 3rem;
+      font-size: 1rem;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      backdrop-filter: blur(4px);
     }
 
     @media (max-width: 700px) {
@@ -328,10 +336,11 @@
 </head>
 <body>
 
-<!-- Ambient layers (now with higher opacity and extra pattern) -->
-<div class="ambient-bg"></div>
-<div class="ambient-pattern"></div>
+<!-- Sangvira background layers -->
+<div class="aurora"></div>
+<div class="grid" id="grid"></div>
 
+<!-- Navbar (semi‑transparent) -->
 <nav>
   <a href="/archive.html" class="logo">Colin Archive</a>
   <div class="links">
@@ -351,6 +360,7 @@
 </div>
 
 <script>
+  // Supabase setup
   const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
 
@@ -426,6 +436,15 @@
   }
 
   loadPost();
+
+  // Mouse follow for kinetic grid
+  const grid = document.getElementById('grid');
+  window.addEventListener('mousemove', (e) => {
+    const x = (e.clientX / window.innerWidth * 100).toFixed(2) + '%';
+    const y = (e.clientY / window.innerHeight * 100).toFixed(2) + '%';
+    grid.style.setProperty('--mx', x);
+    grid.style.setProperty('--my', y);
+  }, { passive: true });
 </script>
 
 </body>
