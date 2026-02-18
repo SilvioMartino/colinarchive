@@ -147,7 +147,8 @@ label {
 }
 
 input[type="text"],
-textarea {
+textarea,
+select {
   width: 100%;
   background: var(--highlight);
   border: 1px solid var(--border);
@@ -159,8 +160,18 @@ textarea {
   resize: vertical;
 }
 
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a8a8a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1rem;
+  padding-right: 2.5rem;
+}
+
 input[type="text"]:focus,
-textarea:focus {
+textarea:focus,
+select:focus {
   outline: none;
   border-color: var(--blue);
   box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.1);
@@ -348,11 +359,21 @@ textarea:focus {
       </div>
     </div>
 
+    <!-- NEW: Type dropdown -->
     <div class="form-group">
-      <label for="tagInput">Tags</label>
+      <label for="type">Type (main category)</label>
+      <select id="type" required>
+        <option value="essay" selected>Essay</option>
+        <option value="code">Code</option>
+        <option value="notes">Notes</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="tagInput">Tags (additional)</label>
       <div class="tags-container" id="tagsContainer"></div>
       <div class="tag-input-wrapper">
-        <input type="text" id="tagInput" placeholder="Essays, Code, Notes...">
+        <input type="text" id="tagInput" placeholder="e.g., philosophy, tutorial, update...">
         <button type="button" class="btn" onclick="addTag()">Add</button>
       </div>
     </div>
@@ -451,6 +472,7 @@ async function publishPost() {
   const title = document.getElementById('title').value.trim();
   const excerpt = document.getElementById('excerpt').value.trim();
   const content = document.getElementById('content').value.trim();
+  const type = document.getElementById('type').value; // new field
   const access = document.querySelector('input[name="access"]:checked').value;
 
   if (!title || !content) {
@@ -470,6 +492,7 @@ async function publishPost() {
       title,
       excerpt,
       content,
+      type,                    // <-- include the selected type
       tags: tags.join(", "),
       access,
       readtime
