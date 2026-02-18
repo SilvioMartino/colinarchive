@@ -6,20 +6,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root{
-  --bg:#0d0d0d;
-  --paper:#1a1a1a;
-  --fg:#e8e8e8;
+  --bg:#0b0b0c;
+  --glass:rgba(255,255,255,0.04);
+  --glass-border:rgba(255,255,255,0.08);
+  --text:#eaeaea;
   --muted:#8a8a8a;
-  --border:#2a2a2a;
-  --highlight:#1f1f1f;
-  --blue:#4ecdc4;
-  --red:#ff6b6b;
+  --accent:#4ecdc4;
+  --danger:#ff6b6b;
   --serif:'Crimson Text',serif;
   --mono:'IBM Plex Mono',monospace;
 }
@@ -27,40 +26,22 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 
 body{
-  background:var(--bg);
-  color:var(--fg);
+  background:radial-gradient(circle at 20% 20%, #141414, #090909 60%);
+  color:var(--text);
   font-family:var(--serif);
-  line-height:1.7;
   min-height:100vh;
 }
 
-/* subtle background texture */
-body::before{
-  content:'';
-  position:fixed;
-  inset:0;
-  background-image:repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(255,255,255,.01) 2px,
-    rgba(255,255,255,.01) 4px
-  );
-  pointer-events:none;
-  z-index:0;
-}
+/* NAVBAR */
 
-/* HEADER — matches homepage */
-header{
-  padding:1.5rem 3rem;
-  border-bottom:1px solid var(--border);
+nav{
+  backdrop-filter:blur(14px);
+  background:var(--glass);
+  border-bottom:1px solid var(--glass-border);
+  padding:1.2rem 2rem;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  background:var(--paper);
-  position:sticky;
-  top:0;
-  z-index:100;
 }
 
 .logo{
@@ -68,121 +49,110 @@ header{
   font-size:.75rem;
   letter-spacing:.15em;
   text-transform:uppercase;
+  color:var(--text);
   text-decoration:none;
-  color:var(--fg);
 }
 
-.logo::after{
-  content:'|';
-  color:var(--red);
-  animation:blink 1s step-end infinite;
-  margin-left:2px;
-}
-
-@keyframes blink{
-  0%,50%{opacity:1;}
-  51%,100%{opacity:0;}
-}
-
-.nav{
-  display:flex;
-  gap:2rem;
-}
-
-.nav a{
+.links a{
   font-family:var(--mono);
   font-size:.7rem;
-  text-transform:uppercase;
-  letter-spacing:.1em;
-  color:var(--muted);
+  margin-left:2rem;
   text-decoration:none;
-  transition:.3s;
-}
-
-.nav a:hover{
-  color:var(--blue);
-}
-
-/* MAIN */
-.container{
-  max-width:900px;
-  margin:0 auto;
-  padding:4rem 2rem;
-  background:var(--paper);
-  position:relative;
-  z-index:2;
-}
-
-.loading{
-  text-align:center;
   color:var(--muted);
-  margin-top:120px;
-  font-family:var(--mono);
-  font-size:.8rem;
-  letter-spacing:.1em;
-  text-transform:uppercase;
+  transition:.25s;
 }
+
+.links a:hover{color:var(--accent);}
+
+/* PAGE */
+
+.wrapper{
+  max-width:900px;
+  margin:70px auto;
+  padding:0 20px;
+}
+
+/* GLASS CARD */
+
+.card{
+  background:var(--glass);
+  backdrop-filter:blur(18px);
+  border:1px solid var(--glass-border);
+  border-radius:18px;
+  padding:3rem 3.5rem;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+  animation:fadeUp .7s ease;
+}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+/* TITLE */
 
 .title{
   font-size:2.6rem;
-  margin-bottom:.5rem;
-  line-height:1.2;
+  margin-bottom:1rem;
+  line-height:1.25;
 }
 
 .meta{
   font-family:var(--mono);
-  font-size:.7rem;
+  font-size:.75rem;
   color:var(--muted);
-  margin-bottom:1.5rem;
-  text-transform:uppercase;
+  margin-bottom:2rem;
   letter-spacing:.05em;
 }
 
+/* TAGS */
+
 .tags{
   margin-bottom:2rem;
-  display:flex;
-  flex-wrap:wrap;
-  gap:.5rem;
 }
 
 .tag{
-  border:1px solid var(--border);
-  padding:.25rem .75rem;
+  display:inline-block;
+  border:1px solid var(--glass-border);
+  padding:.25rem .7rem;
+  margin:.2rem;
   font-family:var(--mono);
   font-size:.65rem;
   color:var(--muted);
-  text-transform:uppercase;
+  border-radius:6px;
 }
 
+/* EXCERPT */
+
 .excerpt{
-  font-size:1.25rem;
-  color:var(--muted);
+  font-size:1.3rem;
+  color:#bdbdbd;
+  margin-bottom:2.2rem;
   font-style:italic;
-  margin-bottom:2.5rem;
-  border-left:3px solid var(--blue);
+  border-left:3px solid var(--accent);
   padding-left:1rem;
 }
 
+/* CONTENT */
+
 .content{
-  font-size:1.2rem;
+  font-size:1.18rem;
   line-height:1.85;
   white-space:pre-wrap;
 }
 
 /* LOCKED */
+
 .locked{
-  border:2px solid var(--red);
-  background:rgba(255,107,107,.05);
-  padding:3rem;
   text-align:center;
-  margin:3rem 0;
+  padding:3rem 2rem;
 }
 
 .locked h3{
   font-family:var(--mono);
-  font-size:.75rem;
-  color:var(--red);
+  font-size:.8rem;
   letter-spacing:.1em;
+  color:var(--danger);
   margin-bottom:1rem;
 }
 
@@ -192,41 +162,29 @@ header{
 }
 
 .btn{
-  padding:.7rem 1.5rem;
-  background:var(--red);
-  color:var(--bg);
+  display:inline-block;
+  padding:.7rem 1.4rem;
+  background:var(--danger);
+  color:#000;
   font-family:var(--mono);
   font-size:.7rem;
   letter-spacing:.1em;
   text-decoration:none;
+  border-radius:8px;
 }
 
-.back{
-  display:block;
-  margin-top:3rem;
-  font-family:var(--mono);
-  font-size:.7rem;
-  color:var(--muted);
-  text-decoration:none;
-}
+/* LOADING */
 
-.back:hover{color:var(--blue);}
-
-/* error */
-.error{
+.loading{
   text-align:center;
-  padding:6rem 2rem;
-}
-
-.error h2{
-  font-size:1.4rem;
+  font-family:var(--mono);
   color:var(--muted);
 }
 
-/* mobile */
-@media(max-width:768px){
-  header{padding:1.5rem;}
-  .container{padding:3rem 1.5rem;}
+/* MOBILE */
+
+@media(max-width:700px){
+  .card{padding:2rem;}
   .title{font-size:2rem;}
 }
 </style>
@@ -234,16 +192,18 @@ header{
 
 <body>
 
-<header>
-  <a href="/archive.html" class="logo" id="logoTitle">Colin Archive</a>
-  <nav class="nav">
-    <a href="/archive.html">Archive</a>
-    <a href="/write.html">Write</a>
-  </nav>
-</header>
+<nav>
+<a href="/archive.html" class="logo">Colin Archive</a>
+<div class="links">
+<a href="/archive.html">Archive</a>
+<a href="/write.html">Write</a>
+</div>
+</nav>
 
-<div class="container" id="container">
-  <div class="loading">Loading post...</div>
+<div class="wrapper">
+<div class="card" id="postBox">
+<div class="loading">Loading post...</div>
+</div>
 </div>
 
 <script>
@@ -252,95 +212,59 @@ const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-function getId(){
-  const params=new URLSearchParams(window.location.search);
-  return params.get("id");
+function id(){
+ return new URLSearchParams(location.search).get("id");
 }
 
-async function loadPost(){
-  const id=getId();
+async function load(){
 
-  if(!id){
-    showError("Missing post ID");
-    return;
-  }
+ const {data,error}=await db
+ .from("posts")
+ .select("*")
+ .eq("id",id())
+ .single();
 
-  const {data,error}=await db
-    .from("posts")
-    .select("*")
-    .eq("id",id)
-    .maybeSingle();
+ if(error||!data){
+ document.getElementById("postBox").innerHTML="<div class='loading'>Post not found</div>";
+ return;
+ }
 
-  if(error||!data){
-    showError("Post not found");
-    return;
-  }
-
-  renderPost(data);
+ render(data);
 }
 
-function renderPost(post){
+function render(p){
 
-  document.title=post.title+" — Colin Archive";
-  document.getElementById("logoTitle").textContent=post.title;
+ const tags=(p.tags||"").split(",").filter(Boolean)
+ .map(t=>`<span class="tag">${escape(t.trim())}</span>`).join("");
 
-  const tags=(post.tags||"").split(",").map(t=>t.trim()).filter(Boolean);
+ if(p.access==="paid"){
+ document.getElementById("postBox").innerHTML=`
+ <h1 class="title">${escape(p.title)}</h1>
+ <div class="meta">${new Date(p.created_at).toLocaleDateString()} • ${p.readtime||1} min read</div>
+ ${tags?`<div class="tags">${tags}</div>`:""}
+ ${p.excerpt?`<div class="excerpt">${escape(p.excerpt)}</div>`:""}
+ <div class="locked">
+ <h3>PAID ENTRY</h3>
+ <p>This post requires access.</p>
+ <a class="btn" href="#">Unlock</a>
+ </div>`;
+ return;
+ }
 
-  const tagsHTML=tags.length?`
-    <div class="tags">
-      ${tags.map(t=>`<span class="tag">${escapeHTML(t)}</span>`).join("")}
-    </div>`:"";
-
-  const excerptHTML=post.excerpt?`
-    <div class="excerpt">${escapeHTML(post.excerpt)}</div>`:"";
-
-  if(post.access==="paid"){
-    document.getElementById("container").innerHTML=`
-      <h1 class="title">${escapeHTML(post.title)}</h1>
-      <div class="meta">
-        ${new Date(post.created_at).toLocaleDateString()} • ${post.readtime||1} min read
-      </div>
-      ${tagsHTML}
-      ${excerptHTML}
-      <div class="locked">
-        <h3>🔒 Paid Entry</h3>
-        <p>This post is available to subscribers only.</p>
-        <a class="btn" href="#">Upgrade Access</a>
-      </div>
-      <a href="/archive.html" class="back">← Back to Archive</a>
-    `;
-    return;
-  }
-
-  document.getElementById("container").innerHTML=`
-    <h1 class="title">${escapeHTML(post.title)}</h1>
-    <div class="meta">
-      ${new Date(post.created_at).toLocaleDateString()} • ${post.readtime||1} min read
-    </div>
-    ${tagsHTML}
-    ${excerptHTML}
-    <div class="content">${escapeHTML(post.content)}</div>
-    <a href="/archive.html" class="back">← Back to Archive</a>
-  `;
+ document.getElementById("postBox").innerHTML=`
+ <h1 class="title">${escape(p.title)}</h1>
+ <div class="meta">${new Date(p.created_at).toLocaleDateString()} • ${p.readtime||1} min read</div>
+ ${tags?`<div class="tags">${tags}</div>`:""}
+ ${p.excerpt?`<div class="excerpt">${escape(p.excerpt)}</div>`:""}
+ <div class="content">${escape(p.content)}</div>
+ `;
 }
 
-function showError(msg){
-  document.getElementById("container").innerHTML=`
-    <div class="error">
-      <h2>${msg}</h2>
-      <p><a href="/archive.html">Return to archive</a></p>
-    </div>
-  `;
+function escape(s){
+ return s.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
 }
 
-function escapeHTML(str){
-  return str
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;");
-}
-
-loadPost();
+load();
 </script>
 
 </body>
