@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -7,48 +6,39 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 :root{
-  --bg:#0d0d0d;
-  --paper:#1a1a1a;
-  --fg:#e8e8e8;
+  --bg:#0b0b0c;
+  --glass:rgba(255,255,255,0.04);
+  --glass-border:rgba(255,255,255,0.08);
+  --text:#eaeaea;
   --muted:#8a8a8a;
-  --border:#2a2a2a;
-  --blue:#4ecdc4;
-  --red:#ff6b6b;
+  --accent:#4ecdc4;
+  --danger:#ff6b6b;
   --serif:'Crimson Text',serif;
   --mono:'IBM Plex Mono',monospace;
-  --hand:'Caveat',cursive;
 }
 
 *{box-sizing:border-box;margin:0;padding:0;}
 
 body{
-  background:var(--bg);
-  color:var(--fg);
+  background:radial-gradient(circle at 20% 20%, #141414, #090909 60%);
+  color:var(--text);
   font-family:var(--serif);
-  line-height:1.8;
+  min-height:100vh;
 }
 
-/* subtle grain overlay */
-body::after{
-  content:"";
-  position:fixed;
-  inset:0;
-  background-image:url("https://grainy-gradients.vercel.app/noise.svg");
-  opacity:.04;
-  pointer-events:none;
-}
+/* NAVBAR */
 
-/* header */
-header{
-  padding:1.5rem 2rem;
-  border-bottom:1px solid var(--border);
-  background:var(--paper);
+nav{
+  backdrop-filter:blur(14px);
+  background:var(--glass);
+  border-bottom:1px solid var(--glass-border);
+  padding:1.2rem 2rem;
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -59,37 +49,52 @@ header{
   font-size:.75rem;
   letter-spacing:.15em;
   text-transform:uppercase;
-  color:var(--fg);
+  color:var(--text);
   text-decoration:none;
 }
 
-.nav a{
-  margin-left:1.5rem;
+.links a{
   font-family:var(--mono);
   font-size:.7rem;
-  color:var(--muted);
+  margin-left:2rem;
   text-decoration:none;
-  letter-spacing:.1em;
+  color:var(--muted);
+  transition:.25s;
 }
 
-.nav a:hover{color:var(--blue);}
+.links a:hover{color:var(--accent);}
 
-/* layout grid */
-.layout{
-  display:grid;
-  grid-template-columns:1fr minmax(0,700px) 280px 1fr;
-  padding:3rem 1rem;
+/* PAGE */
+
+.wrapper{
+  max-width:900px;
+  margin:70px auto;
+  padding:0 20px;
 }
 
-/* article */
-.article{
-  grid-column:2;
+/* GLASS CARD */
+
+.card{
+  background:var(--glass);
+  backdrop-filter:blur(18px);
+  border:1px solid var(--glass-border);
+  border-radius:18px;
+  padding:3rem 3.5rem;
+  box-shadow:0 20px 60px rgba(0,0,0,.35);
+  animation:fadeUp .7s ease;
 }
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+/* TITLE */
 
 .title{
   font-size:2.6rem;
-  margin-bottom:.6rem;
-  line-height:1.2;
+  margin-bottom:1rem;
+  line-height:1.25;
 }
 
 .meta{
@@ -97,187 +102,166 @@ header{
   font-size:.75rem;
   color:var(--muted);
   margin-bottom:2rem;
+  letter-spacing:.05em;
 }
 
-.content p{
-  margin:1.4rem 0;
-  transition:.25s;
-}
+/* TAGS */
 
-.content p:hover{
-  background:rgba(78,205,196,.06);
-}
-
-/* margin notes */
-.margin{
-  grid-column:3;
-  padding-left:2rem;
-}
-
-.note{
-  font-family:var(--hand);
-  font-size:1rem;
-  color:var(--blue);
-  margin-bottom:1.5rem;
-  opacity:.9;
-  transform:rotate(-1deg);
-  transition:.3s;
-}
-
-.note.hidden{
-  opacity:0;
-  transform:translateY(10px);
-}
-
-/* tags */
 .tags{
-  margin-top:2rem;
+  margin-bottom:2rem;
 }
 
 .tag{
   display:inline-block;
-  border:1px solid var(--border);
-  padding:.2rem .7rem;
-  margin:.3rem;
+  border:1px solid var(--glass-border);
+  padding:.25rem .7rem;
+  margin:.2rem;
   font-family:var(--mono);
   font-size:.65rem;
   color:var(--muted);
+  border-radius:6px;
 }
 
-.tag:hover{
-  border-color:var(--blue);
-  color:var(--blue);
+/* EXCERPT */
+
+.excerpt{
+  font-size:1.3rem;
+  color:#bdbdbd;
+  margin-bottom:2.2rem;
+  font-style:italic;
+  border-left:3px solid var(--accent);
+  padding-left:1rem;
 }
+
+/* CONTENT */
+
+.content{
+  font-size:1.18rem;
+  line-height:1.85;
+  white-space:pre-wrap;
+}
+
+/* LOCKED */
+
+.locked{
+  text-align:center;
+  padding:3rem 2rem;
+}
+
+.locked h3{
+  font-family:var(--mono);
+  font-size:.8rem;
+  letter-spacing:.1em;
+  color:var(--danger);
+  margin-bottom:1rem;
+}
+
+.locked p{
+  color:var(--muted);
+  margin-bottom:1.5rem;
+}
+
+.btn{
+  display:inline-block;
+  padding:.7rem 1.4rem;
+  background:var(--danger);
+  color:#000;
+  font-family:var(--mono);
+  font-size:.7rem;
+  letter-spacing:.1em;
+  text-decoration:none;
+  border-radius:8px;
+}
+
+/* LOADING */
 
 .loading{
   text-align:center;
-  margin-top:120px;
   font-family:var(--mono);
   color:var(--muted);
 }
 
-/* mobile */
-@media(max-width:900px){
-  .layout{
-    grid-template-columns:1fr;
-  }
-  .margin{
-    display:none;
-  }
+/* MOBILE */
+
+@media(max-width:700px){
+  .card{padding:2rem;}
+  .title{font-size:2rem;}
 }
 </style>
-
 </head>
 
 <body>
 
-<header>
+<nav>
 <a href="/archive.html" class="logo">Colin Archive</a>
-<div class="nav">
+<div class="links">
 <a href="/archive.html">Archive</a>
 <a href="/write.html">Write</a>
 </div>
-</header>
+</nav>
 
-<div class="layout">
-
-<div class="article" id="article">
-<div class="loading">Loading entry...</div>
+<div class="wrapper">
+<div class="card" id="postBox">
+<div class="loading">Loading post...</div>
 </div>
-
-<div class="margin" id="margin"></div>
-
 </div>
 
 <script>
 const SUPABASE_URL="https://lbpkgvmxxcubzbzwoswd.supabase.co";
-const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI"; // ← paste anon key here
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
 
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-function getID(){
-  return new URLSearchParams(location.search).get("id");
-}
-
-function escapeHTML(str){
-  return str.replace(/[&<>]/g,m=>({ "&":"&amp;","<":"&lt;",">":"&gt;" }[m]));
+function id(){
+ return new URLSearchParams(location.search).get("id");
 }
 
 async function load(){
 
-  const id=getID();
-  if(!id){
-    document.getElementById("article").innerHTML="<h2>No post id</h2>";
-    return;
-  }
+ const {data,error}=await db
+ .from("posts")
+ .select("*")
+ .eq("id",id())
+ .single();
 
-  const {data,error}=await db
-    .from("posts")
-    .select("*")
-    .eq("id",id)
-    .maybeSingle();
+ if(error||!data){
+ document.getElementById("postBox").innerHTML="<div class='loading'>Post not found</div>";
+ return;
+ }
 
-  if(error||!data){
-    document.getElementById("article").innerHTML="<h2>Post not found</h2>";
-    return;
-  }
-
-  render(data);
+ render(data);
 }
 
-function render(post){
+function render(p){
 
-  const paragraphs = escapeHTML(post.content).split(/\n+/);
+ const tags=(p.tags||"").split(",").filter(Boolean)
+ .map(t=>`<span class="tag">${escape(t.trim())}</span>`).join("");
 
-  document.title=post.title+" — Colin Archive";
+ if(p.access==="paid"){
+ document.getElementById("postBox").innerHTML=`
+ <h1 class="title">${escape(p.title)}</h1>
+ <div class="meta">${new Date(p.created_at).toLocaleDateString()} • ${p.readtime||1} min read</div>
+ ${tags?`<div class="tags">${tags}</div>`:""}
+ ${p.excerpt?`<div class="excerpt">${escape(p.excerpt)}</div>`:""}
+ <div class="locked">
+ <h3>PAID ENTRY</h3>
+ <p>This post requires access.</p>
+ <a class="btn" href="#">Unlock</a>
+ </div>`;
+ return;
+ }
 
-  document.getElementById("article").innerHTML=`
-    <h1 class="title">${post.title}</h1>
-    <div class="meta">${new Date(post.created_at).toLocaleDateString()} · ${post.readtime||1} min read</div>
-    <div class="content">
-      ${paragraphs.map(p=>`<p>${p}</p>`).join("")}
-    </div>
-    <div class="tags">
-      ${(post.tags||"").split(",").map(t=>`<span class="tag">${t.trim()}</span>`).join("")}
-    </div>
-  `;
-
-  generateNotes();
+ document.getElementById("postBox").innerHTML=`
+ <h1 class="title">${escape(p.title)}</h1>
+ <div class="meta">${new Date(p.created_at).toLocaleDateString()} • ${p.readtime||1} min read</div>
+ ${tags?`<div class="tags">${tags}</div>`:""}
+ ${p.excerpt?`<div class="excerpt">${escape(p.excerpt)}</div>`:""}
+ <div class="content">${escape(p.content)}</div>
+ `;
 }
 
-function generateNotes(){
-
-  const paragraphs=document.querySelectorAll(".content p");
-  const margin=document.getElementById("margin");
-
-  paragraphs.forEach(p=>{
-
-    if(Math.random()>.55)return;
-
-    const note=document.createElement("div");
-    note.className="note hidden";
-    note.innerText=randomNote();
-
-    margin.appendChild(note);
-
-    p.addEventListener("mouseenter",()=>note.classList.remove("hidden"));
-    p.addEventListener("mouseleave",()=>note.classList.add("hidden"));
-  });
-}
-
-function randomNote(){
-  const notes=[
-    "interesting…",
-    "expand this later",
-    "this matters",
-    "question this",
-    "rewrite?",
-    "keep.",
-    "too honest?",
-    "important idea",
-    "note to self"
-  ];
-  return notes[Math.floor(Math.random()*notes.length)];
+function escape(s){
+ return s.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
 }
 
 load();
