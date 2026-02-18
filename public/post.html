@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -20,7 +20,6 @@
   --highlight:#1f1f1f;
   --blue:#4ecdc4;
   --red:#ff6b6b;
-  --yellow:#ffe66d;
   --serif:'Crimson Text',serif;
   --mono:'IBM Plex Mono',monospace;
 }
@@ -35,13 +34,12 @@ body{
   min-height:100vh;
 }
 
-/* texture */
+/* subtle background texture */
 body::before{
   content:'';
   position:fixed;
   inset:0;
-  background-image:
-  repeating-linear-gradient(
+  background-image:repeating-linear-gradient(
     0deg,
     transparent,
     transparent 2px,
@@ -50,28 +48,19 @@ body::before{
   );
   pointer-events:none;
   z-index:0;
-  animation:paperSlide 20s linear infinite;
 }
 
-@keyframes paperSlide{
-  from{transform:translateY(0)}
-  to{transform:translateY(4px)}
-}
-
-/* header */
+/* HEADER — matches homepage */
 header{
   padding:1.5rem 3rem;
   border-bottom:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
   background:var(--paper);
   position:sticky;
   top:0;
   z-index:100;
-}
-
-.header-top{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
 }
 
 .logo{
@@ -79,9 +68,8 @@ header{
   font-size:.75rem;
   letter-spacing:.15em;
   text-transform:uppercase;
-  color:var(--fg);
   text-decoration:none;
-  font-weight:500;
+  color:var(--fg);
 }
 
 .logo::after{
@@ -92,8 +80,13 @@ header{
 }
 
 @keyframes blink{
-  0%,50%{opacity:1}
-  51%,100%{opacity:0}
+  0%,50%{opacity:1;}
+  51%,100%{opacity:0;}
+}
+
+.nav{
+  display:flex;
+  gap:2rem;
 }
 
 .nav a{
@@ -103,24 +96,23 @@ header{
   letter-spacing:.1em;
   color:var(--muted);
   text-decoration:none;
-  margin-left:2rem;
   transition:.3s;
 }
 
-.nav a:hover{color:var(--blue)}
+.nav a:hover{
+  color:var(--blue);
+}
 
-/* container */
+/* MAIN */
 .container{
   max-width:900px;
-  margin:auto;
-  padding:3rem 2rem;
+  margin:0 auto;
+  padding:4rem 2rem;
   background:var(--paper);
   position:relative;
   z-index:2;
-  min-height:calc(100vh - 70px);
 }
 
-/* loading */
 .loading{
   text-align:center;
   color:var(--muted);
@@ -128,45 +120,26 @@ header{
   font-family:var(--mono);
   font-size:.8rem;
   letter-spacing:.1em;
+  text-transform:uppercase;
 }
 
-/* header section */
-.post-header{
-  margin-bottom:2rem;
-}
-
-/* title */
 .title{
-  font-size:2.2rem;
-  margin-bottom:.75rem;
+  font-size:2.6rem;
+  margin-bottom:.5rem;
+  line-height:1.2;
 }
 
-/* meta */
 .meta{
   font-family:var(--mono);
-  font-size:.75rem;
+  font-size:.7rem;
   color:var(--muted);
+  margin-bottom:1.5rem;
   text-transform:uppercase;
   letter-spacing:.05em;
-  display:flex;
-  gap:1rem;
-  flex-wrap:wrap;
 }
 
-.meta span::before{
-  content:"•";
-  color:var(--blue);
-  margin-right:.4rem;
-}
-
-.meta span:first-child::before{
-  content:"";
-  margin:0;
-}
-
-/* tags */
 .tags{
-  margin-top:1rem;
+  margin-bottom:2rem;
   display:flex;
   flex-wrap:wrap;
   gap:.5rem;
@@ -174,34 +147,33 @@ header{
 
 .tag{
   border:1px solid var(--border);
-  padding:.25rem .6rem;
+  padding:.25rem .75rem;
   font-family:var(--mono);
   font-size:.65rem;
   color:var(--muted);
   text-transform:uppercase;
 }
 
-/* excerpt */
 .excerpt{
   font-size:1.25rem;
   color:var(--muted);
   font-style:italic;
-  margin:2rem 0;
+  margin-bottom:2.5rem;
   border-left:3px solid var(--blue);
   padding-left:1rem;
 }
 
-/* content */
 .content{
   font-size:1.2rem;
   line-height:1.85;
   white-space:pre-wrap;
 }
 
-/* locked */
+/* LOCKED */
 .locked{
   border:2px solid var(--red);
-  padding:3rem 2rem;
+  background:rgba(255,107,107,.05);
+  padding:3rem;
   text-align:center;
   margin:3rem 0;
 }
@@ -210,38 +182,52 @@ header{
   font-family:var(--mono);
   font-size:.75rem;
   color:var(--red);
-  text-transform:uppercase;
   letter-spacing:.1em;
   margin-bottom:1rem;
 }
 
-.upgrade{
-  margin-top:1rem;
-  display:inline-block;
-  padding:.7rem 1.4rem;
+.locked p{
+  color:var(--muted);
+  margin-bottom:1.5rem;
+}
+
+.btn{
+  padding:.7rem 1.5rem;
   background:var(--red);
   color:var(--bg);
   font-family:var(--mono);
   font-size:.7rem;
+  letter-spacing:.1em;
   text-decoration:none;
 }
 
 .back{
   display:block;
   margin-top:3rem;
-  padding-top:2rem;
-  border-top:1px solid var(--border);
   font-family:var(--mono);
   font-size:.7rem;
   color:var(--muted);
   text-decoration:none;
 }
 
-.back:hover{color:var(--blue)}
+.back:hover{color:var(--blue);}
 
+/* error */
 .error{
   text-align:center;
-  padding:6rem 1rem;
+  padding:6rem 2rem;
+}
+
+.error h2{
+  font-size:1.4rem;
+  color:var(--muted);
+}
+
+/* mobile */
+@media(max-width:768px){
+  header{padding:1.5rem;}
+  .container{padding:3rem 1.5rem;}
+  .title{font-size:2rem;}
 }
 </style>
 </head>
@@ -249,17 +235,15 @@ header{
 <body>
 
 <header>
-<div class="header-top">
-<a href="/archive.html" class="logo">Colin Archive</a>
-<div class="nav">
-<a href="/archive.html">Archive</a>
-<a href="/write.html">Write</a>
-</div>
-</div>
+  <a href="/archive.html" class="logo" id="logoTitle">Colin Archive</a>
+  <nav class="nav">
+    <a href="/archive.html">Archive</a>
+    <a href="/write.html">Write</a>
+  </nav>
 </header>
 
 <div class="container" id="container">
-<div class="loading">Loading post...</div>
+  <div class="loading">Loading post...</div>
 </div>
 
 <script>
@@ -269,26 +253,11 @@ const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSI
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 function getId(){
-  return new URLSearchParams(window.location.search).get("id");
-}
-
-function escapeHTML(str){
-  return str
-  .replaceAll("&","&amp;")
-  .replaceAll("<","&lt;")
-  .replaceAll(">","&gt;");
-}
-
-function showError(msg){
-  document.getElementById("container").innerHTML=`
-  <div class="error">
-    <h2>${msg}</h2>
-    <a href="/archive.html" class="back">← Back to archive</a>
-  </div>`;
+  const params=new URLSearchParams(window.location.search);
+  return params.get("id");
 }
 
 async function loadPost(){
-
   const id=getId();
 
   if(!id){
@@ -297,10 +266,10 @@ async function loadPost(){
   }
 
   const {data,error}=await db
-  .from("posts")
-  .select("*")
-  .eq("id",id)
-  .maybeSingle();
+    .from("posts")
+    .select("*")
+    .eq("id",id)
+    .maybeSingle();
 
   if(error||!data){
     showError("Post not found");
@@ -312,58 +281,63 @@ async function loadPost(){
 
 function renderPost(post){
 
+  document.title=post.title+" — Colin Archive";
+  document.getElementById("logoTitle").textContent=post.title;
+
   const tags=(post.tags||"").split(",").map(t=>t.trim()).filter(Boolean);
 
   const tagsHTML=tags.length?`
-  <div class="tags">
-  ${tags.map(t=>`<span class="tag">${escapeHTML(t)}</span>`).join("")}
-  </div>`:"";
+    <div class="tags">
+      ${tags.map(t=>`<span class="tag">${escapeHTML(t)}</span>`).join("")}
+    </div>`:"";
 
   const excerptHTML=post.excerpt?`
-  <div class="excerpt">${escapeHTML(post.excerpt)}</div>`:"";
-
-  document.title=post.title+" — Colin Archive";
+    <div class="excerpt">${escapeHTML(post.excerpt)}</div>`:"";
 
   if(post.access==="paid"){
     document.getElementById("container").innerHTML=`
-    <div class="post-header">
       <h1 class="title">${escapeHTML(post.title)}</h1>
       <div class="meta">
-        <span>${new Date(post.created_at).toLocaleDateString()}</span>
-        <span>${post.readtime||1} min read</span>
+        ${new Date(post.created_at).toLocaleDateString()} • ${post.readtime||1} min read
       </div>
       ${tagsHTML}
-    </div>
-
-    ${excerptHTML}
-
-    <div class="locked">
-      <h3>Locked Entry</h3>
-      <p>This post is available only to subscribers.</p>
-      <a href="#" class="upgrade">Upgrade Access</a>
-    </div>
-
-    <a href="/archive.html" class="back">← Back to Archive</a>
+      ${excerptHTML}
+      <div class="locked">
+        <h3>🔒 Paid Entry</h3>
+        <p>This post is available to subscribers only.</p>
+        <a class="btn" href="#">Upgrade Access</a>
+      </div>
+      <a href="/archive.html" class="back">← Back to Archive</a>
     `;
     return;
   }
 
   document.getElementById("container").innerHTML=`
-  <div class="post-header">
     <h1 class="title">${escapeHTML(post.title)}</h1>
     <div class="meta">
-      <span>${new Date(post.created_at).toLocaleDateString()}</span>
-      <span>${post.readtime||1} min read</span>
+      ${new Date(post.created_at).toLocaleDateString()} • ${post.readtime||1} min read
     </div>
     ${tagsHTML}
-  </div>
-
-  ${excerptHTML}
-
-  <div class="content">${escapeHTML(post.content)}</div>
-
-  <a href="/archive.html" class="back">← Back to Archive</a>
+    ${excerptHTML}
+    <div class="content">${escapeHTML(post.content)}</div>
+    <a href="/archive.html" class="back">← Back to Archive</a>
   `;
+}
+
+function showError(msg){
+  document.getElementById("container").innerHTML=`
+    <div class="error">
+      <h2>${msg}</h2>
+      <p><a href="/archive.html">Return to archive</a></p>
+    </div>
+  `;
+}
+
+function escapeHTML(str){
+  return str
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;");
 }
 
 loadPost();
