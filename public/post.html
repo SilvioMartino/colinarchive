@@ -42,7 +42,7 @@
       position: relative;
     }
 
-    /* paper texture overlay */
+    /* paper texture overlay (full-width) */
     body::before {
       content: '';
       position: fixed;
@@ -65,17 +65,18 @@
       100% { transform: translateY(4px); }
     }
 
-    /* ----- NAVBAR (matches homepage) ----- */
+    /* ----- NAVBAR (full-width, matches homepage) ----- */
     nav {
       background: var(--paper);
       border-bottom: 1px solid var(--border);
-      padding: 1.2rem 2rem;
+      padding: 1.2rem 3rem;  /* increased horizontal padding */
       display: flex;
       justify-content: space-between;
       align-items: center;
       position: sticky;
       top: 0;
       z-index: 100;
+      width: 100%;
     }
 
     .logo {
@@ -115,11 +116,11 @@
       color: var(--blue);
     }
 
-    /* ----- MAIN CONTENT WRAPPER ----- */
+    /* ----- MAIN CONTENT (now full-width) ----- */
     .wrapper {
-      max-width: 900px;
-      margin: 70px auto;
-      padding: 0 20px;
+      width: 100%;
+      margin: 70px 0;        /* removed auto centering */
+      padding: 0 3rem;       /* horizontal padding for breathing room */
       position: relative;
       z-index: 2;
     }
@@ -147,17 +148,24 @@
       color: var(--blue);
     }
 
-    /* ----- POST CARD (matches entry-card on homepage) ----- */
+    /* ----- POST CARD (full-width background, but content max-width) ----- */
     .card {
       background: var(--paper);
       border: 1px solid var(--border);
-      padding: 3rem 3.5rem;
+      padding: 3rem;
       box-shadow: 0 8px 30px rgba(0,0,0,0.3);
       animation: fadeUp 0.7s ease;
       position: relative;
+      width: 100%;
     }
 
-    /* torn‑paper top edge */
+    /* inner content wrapper for readability */
+    .card-content {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* torn‑paper top edge (full width) */
     .card::before {
       content: '';
       position: absolute;
@@ -291,7 +299,8 @@
         margin-right: 2rem;
       }
       .wrapper {
-        margin: 40px auto;
+        padding: 0 1rem;
+        margin: 40px 0;
       }
       .card {
         padding: 2rem 1.5rem;
@@ -333,7 +342,10 @@
   </div>
 
   <div class="card" id="postBox">
-    <div class="loading">Loading post...</div>
+    <!-- inner content wrapper for max-width readability -->
+    <div class="card-content">
+      <div class="loading">Loading post...</div>
+    </div>
   </div>
 </div>
 
@@ -350,7 +362,7 @@
   async function loadPost() {
     const id = getPostId();
     if (!id) {
-      document.getElementById("postBox").innerHTML = "<div class='loading'>No post ID specified</div>";
+      document.querySelector("#postBox .card-content").innerHTML = "<div class='loading'>No post ID specified</div>";
       return;
     }
 
@@ -361,7 +373,7 @@
       .single();
 
     if (error || !data) {
-      document.getElementById("postBox").innerHTML = "<div class='loading'>Post not found</div>";
+      document.querySelector("#postBox .card-content").innerHTML = "<div class='loading'>Post not found</div>";
       return;
     }
 
@@ -380,7 +392,7 @@
 
     // If the post is paid, show locked view with a teaser
     if (post.access === "paid") {
-      document.getElementById("postBox").innerHTML = `
+      document.querySelector("#postBox .card-content").innerHTML = `
         <h1 class="title">${escapeHtml(post.title)}</h1>
         <div class="meta">${metaDate} • ${readTime} min read</div>
         ${tags ? `<div class="tags">${tags}</div>` : ""}
@@ -395,7 +407,7 @@
     }
 
     // Free post – show full content
-    document.getElementById("postBox").innerHTML = `
+    document.querySelector("#postBox .card-content").innerHTML = `
       <h1 class="title">${escapeHtml(post.title)}</h1>
       <div class="meta">${metaDate} • ${readTime} min read</div>
       ${tags ? `<div class="tags">${tags}</div>` : ""}
