@@ -62,9 +62,10 @@ body::before {
   100% { transform: translateY(4px); }
 }
 
+/* Full-width container – no black bars */
 .container {
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   position: relative;
   z-index: 2;
 }
@@ -80,6 +81,7 @@ header {
   position: sticky;
   top: 0;
   z-index: 100;
+  width: 100%;
 }
 
 .logo {
@@ -125,6 +127,7 @@ header {
   color: var(--blue);
 }
 
+/* Main grid now spans full width */
 .main-grid {
   display: grid;
   grid-template-columns: 1fr 350px;
@@ -132,6 +135,7 @@ header {
   padding: 3rem;
   background: var(--paper);
   min-height: calc(100vh - 80px);
+  width: 100%;
 }
 
 .archive-section {
@@ -413,6 +417,7 @@ header {
   color: var(--muted);
 }
 
+/* Updated stats grid – new metrics */
 .stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -506,7 +511,6 @@ header {
 
 </style>
 </head>
-
 <body>
 
 <div class="container">
@@ -553,19 +557,19 @@ header {
         <div class="stats-grid">
           <div class="stat-item">
             <span class="stat-value" id="totalEntries">0</span>
-            <span class="stat-label">Total</span>
+            <span class="stat-label">Total entries</span>
           </div>
           <div class="stat-item">
             <span class="stat-value" id="freeEntries">0</span>
             <span class="stat-label">Free</span>
           </div>
           <div class="stat-item">
-            <span class="stat-value">Irregular</span>
-            <span class="stat-label">Cadence</span>
+            <span class="stat-value" id="totalReadTime">0</span>
+            <span class="stat-label">Total reading (min)</span>
           </div>
           <div class="stat-item">
-            <span class="stat-value" id="paidEntries">0</span>
-            <span class="stat-label">Paid</span>
+            <span class="stat-value" id="latestEntryDate">—</span>
+            <span class="stat-label">Latest entry</span>
           </div>
         </div>
       </div>
@@ -619,42 +623,71 @@ function renderPosts(posts) {
     return;
   }
 
- entryList.innerHTML = posts.map(post => `
-  <a href="/post.html?id=${post.id}" class="entry-card ${post.access === 'paid' ? 'locked' : ''}">
-      <div class="entry-header">
-        <h2 class="entry-title">${post.title}</h2>
-        <span class="entry-meta">${new Date(post.created_at).toLocaleDateString()}</span>
-      </div>
-      <p class="entry-excerpt">${post.excerpt || ""}</p>
-      <div class="entry-footer">
-        <div class="entry-tags">
-          ${(post.tags || "").split(",").map(tag => `<span class="tag">${tag.trim()}</span>`).join("")}
+  entryList.innerHTML = posts.map(post => {
+    const isPaid = post.access === 'paid';
+    // Basic escaping – for production use a more robust method
+    const title = post.title.replace(/[&<>"]/g, function(m) {
+      if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; if(m === '"') return '&quot;';
+      return m;
+    });
+    const excerpt = (post.excerpt || '').replace(/[&<>"]/g, function(m) {
+      if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; if(m === '"') return '&quot;';
+      return m;
+    });
+    const date = new Date(post.created_at).toLocaleDateString();
+    const tags = (post.tags || "").split(",").map(t => t.trim()).filter(Boolean).map(t => 
+      `<span class="tag">${t.replace(/[&<>"]/g, function(m) {
+        if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; if(m === '"') return '&quot;';
+        return m;
+      })}</span>`
+    ).join('');
+    const readTime = post.readtime || 1;
+    return `
+      <a href="/post.html?id=${post.id}" class="entry-card ${isPaid ? 'locked' : ''}">
+        <div class="entry-header">
+          <h2 class="entry-title">${title}</h2>
+          <span class="entry-meta">${date}</span>
         </div>
-        <span class="read-time">${post.readtime || 1} min read</span>
-      </div>
-    </div>
-  `).join('');
+        <p class="entry-excerpt">${excerpt}</p>
+        <div class="entry-footer">
+          <div class="entry-tags">
+            ${tags}
+          </div>
+          <span class="read-time">${readTime} min read</span>
+        </div>
+      </a>
+    `;
+  }).join('');
 }
 
 function updateStats(posts) {
   const free = posts.filter(p => p.access === "free").length;
   const paid = posts.filter(p => p.access === "paid").length;
+  const totalReadTime = posts.reduce((acc, p) => acc + (p.readtime || 1), 0);
+  const latestEntry = posts.length ? new Date(posts[0].created_at).toLocaleDateString() : '—';
 
   document.getElementById('totalEntries').textContent = posts.length;
   document.getElementById('freeEntries').textContent = free;
-  document.getElementById('paidEntries').textContent = paid;
+  document.getElementById('totalReadTime').textContent = totalReadTime;
+  document.getElementById('latestEntryDate').textContent = latestEntry;
 }
 
 function updateRecentUpdates(posts) {
   const updatesList = document.getElementById('updatesList');
   const recent = posts.slice(0,4);
 
-  updatesList.innerHTML = recent.map(post => `
-    <div class="update-item">
-      <div class="update-date">${new Date(post.created_at).toLocaleDateString()}</div>
-      <div class="update-content">Added: ${post.title}</div>
-    </div>
-  `).join('');
+  updatesList.innerHTML = recent.map(post => {
+    const title = post.title.replace(/[&<>"]/g, function(m) {
+      if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; if(m === '"') return '&quot;';
+      return m;
+    });
+    return `
+      <div class="update-item">
+        <div class="update-date">${new Date(post.created_at).toLocaleDateString()}</div>
+        <div class="update-content">Added: ${title}</div>
+      </div>
+    `;
+  }).join('');
 }
 
 // Search
@@ -694,6 +727,3 @@ loadPosts();
 
 </body>
 </html>
-
-
-
