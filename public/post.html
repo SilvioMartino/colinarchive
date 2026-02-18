@@ -1,270 +1,420 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Post — Colin Archive</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>Post — Colin Archive</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<style>
-:root{
-  --bg:#0b0b0c;
-  --glass:rgba(255,255,255,0.04);
-  --glass-border:rgba(255,255,255,0.08);
-  --text:#eaeaea;
-  --muted:#8a8a8a;
-  --accent:#4ecdc4;
-  --danger:#ff6b6b;
-  --serif:'Crimson Text',serif;
-  --mono:'IBM Plex Mono',monospace;
-}
+  <style>
+    /* ----- GLOBAL VARIABLES (from homepage) ----- */
+    :root {
+      --bg: #0d0d0d;
+      --paper: #1a1a1a;
+      --fg: #e8e8e8;
+      --muted: #8a8a8a;
+      --border: #2a2a2a;
+      --accent: #e8e8e8;
+      --highlight: #1f1f1f;
+      --red: #ff6b6b;
+      --blue: #4ecdc4;
+      --yellow: #ffe66d;
+      --serif: 'Crimson Text', 'Georgia', serif;
+      --mono: 'IBM Plex Mono', 'Courier New', monospace;
+    }
 
-*{box-sizing:border-box;margin:0;padding:0;}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-body{
-  background:radial-gradient(circle at 20% 20%, #141414, #090909 60%);
-  color:var(--text);
-  font-family:var(--serif);
-  min-height:100vh;
-}
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--serif);
+      min-height: 100vh;
+      line-height: 1.6;
+      position: relative;
+    }
 
-/* NAVBAR */
+    /* paper texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(255, 255, 255, 0.01) 2px,
+          rgba(255, 255, 255, 0.01) 4px
+        );
+      pointer-events: none;
+      z-index: 0;
+      animation: paperSlide 20s linear infinite;
+    }
 
-nav{
-  backdrop-filter:blur(14px);
-  background:var(--glass);
-  border-bottom:1px solid var(--glass-border);
-  padding:1.2rem 2rem;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
+    @keyframes paperSlide {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(4px); }
+    }
 
-.logo{
-  font-family:var(--mono);
-  font-size:.75rem;
-  letter-spacing:.15em;
-  text-transform:uppercase;
-  color:var(--text);
-  text-decoration:none;
-}
+    /* ----- NAVBAR (matches homepage) ----- */
+    nav {
+      background: var(--paper);
+      border-bottom: 1px solid var(--border);
+      padding: 1.2rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
 
-.links a{
-  font-family:var(--mono);
-  font-size:.7rem;
-  margin-left:2rem;
-  text-decoration:none;
-  color:var(--muted);
-  transition:.25s;
-}
+    .logo {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      font-weight: 500;
+      text-decoration: none;
+      color: var(--fg);
+    }
 
-.links a:hover{color:var(--accent);}
+    .logo::after {
+      content: '|';
+      color: var(--red);
+      animation: blink 1s step-end infinite;
+      margin-left: 2px;
+    }
 
-/* PAGE */
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
 
-.wrapper{
-  max-width:900px;
-  margin:70px auto;
-  padding:0 20px;
-}
+    .links a {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      margin-left: 2rem;
+      text-decoration: none;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      transition: color 0.3s;
+    }
 
-/* GLASS CARD */
+    .links a:hover {
+      color: var(--blue);
+    }
 
-.card{
-  background:var(--glass);
-  backdrop-filter:blur(18px);
-  border:1px solid var(--glass-border);
-  border-radius:18px;
-  padding:3rem 3.5rem;
-  box-shadow:0 20px 60px rgba(0,0,0,.35);
-  animation:fadeUp .7s ease;
-}
+    /* ----- MAIN CONTENT WRAPPER ----- */
+    .wrapper {
+      max-width: 900px;
+      margin: 70px auto;
+      padding: 0 20px;
+      position: relative;
+      z-index: 2;
+    }
 
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(20px);}
-  to{opacity:1;transform:translateY(0);}
-}
+    /* ----- BACK LINK (archive navigation) ----- */
+    .back-link {
+      margin-bottom: 2rem;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+    }
 
-/* TITLE */
+    .back-link a {
+      color: var(--muted);
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: 1px solid var(--border);
+      padding: 0.4rem 1rem;
+      display: inline-block;
+      transition: 0.2s;
+    }
 
-.title{
-  font-size:2.6rem;
-  margin-bottom:1rem;
-  line-height:1.25;
-}
+    .back-link a:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
 
-.meta{
-  font-family:var(--mono);
-  font-size:.75rem;
-  color:var(--muted);
-  margin-bottom:2rem;
-  letter-spacing:.05em;
-}
+    /* ----- POST CARD (matches entry-card on homepage) ----- */
+    .card {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      padding: 3rem 3.5rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      animation: fadeUp 0.7s ease;
+      position: relative;
+    }
 
-/* TAGS */
+    /* torn‑paper top edge */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background:
+        linear-gradient(135deg, var(--paper) 4px, transparent 0),
+        linear-gradient(225deg, var(--paper) 4px, transparent 0);
+      background-size: 8px 6px;
+      background-repeat: repeat-x;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+    }
 
-.tags{
-  margin-bottom:2rem;
-}
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-.tag{
-  display:inline-block;
-  border:1px solid var(--glass-border);
-  padding:.25rem .7rem;
-  margin:.2rem;
-  font-family:var(--mono);
-  font-size:.65rem;
-  color:var(--muted);
-  border-radius:6px;
-}
+    /* ----- TYPOGRAPHY & ELEMENTS ----- */
+    .title {
+      font-family: var(--serif);
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
 
-/* EXCERPT */
+    .meta {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 2rem;
+    }
 
-.excerpt{
-  font-size:1.3rem;
-  color:#bdbdbd;
-  margin-bottom:2.2rem;
-  font-style:italic;
-  border-left:3px solid var(--accent);
-  padding-left:1rem;
-}
+    .tags {
+      margin-bottom: 2rem;
+    }
 
-/* CONTENT */
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--border);
+      padding: 0.25rem 0.5rem;
+      margin: 0.2rem;
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
 
-.content{
-  font-size:1.18rem;
-  line-height:1.85;
-  white-space:pre-wrap;
-}
+    .excerpt {
+      font-size: 1.3rem;
+      color: #bdbdbd;
+      margin-bottom: 2.2rem;
+      font-style: italic;
+      border-left: 3px solid var(--blue);
+      padding-left: 1rem;
+    }
 
-/* LOCKED */
+    .content {
+      font-size: 1.18rem;
+      line-height: 1.85;
+      white-space: pre-wrap;
+      color: var(--fg);
+    }
 
-.locked{
-  text-align:center;
-  padding:3rem 2rem;
-}
+    /* ----- LOCKED / PAID STYLES ----- */
+    .locked {
+      text-align: center;
+      padding: 3rem 2rem;
+      border: 1px dashed var(--red);
+      background: rgba(255, 107, 107, 0.05);
+      margin-top: 2rem;
+    }
 
-.locked h3{
-  font-family:var(--mono);
-  font-size:.8rem;
-  letter-spacing:.1em;
-  color:var(--danger);
-  margin-bottom:1rem;
-}
+    .locked h3 {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      color: var(--red);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
 
-.locked p{
-  color:var(--muted);
-  margin-bottom:1.5rem;
-}
+    .locked p {
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+    }
 
-.btn{
-  display:inline-block;
-  padding:.7rem 1.4rem;
-  background:var(--danger);
-  color:#000;
-  font-family:var(--mono);
-  font-size:.7rem;
-  letter-spacing:.1em;
-  text-decoration:none;
-  border-radius:8px;
-}
+    .btn {
+      display: inline-block;
+      padding: 0.7rem 1.4rem;
+      background: transparent;
+      border: 1px solid var(--red);
+      color: var(--red);
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: 0.2s;
+    }
 
-/* LOADING */
+    .btn:hover {
+      background: var(--red);
+      color: var(--bg);
+    }
 
-.loading{
-  text-align:center;
-  font-family:var(--mono);
-  color:var(--muted);
-}
+    /* ----- LOADING STATE ----- */
+    .loading {
+      text-align: center;
+      font-family: var(--mono);
+      color: var(--muted);
+      padding: 3rem;
+    }
 
-/* MOBILE */
+    /* ----- MOBILE RESPONSIVE ----- */
+    @media (max-width: 700px) {
+      nav {
+        padding: 1rem 1.5rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+      .links a {
+        margin-left: 0;
+        margin-right: 2rem;
+      }
+      .wrapper {
+        margin: 40px auto;
+      }
+      .card {
+        padding: 2rem 1.5rem;
+      }
+      .title {
+        font-size: 2rem;
+      }
+      .back-link a {
+        display: block;
+        text-align: center;
+      }
+    }
 
-@media(max-width:700px){
-  .card{padding:2rem;}
-  .title{font-size:2rem;}
-}
-</style>
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
 </head>
-
 <body>
 
 <nav>
-<a href="/archive.html" class="logo">Colin Archive</a>
-<div class="links">
-<a href="/archive.html">Archive</a>
-<a href="/write.html">Write</a>
-</div>
+  <a href="/archive.html" class="logo">Colin Archive</a>
+  <div class="links">
+    <a href="/archive.html">Archive</a>
+    <a href="/write.html">Write</a>
+  </div>
 </nav>
 
 <div class="wrapper">
-<div class="card" id="postBox">
-<div class="loading">Loading post...</div>
-</div>
+  <!-- Back link to archive -->
+  <div class="back-link">
+    <a href="/archive.html">← Back to Archive</a>
+  </div>
+
+  <div class="card" id="postBox">
+    <div class="loading">Loading post...</div>
+  </div>
 </div>
 
 <script>
-const SUPABASE_URL="https://lbpkgvmxxcubzbzwoswd.supabase.co";
-const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
+  const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
 
-const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-function id(){
- return new URLSearchParams(location.search).get("id");
-}
+  function getPostId() {
+    return new URLSearchParams(location.search).get("id");
+  }
 
-async function load(){
+  async function loadPost() {
+    const id = getPostId();
+    if (!id) {
+      document.getElementById("postBox").innerHTML = "<div class='loading'>No post ID specified</div>";
+      return;
+    }
 
- const {data,error}=await db
- .from("posts")
- .select("*")
- .eq("id",id())
- .single();
+    const { data, error } = await db
+      .from("posts")
+      .select("*")
+      .eq("id", id)
+      .single();
 
- if(error||!data){
- document.getElementById("postBox").innerHTML="<div class='loading'>Post not found</div>";
- return;
- }
+    if (error || !data) {
+      document.getElementById("postBox").innerHTML = "<div class='loading'>Post not found</div>";
+      return;
+    }
 
- render(data);
-}
+    renderPost(data);
+  }
 
-function render(p){
+  function renderPost(post) {
+    const tags = (post.tags || "")
+      .split(",")
+      .filter(Boolean)
+      .map(t => `<span class="tag">${escapeHtml(t.trim())}</span>`)
+      .join("");
 
- const tags=(p.tags||"").split(",").filter(Boolean)
- .map(t=>`<span class="tag">${escape(t.trim())}</span>`).join("");
+    const metaDate = new Date(post.created_at).toLocaleDateString();
+    const readTime = post.readtime || 1;
 
- if(p.access==="paid"){
- document.getElementById("postBox").innerHTML=`
- <h1 class="title">${escape(p.title)}</h1>
- <div class="meta">${new Date(p.created_at).toLocaleDateString()} • ${p.readtime||1} min read</div>
- ${tags?`<div class="tags">${tags}</div>`:""}
- ${p.excerpt?`<div class="excerpt">${escape(p.excerpt)}</div>`:""}
- <div class="locked">
- <h3>PAID ENTRY</h3>
- <p>This post requires access.</p>
- <a class="btn" href="#">Unlock</a>
- </div>`;
- return;
- }
+    // If the post is paid, show locked view with a teaser
+    if (post.access === "paid") {
+      document.getElementById("postBox").innerHTML = `
+        <h1 class="title">${escapeHtml(post.title)}</h1>
+        <div class="meta">${metaDate} • ${readTime} min read</div>
+        ${tags ? `<div class="tags">${tags}</div>` : ""}
+        ${post.excerpt ? `<div class="excerpt">${escapeHtml(post.excerpt)}</div>` : ""}
+        <div class="locked">
+          <h3>🔒 PAID ENTRY</h3>
+          <p>This post requires access.</p>
+          <a class="btn" href="#">Unlock</a>
+        </div>
+      `;
+      return;
+    }
 
- document.getElementById("postBox").innerHTML=`
- <h1 class="title">${escape(p.title)}</h1>
- <div class="meta">${new Date(p.created_at).toLocaleDateString()} • ${p.readtime||1} min read</div>
- ${tags?`<div class="tags">${tags}</div>`:""}
- ${p.excerpt?`<div class="excerpt">${escape(p.excerpt)}</div>`:""}
- <div class="content">${escape(p.content)}</div>
- `;
-}
+    // Free post – show full content
+    document.getElementById("postBox").innerHTML = `
+      <h1 class="title">${escapeHtml(post.title)}</h1>
+      <div class="meta">${metaDate} • ${readTime} min read</div>
+      ${tags ? `<div class="tags">${tags}</div>` : ""}
+      ${post.excerpt ? `<div class="excerpt">${escapeHtml(post.excerpt)}</div>` : ""}
+      <div class="content">${escapeHtml(post.content)}</div>
+    `;
+  }
 
-function escape(s){
- return s.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
-}
+  function escapeHtml(unsafe) {
+    if (!unsafe) return "";
+    return unsafe
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
 
-load();
+  loadPost();
 </script>
 
 </body>
