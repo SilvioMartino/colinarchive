@@ -23,7 +23,6 @@
   --yellow:#ffe66d;
   --serif:'Crimson Text',serif;
   --mono:'IBM Plex Mono',monospace;
-  --hand:'Caveat',cursive;
 }
 
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -36,31 +35,32 @@ body{
   min-height:100vh;
 }
 
-/* Paper texture */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
+/* texture */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
   background-image:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(255, 255, 255, 0.01) 2px,
-      rgba(255, 255, 255, 0.01) 4px
-    );
-  pointer-events: none;
-  z-index: 0;
-  animation: paperSlide 20s linear infinite;
+  repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255,255,255,.01) 2px,
+    rgba(255,255,255,.01) 4px
+  );
+  pointer-events:none;
+  z-index:0;
+  animation:paperSlide 20s linear infinite;
 }
 
-@keyframes paperSlide {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(4px); }
+@keyframes paperSlide{
+  from{transform:translateY(0)}
+  to{transform:translateY(4px)}
 }
 
+/* header */
 header{
-  padding:2rem 6rem;
+  padding:1.5rem 3rem;
   border-bottom:1px solid var(--border);
   background:var(--paper);
   position:sticky;
@@ -68,11 +68,10 @@ header{
   z-index:100;
 }
 
-.header-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
+.header-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 
 .logo{
@@ -85,70 +84,16 @@ header{
   font-weight:500;
 }
 
-.logo::after {
-  content: '|';
-  color: var(--red);
-  animation: blink 1s step-end infinite;
-  margin-left: 2px;
+.logo::after{
+  content:'|';
+  color:var(--red);
+  animation:blink 1s step-end infinite;
+  margin-left:2px;
 }
 
-@keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
-}
-
-.page-title-header {
-  text-align: center;
-  font-family: var(--serif);
-  font-size: 2rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  margin-bottom: 0.25rem;
-  overflow: hidden;
-  border-right: 3px solid var(--red);
-  white-space: nowrap;
-  animation: typing 2.5s steps(50) 0.5s forwards, blink-cursor 0.75s step-end infinite;
-  width: 0;
-  display: inline-block;
-  max-width: 100%;
-}
-
-@keyframes typing {
-  from { width: 0; }
-  to { width: 100%; }
-}
-
-@keyframes blink-cursor {
-  0%, 50% { border-color: var(--red); }
-  51%, 100% { border-color: transparent; }
-}
-
-.page-title-container {
-  text-align: center;
-}
-
-.page-subtitle-header {
-  text-align: center;
-  font-style: italic;
-  color: var(--muted);
-  font-size: 0.75rem;
-  font-family: var(--mono);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  opacity: 0;
-  animation: fadeInUp 0.8s ease 2.5s forwards;
-}
-
-@keyframes fadeInUp {
-  from { 
-    opacity: 0; 
-    transform: translateY(10px);
-  }
-  to { 
-    opacity: 1; 
-    transform: translateY(0);
-  }
+@keyframes blink{
+  0%,50%{opacity:1}
+  51%,100%{opacity:0}
 }
 
 .nav a{
@@ -159,68 +104,44 @@ header{
   color:var(--muted);
   text-decoration:none;
   margin-left:2rem;
-  transition:color .3s;
-  position: relative;
+  transition:.3s;
 }
 
-.nav a::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 0;
-  height: 1px;
-  background: var(--blue);
-  transition: width 0.3s;
-}
+.nav a:hover{color:var(--blue)}
 
-.nav a:hover::after {
-  width: 100%;
-}
-
-.nav a:hover{color:var(--blue);}
-
+/* container */
 .container{
-  max-width:100%;
-  margin:0;
-  padding:4rem 6rem;
+  max-width:900px;
+  margin:auto;
+  padding:3rem 2rem;
   background:var(--paper);
   position:relative;
   z-index:2;
-  min-height:calc(100vh - 81px);
-  animation: slideIn 0.8s ease forwards;
+  min-height:calc(100vh - 70px);
 }
 
-@keyframes slideIn {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
+/* loading */
 .loading{
   text-align:center;
   color:var(--muted);
   margin-top:120px;
   font-family:var(--mono);
-  font-size:.875rem;
-  text-transform:uppercase;
+  font-size:.8rem;
   letter-spacing:.1em;
 }
 
-/* Post header section */
-.post-header {
-  margin-bottom: 3rem;
-  padding-bottom: 2rem;
-  border-bottom: 2px solid var(--fg);
-  position: relative;
+/* header section */
+.post-header{
+  margin-bottom:2rem;
 }
 
+/* title */
 .title{
-  font-size:2.75rem;
-  line-height:1.2;
-  margin-bottom:1rem;
-  font-weight:600;
+  font-size:2.2rem;
+  margin-bottom:.75rem;
 }
 
+/* meta */
 .meta{
   font-family:var(--mono);
   font-size:.75rem;
@@ -230,20 +151,20 @@ header{
   display:flex;
   gap:1rem;
   flex-wrap:wrap;
-  align-items:center;
 }
 
-.meta-item::before {
-  content: '•';
-  color: var(--blue);
-  margin-right:.5rem;
+.meta span::before{
+  content:"•";
+  color:var(--blue);
+  margin-right:.4rem;
 }
 
-.meta-item:first-child::before {
-  content: '';
+.meta span:first-child::before{
+  content:"";
   margin:0;
 }
 
+/* tags */
 .tags{
   margin-top:1rem;
   display:flex;
@@ -253,71 +174,39 @@ header{
 
 .tag{
   border:1px solid var(--border);
-  padding:.25rem .75rem;
+  padding:.25rem .6rem;
   font-family:var(--mono);
   font-size:.65rem;
   color:var(--muted);
   text-transform:uppercase;
-  letter-spacing:.05em;
-  transition:all .3s;
 }
 
-.tag:hover {
-  border-color:var(--blue);
-  color:var(--blue);
-}
-
-/* Excerpt */
-.excerpt {
-  font-size: 1.375rem;
-  line-height: 1.6;
-  color: var(--muted);
-  font-style: italic;
-  margin-bottom: 2.5rem;
-  padding-left: 1.5rem;
-  border-left: 3px solid var(--blue);
-}
-
-/* Content */
-.content{
+/* excerpt */
+.excerpt{
   font-size:1.25rem;
-  line-height:1.8;
-  white-space:pre-wrap;
-  margin-bottom:3rem;
+  color:var(--muted);
+  font-style:italic;
+  margin:2rem 0;
+  border-left:3px solid var(--blue);
+  padding-left:1rem;
 }
 
-/* Locked state */
+/* content */
+.content{
+  font-size:1.2rem;
+  line-height:1.85;
+  white-space:pre-wrap;
+}
+
+/* locked */
 .locked{
   border:2px solid var(--red);
-  background:rgba(255, 107, 107, 0.05);
   padding:3rem 2rem;
   text-align:center;
   margin:3rem 0;
-  animation: fadeIn 0.6s ease;
 }
 
-.locked.shake {
-  animation: shake 0.5s ease;
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
-  20%, 40%, 60%, 80% { transform: translateX(10px); }
-}
-
-@keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-}
-
-.locked-icon {
-  font-size:3rem;
-  margin-bottom:1rem;
-  display:block;
-}
-
-.locked h3 {
+.locked h3{
   font-family:var(--mono);
   font-size:.75rem;
   color:var(--red);
@@ -326,36 +215,19 @@ header{
   margin-bottom:1rem;
 }
 
-.locked p {
-  color:var(--muted);
-  font-family:var(--serif);
-  font-size:1.125rem;
-  margin-bottom:1.5rem;
-}
-
-.upgrade-btn {
+.upgrade{
+  margin-top:1rem;
   display:inline-block;
-  padding:.75rem 1.5rem;
+  padding:.7rem 1.4rem;
   background:var(--red);
   color:var(--bg);
   font-family:var(--mono);
   font-size:.7rem;
-  text-transform:uppercase;
-  letter-spacing:.1em;
   text-decoration:none;
-  transition:all .3s;
-  border:none;
-  cursor:pointer;
 }
 
-.upgrade-btn:hover {
-  background:var(--fg);
-  transform:translateY(-1px);
-}
-
-/* Back link */
 .back{
-  display:inline-block;
+  display:block;
   margin-top:3rem;
   padding-top:2rem;
   border-top:1px solid var(--border);
@@ -363,93 +235,13 @@ header{
   font-size:.7rem;
   color:var(--muted);
   text-decoration:none;
-  text-transform:uppercase;
-  letter-spacing:.1em;
-  transition:color .3s;
-  width:100%;
 }
 
-.back:hover{
-  color:var(--blue);
-}
+.back:hover{color:var(--blue)}
 
-/* Error state */
-.error {
+.error{
   text-align:center;
-  padding:6rem 2rem;
-}
-
-.error h2 {
-  font-family:var(--serif);
-  font-size:1.5rem;
-  color:var(--muted);
-  margin-bottom:1rem;
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-  header {
-    padding: 2rem 1.5rem;
-  }
-  
-  .header-top {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-  
-  .page-title-header {
-    font-size: 2rem;
-    animation: none;
-    width: auto;
-    border-right: none;
-  }
-  
-  .page-subtitle-header {
-    animation: none;
-    opacity: 1;
-  }
-
-  .nav {
-    width: 100%;
-  }
-
-  .nav a {
-    margin-left: 0;
-    margin-right: 2rem;
-  }
-
-  .container {
-    padding: 3rem 1.5rem;
-  }
-
-  .title {
-    font-size: 2rem;
-  }
-
-  .content {
-    font-size: 1.125rem;
-  }
-
-  .excerpt {
-    font-size: 1.25rem;
-  }
-
-  .meta {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+  padding:6rem 1rem;
 }
 </style>
 </head>
@@ -464,10 +256,6 @@ header{
 <a href="/write.html">Write</a>
 </div>
 </div>
-<div class="page-title-container">
-<h1 class="page-title-header" id="headerTitle">Loading...</h1>
-<p class="page-subtitle-header" id="headerSubtitle">Reading</p>
-</div>
 </header>
 
 <div class="container" id="container">
@@ -476,18 +264,32 @@ header{
 
 <script>
 const SUPABASE_URL="https://lbpkgvmxxcubzbzwoswd.supabase.co";
-const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
+const SUPABASE_KEY="YOUR_KEY_HERE";
 
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-function getPostId(){
-  const params=new URLSearchParams(window.location.search);
-  return params.get("id");
+function getId(){
+  return new URLSearchParams(window.location.search).get("id");
+}
+
+function escapeHTML(str){
+  return str
+  .replaceAll("&","&amp;")
+  .replaceAll("<","&lt;")
+  .replaceAll(">","&gt;");
+}
+
+function showError(msg){
+  document.getElementById("container").innerHTML=`
+  <div class="error">
+    <h2>${msg}</h2>
+    <a href="/archive.html" class="back">← Back to archive</a>
+  </div>`;
 }
 
 async function loadPost(){
 
-  const id=getPostId();
+  const id=getId();
 
   if(!id){
     showError("Missing post ID");
@@ -495,12 +297,12 @@ async function loadPost(){
   }
 
   const {data,error}=await db
-    .from("posts")
-    .select("*")
-    .eq("id",id)
-    .maybeSingle();
+  .from("posts")
+  .select("*")
+  .eq("id",id)
+  .maybeSingle();
 
-  if(error || !data){
+  if(error||!data){
     showError("Post not found");
     return;
   }
@@ -511,93 +313,57 @@ async function loadPost(){
 function renderPost(post){
 
   const tags=(post.tags||"").split(",").map(t=>t.trim()).filter(Boolean);
-  const tagsHTML = tags.length ? `
-    <div class="tags">
-      ${tags.map(t=>`<span class="tag">${escapeHTML(t)}</span>`).join("")}
-    </div>
-  ` : '';
 
-  const excerptHTML = post.excerpt ? `
-    <div class="excerpt">${escapeHTML(post.excerpt)}</div>
-  ` : '';
+  const tagsHTML=tags.length?`
+  <div class="tags">
+  ${tags.map(t=>`<span class="tag">${escapeHTML(t)}</span>`).join("")}
+  </div>`:"";
+
+  const excerptHTML=post.excerpt?`
+  <div class="excerpt">${escapeHTML(post.excerpt)}</div>`:"";
 
   document.title=post.title+" — Colin Archive";
-  
-  // Update header title with animation
-  const headerTitle = document.getElementById('headerTitle');
-  headerTitle.textContent = post.title;
-  
-  // Update subtitle based on access
-  const headerSubtitle = document.getElementById('headerSubtitle');
-  if (post.access === 'paid') {
-    headerSubtitle.textContent = '🔒 Paid Access';
-    headerSubtitle.style.color = 'var(--red)';
-  } else {
-    headerSubtitle.textContent = post.readtime + ' min read';
-  }
 
   if(post.access==="paid"){
     document.getElementById("container").innerHTML=`
-      <div class="post-header">
-        <div class="meta">
-          <span class="meta-item">${new Date(post.created_at).toLocaleDateString()}</span>
-          <span class="meta-item">${post.readtime||1} min read</span>
-        </div>
-        ${tagsHTML}
-      </div>
-      ${excerptHTML}
-      <div class="locked" id="lockedBox">
-        <span class="locked-icon">🔒</span>
-        <h3>This Entry is for Paid Subscribers</h3>
-        <p>Upgrade to Full Access to read this and 17+ other paid entries</p>
-        <a href="/subscribe" class="upgrade-btn">Upgrade to Full Access</a>
-      </div>
-      <a href="/archive.html" class="back">← Back to Archive</a>
-    `;
-    
-    // Add shake effect on click
-    const lockedBox = document.getElementById('lockedBox');
-    lockedBox.addEventListener('click', () => {
-      lockedBox.classList.add('shake');
-      setTimeout(() => lockedBox.classList.remove('shake'), 500);
-    });
-    
-    return;
-  }
-
-  document.getElementById("container").innerHTML=`
     <div class="post-header">
+      <h1 class="title">${escapeHTML(post.title)}</h1>
       <div class="meta">
-        <span class="meta-item">${new Date(post.created_at).toLocaleDateString()}</span>
-        <span class="meta-item">${post.readtime||1} min read</span>
+        <span>${new Date(post.created_at).toLocaleDateString()}</span>
+        <span>${post.readtime||1} min read</span>
       </div>
       ${tagsHTML}
     </div>
 
     ${excerptHTML}
 
-    <div class="content">${escapeHTML(post.content)}</div>
+    <div class="locked">
+      <h3>Locked Entry</h3>
+      <p>This post is available only to subscribers.</p>
+      <a href="#" class="upgrade">Upgrade Access</a>
+    </div>
 
     <a href="/archive.html" class="back">← Back to Archive</a>
-  `;
-}
+    `;
+    return;
+  }
 
-function showError(msg){
   document.getElementById("container").innerHTML=`
-    <div class="error">
-      <h2>${msg}</h2>
-      <p><a href="/archive.html" style="color:var(--blue);text-decoration:none;border-bottom:1px solid var(--blue);">← Return to archive</a></p>
+  <div class="post-header">
+    <h1 class="title">${escapeHTML(post.title)}</h1>
+    <div class="meta">
+      <span>${new Date(post.created_at).toLocaleDateString()}</span>
+      <span>${post.readtime||1} min read</span>
     </div>
-  `;
-  document.getElementById('headerTitle').textContent = 'Error';
-  document.getElementById('headerSubtitle').textContent = 'Not Found';
-}
+    ${tagsHTML}
+  </div>
 
-function escapeHTML(str){
-  return str
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;");
+  ${excerptHTML}
+
+  <div class="content">${escapeHTML(post.content)}</div>
+
+  <a href="/archive.html" class="back">← Back to Archive</a>
+  `;
 }
 
 loadPost();
