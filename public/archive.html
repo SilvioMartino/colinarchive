@@ -62,10 +62,9 @@ body::before {
   100% { transform: translateY(4px); }
 }
 
-/* Full-width container – no black bars */
 .container {
-  width: 100%;
-  margin: 0;
+  max-width: 1400px;
+  margin: 0 auto;
   position: relative;
   z-index: 2;
 }
@@ -81,7 +80,6 @@ header {
   position: sticky;
   top: 0;
   z-index: 100;
-  width: 100%;
 }
 
 .logo {
@@ -127,7 +125,6 @@ header {
   color: var(--blue);
 }
 
-/* Main grid now spans full width */
 .main-grid {
   display: grid;
   grid-template-columns: 1fr 350px;
@@ -135,7 +132,6 @@ header {
   padding: 3rem;
   background: var(--paper);
   min-height: calc(100vh - 80px);
-  width: 100%;
 }
 
 .archive-section {
@@ -417,7 +413,6 @@ header {
   color: var(--muted);
 }
 
-/* Updated stats grid – new metrics */
 .stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -564,12 +559,12 @@ header {
             <span class="stat-label">Free</span>
           </div>
           <div class="stat-item">
-            <span class="stat-value" id="totalReadTime">0</span>
-            <span class="stat-label">Total reading (min)</span>
+            <span class="stat-value">Irregular</span>
+            <span class="stat-label">Cadence</span>
           </div>
           <div class="stat-item">
-            <span class="stat-value" id="latestEntryDate">—</span>
-            <span class="stat-label">Latest entry</span>
+            <span class="stat-value" id="paidEntries">0</span>
+            <span class="stat-label">Paid</span>
           </div>
         </div>
       </div>
@@ -612,6 +607,16 @@ async function loadPosts() {
   updateRecentUpdates(allPosts);
 }
 
+function escapeHtml(unsafe) {
+  if (!unsafe) return '';
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function renderPosts(posts) {
   const entryList = document.getElementById('entryList');
 
@@ -625,22 +630,11 @@ function renderPosts(posts) {
 
   entryList.innerHTML = posts.map(post => {
     const isPaid = post.access === 'paid';
-    // Basic escaping – for production use a more robust method
-    const title = post.title.replace(/[&<>"]/g, function(m) {
-      if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; if(m === '"') return '&quot;';
-      return m;
-    });
-    const excerpt = (post.excerpt || '').replace(/[&<>"]/g, function(m) {
-      if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; if(m === '"') return '&quot;';
-      return m;
-    });
+    const title = escapeHtml(post.title);
+    const excerpt = escapeHtml(post.excerpt || '');
     const date = new Date(post.created_at).toLocaleDateString();
-    const tags = (post.tags || "").split(",").map(t => t.trim()).filter(Boolean).map(t => 
-      `<span class="tag">${t.replace(/[&<>"]/g, function(m) {
-        if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; if(m === '"') return '&quot;';
-        return m;
-      })}</span>`
-    ).join('');
+    const tags = (post.tags || "").split(",").map(t => t.trim()).filter(Boolean)
+      .map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('');
     const readTime = post.readtime || 1;
     return `
       <a href="/post.html?id=${post.id}" class="entry-card ${isPaid ? 'locked' : ''}">
@@ -663,58 +657,52 @@ function renderPosts(posts) {
 function updateStats(posts) {
   const free = posts.filter(p => p.access === "free").length;
   const paid = posts.filter(p => p.access === "paid").length;
-  const totalReadTime = posts.reduce((acc, p) => acc + (p.readtime || 1), 0);
-  const latestEntry = posts.length ? new Date(posts[0].created_at).toLocaleDateString() : '—';
 
   document.getElementById('totalEntries').textContent = posts.length;
   document.getElementById('freeEntries').textContent = free;
-  document.getElementById('totalReadTime').textContent = totalReadTime;
-  document.getElementById('latestEntryDate').textContent = latestEntry;
+  document.getElementById('paidEntries').textContent = paid;
 }
 
 function updateRecentUpdates(posts) {
   const updatesList = document.getElementById('updatesList');
   const recent = posts.slice(0,4);
 
-  updatesList.innerHTML = recent.map(post => {
-    const title = post.title.replace(/[&<>"]/g, function(m) {
-      if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; if(m === '"') return '&quot;';
-      return m;
-    });
-    return `
-      <div class="update-item">
-        <div class="update-date">${new Date(post.created_at).toLocaleDateString()}</div>
-        <div class="update-content">Added: ${title}</div>
-      </div>
-    `;
-  }).join('');
+  updatesList.innerHTML = recent.map(post => `
+    <div class="update-item">
+      <div class="update-date">${new Date(post.created_at).toLocaleDateString()}</div>
+      <div class="update-content">Added: ${escapeHtml(post.title)}</div>
+    </div>
+  `).join('');
 }
 
-// Search
+// Search (with null safety)
 document.getElementById('searchBox').addEventListener('input', (e) => {
   const search = e.target.value.toLowerCase();
-
   const filtered = allPosts.filter(post =>
-    post.title.toLowerCase().includes(search) ||
+    (post.title || "").toLowerCase().includes(search) ||
     (post.excerpt || "").toLowerCase().includes(search)
   );
-
   renderPosts(filtered);
 });
 
-// Filters
+// Filters (updated with fallback for missing type)
 document.querySelectorAll('.filter-tag').forEach(tag => {
   tag.addEventListener('click', () => {
     document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
     tag.classList.add('active');
 
-    const filter = tag.dataset.filter;
+    const filter = tag.dataset.filter; // "all", "essays", "code", "notes"
     if (filter === 'all') {
       renderPosts(allPosts);
     } else {
-      const filtered = allPosts.filter(post =>
-        (post.tags || "").toLowerCase().includes(filter)
-      );
+      const typeMap = {
+        essays: 'essay',
+        code: 'code',
+        notes: 'notes'
+      };
+      const postType = typeMap[filter];
+      // Use fallback "essay" for posts without a type
+      const filtered = allPosts.filter(post => (post.type || "essay") === postType);
       renderPosts(filtered);
     }
   });
