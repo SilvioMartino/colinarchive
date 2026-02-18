@@ -60,15 +60,19 @@ body::before {
 }
 
 header{
-  padding:2rem 3rem;
+  padding:3rem 3rem 2rem 3rem;
   border-bottom:1px solid var(--border);
   background:var(--paper);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
   position:sticky;
   top:0;
   z-index:100;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
 }
 
 .logo{
@@ -79,24 +83,6 @@ header{
   color:var(--fg);
   text-decoration:none;
   font-weight:500;
-  flex:1;
-  display:flex;
-  align-items:center;
-  gap:1.5rem;
-}
-
-.logo-divider {
-  color:var(--border);
-  font-weight:300;
-}
-
-.page-title-header {
-  color:var(--muted);
-  font-weight:400;
-  max-width:500px;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
 }
 
 .logo::after {
@@ -111,6 +97,60 @@ header{
   51%, 100% { opacity: 0; }
 }
 
+.page-title-header {
+  text-align: center;
+  font-family: var(--serif);
+  font-size: 2.75rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+  border-right: 3px solid var(--red);
+  white-space: nowrap;
+  animation: typing 2.5s steps(50) 0.5s forwards, blink-cursor 0.75s step-end infinite;
+  width: 0;
+  display: inline-block;
+  max-width: 100%;
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink-cursor {
+  0%, 50% { border-color: var(--red); }
+  51%, 100% { border-color: transparent; }
+}
+
+.page-title-container {
+  text-align: center;
+}
+
+.page-subtitle-header {
+  text-align: center;
+  font-style: italic;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-family: var(--mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0;
+  animation: fadeInUp 0.8s ease 2.5s forwards;
+}
+
+@keyframes fadeInUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px);
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0);
+  }
+}
+
 .nav a{
   font-family:var(--mono);
   font-size:.7rem;
@@ -120,6 +160,22 @@ header{
   text-decoration:none;
   margin-left:2rem;
   transition:color .3s;
+  position: relative;
+}
+
+.nav a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--blue);
+  transition: width 0.3s;
+}
+
+.nav a:hover::after {
+  width: 100%;
 }
 
 .nav a:hover{color:var(--blue);}
@@ -330,35 +386,28 @@ header{
   margin-bottom:1rem;
 }
 
-/* Handwritten note annotation */
-.note-annotation {
-  font-family: var(--hand);
-  font-size: 1rem;
-  color: var(--yellow);
-  padding: 1rem;
-  background: rgba(255, 230, 109, 0.05);
-  border-left: 2px solid var(--yellow);
-  margin: 2rem 0;
-  transform: rotate(-0.5deg);
-}
-
 /* Mobile */
 @media (max-width: 768px) {
   header {
-    padding: 1.5rem;
+    padding: 2rem 1.5rem;
+  }
+  
+  .header-top {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
   }
   
-  .logo {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
+  .page-title-header {
+    font-size: 2rem;
+    animation: none;
+    width: auto;
+    border-right: none;
   }
   
-  .logo-divider {
-    display: none;
+  .page-subtitle-header {
+    animation: none;
+    opacity: 1;
   }
 
   .nav {
@@ -393,7 +442,6 @@ header{
   }
 }
 
-/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -409,19 +457,21 @@ header{
 <body>
 
 <header>
-<a href="/archive.html" class="logo">
-  <span>Colin Archive</span>
-  <span class="logo-divider">/</span>
-  <span class="page-title-header" id="headerTitle">Post</span>
-</a>
+<div class="header-top">
+<a href="/archive.html" class="logo">Colin Archive</a>
 <div class="nav">
 <a href="/archive.html">Archive</a>
 <a href="/write.html">Write</a>
 </div>
+</div>
+<div class="page-title-container">
+<h1 class="page-title-header" id="headerTitle">Loading...</h1>
+<p class="page-subtitle-header" id="headerSubtitle">Reading</p>
+</div>
 </header>
 
 <div class="container" id="container">
-<div class="loading">Loading...</div>
+<div class="loading">Loading post...</div>
 </div>
 
 <script>
@@ -473,17 +523,25 @@ function renderPost(post){
 
   document.title=post.title+" — Colin Archive";
   
-  // Update header title
-  document.getElementById('headerTitle').textContent = post.title;
+  // Update header title with animation
+  const headerTitle = document.getElementById('headerTitle');
+  headerTitle.textContent = post.title;
+  
+  // Update subtitle based on access
+  const headerSubtitle = document.getElementById('headerSubtitle');
+  if (post.access === 'paid') {
+    headerSubtitle.textContent = '🔒 Paid Access';
+    headerSubtitle.style.color = 'var(--red)';
+  } else {
+    headerSubtitle.textContent = post.readtime + ' min read';
+  }
 
   if(post.access==="paid"){
     document.getElementById("container").innerHTML=`
       <div class="post-header">
-        <h1 class="title">${escapeHTML(post.title)}</h1>
         <div class="meta">
           <span class="meta-item">${new Date(post.created_at).toLocaleDateString()}</span>
           <span class="meta-item">${post.readtime||1} min read</span>
-          <span class="meta-item" style="color:var(--red);">🔒 Paid Access</span>
         </div>
         ${tagsHTML}
       </div>
@@ -509,7 +567,6 @@ function renderPost(post){
 
   document.getElementById("container").innerHTML=`
     <div class="post-header">
-      <h1 class="title">${escapeHTML(post.title)}</h1>
       <div class="meta">
         <span class="meta-item">${new Date(post.created_at).toLocaleDateString()}</span>
         <span class="meta-item">${post.readtime||1} min read</span>
@@ -532,6 +589,8 @@ function showError(msg){
       <p><a href="/archive.html" style="color:var(--blue);text-decoration:none;border-bottom:1px solid var(--blue);">← Return to archive</a></p>
     </div>
   `;
+  document.getElementById('headerTitle').textContent = 'Error';
+  document.getElementById('headerSubtitle').textContent = 'Not Found';
 }
 
 function escapeHTML(str){
