@@ -11,6 +11,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
+    /* ----- GLOBAL VARIABLES (exactly as archive page) ----- */
     :root {
       --bg: #0d0d0d;
       --paper: #1a1a1a;
@@ -33,81 +34,14 @@
     }
 
     body {
-      background: var(--bg);
+      background: var(--paper);  /* solid dark paper color, no texture */
       color: var(--fg);
       font-family: var(--serif);
       min-height: 100vh;
       line-height: 1.6;
-      position: relative;
     }
 
-    /* ----- AMBIENT BACKGROUND (now visible) ----- */
-    .ambient-bg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: 
-        radial-gradient(circle at 20% 30%, rgba(100, 180, 200, 0.15) 0%, transparent 35%),
-        radial-gradient(circle at 80% 70%, rgba(200, 150, 100, 0.15) 0%, transparent 40%),
-        repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 2px, transparent 2px, transparent 8px);
-      pointer-events: none;
-      z-index: -1;
-      animation: ambientDrift 25s infinite alternate ease-in-out;
-    }
-
-    @keyframes ambientDrift {
-      0% { opacity: 0.5; background-position: 0% 0%, 0% 0%, 0% 0%; }
-      50% { opacity: 0.8; background-position: 5% 5%, -5% -5%, 2% 2%; }
-      100% { opacity: 0.5; background-position: -5% -5%, 5% 5%, -2% -2%; }
-    }
-
-    /* Extra faint hand-drawn pattern */
-    .ambient-pattern {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-image: url('data:image/svg+xml;utf8,<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><circle cx="30" cy="40" r="8" stroke="rgba(200,180,160,0.06)" fill="none" stroke-width="1.2"/><circle cx="160" cy="120" r="12" stroke="rgba(160,200,200,0.06)" fill="none" stroke-width="1"/><path d="M80 160 Q100 140 120 160" stroke="rgba(180,160,140,0.06)" fill="none" stroke-width="1.5"/><path d="M150 30 L170 50 L150 70 L130 50 Z" stroke="rgba(200,180,160,0.05)" fill="none" stroke-width="1"/></svg>');
-      background-repeat: repeat;
-      background-size: 200px 200px;
-      pointer-events: none;
-      z-index: -1;
-      opacity: 0.4;
-      animation: patternShift 40s infinite linear;
-    }
-
-    @keyframes patternShift {
-      0% { background-position: 0 0; }
-      100% { background-position: 200px 200px; }
-    }
-
-    /* Paper texture overlay (kept, but now over ambient) */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 2px,
-          rgba(255, 255, 255, 0.02) 2px,
-          rgba(255, 255, 255, 0.02) 4px
-        );
-      pointer-events: none;
-      z-index: 0;
-      animation: paperSlide 20s linear infinite;
-    }
-
-    @keyframes paperSlide {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(4px); }
-    }
-
-    /* ----- NAVBAR ----- */
+    /* ----- NAVBAR (matches archive page header exactly) ----- */
     nav {
       background: var(--paper);
       border-bottom: 1px solid var(--border);
@@ -158,7 +92,7 @@
       color: var(--blue);
     }
 
-    /* ----- MAIN CONTENT ----- */
+    /* ----- MAIN CONTENT (full width, no boxes) ----- */
     .wrapper {
       width: 100%;
       margin: 70px 0;
@@ -243,11 +177,11 @@
       color: var(--fg);
     }
 
+    /* Paid entry – minimal distinction */
     .locked {
       text-align: center;
       padding: 3rem 2rem;
       border: 1px dashed var(--red);
-      background: rgba(255, 107, 107, 0.05);
       margin-top: 2rem;
     }
 
@@ -289,6 +223,7 @@
       font-family: var(--mono);
       color: var(--muted);
       padding: 3rem;
+      font-size: 1rem;
     }
 
     @media (max-width: 700px) {
@@ -327,10 +262,6 @@
   </style>
 </head>
 <body>
-
-<!-- Ambient layers (now with higher opacity and extra pattern) -->
-<div class="ambient-bg"></div>
-<div class="ambient-pattern"></div>
 
 <nav>
   <a href="/archive.html" class="logo">Colin Archive</a>
