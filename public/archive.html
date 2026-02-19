@@ -5,11 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Archive — Colin Archive</title>
 
+<!-- Cache‑busting meta tags -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-
 :root {
   --bg: #0d0d0d;
   --paper: #1a1a1a;
@@ -62,9 +66,11 @@ body::before {
   100% { transform: translateY(4px); }
 }
 
+/* Full‑width container – no black bars */
 .container {
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
   position: relative;
   z-index: 2;
 }
@@ -80,7 +86,7 @@ header {
   position: sticky;
   top: 0;
   z-index: 100;
-  flex-wrap: wrap; /* allow wrap on small screens */
+  flex-wrap: wrap;
 }
 
 .logo {
@@ -137,6 +143,7 @@ header {
   color: var(--blue);
 }
 
+/* Main grid now spans full width */
 .main-grid {
   display: grid;
   grid-template-columns: 1fr 350px;
@@ -144,6 +151,7 @@ header {
   padding: 3rem;
   background: var(--paper);
   min-height: calc(100vh - 80px);
+  width: 100%;
 }
 
 .archive-section {
@@ -284,6 +292,22 @@ header {
   box-shadow: 0 8px 30px rgba(0,0,0,0.3);
 }
 
+/* Cover image styling */
+.entry-cover {
+  width: calc(100% + 4rem); /* compensate for card padding */
+  margin: -2rem -2rem 1rem -2rem; /* stretch to card edges */
+  max-height: 250px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+
+.entry-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .entry-header {
   display: flex;
   justify-content: space-between;
@@ -348,7 +372,6 @@ header {
   letter-spacing: 0.05em;
 }
 
-/* Delete button */
 .delete-btn {
   font-family: var(--mono);
   font-size: 0.8rem;
@@ -385,6 +408,7 @@ header {
   color: var(--bg);
   letter-spacing: 0.1em;
   font-weight: 500;
+  z-index: 2;
 }
 
 .entry-card.locked:hover {
@@ -503,7 +527,7 @@ header {
   }
 
   .header-nav {
-    flex-direction: row; /* keep horizontal even on mobile */
+    flex-direction: row;
     flex-wrap: wrap;
     gap: 1rem;
   }
@@ -534,7 +558,6 @@ header {
     transition-duration: 0.01ms !important;
   }
 }
-
 </style>
 </head>
 <body>
@@ -610,7 +633,6 @@ header {
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-
 const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
 
@@ -628,7 +650,7 @@ editToggle.addEventListener('click', () => {
   } else {
     editToggle.classList.remove('active');
   }
-  renderPosts(allPosts); // re-render to update links
+  renderPosts(allPosts);
 });
 
 async function loadPosts() {
@@ -682,8 +704,15 @@ function renderPosts(posts) {
       .map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('');
     const readTime = post.readtime || 1;
     const linkTarget = editMode ? `/write.html?id=${post.id}` : `/post.html?id=${post.id}`;
+    
+    // Cover image HTML if exists
+    const coverHtml = post.cover_url 
+      ? `<div class="entry-cover"><img src="${escapeHtml(post.cover_url)}" alt="Cover for ${title}" loading="lazy"></div>` 
+      : '';
+
     return `
       <a href="${linkTarget}" class="entry-card ${isPaid ? 'locked' : ''}">
+        ${coverHtml}
         <div class="entry-header">
           <h2 class="entry-title">${title}</h2>
           <span class="entry-meta">${date}</span>
