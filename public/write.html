@@ -9,7 +9,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
 
 <style>
-
 :root {
   --bg: #0d0d0d;
   --paper: #1a1a1a;
@@ -319,7 +318,6 @@ select:focus {
     gap: 1rem;
   }
 }
-
 </style>
 </head>
 
@@ -345,6 +343,12 @@ select:focus {
     <div class="form-group">
       <label for="title">Title</label>
       <input type="text" id="title" required>
+    </div>
+
+    <!-- New Cover Image URL field -->
+    <div class="form-group">
+      <label for="cover">Cover Image URL</label>
+      <input type="text" id="cover" placeholder="https://site.com/image.jpg">
     </div>
 
     <div class="form-group">
@@ -403,7 +407,6 @@ window.db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let tags = [];
 let editingId = null;
 
-// Check if we're editing an existing post
 const urlParams = new URLSearchParams(window.location.search);
 editingId = urlParams.get('id');
 
@@ -422,11 +425,11 @@ async function loadPostForEditing(id) {
 
   document.getElementById('postId').value = data.id;
   document.getElementById('title').value = data.title || '';
+  document.getElementById('cover').value = data.cover_url || ''; // load cover
   document.getElementById('excerpt').value = data.excerpt || '';
   document.getElementById('content').value = data.content || '';
   document.getElementById('type').value = data.type || 'essay';
 
-  // Set access radio
   if (data.access === 'paid') {
     document.getElementById('paidOption').classList.add('active');
     document.getElementById('freeOption').classList.remove('active');
@@ -437,15 +440,11 @@ async function loadPostForEditing(id) {
     document.querySelector('input[name="access"][value="free"]').checked = true;
   }
 
-  // Tags
   tags = (data.tags || "").split(",").map(t => t.trim()).filter(Boolean);
   renderTags();
-
-  // Trigger word count update
   contentTextarea.dispatchEvent(new Event('input'));
 }
 
-// Word count
 const contentTextarea = document.getElementById('content');
 contentTextarea.addEventListener('input', () => {
   const text = contentTextarea.value;
@@ -455,7 +454,6 @@ contentTextarea.addEventListener('input', () => {
   document.getElementById('readTime').textContent = `${readTime} min read`;
 });
 
-// Tags
 document.getElementById('tagInput').addEventListener('keypress', (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();
@@ -487,7 +485,6 @@ function renderTags() {
   `).join('');
 }
 
-// Access toggle
 document.getElementById('freeOption').addEventListener('click', () => {
   document.getElementById('freeOption').classList.add('active');
   document.getElementById('paidOption').classList.remove('active');
@@ -508,6 +505,7 @@ function showMessage(type, text) {
 async function publishPost() {
   const id = document.getElementById('postId').value;
   const title = document.getElementById('title').value.trim();
+  const cover = document.getElementById('cover').value.trim(); // new cover field
   const excerpt = document.getElementById('excerpt').value.trim();
   const content = document.getElementById('content').value.trim();
   const type = document.getElementById('type').value;
@@ -527,9 +525,9 @@ async function publishPost() {
 
   let error;
   if (id) {
-    // Update existing post
     ({ error } = await db.from('posts').update({
       title,
+      cover_url: cover,        // include cover
       excerpt,
       content,
       type,
@@ -538,9 +536,9 @@ async function publishPost() {
       readtime
     }).eq('id', id));
   } else {
-    // Insert new post
     ({ error } = await db.from('posts').insert([{
       title,
+      cover_url: cover,        // include cover
       excerpt,
       content,
       type,
@@ -559,7 +557,8 @@ async function publishPost() {
   }
 
   showMessage('success', id ? 'Updated' : 'Published');
-  setTimeout(() => location.href = '/archive.html', 1000);
+  // Cache‑busting redirect
+  setTimeout(() => location.href = '/archive.html?t=' + Date.now(), 1000);
 }
 
 function escapeHtml(unsafe) {
