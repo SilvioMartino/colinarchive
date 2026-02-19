@@ -336,6 +336,26 @@ header {
   letter-spacing: 0.05em;
 }
 
+/* Delete button */
+.delete-btn {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--red);
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 0.2rem 0.5rem;
+  margin-left: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.delete-btn:hover {
+  border-color: var(--red);
+  background: rgba(255, 107, 107, 0.1);
+}
+
 .entry-card.locked {
   opacity: 0.6;
   position: relative;
@@ -647,11 +667,30 @@ function renderPosts(posts) {
           <div class="entry-tags">
             ${tags}
           </div>
-          <span class="read-time">${readTime} min read</span>
+          <div style="display: flex; align-items: center;">
+            <span class="read-time">${readTime} min read</span>
+            <button class="delete-btn" onclick="deletePost('${post.id}', event)">✕</button>
+          </div>
         </div>
       </a>
     `;
   }).join('');
+}
+
+async function deletePost(id, event) {
+  event.preventDefault(); // prevent the link from being followed
+  event.stopPropagation();
+
+  if (!confirm('Delete this post forever?')) return;
+
+  const { error } = await db.from('posts').delete().eq('id', id);
+  if (error) {
+    alert('Error deleting post: ' + error.message);
+    return;
+  }
+
+  // Reload posts
+  loadPosts();
 }
 
 function updateStats(posts) {
@@ -675,7 +714,7 @@ function updateRecentUpdates(posts) {
   `).join('');
 }
 
-// Search (with null safety)
+// Search
 document.getElementById('searchBox').addEventListener('input', (e) => {
   const search = e.target.value.toLowerCase();
   const filtered = allPosts.filter(post =>
@@ -685,13 +724,13 @@ document.getElementById('searchBox').addEventListener('input', (e) => {
   renderPosts(filtered);
 });
 
-// Filters (updated with fallback for missing type)
+// Filters
 document.querySelectorAll('.filter-tag').forEach(tag => {
   tag.addEventListener('click', () => {
     document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
     tag.classList.add('active');
 
-    const filter = tag.dataset.filter; // "all", "essays", "code", "notes"
+    const filter = tag.dataset.filter;
     if (filter === 'all') {
       renderPosts(allPosts);
     } else {
@@ -701,7 +740,6 @@ document.querySelectorAll('.filter-tag').forEach(tag => {
         notes: 'notes'
       };
       const postType = typeMap[filter];
-      // Use fallback "essay" for posts without a type
       const filtered = allPosts.filter(post => (post.type || "essay") === postType);
       renderPosts(filtered);
     }
