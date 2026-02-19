@@ -1,787 +1,378 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Archive — Colin Archive</title>
-
-<!-- Cache‑busting meta tags -->
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
-
-<style>
-:root {
-  --bg: #0d0d0d;
-  --paper: #1a1a1a;
-  --fg: #e8e8e8;
-  --muted: #8a8a8a;
-  --border: #2a2a2a;
-  --accent: #e8e8e8;
-  --highlight: rgba(31, 31, 31, 0.85);
-  --red: #ff6b6b;
-  --blue: #4ecdc4;
-  --yellow: #ffe66d;
-  --serif: 'Crimson Text', 'Georgia', serif;
-  --mono: 'IBM Plex Mono', 'Courier New', monospace;
-  --hand: 'Caveat', cursive;
-}
-
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  background: var(--bg);
-  color: var(--fg);
-  font-family: var(--serif);
-  min-height: 100vh;
-  line-height: 1.6;
-  position: relative;
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(255, 255, 255, 0.01) 2px,
-      rgba(255, 255, 255, 0.01) 4px
-    );
-  pointer-events: none;
-  z-index: 0;
-  animation: paperSlide 20s linear infinite;
-}
-
-@keyframes paperSlide {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(4px); }
-}
-
-/* Full‑width container */
-.container {
-  width: 100%;
-  max-width: none;
-  margin: 0;
-  position: relative;
-  z-index: 2;
-}
-
-header {
-  padding: 2rem 3rem;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 2rem;
-  background: var(--paper);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  flex-wrap: wrap;
-}
-
-.logo {
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  font-weight: 500;
-  text-decoration: none;
-  color: var(--fg);
-}
-
-.logo::after {
-  content: '|';
-  color: var(--red);
-  animation: blink 1s step-end infinite;
-  margin-left: 2px;
-}
-
-@keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
-}
-
-.header-nav {
-  display: flex;
-  gap: 2rem;
-  align-items: center;
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  flex-wrap: wrap;
-}
-
-.header-nav a,
-.header-nav button {
-  color: var(--muted);
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  transition: color 0.3s;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: inherit;
-  padding: 0;
-  line-height: 1;
-}
-
-.header-nav a:hover,
-.header-nav button:hover,
-.header-nav a.active,
-.header-nav button.active {
-  color: var(--blue);
-}
-
-/* Main grid */
-.main-grid {
-  display: grid;
-  grid-template-columns: 1fr 350px;
-  gap: 3rem;
-  padding: 3rem;
-  background: var(--paper);
-  min-height: calc(100vh - 80px);
-  width: 100%;
-  position: relative;
-  z-index: 2;
-}
-
-.archive-section {
-  animation: slideIn 0.8s ease forwards;
-}
-
-@keyframes slideIn {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-.section-header {
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 2px solid var(--fg);
-  position: relative;
-}
-
-.section-header::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 30%;
-  height: 2px;
-  background: var(--red);
-  animation: underlineGrow 1.5s ease forwards;
-}
-
-@keyframes underlineGrow {
-  0% { width: 0%; }
-  100% { width: 30%; }
-}
-
-.section-header h1 {
-  font-family: var(--serif);
-  font-size: 2.5rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.section-subtitle {
-  font-style: italic;
-  color: var(--muted);
-  font-size: 1rem;
-}
-
-.filters {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-}
-
-.search-box {
-  flex: 1;
-  min-width: 250px;
-  padding: 0.75rem 1rem;
-  background: var(--highlight);
-  border: 1px solid var(--border);
-  color: var(--fg);
-  font-family: var(--mono);
-  font-size: 0.875rem;
-  transition: all 0.3s;
-}
-
-.search-box::placeholder {
-  color: var(--muted);
-}
-
-.search-box:focus {
-  outline: none;
-  border-color: var(--blue);
-  box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.1);
-}
-
-.filter-tags {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.filter-tag {
-  padding: 0.5rem 1rem;
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.filter-tag:hover,
-.filter-tag.active {
-  border-color: var(--blue);
-  color: var(--blue);
-  background: rgba(78, 205, 196, 0.05);
-}
-
-/* Two‑column grid for posts */
-.entry-list {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-}
-
-/* Base card styles */
-.entry-card {
-  border: 1px solid var(--border);
-  padding: 1.5rem;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  cursor: pointer;
-  text-decoration: none;
-  color: inherit;
-  display: block;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-/* Cards with cover – no dark overlays */
-.entry-card.has-cover {}
-
-/* Cards without cover – original semi‑transparent dark */
-.entry-card:not(.has-cover) {
-  background: var(--highlight);
-}
-
-/* Torn‑paper edge */
-.entry-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background:
-    linear-gradient(135deg, var(--highlight) 4px, transparent 0),
-    linear-gradient(225deg, var(--highlight) 4px, transparent 0);
-  background-size: 8px 6px;
-  background-repeat: repeat-x;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
-  z-index: 1;
-}
-
-/* For cards with cover, torn edge is semi‑transparent */
-.entry-card.has-cover::before {
-  background:
-    linear-gradient(135deg, rgba(31,31,31,0.7) 4px, transparent 0),
-    linear-gradient(225deg, rgba(31,31,31,0.7) 4px, transparent 0);
-  background-size: 8px 6px;
-  background-repeat: repeat-x;
-}
-
-.entry-card:hover {
-  border-color: var(--accent);
-  transform: translateY(-2px) rotate(0.3deg);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-}
-
-/* Delete button – small red X in top‑right corner */
-.delete-btn {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  z-index: 10;
-  font-family: var(--mono);
-  font-size: 1rem;
-  color: var(--red);
-  background: rgba(0,0,0,0.3);
-  border: 1px solid var(--red);
-  border-radius: 4px;
-  width: 1.5rem;
-  height: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  line-height: 1;
-  text-decoration: none;
-  opacity: 0.7;
-}
-
-.delete-btn:hover {
-  opacity: 1;
-  background: rgba(255, 107, 107, 0.2);
-  transform: scale(1.1);
-}
-
-/* Header area */
-.entry-header {
-  margin-bottom: 0.75rem;
-  position: relative;
-  z-index: 2;
-}
-
-.entry-card.has-cover .entry-title,
-.entry-card.has-cover .entry-meta {
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-}
-
-.entry-title {
-  font-family: var(--serif);
-  font-size: 1.3rem;
-  font-weight: 600;
-  line-height: 1.3;
-  margin-bottom: 0.25rem;
-}
-
-.entry-meta {
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.entry-card.has-cover .entry-title {
-  color: #fff;
-}
-.entry-card.has-cover .entry-meta {
-  color: #eee;
-}
-
-/* Excerpt */
-.entry-excerpt {
-  line-height: 1.6;
-  margin-bottom: 0.75rem;
-  font-size: 0.9rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  position: relative;
-  z-index: 2;
-}
-
-.entry-card.has-cover .entry-excerpt {
-  color: #fff;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-}
-
-.entry-card:not(.has-cover) .entry-excerpt {
-  color: var(--muted);
-}
-
-/* Locked indicator */
-.entry-card.locked::after {
-  content: '🔒';
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  font-size: 0.9rem;
-  z-index: 10;
-  opacity: 0.8;
-}
-
-/* Sidebar (unchanged) */
-.updates-sidebar {
-  position: sticky;
-  top: 100px;
-  height: fit-content;
-  animation: slideInRight 0.8s ease forwards;
-  opacity: 0;
-}
-
-@keyframes slideInRight {
-  0% { opacity: 0; transform: translateX(20px); }
-  100% { opacity: 1; transform: translateX(0); }
-}
-
-.sidebar-section {
-  margin-bottom: 3rem;
-}
-
-.sidebar-title {
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.update-item {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.update-item:last-child {
-  border-bottom: none;
-}
-
-.update-date {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  color: var(--blue);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
-}
-
-.update-content {
-  font-size: 0.875rem;
-  line-height: 1.6;
-  color: var(--muted);
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.stat-item {
-  padding: 1rem;
-  background: var(--highlight);
-  border: 1px solid var(--border);
-}
-
-.stat-value {
-  font-family: var(--mono);
-  font-size: 1.5rem;
-  color: var(--fg);
-  display: block;
-  margin-bottom: 0.25rem;
-}
-
-.stat-label {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.sidebar-note {
-  font-family: var(--hand);
-  font-size: 1rem;
-  color: var(--yellow);
-  padding: 1rem;
-  background: rgba(255, 230, 109, 0.05);
-  border-left: 2px solid var(--yellow);
-  margin-top: 2rem;
-  transform: rotate(-0.5deg);
-}
-
-@media (max-width: 1024px) {
-  .main-grid {
-    grid-template-columns: 1fr;
-    padding: 2rem 1.5rem;
-  }
-
-  .updates-sidebar {
-    position: relative;
-    top: 0;
-    margin-top: 3rem;
-  }
-
-  header {
-    padding: 1.5rem;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .header-nav {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-
-  .filters {
-    flex-direction: column;
-  }
-
-  .search-box {
-    width: 100%;
-  }
-
-  .entry-list {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Colin Archive – three worlds</title>
+  <!-- Clay fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+  <!-- Paper fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
+  <!-- Glass fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      min-height: 100vh;
+      display: flex;
+      background: #111;
+      font-family: sans-serif;
+    }
+
+    /* ----- PANEL BASE ----- */
+    .panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      transition: flex 0.3s;
+    }
+    .panel:hover {
+      flex: 1.1;
+    }
+
+    /* ----- CLAY PANEL (left) ----- */
+    .clay-panel {
+      background: #f2e9e0;
+      color: #3a2c1f;
+      --surface: #faf0e6;
+      --border: #dcd0c0;
+      --accent: #b87c4b;
+      --shadow: 0 10px 20px -5px rgba(0,0,0,0.1), 0 0 0 1px rgba(220,208,192,0.5) inset, 0 -2px 0 rgba(0,0,0,0.05) inset;
+      font-family: 'Figtree', sans-serif;
+    }
+    .clay-panel .header {
+      background: var(--surface);
+      border-radius: 40px 40px 20px 20px;
+      padding: 1.25rem 2rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      display: inline-block;
+    }
+    .clay-panel .header .logo {
+      font-family: 'Source Serif 4', serif;
+      font-weight: 600;
+      font-size: 1.5rem;
+      color: #3a2c1f;
+      background: #f2e9e0;
+      padding: 0.3rem 1.2rem;
+      border-radius: 60px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.05);
+    }
+    .clay-panel .header .logo::after {
+      content: '|';
+      color: var(--accent);
+      margin-left: 0.3rem;
+      animation: blink 1s step-end infinite;
+    }
+    .clay-panel .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 2rem;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: var(--shadow);
+      text-align: center;
+    }
+    .clay-panel .card h2 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+    .clay-panel .card p {
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+      color: #5a4a3a;
+    }
+    .clay-panel .feature-list {
+      list-style: none;
+      text-align: left;
+      margin: 1.5rem 0;
+    }
+    .clay-panel .feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+    .clay-panel .feature-list li span:first-child {
+      font-size: 1.5rem;
+      color: var(--accent);
+    }
+    .clay-panel .btn {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      padding: 0.8rem 2rem;
+      border-radius: 60px;
+      text-decoration: none;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      box-shadow: 0 5px 10px rgba(184,124,75,0.3);
+      transition: transform 0.2s;
+      margin-top: 1rem;
+    }
+    .clay-panel .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    /* ----- PAPER PANEL (center) ----- */
+    .paper-panel {
+      background: #0d0d0d;
+      color: #e8e8e8;
+      --paper: #1a1a1a;
+      --border: #2a2a2a;
+      --blue: #4ecdc4;
+      font-family: 'Crimson Text', serif;
+    }
+    .paper-panel .header {
+      background: var(--paper);
+      border-bottom: 1px solid var(--border);
+      padding: 1.2rem 2rem;
+      margin-bottom: 2rem;
+      display: inline-block;
+    }
+    .paper-panel .header .logo {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #e8e8e8;
+    }
+    .paper-panel .header .logo::after {
+      content: '|';
+      color: #ff6b6b;
+      animation: blink 1s step-end infinite;
+      margin-left: 2px;
+    }
+    .paper-panel .card {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      padding: 2rem;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    .paper-panel .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background:
+        linear-gradient(135deg, var(--paper) 4px, transparent 0),
+        linear-gradient(225deg, var(--paper) 4px, transparent 0);
+      background-size: 8px 6px;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+    }
+    .paper-panel .card h2 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+      color: #e8e8e8;
+    }
+    .paper-panel .card p {
+      color: #bdbdbd;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+    .paper-panel .feature-list {
+      list-style: none;
+      text-align: left;
+      margin: 1.5rem 0;
+    }
+    .paper-panel .feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.9rem;
+      color: #b0b0b0;
+    }
+    .paper-panel .feature-list li span:first-child {
+      font-size: 1.3rem;
+      color: var(--blue);
+    }
+    .paper-panel .btn {
+      display: inline-block;
+      background: transparent;
+      border: 1px solid var(--blue);
+      color: var(--blue);
+      padding: 0.8rem 2rem;
+      text-decoration: none;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: background 0.2s;
+      margin-top: 1rem;
+    }
+    .paper-panel .btn:hover {
+      background: var(--blue);
+      color: #0d0d0d;
+    }
+    .paper-panel .meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      color: #8a8a8a;
+      margin-top: 1rem;
+    }
+
+    /* ----- GLASS PANEL (right) ----- */
+    .glass-panel {
+      background: linear-gradient(135deg, #1a2a3a, #0b1a2a);
+      color: #f0f0f0;
+      backdrop-filter: blur(4px);
+      --glass-border: rgba(255,255,255,0.2);
+      font-family: 'Inter', sans-serif;
+    }
+    .glass-panel .header {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      border-radius: 40px;
+      padding: 1.2rem 2rem;
+      margin-bottom: 2rem;
+      display: inline-block;
+    }
+    .glass-panel .header .logo {
+      font-size: 1.2rem;
+      font-weight: 300;
+      letter-spacing: 2px;
+      color: white;
+    }
+    .glass-panel .header .logo::after {
+      content: '|';
+      color: #88ccff;
+      margin-left: 0.3rem;
+      animation: blink 1s step-end infinite;
+    }
+    .glass-panel .card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border);
+      border-radius: 30px;
+      padding: 2rem;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      text-align: center;
+    }
+    .glass-panel .card h2 {
+      font-size: 1.8rem;
+      font-weight: 300;
+      margin-bottom: 1rem;
+      color: white;
+      text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+    .glass-panel .card p {
+      color: #d0d0d0;
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+    .glass-panel .feature-list {
+      list-style: none;
+      text-align: left;
+      margin: 1.5rem 0;
+    }
+    .glass-panel .feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+      color: #e0e0e0;
+    }
+    .glass-panel .feature-list li span:first-child {
+      font-size: 1.4rem;
+      color: #88ccff;
+    }
+    .glass-panel .btn {
+      display: inline-block;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 0.8rem 2rem;
+      border-radius: 40px;
+      text-decoration: none;
+      font-weight: 400;
+      backdrop-filter: blur(4px);
+      transition: background 0.2s;
+      margin-top: 1rem;
+    }
+    .glass-panel .btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    @keyframes blink {
+      0%,50% { opacity:1; } 51%,100% { opacity:0; }
+    }
+
+    @media (max-width: 900px) {
+      body { flex-direction: column; }
+      .panel { width: 100%; }
+      .panel:hover { flex: 1; }
+    }
+  </style>
 </head>
 <body>
-
-<div class="container">
-  <header>
-    <a href="/" class="logo">Colin Archive</a>
-    <nav class="header-nav">
-      <a href="/archive.html" class="active">Archive</a>
-      <a href="/write.html">Write</a>
-      <button id="editModeToggle">Edit</button>
-    </nav>
-  </header>
-
-  <div class="main-grid">
-    <section class="archive-section">
-      <div class="section-header">
-        <h1>Archive</h1>
-        <p class="section-subtitle">Unfiltered documentation</p>
-      </div>
-
-      <div class="filters">
-        <input type="text" class="search-box" id="searchBox" placeholder="Search entries...">
-        <div class="filter-tags">
-          <button class="filter-tag active" data-filter="all">All</button>
-          <button class="filter-tag" data-filter="essays">Essays</button>
-          <button class="filter-tag" data-filter="code">Code</button>
-          <button class="filter-tag" data-filter="notes">Notes</button>
-        </div>
-      </div>
-
-      <div class="entry-list" id="entryList">
-        <div style="padding: 3rem; text-align: center; color: var(--muted); grid-column: 1/-1;">
-          <p style="font-family: var(--mono); font-size: 0.875rem;">Loading...</p>
-        </div>
-      </div>
-    </section>
-
-    <aside class="updates-sidebar">
-      <div class="sidebar-section">
-        <h3 class="sidebar-title">Recent Updates</h3>
-        <div id="updatesList"></div>
-      </div>
-
-      <div class="sidebar-section">
-        <h3 class="sidebar-title">Archive Stats</h3>
-        <div class="stats-grid">
-          <div class="stat-item">
-            <span class="stat-value" id="totalEntries">0</span>
-            <span class="stat-label">Total entries</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value" id="freeEntries">0</span>
-            <span class="stat-label">Free</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value">Irregular</span>
-            <span class="stat-label">Cadence</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value" id="paidEntries">0</span>
-            <span class="stat-label">Paid</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="sidebar-note">
-        Not all entries are essays. Some are just messy notes.
-      </div>
-    </aside>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
-
-window.db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-let allPosts = [];
-let editMode = false;
-
-const editToggle = document.getElementById('editModeToggle');
-
-editToggle.addEventListener('click', () => {
-  editMode = !editMode;
-  if (editMode) {
-    editToggle.classList.add('active');
-  } else {
-    editToggle.classList.remove('active');
-  }
-  renderPosts(allPosts);
-});
-
-async function loadPosts() {
-  const { data, error } = await db
-    .from('posts')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (error) {
-    console.error("Database error:", error);
-    document.getElementById('entryList').innerHTML = `
-      <div style="padding:3rem;text-align:center;color:var(--muted); grid-column:1/-1;">
-        Error loading posts
-      </div>`;
-    return;
-  }
-
-  allPosts = data || [];
-  renderPosts(allPosts);
-  updateStats(allPosts);
-  updateRecentUpdates(allPosts);
-}
-
-function escapeHtml(unsafe) {
-  if (!unsafe) return '';
-  return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-function renderPosts(posts) {
-  const entryList = document.getElementById('entryList');
-
-  if (!posts.length) {
-    entryList.innerHTML = `
-      <div style="padding:3rem;text-align:center;color:var(--muted); grid-column:1/-1;">
-        No entries yet
-      </div>`;
-    return;
-  }
-
-  entryList.innerHTML = posts.map(post => {
-    const isPaid = post.access === 'paid';
-    const title = escapeHtml(post.title);
-    const excerpt = escapeHtml(post.excerpt || '');
-    const date = new Date(post.created_at).toLocaleDateString();
-    const linkTarget = editMode ? `/write.html?id=${post.id}` : `/post.html?id=${post.id}`;
-    
-    const hasCover = !!post.cover_url;
-    const coverStyle = hasCover ? `background-image: url('${escapeHtml(post.cover_url)}');` : '';
-
-    return `
-      <a href="${linkTarget}" class="entry-card ${hasCover ? 'has-cover' : ''} ${isPaid ? 'locked' : ''}" style="${coverStyle}">
-        <button class="delete-btn" onclick="deletePost('${post.id}', event)">✕</button>
-        <div class="entry-header">
-          <h2 class="entry-title">${title}</h2>
-          <div class="entry-meta">${date}</div>
-        </div>
-        <p class="entry-excerpt">${excerpt}</p>
-      </a>
-    `;
-  }).join('');
-}
-
-async function deletePost(id, event) {
-  event.preventDefault();
-  event.stopPropagation();
-
-  if (!confirm('Delete this post forever?')) return;
-
-  const { error } = await db.from('posts').delete().eq('id', id);
-  if (error) {
-    alert('Error deleting post: ' + error.message);
-    return;
-  }
-
-  loadPosts();
-}
-
-function updateStats(posts) {
-  const free = posts.filter(p => p.access === "free").length;
-  const paid = posts.filter(p => p.access === "paid").length;
-  document.getElementById('totalEntries').textContent = posts.length;
-  document.getElementById('freeEntries').textContent = free;
-  document.getElementById('paidEntries').textContent = paid;
-}
-
-function updateRecentUpdates(posts) {
-  const updatesList = document.getElementById('updatesList');
-  const recent = posts.slice(0,4);
-  updatesList.innerHTML = recent.map(post => `
-    <div class="update-item">
-      <div class="update-date">${new Date(post.created_at).toLocaleDateString()}</div>
-      <div class="update-content">Added: ${escapeHtml(post.title)}</div>
+  <!-- CLAY -->
+  <div class="panel clay-panel">
+    <div class="header"><span class="logo">Clay Archive</span></div>
+    <div class="card">
+      <h2>Warm & Tactile</h2>
+      <p>A cozy, earthy space for slow thoughts, code with character, and handwritten notes. Soft shadows and rounded edges invite you to stay.</p>
+      <ul class="feature-list">
+        <li><span>✎</span> Essays on philosophy and craft</li>
+        <li><span>{ }</span> Code snippets with a warm glow</li>
+        <li><span>📓</span> Hand‑drawn diagrams and ideas</li>
+      </ul>
+      <a href="#" class="btn">Enter the Clay</a>
+      <div style="margin-top:1rem; font-size:0.8rem; color:#8b7a66;">terracotta · sand · comfort</div>
     </div>
-  `).join('');
-}
+  </div>
 
-document.getElementById('searchBox').addEventListener('input', (e) => {
-  const search = e.target.value.toLowerCase();
-  const filtered = allPosts.filter(post =>
-    (post.title || "").toLowerCase().includes(search) ||
-    (post.excerpt || "").toLowerCase().includes(search)
-  );
-  renderPosts(filtered);
-});
+  <!-- PAPER -->
+  <div class="panel paper-panel">
+    <div class="header"><span class="logo">Paper Archive</span></div>
+    <div class="card">
+      <h2>Raw & Unfiltered</h2>
+      <p>The original archive aesthetic: dark, textured, with torn edges. A place for raw documentation, half‑finished drafts, and unpolished truth.</p>
+      <ul class="feature-list">
+        <li><span>📜</span> Unfiltered essays and manifestos</li>
+        <li><span>⚙️</span> Code experiments, bugs included</li>
+        <li><span>📌</span> Messy notes and ephemera</li>
+      </ul>
+      <a href="#" class="btn">Enter the Paper</a>
+      <div class="meta">torn edges · ink · texture</div>
+    </div>
+  </div>
 
-document.querySelectorAll('.filter-tag').forEach(tag => {
-  tag.addEventListener('click', () => {
-    document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
-    tag.classList.add('active');
-
-    const filter = tag.dataset.filter;
-    if (filter === 'all') {
-      renderPosts(allPosts);
-    } else {
-      const typeMap = {
-        essays: 'essay',
-        code: 'code',
-        notes: 'notes'
-      };
-      const postType = typeMap[filter];
-      const filtered = allPosts.filter(post => (post.type || "essay") === postType);
-      renderPosts(filtered);
-    }
-  });
-});
-
-loadPosts();
-</script>
-
+  <!-- GLASS -->
+  <div class="panel glass-panel">
+    <div class="header"><span class="logo">Glass Archive</span></div>
+    <div class="card">
+      <h2>Transparent & Minimal</h2>
+      <p>A sleek, modern space where content breathes. Frosted surfaces, light borders, and a sense of openness – for focused reading and writing.</p>
+      <ul class="feature-list">
+        <li><span>🪞</span> Clear, distraction‑free essays</li>
+        <li><span>🔮</span> Code in a minimalist environment</li>
+        <li><span>🧊</span> Notes that feel weightless</li>
+      </ul>
+      <a href="#" class="btn">Enter the Glass</a>
+      <div style="margin-top:1rem; font-size:0.8rem; opacity:0.7;">blur · light · air</div>
+    </div>
+  </div>
 </body>
 </html>
