@@ -337,9 +337,10 @@ select:focus {
     </div>
   </header>
 
-  <h1>New Entry</h1>
+  <h1 id="formTitle">New Entry</h1>
 
   <form id="postForm">
+    <input type="hidden" id="postId" value="">
 
     <div class="form-group">
       <label for="title">Title</label>
@@ -359,11 +360,10 @@ select:focus {
       </div>
     </div>
 
-    <!-- NEW: Type dropdown -->
     <div class="form-group">
       <label for="type">Type (main category)</label>
       <select id="type" required>
-        <option value="essay" selected>Essay</option>
+        <option value="essay">Essay</option>
         <option value="code">Code</option>
         <option value="notes">Notes</option>
       </select>
@@ -391,32 +391,71 @@ select:focus {
         </label>
       </div>
     </div>
-
   </form>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-
 const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
 window.db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+let tags = [];
+let editingId = null;
+
+// Check if we're editing an existing post
+const urlParams = new URLSearchParams(window.location.search);
+editingId = urlParams.get('id');
+
+if (editingId) {
+  document.getElementById('formTitle').textContent = 'Edit Entry';
+  document.getElementById('publishBtn').textContent = 'Update';
+  loadPostForEditing(editingId);
+}
+
+async function loadPostForEditing(id) {
+  const { data, error } = await db.from('posts').select('*').eq('id', id).single();
+  if (error || !data) {
+    showMessage('error', 'Post not found');
+    return;
+  }
+
+  document.getElementById('postId').value = data.id;
+  document.getElementById('title').value = data.title || '';
+  document.getElementById('excerpt').value = data.excerpt || '';
+  document.getElementById('content').value = data.content || '';
+  document.getElementById('type').value = data.type || 'essay';
+
+  // Set access radio
+  if (data.access === 'paid') {
+    document.getElementById('paidOption').classList.add('active');
+    document.getElementById('freeOption').classList.remove('active');
+    document.querySelector('input[name="access"][value="paid"]').checked = true;
+  } else {
+    document.getElementById('freeOption').classList.add('active');
+    document.getElementById('paidOption').classList.remove('active');
+    document.querySelector('input[name="access"][value="free"]').checked = true;
+  }
+
+  // Tags
+  tags = (data.tags || "").split(",").map(t => t.trim()).filter(Boolean);
+  renderTags();
+
+  // Trigger word count update
+  contentTextarea.dispatchEvent(new Event('input'));
+}
+
 // Word count
 const contentTextarea = document.getElementById('content');
-
 contentTextarea.addEventListener('input', () => {
   const text = contentTextarea.value;
   const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
   const readTime = Math.max(1, Math.ceil(words / 200));
-
   document.getElementById('wordCount').textContent = `${words} words`;
   document.getElementById('readTime').textContent = `${readTime} min read`;
 });
 
 // Tags
-let tags = [];
-
 document.getElementById('tagInput').addEventListener('keypress', (e) => {
   if (e.key === 'Enter') {
     e.preventDefault();
@@ -442,7 +481,7 @@ function removeTag(tag) {
 function renderTags() {
   document.getElementById('tagsContainer').innerHTML = tags.map(tag => `
     <div class="tag-item">
-      <span>${tag}</span>
+      <span>${escapeHtml(tag)}</span>
       <span class="tag-remove" onclick="removeTag('${tag}')">×</span>
     </div>
   `).join('');
@@ -459,7 +498,6 @@ document.getElementById('paidOption').addEventListener('click', () => {
   document.getElementById('freeOption').classList.remove('active');
 });
 
-// Show message
 function showMessage(type, text) {
   const el = document.getElementById(type === 'success' ? 'successMessage' : 'errorMessage');
   el.textContent = type === 'success' ? `✓ ${text}` : `✗ ${text}`;
@@ -467,12 +505,12 @@ function showMessage(type, text) {
   setTimeout(() => el.classList.remove('show'), 3000);
 }
 
-// Publish
 async function publishPost() {
+  const id = document.getElementById('postId').value;
   const title = document.getElementById('title').value.trim();
   const excerpt = document.getElementById('excerpt').value.trim();
   const content = document.getElementById('content').value.trim();
-  const type = document.getElementById('type').value; // new field
+  const type = document.getElementById('type').value;
   const access = document.querySelector('input[name="access"]:checked').value;
 
   if (!title || !content) {
@@ -482,36 +520,57 @@ async function publishPost() {
 
   const publishBtn = document.getElementById('publishBtn');
   publishBtn.disabled = true;
-  publishBtn.textContent = 'Publishing...';
+  publishBtn.textContent = id ? 'Updating...' : 'Publishing...';
 
   const words = content.split(/\s+/).filter(w => w.length > 0).length;
   const readtime = Math.max(1, Math.ceil(words / 200));
 
-  const { error } = await db.from('posts').insert([
-    {
+  let error;
+  if (id) {
+    // Update existing post
+    ({ error } = await db.from('posts').update({
       title,
       excerpt,
       content,
-      type,                    // <-- include the selected type
+      type,
       tags: tags.join(", "),
       access,
       readtime
-    }
-  ]);
+    }).eq('id', id));
+  } else {
+    // Insert new post
+    ({ error } = await db.from('posts').insert([{
+      title,
+      excerpt,
+      content,
+      type,
+      tags: tags.join(", "),
+      access,
+      readtime
+    }]));
+  }
 
   if (error) {
     console.error(error);
-    showMessage('error', 'Failed to publish');
+    showMessage('error', 'Failed to save');
     publishBtn.disabled = false;
-    publishBtn.textContent = 'Publish';
+    publishBtn.textContent = id ? 'Update' : 'Publish';
     return;
   }
 
-  showMessage('success', 'Published');
-
-  setTimeout(() => location.reload(), 1000);
+  showMessage('success', id ? 'Updated' : 'Published');
+  setTimeout(() => location.href = '/archive.html', 1000);
 }
 
+function escapeHtml(unsafe) {
+  if (!unsafe) return '';
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 </script>
 
 </body>
