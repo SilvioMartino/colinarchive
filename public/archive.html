@@ -80,6 +80,7 @@ header {
   position: sticky;
   top: 0;
   z-index: 100;
+  flex-wrap: wrap; /* allow wrap on small screens */
 }
 
 .logo {
@@ -110,18 +111,29 @@ header {
   align-items: center;
   font-family: var(--mono);
   font-size: 0.7rem;
+  flex-wrap: wrap;
 }
 
-.header-nav a {
+.header-nav a,
+.header-nav button {
   color: var(--muted);
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   transition: color 0.3s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+  line-height: 1;
 }
 
 .header-nav a:hover,
-.header-nav a.active {
+.header-nav button:hover,
+.header-nav a.active,
+.header-nav button.active {
   color: var(--blue);
 }
 
@@ -491,10 +503,9 @@ header {
   }
 
   .header-nav {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row; /* keep horizontal even on mobile */
+    flex-wrap: wrap;
     gap: 1rem;
-    width: 100%;
   }
 
   .filters {
@@ -534,6 +545,7 @@ header {
     <nav class="header-nav">
       <a href="/archive.html" class="active">Archive</a>
       <a href="/write.html">Write</a>
+      <button id="editModeToggle">Edit</button>
     </nav>
   </header>
 
@@ -605,6 +617,19 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 window.db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let allPosts = [];
+let editMode = false;
+
+const editToggle = document.getElementById('editModeToggle');
+
+editToggle.addEventListener('click', () => {
+  editMode = !editMode;
+  if (editMode) {
+    editToggle.classList.add('active');
+  } else {
+    editToggle.classList.remove('active');
+  }
+  renderPosts(allPosts); // re-render to update links
+});
 
 async function loadPosts() {
   const { data, error } = await db
@@ -656,8 +681,9 @@ function renderPosts(posts) {
     const tags = (post.tags || "").split(",").map(t => t.trim()).filter(Boolean)
       .map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('');
     const readTime = post.readtime || 1;
+    const linkTarget = editMode ? `/write.html?id=${post.id}` : `/post.html?id=${post.id}`;
     return `
-      <a href="/post.html?id=${post.id}" class="entry-card ${isPaid ? 'locked' : ''}">
+      <a href="${linkTarget}" class="entry-card ${isPaid ? 'locked' : ''}">
         <div class="entry-header">
           <h2 class="entry-title">${title}</h2>
           <span class="entry-meta">${date}</span>
@@ -678,7 +704,7 @@ function renderPosts(posts) {
 }
 
 async function deletePost(id, event) {
-  event.preventDefault(); // prevent the link from being followed
+  event.preventDefault();
   event.stopPropagation();
 
   if (!confirm('Delete this post forever?')) return;
@@ -689,14 +715,12 @@ async function deletePost(id, event) {
     return;
   }
 
-  // Reload posts
   loadPosts();
 }
 
 function updateStats(posts) {
   const free = posts.filter(p => p.access === "free").length;
   const paid = posts.filter(p => p.access === "paid").length;
-
   document.getElementById('totalEntries').textContent = posts.length;
   document.getElementById('freeEntries').textContent = free;
   document.getElementById('paidEntries').textContent = paid;
@@ -705,7 +729,6 @@ function updateStats(posts) {
 function updateRecentUpdates(posts) {
   const updatesList = document.getElementById('updatesList');
   const recent = posts.slice(0,4);
-
   updatesList.innerHTML = recent.map(post => `
     <div class="update-item">
       <div class="update-date">${new Date(post.created_at).toLocaleDateString()}</div>
@@ -714,7 +737,6 @@ function updateRecentUpdates(posts) {
   `).join('');
 }
 
-// Search
 document.getElementById('searchBox').addEventListener('input', (e) => {
   const search = e.target.value.toLowerCase();
   const filtered = allPosts.filter(post =>
@@ -724,7 +746,6 @@ document.getElementById('searchBox').addEventListener('input', (e) => {
   renderPosts(filtered);
 });
 
-// Filters
 document.querySelectorAll('.filter-tag').forEach(tag => {
   tag.addEventListener('click', () => {
     document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
@@ -746,9 +767,7 @@ document.querySelectorAll('.filter-tag').forEach(tag => {
   });
 });
 
-// Load on start
 loadPosts();
-
 </script>
 
 </body>
