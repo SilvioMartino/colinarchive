@@ -1,1 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Archive — Colin Archive</title>
 
+<!-- Cache‑busting meta tags -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg: #0d0d0d;
+  --paper: #1a1a1a;
+  --fg: #e8e8e8;
+  --muted: #c0c0c0;
+  --border: #2a2a2a;
+  --accent: #e8e8e8;
+  --highlight: rgba(31, 31, 31, 0.85);
+  --red: #ff6b6b;
+  --blue: #4ecdc4;
+  --green: #51cf66;
+  --yellow: #ffe66d;
+  --serif: 'Crimson Text', 'Georgia', serif;
+  --mono: 'IBM Plex Mono', 'Courier New', monospace;
+  --hand: 'Caveat', cursive;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--serif);
+  min-height: 100vh;
+  line-height: 1.6;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.01) 2px,
+      rgba(255, 255, 255, 0.01) 4px
+    );
+  pointer-events: none;
+  z-index: 0;
+  animation: paperSlide 20s linear infinite;
+}
+
+@keyframes paperSlide {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(4px); }
+}
+
+.container {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  position: relative;
+  z-index: 2;
+}
+
+/* Header – no admin stuff, just logo */
+header {
+  padding: 2rem 3rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--fg);
+  transition: transform 0.2s;
+  display: inline-block;
+}
+.logo:hover {
+  transform: scale(1.05);
+}
+.logo::after {
+  content: '|';
+  color: var(--red);
+  animation: blink 1s step-end infinite;
+  margin-left: 2px;
+}
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Main grid */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 3rem;
+  padding: 3rem;
+  background: var(--paper);
+  min-height: calc(100vh - 80px);
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+.archive-section {
+  animation: slideInLeft 0.8s ease forwards;
+}
+
+@keyframes slideInLeft {
+  0% { opacity: 0; transform: translateX(-20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+.updates-sidebar {
+  position: sticky;
+  top: 100px;
+  height: fit-content;
+  animation: slideInRight 0.8s ease forwards;
+  opacity: 0;
+}
+
+@keyframes slideInRight {
+  0% { opacity: 0; transform: translateX(20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+.section-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--fg);
+  position: relative;
+}
+
+.section-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 30%;
+  height: 2px;
+  background: var(--red);
+  animation: underlineGrow 1.5s ease forwards;
+}
+
+@keyframes underlineGrow {
+  0% { width: 0%; }
+  100% { width: 30%; }
+}
+
+.section-header h1 {
+  font-family: var(--serif);
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.section-subtitle {
+  font-style: italic;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+/* Filters & search */
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.search-wrapper {
+  flex: 1;
+  min-width: 250px;
+  position: relative;
+}
+.search-box {
+  width: 100%;
+  padding: 0.75rem 2rem 0.75rem 1rem;
+  background: var(--highlight);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: 0.875rem;
+  transition: all 0.3s;
+  border-radius: 4px;
+}
+.search-box::placeholder {
+  color: var(--muted);
+}
+.search-box:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+  border-color: transparent;
+}
+.search-clear {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: none;
+  padding: 0 0.25rem;
+}
+.search-clear:hover {
+  color: var(--fg);
+}
+.search-box:not(:placeholder-shown) + .search-clear {
+  display: block;
+}
+.filter-tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.filter-tag {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-radius: 4px;
+}
+.filter-tag:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+.filter-tag:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+.filter-tag.active {
+  background: rgba(78, 205, 196, 0.15);
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+/* ---------- POST ENTRIES (Reddit style) ---------- */
+.entry-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.entry {
+  position: relative;
+  padding: 0.5rem 0 1.5rem 0;
+  margin: 0 -0.5rem;
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  border-radius: 8px;
+}
+
+.entry:hover {
+  background-color: hsla(var(--hover-hue, 0), 70%, 60%, 0.08);
+  border-bottom-color: hsla(var(--hover-hue, 0), 70%, 60%, 0.5);
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.entry:last-child {
+  border-bottom: none;
+}
+
+.entry-link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.entry-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.entry-header {
+  margin-bottom: 0.25rem;
+}
+
+.entry-title {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--fg);
+  margin-bottom: 0.1rem;
+}
+
+.entry-meta {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.4rem;
+}
+
+.entry-excerpt {
+  line-height: 1.6;
+  font-size: 0.95rem;
+  color: var(--muted);
+  max-width: 80ch;
+}
+
+.entry-thumb {
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 4px;
+  transition: box-shadow 0.2s;
+}
+.entry:hover .entry-thumb {
+  box-shadow: 0 0 0 2px hsla(var(--hover-hue, 0), 70%, 60%, 0.3);
+}
+
+.entry.locked .entry-title::after {
+  content: ' 🔒';
+  font-size: 1rem;
+  opacity: 0.8;
+  margin-left: 0.3rem;
+}
+
+/* Skeleton loading */
+.skeleton {
+  background: linear-gradient(90deg, var(--highlight) 25%, var(--border) 50%, var(--highlight) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.skeleton-entry {
+  display: flex;
+  gap: 1.5rem;
+  padding: 0.5rem 0;
+}
+.skeleton-content {
+  flex: 1;
+}
+.skeleton-title {
+  width: 80%;
+  height: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.skeleton-meta {
+  width: 30%;
+  height: 0.8rem;
+  margin-bottom: 0.5rem;
+}
+.skeleton-excerpt {
+  width: 100%;
+  height: 3rem;
+}
+.skeleton-thumb {
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+}
+
+/* Sidebar */
+.sidebar-section {
+  margin-bottom: 3rem;
+}
+.sidebar-title {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.update-item {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+}
+.update-item:last-child {
+  border-bottom: none;
+}
+.update-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-top: 0.3rem;
+  flex-shrink: 0;
+}
+.update-dot.essay { background: var(--blue); }
+.update-dot.code { background: var(--green); }
+.update-dot.notes { background: var(--yellow); }
+.update-date {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--blue);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+.update-content {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--muted);
+  flex: 1;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.stat-item {
+  padding: 1rem;
+  background: var(--highlight);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.stat-item:hover {
+  transform: translateY(-2px);
+  border-color: var(--blue);
+}
+.stat-value {
+  font-family: var(--mono);
+  font-size: 1.5rem;
+  color: var(--fg);
+  display: block;
+  margin-bottom: 0.25rem;
+  transition: transform 0.2s;
+}
+.stat-item:hover .stat-value {
+  transform: scale(1.05); /* more subtle */
+}
+.stat-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.sidebar-note {
+  font-family: var(--hand);
+  font-size: 1rem;
+  color: var(--yellow);
+  padding: 1rem;
+  background: rgba(255, 230, 109, 0.05);
+  border-left: 2px solid var(--yellow);
+  margin-top: 2rem;
+  transform: rotate(-0.5deg);
+}
+
+@media (max-width: 1024px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+    padding: 2rem 1.5rem;
+  }
+  .updates-sidebar {
+    position: relative;
+    top: 0;
+    margin-top: 3rem;
+  }
+  header {
+    padding: 1.5rem;
+  }
+  .entry-title {
+    font-size: 1.1rem;
+  }
+}
+@media (max-width: 600px) {
+  .entry-link {
+    flex-direction: column;
+  }
+  .entry-thumb {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    object-fit: contain;
+    margin-bottom: 0.5rem;
+  }
+  .skeleton-entry {
+    flex-direction: column;
+  }
+  .skeleton-thumb {
+    width: 100%;
+    height: 150px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <a href="/" class="logo">Colin Archive</a>
+  </header>
+
+  <div class="main-grid">
+    <section class="archive-section">
+      <div class="section-header">
+        <h1>Archive</h1>
+        <p class="section-subtitle">Unfiltered documentation</p>
+      </div>
+
+      <div class="filters">
+        <div class="search-wrapper">
+          <input type="text" class="search-box" id="searchBox" placeholder="Search entries...">
+          <button class="search-clear" id="searchClear" aria-label="Clear search">×</button>
+        </div>
+        <div class="filter-tags">
+          <button class="filter-tag active" data-filter="all">All</button>
+          <button class="filter-tag" data-filter="essays">Essays</button>
+          <button class="filter-tag" data-filter="code">Code</button>
+          <button class="filter-tag" data-filter="notes">Notes</button>
+        </div>
+      </div>
+
+      <div class="entry-list" id="entryList">
+        <!-- skeleton will be shown while loading -->
+        <div class="skeleton-entry">
+          <div class="skeleton-content">
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-meta"></div>
+            <div class="skeleton skeleton-excerpt"></div>
+          </div>
+          <div class="skeleton skeleton-thumb"></div>
+        </div>
+        <div class="skeleton-entry">
+          <div class="skeleton-content">
+            <div class="skeleton skeleton-title"></div>
+            <div class="skeleton skeleton-meta"></div>
+            <div class="skeleton skeleton-excerpt"></div>
+          </div>
+          <div class="skeleton skeleton-thumb"></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="updates-sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Recent Updates</h3>
+        <div id="updatesList"></div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Archive Stats</h3>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-value" id="totalEntries">0</span>
+            <span class="stat-label">Total entries</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="freeEntries">0</span>
+            <span class="stat-label">Free</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">Irregular</span>
+            <span class="stat-label">Cadence</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="paidEntries">0</span>
+            <span class="stat-label">Paid</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-note">
+        Not all entries are essays. Some are just messy notes.
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function() {
+  const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let allPosts = [];
+
+  const entryList = document.getElementById('entryList');
+  const searchBox = document.getElementById('searchBox');
+  const searchClear = document.getElementById('searchClear');
+  const updatesList = document.getElementById('updatesList');
+  const totalEl = document.getElementById('totalEntries');
+  const freeEl = document.getElementById('freeEntries');
+  const paidEl = document.getElementById('paidEntries');
+
+  async function loadPosts() {
+    try {
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      allPosts = data || [];
+      renderPosts(allPosts);
+      updateStats(allPosts);
+      updateRecentUpdates(allPosts);
+    } catch (err) {
+      console.error('Failed to load posts:', err);
+      entryList.innerHTML = `<div style="padding:3rem;text-align:center;color:var(--muted);">Could not load posts. Please try again later.</div>`;
+    }
+  }
+
+  function escapeHtml(unsafe) {
+    if (!unsafe) return '';
+    return unsafe
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function generateExcerpt(post) {
+    if (post.excerpt) return escapeHtml(post.excerpt);
+    if (post.content) {
+      const plain = post.content.replace(/<[^>]*>/g, '');
+      return escapeHtml(plain.substring(0, 120)) + (plain.length > 120 ? '…' : '');
+    }
+    return '<em style="opacity:0.6;">(no preview)</em>';
+  }
+
+  function renderPosts(posts) {
+    if (!posts.length) {
+      entryList.innerHTML = `<div style="padding:3rem;text-align:center;color:var(--muted);">No entries yet</div>`;
+      return;
+    }
+
+    entryList.innerHTML = posts.map(post => {
+      const isPaid = post.access === 'paid';
+      const title = escapeHtml(post.title);
+      const excerpt = generateExcerpt(post);
+      const date = new Date(post.created_at).toLocaleDateString();
+      const coverUrl = post.cover_url ? escapeHtml(post.cover_url) : null;
+      const linkTarget = `/post.html?id=${post.id}`; // adjust if your post page URL is different
+
+      return `
+        <div class="entry ${isPaid ? 'locked' : ''}" data-id="${post.id}">
+          <a href="${linkTarget}" class="entry-link">
+            <div class="entry-content">
+              <div class="entry-header">
+                <h2 class="entry-title">${title}</h2>
+              </div>
+              <div class="entry-meta">${date}</div>
+              <p class="entry-excerpt">${excerpt}</p>
+            </div>
+            ${coverUrl ? `<img src="${coverUrl}" alt="" class="entry-thumb" loading="lazy">` : ''}
+          </a>
+        </div>
+      `;
+    }).join('');
+
+    document.querySelectorAll('.entry').forEach(entry => {
+      const hue = Math.floor(Math.random() * 360);
+      entry.style.setProperty('--hover-hue', hue);
+    });
+  }
+
+  function updateStats(posts) {
+    const free = posts.filter(p => p.access === "free").length;
+    const paid = posts.filter(p => p.access === "paid").length;
+    totalEl.textContent = posts.length;
+    freeEl.textContent = free;
+    paidEl.textContent = paid;
+  }
+
+  function updateRecentUpdates(posts) {
+    const recent = posts.slice(0,4);
+    updatesList.innerHTML = recent.map(post => `
+      <div class="update-item">
+        <div class="update-dot ${post.type || 'essay'}"></div>
+        <div>
+          <div class="update-date">${new Date(post.created_at).toLocaleDateString()}</div>
+          <div class="update-content">Added: ${escapeHtml(post.title)}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  searchBox.addEventListener('input', (e) => {
+    const search = e.target.value.toLowerCase();
+    const filtered = allPosts.filter(post =>
+      (post.title || "").toLowerCase().includes(search) ||
+      (post.excerpt || "").toLowerCase().includes(search) ||
+      (post.content || "").toLowerCase().includes(search)
+    );
+    renderPosts(filtered);
+  });
+
+  searchClear.addEventListener('click', () => {
+    searchBox.value = '';
+    renderPosts(allPosts);
+    searchBox.focus();
+  });
+
+  document.querySelectorAll('.filter-tag').forEach(tag => {
+    tag.addEventListener('click', () => {
+      document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+      tag.classList.add('active');
+      const filter = tag.dataset.filter;
+      if (filter === 'all') {
+        renderPosts(allPosts);
+      } else {
+        const typeMap = { essays:'essay', code:'code', notes:'notes' };
+        const filtered = allPosts.filter(post => (post.type || "essay") === typeMap[filter]);
+        renderPosts(filtered);
+      }
+    });
+  });
+
+  // Start loading
+  loadPosts();
+})();
+</script>
+</body>
+</html>
