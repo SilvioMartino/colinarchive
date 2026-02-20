@@ -3,375 +3,407 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Colin Archive – three worlds</title>
-  <!-- Clay fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
-  <!-- Paper fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
-  <!-- Glass fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <title>Comic Panel · Colin Archive</title>
+  <!-- Comic‑themed fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Graduate&family=Press+Start+2P&family=Space+Mono&family=Special+Elite&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
+
     body {
+      background: #1f1f1f; /* dark background for contrast */
+      padding: 2rem;
       min-height: 100vh;
       display: flex;
-      background: #111;
-      font-family: sans-serif;
-    }
-
-    /* ----- PANEL BASE ----- */
-    .panel {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       justify-content: center;
-      padding: 2rem;
-      transition: flex 0.3s;
-    }
-    .panel:hover {
-      flex: 1.1;
-    }
-
-    /* ----- CLAY PANEL (left) ----- */
-    .clay-panel {
-      background: #f2e9e0;
-      color: #3a2c1f;
-      --surface: #faf0e6;
-      --border: #dcd0c0;
-      --accent: #b87c4b;
-      --shadow: 0 10px 20px -5px rgba(0,0,0,0.1), 0 0 0 1px rgba(220,208,192,0.5) inset, 0 -2px 0 rgba(0,0,0,0.05) inset;
-      font-family: 'Figtree', sans-serif;
-    }
-    .clay-panel .header {
-      background: var(--surface);
-      border-radius: 40px 40px 20px 20px;
-      padding: 1.25rem 2rem;
-      margin-bottom: 2rem;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
-      display: inline-block;
-    }
-    .clay-panel .header .logo {
-      font-family: 'Source Serif 4', serif;
-      font-weight: 600;
-      font-size: 1.5rem;
-      color: #3a2c1f;
-      background: #f2e9e0;
-      padding: 0.3rem 1.2rem;
-      border-radius: 60px;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.05);
-    }
-    .clay-panel .header .logo::after {
-      content: '|';
-      color: var(--accent);
-      margin-left: 0.3rem;
-      animation: blink 1s step-end infinite;
-    }
-    .clay-panel .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 30px;
-      padding: 2rem;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: var(--shadow);
-      text-align: center;
-    }
-    .clay-panel .card h2 {
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
-      color: var(--accent);
-    }
-    .clay-panel .card p {
-      margin-bottom: 1.5rem;
-      line-height: 1.6;
-      color: #5a4a3a;
-    }
-    .clay-panel .feature-list {
-      list-style: none;
-      text-align: left;
-      margin: 1.5rem 0;
-    }
-    .clay-panel .feature-list li {
-      display: flex;
       align-items: center;
-      gap: 0.8rem;
-      margin-bottom: 1rem;
-      font-size: 1rem;
-    }
-    .clay-panel .feature-list li span:first-child {
-      font-size: 1.5rem;
-      color: var(--accent);
-    }
-    .clay-panel .btn {
-      display: inline-block;
-      background: var(--accent);
-      color: white;
-      padding: 0.8rem 2rem;
-      border-radius: 60px;
-      text-decoration: none;
-      font-weight: 500;
-      border: 1px solid var(--border);
-      box-shadow: 0 5px 10px rgba(184,124,75,0.3);
-      transition: transform 0.2s;
-      margin-top: 1rem;
-    }
-    .clay-panel .btn:hover {
-      transform: translateY(-2px);
+      font-family: 'Comic Neue', cursive;
     }
 
-    /* ----- PAPER PANEL (center) ----- */
-    .paper-panel {
-      background: #0d0d0d;
-      color: #e8e8e8;
-      --paper: #1a1a1a;
-      --border: #2a2a2a;
-      --blue: #4ecdc4;
-      font-family: 'Crimson Text', serif;
-    }
-    .paper-panel .header {
-      background: var(--paper);
-      border-bottom: 1px solid var(--border);
-      padding: 1.2rem 2rem;
-      margin-bottom: 2rem;
-      display: inline-block;
-    }
-    .paper-panel .header .logo {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.75rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: #e8e8e8;
-    }
-    .paper-panel .header .logo::after {
-      content: '|';
-      color: #ff6b6b;
-      animation: blink 1s step-end infinite;
-      margin-left: 2px;
-    }
-    .paper-panel .card {
-      background: var(--paper);
-      border: 1px solid var(--border);
-      padding: 2rem;
-      max-width: 400px;
+    /* main container – comic book page */
+    .comic-page {
+      max-width: 1400px;
       width: 100%;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      background: #f0e7d6;  /* aged paper */
+      padding: 2rem;
+      border-radius: 30px 30px 15px 15px;
+      box-shadow: 0 20px 30px rgba(0,0,0,0.5), inset 0 0 0 2px #d4bc9e, inset 0 0 20px #b2926a;
       position: relative;
     }
-    .paper-panel .card::before {
+
+    /* header with comic title */
+    .comic-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fcd34d; /* comic yellow */
+      padding: 1rem 2rem;
+      border-radius: 60px 60px 20px 20px;
+      margin-bottom: 2rem;
+      border: 4px solid #000;
+      box-shadow: 8px 8px 0 #000;
+      transform: rotate(-1deg);
+    }
+
+    .comic-logo {
+      font-family: 'Bangers', cursive;
+      font-size: 2.5rem;
+      letter-spacing: 3px;
+      color: #000;
+      text-shadow: 3px 3px 0 #ff3e3e;
+    }
+
+    .comic-nav {
+      display: flex;
+      gap: 1.5rem;
+    }
+    .comic-nav a {
+      font-family: 'Graduate', cursive;
+      font-size: 1rem;
+      text-decoration: none;
+      color: #000;
+      background: #fff;
+      padding: 0.4rem 1.2rem;
+      border-radius: 40px;
+      border: 2px solid #000;
+      box-shadow: 4px 4px 0 #000;
+      transition: 0.1s linear;
+    }
+    .comic-nav a:hover {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 #000;
+    }
+
+    /* explanation banner – like a thought bubble */
+    .thought-bubble {
+      background: #fff;
+      border: 4px solid #000;
+      border-radius: 60px 60px 60px 20px;
+      padding: 1rem 2rem;
+      margin-bottom: 2rem;
+      font-size: 1.3rem;
+      font-family: 'Comic Neue', cursive;
+      font-weight: 700;
+      position: relative;
+      box-shadow: 10px 10px 0 rgba(0,0,0,0.2);
+    }
+    .thought-bubble::after {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 6px;
-      background:
-        linear-gradient(135deg, var(--paper) 4px, transparent 0),
-        linear-gradient(225deg, var(--paper) 4px, transparent 0);
-      background-size: 8px 6px;
-      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
-    }
-    .paper-panel .card h2 {
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
-      color: #e8e8e8;
-    }
-    .paper-panel .card p {
-      color: #bdbdbd;
-      margin-bottom: 1.5rem;
-      line-height: 1.6;
-    }
-    .paper-panel .feature-list {
-      list-style: none;
-      text-align: left;
-      margin: 1.5rem 0;
-    }
-    .paper-panel .feature-list li {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      margin-bottom: 1rem;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.9rem;
-      color: #b0b0b0;
-    }
-    .paper-panel .feature-list li span:first-child {
-      font-size: 1.3rem;
-      color: var(--blue);
-    }
-    .paper-panel .btn {
-      display: inline-block;
-      background: transparent;
-      border: 1px solid var(--blue);
-      color: var(--blue);
-      padding: 0.8rem 2rem;
-      text-decoration: none;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.7rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      transition: background 0.2s;
-      margin-top: 1rem;
-    }
-    .paper-panel .btn:hover {
-      background: var(--blue);
-      color: #0d0d0d;
-    }
-    .paper-panel .meta {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.65rem;
-      color: #8a8a8a;
-      margin-top: 1rem;
+      bottom: -20px;
+      left: 40px;
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-top: 30px solid #fff;
+      filter: drop-shadow(4px 8px 0 #000);
     }
 
-    /* ----- GLASS PANEL (right) ----- */
-    .glass-panel {
-      background: linear-gradient(135deg, #1a2a3a, #0b1a2a);
-      color: #f0f0f0;
-      backdrop-filter: blur(4px);
-      --glass-border: rgba(255,255,255,0.2);
-      font-family: 'Inter', sans-serif;
+    /* comic panel grid – 5 panels, dynamic arrangement */
+    .panel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 1.5rem;
+      margin-top: 3rem;
     }
-    .glass-panel .header {
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(10px);
-      border: 1px solid var(--glass-border);
-      border-radius: 40px;
-      padding: 1.2rem 2rem;
-      margin-bottom: 2rem;
-      display: inline-block;
+
+    /* each panel is a card */
+    .panel {
+      border: 4px solid #000;
+      border-radius: 15px 30px 15px 30px; /* irregular comic shape */
+      padding: 1.5rem;
+      box-shadow: 10px 10px 0 rgba(0,0,0,0.3), inset 0 0 0 2px #fff3;
+      transition: transform 0.2s, box-shadow 0.2s;
+      animation: float 3s infinite alternate ease-in-out;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      min-height: 280px;
     }
-    .glass-panel .header .logo {
-      font-size: 1.2rem;
-      font-weight: 300;
+
+    .panel:hover {
+      transform: scale(1.02) translate(-2px, -2px);
+      box-shadow: 15px 15px 0 rgba(0,0,0,0.4);
+    }
+
+    /* different sizes for panels */
+    .panel:nth-child(1) { grid-column: span 2; grid-row: span 1; }  /* coffee – large */
+    .panel:nth-child(2) { grid-column: span 1; grid-row: span 1; }  /* military */
+    .panel:nth-child(3) { grid-column: span 1; grid-row: span 1; }  /* tech */
+    .panel:nth-child(4) { grid-column: span 2; grid-row: span 1; }  /* freestyle1 – wide */
+    .panel:nth-child(5) { grid-column: span 2; grid-row: span 1; }  /* freestyle2 – also wide, but we need 5 items: maybe adjust */
+    /* We have 5 panels, but our grid is 4 columns. Let's do:
+       panel1: col 1-2 (span 2)
+       panel2: col 3 (span 1)
+       panel3: col 4 (span 1)
+       panel4: col 1-2 (span 2) (next row)
+       panel5: col 3-4 (span 2) (next row)
+    */
+    .panel:nth-child(4) { grid-column: 1 / span 2; grid-row: 2; }
+    .panel:nth-child(5) { grid-column: 3 / span 2; grid-row: 2; }
+
+    /* floating animation */
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(-8px); }
+    }
+
+    /* individual panel themes */
+
+    /* COFFEE */
+    .panel.coffee {
+      background: #6f4e37; /* coffee brown */
+      background-image: radial-gradient(circle at 10px 10px, #8b5e3c 2px, transparent 2px),
+                        linear-gradient(45deg, #5a3e2b 1px, transparent 1px);
+      background-size: 20px 20px, 10px 10px;
+      color: #f5e7d9;
+      border-color: #c79a6e;
+      box-shadow: 0 8px 0 #7b5a42, 10px 10px 0 #00000030;
+      font-family: 'Special Elite', cursive;
+    }
+    .panel.coffee h2 {
+      font-family: 'Bangers', cursive;
+      font-size: 2rem;
       letter-spacing: 2px;
-      color: white;
+      color: #ffd966;
+      text-shadow: 3px 3px 0 #a0522d;
     }
-    .glass-panel .header .logo::after {
-      content: '|';
-      color: #88ccff;
-      margin-left: 0.3rem;
-      animation: blink 1s step-end infinite;
+    .panel.coffee .meta {
+      border-top: 3px dashed #e0b589;
     }
-    .glass-panel .card {
-      background: rgba(255,255,255,0.05);
-      backdrop-filter: blur(15px);
-      border: 1px solid var(--glass-border);
-      border-radius: 30px;
-      padding: 2rem;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-      text-align: center;
+
+    /* MILITARY */
+    .panel.military {
+      background: #3a5f40;
+      background-image: repeating-linear-gradient(45deg, #4a7040 0px, #4a7040 5px, #2f4f2f 5px, #2f4f2f 10px);
+      color: #d1d1b8;
+      border-color: #7c9c5e;
+      border-style: double;
+      border-width: 6px;
+      font-family: 'Graduate', cursive;
+      text-transform: uppercase;
     }
-    .glass-panel .card h2 {
+    .panel.military h2 {
+      font-family: 'Graduate', cursive;
       font-size: 1.8rem;
-      font-weight: 300;
-      margin-bottom: 1rem;
-      color: white;
-      text-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    }
-    .glass-panel .card p {
-      color: #d0d0d0;
-      margin-bottom: 1.5rem;
-      line-height: 1.6;
-    }
-    .glass-panel .feature-list {
-      list-style: none;
-      text-align: left;
-      margin: 1.5rem 0;
-    }
-    .glass-panel .feature-list li {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      margin-bottom: 1rem;
-      font-size: 0.95rem;
-      color: #e0e0e0;
-    }
-    .glass-panel .feature-list li span:first-child {
-      font-size: 1.4rem;
-      color: #88ccff;
-    }
-    .glass-panel .btn {
+      background: #00000080;
       display: inline-block;
-      background: rgba(255,255,255,0.1);
-      border: 1px solid rgba(255,255,255,0.3);
-      color: white;
-      padding: 0.8rem 2rem;
-      border-radius: 40px;
-      text-decoration: none;
-      font-weight: 400;
-      backdrop-filter: blur(4px);
-      transition: background 0.2s;
-      margin-top: 1rem;
+      padding: 0.2rem 1rem;
+      border-radius: 0 20px 0 20px;
     }
-    .glass-panel .btn:hover {
+    .panel.military .meta {
+      font-family: 'Space Mono', monospace;
+    }
+
+    /* TECH */
+    .panel.tech {
+      background: #0b1020;
+      background-image: linear-gradient(0deg, #00ffff20 1px, transparent 1px),
+                        linear-gradient(90deg, #00ffff20 1px, transparent 1px);
+      background-size: 20px 20px;
+      color: #00ffff;
+      border-color: #00ffff;
+      border-width: 3px;
+      border-style: solid;
+      box-shadow: 0 0 20px cyan, 0 8px 0 #005f5f;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.7rem;
+    }
+    .panel.tech h2 {
+      font-family: 'Press Start 2P', cursive;
+      font-size: 1rem;
+      line-height: 1.5;
+      text-transform: uppercase;
+    }
+
+    /* FREESTYLE A – ARTISTIC / WEIRD */
+    .panel.freestyle1 {
+      background: linear-gradient(145deg, #f7b731, #e67e22);
+      border: 6px dotted #c44569;
+      color: #2d1b3a;
+      font-family: 'Comic Neue', cursive;
+      font-weight: 700;
+      transform: rotate(1deg);
+      box-shadow: -8px 8px 0 #c44569, 8px -8px 0 #f7b731;
+    }
+    .panel.freestyle1 h2 {
+      font-family: 'Bangers', cursive;
+      font-size: 2.5rem;
+      background: #fff;
+      display: inline-block;
+      padding: 0.2rem 1rem;
+      border-radius: 40px 0 40px 0;
+      transform: rotate(-2deg);
+      border: 3px solid #000;
+    }
+    .panel.freestyle1 .meta {
+      border-top: 5px wavy #c44569;
+    }
+
+    /* FREESTYLE B – MINIMALIST */
+    .panel.freestyle2 {
+      background: #f5f5f5;
+      border: 2px solid #333;
+      color: #111;
+      font-family: 'Helvetica', 'Arial', sans-serif;
+      box-shadow: 0 4px 0 #ccc, 0 8px 0 #aaa;
+    }
+    .panel.freestyle2 h2 {
+      font-weight: 300;
+      font-size: 3rem;
+      letter-spacing: -2px;
+      margin-bottom: 0.2rem;
+    }
+    .panel.freestyle2 .meta {
+      border-top: 1px solid #333;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+    }
+
+    /* panel content */
+    .panel h2 {
+      margin-bottom: 0.5rem;
+      line-height: 1.2;
+    }
+    .panel p {
+      flex: 1;
+      font-size: 0.9rem;
+      opacity: 0.9;
+      margin: 0.5rem 0;
+    }
+    .panel .meta {
+      display: flex;
+      justify-content: space-between;
+      padding-top: 0.5rem;
+      margin-top: auto;
+      font-weight: bold;
+    }
+
+    /* sound effects / pop art */
+    .panel::before {
+      content: 'BAM!';
+      position: absolute;
+      top: -10px;
+      right: -10px;
+      background: #ff3e3e;
+      color: #fff;
+      font-family: 'Bangers', cursive;
+      font-size: 1.8rem;
+      padding: 0.2rem 0.8rem;
+      border-radius: 50%;
+      border: 3px solid #000;
+      transform: rotate(15deg);
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+    }
+    .panel:hover::before {
+      opacity: 0.8;
+    }
+
+    /* different sound for each? optional */
+    .panel.coffee::before { content: '☕️ ZING!'; }
+    .panel.military::before { content: '💥 KABOOM'; }
+    .panel.tech::before { content: '⚡ GLITCH'; }
+    .panel.freestyle1::before { content: '🌀 WOW'; }
+    .panel.freestyle2::before { content: '▪️ SHHH'; }
+
+    /* speech bubble for excerpt */
+    .panel p {
       background: rgba(255,255,255,0.2);
+      padding: 0.5rem;
+      border-radius: 20px 20px 20px 5px;
+      border: 1px solid currentColor;
+      backdrop-filter: blur(2px);
     }
 
-    @keyframes blink {
-      0%,50% { opacity:1; } 51%,100% { opacity:0; }
-    }
-
-    @media (max-width: 900px) {
-      body { flex-direction: column; }
-      .panel { width: 100%; }
-      .panel:hover { flex: 1; }
+    /* responsive */
+    @media (max-width: 800px) {
+      .panel-grid {
+        display: flex;
+        flex-direction: column;
+      }
+      .panel {
+        margin-bottom: 1rem;
+      }
+      .comic-header {
+        flex-direction: column;
+        gap: 1rem;
+      }
     }
   </style>
 </head>
 <body>
-  <!-- CLAY -->
-  <div class="panel clay-panel">
-    <div class="header"><span class="logo">Clay Archive</span></div>
-    <div class="card">
-      <h2>Warm & Tactile</h2>
-      <p>A cozy, earthy space for slow thoughts, code with character, and handwritten notes. Soft shadows and rounded edges invite you to stay.</p>
-      <ul class="feature-list">
-        <li><span>✎</span> Essays on philosophy and craft</li>
-        <li><span>{ }</span> Code snippets with a warm glow</li>
-        <li><span>📓</span> Hand‑drawn diagrams and ideas</li>
-      </ul>
-      <a href="#" class="btn">Enter the Clay</a>
-      <div style="margin-top:1rem; font-size:0.8rem; color:#8b7a66;">terracotta · sand · comfort</div>
-    </div>
-  </div>
+  <div class="comic-page">
+    <header class="comic-header">
+      <div class="comic-logo">COLIN ARCHIVE</div>
+      <nav class="comic-nav">
+        <a href="#">Archive</a>
+        <a href="#">Write</a>
+        <a href="#">Edit</a>
+      </nav>
+    </header>
 
-  <!-- PAPER -->
-  <div class="panel paper-panel">
-    <div class="header"><span class="logo">Paper Archive</span></div>
-    <div class="card">
-      <h2>Raw & Unfiltered</h2>
-      <p>The original archive aesthetic: dark, textured, with torn edges. A place for raw documentation, half‑finished drafts, and unpolished truth.</p>
-      <ul class="feature-list">
-        <li><span>📜</span> Unfiltered essays and manifestos</li>
-        <li><span>⚙️</span> Code experiments, bugs included</li>
-        <li><span>📌</span> Messy notes and ephemera</li>
-      </ul>
-      <a href="#" class="btn">Enter the Paper</a>
-      <div class="meta">torn edges · ink · texture</div>
+    <div class="thought-bubble">
+      💭 Every post has its own style – coffee, military, tech, and freestyle! Hover over each panel.
     </div>
-  </div>
 
-  <!-- GLASS -->
-  <div class="panel glass-panel">
-    <div class="header"><span class="logo">Glass Archive</span></div>
-    <div class="card">
-      <h2>Transparent & Minimal</h2>
-      <p>A sleek, modern space where content breathes. Frosted surfaces, light borders, and a sense of openness – for focused reading and writing.</p>
-      <ul class="feature-list">
-        <li><span>🪞</span> Clear, distraction‑free essays</li>
-        <li><span>🔮</span> Code in a minimalist environment</li>
-        <li><span>🧊</span> Notes that feel weightless</li>
-      </ul>
-      <a href="#" class="btn">Enter the Glass</a>
-      <div style="margin-top:1rem; font-size:0.8rem; opacity:0.7;">blur · light · air</div>
+    <div class="panel-grid">
+      <!-- Coffee Panel -->
+      <div class="panel coffee">
+        <h2>MORNING RITUAL</h2>
+        <p>The scent of fresh brew, the quiet before dawn. Notes on espresso, community, and slow living.</p>
+        <div class="meta">
+          <span>☕ Coffee</span>
+          <span>5 min</span>
+        </div>
+      </div>
+
+      <!-- Military Panel -->
+      <div class="panel military">
+        <h2>OP: SILENT WATCH</h2>
+        <p>Tactical briefings, night ops, and the discipline of the unseen. A field report from the edge.</p>
+        <div class="meta">
+          <span>⚔️ Military</span>
+          <span>12 min</span>
+        </div>
+      </div>
+
+      <!-- Tech Panel -->
+      <div class="panel tech">
+        <h2>AI & EDGE</h2>
+        <p>Neural nets, latency wars, and the future of distributed intelligence. Code deep dive.</p>
+        <div class="meta">
+          <span>⚙️ Tech</span>
+          <span>8 min</span>
+        </div>
+      </div>
+
+      <!-- Freestyle A (Artistic) -->
+      <div class="panel freestyle1">
+        <h2>FLUX</h2>
+        <p>dreams, scribbles, and the spaces between. a visual journal of half‑remembered things.</p>
+        <div class="meta">
+          <span>🎨 Freestyle</span>
+          <span>∞</span>
+        </div>
+      </div>
+
+      <!-- Freestyle B (Minimalist) -->
+      <div class="panel freestyle2">
+        <h2>UNTITLED</h2>
+        <p>White space. Silence. A single line of text that waits for you to finish it.</p>
+        <div class="meta">
+          <span>⬜ Minimal</span>
+          <span>—</span>
+        </div>
+      </div>
     </div>
   </div>
 </body>
