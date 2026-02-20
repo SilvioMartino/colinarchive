@@ -23,7 +23,8 @@
   --accent: #e8e8e8;
   --highlight: rgba(31, 31, 31, 0.85);
   --red: #ff6b6b;
-  --blue: #4ecdc4;
+  --blue: #0ff;                /* neon cyan */
+  --pink: #f0f;                /* neon magenta (unused but ready) */
   --green: #51cf66;
   --yellow: #ffe66d;
   --serif: 'Crimson Text', 'Georgia', serif;
@@ -44,28 +45,61 @@ body {
   min-height: 100vh;
   line-height: 1.6;
   position: relative;
+  overflow-x: hidden;
 }
 
+/* Paper texture + cyberpunk grid overlay */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background-image:
+  background-image: 
     repeating-linear-gradient(
       0deg,
       transparent,
       transparent 2px,
       rgba(255, 255, 255, 0.01) 2px,
       rgba(255, 255, 255, 0.01) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 4px,
+      rgba(0, 255, 255, 0.02) 4px,
+      rgba(0, 255, 255, 0.02) 8px
     );
   pointer-events: none;
   z-index: 0;
   animation: paperSlide 20s linear infinite;
 }
 
+/* Scanning line animation */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, var(--blue), transparent);
+  opacity: 0.3;
+  animation: scan 8s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
 @keyframes paperSlide {
   0% { transform: translateY(0); }
   100% { transform: translateY(4px); }
+}
+
+@keyframes scan {
+  0% { top: -10%; }
+  20% { top: 20%; opacity: 0.4; }
+  40% { top: 40%; opacity: 0.3; }
+  60% { top: 60%; opacity: 0.4; }
+  80% { top: 80%; opacity: 0.2; }
+  100% { top: 110%; opacity: 0; }
 }
 
 .container {
@@ -76,7 +110,7 @@ body::before {
   z-index: 2;
 }
 
-/* Header – no admin stuff, just logo */
+/* Header */
 header {
   padding: 2rem 3rem;
   border-bottom: 1px solid var(--border);
@@ -84,6 +118,12 @@ header {
   position: sticky;
   top: 0;
   z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
 }
 
 .logo {
@@ -94,11 +134,13 @@ header {
   font-weight: 500;
   text-decoration: none;
   color: var(--fg);
-  transition: transform 0.2s;
+  transition: transform 0.2s, text-shadow 0.2s;
   display: inline-block;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
 }
 .logo:hover {
   transform: scale(1.05);
+  text-shadow: 0 0 10px var(--blue);
 }
 .logo::after {
   content: '|';
@@ -148,25 +190,9 @@ header {
 
 .section-header {
   margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 2px solid var(--fg);
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
   position: relative;
-}
-
-.section-header::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 30%;
-  height: 2px;
-  background: var(--red);
-  animation: underlineGrow 1.5s ease forwards;
-}
-
-@keyframes underlineGrow {
-  0% { width: 0%; }
-  100% { width: 30%; }
 }
 
 .section-header h1 {
@@ -174,15 +200,51 @@ header {
   font-size: 2.5rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
 }
 
 .section-subtitle {
   font-style: italic;
   color: var(--muted);
   font-size: 1rem;
+  margin-bottom: 1.5rem;
 }
 
-/* Filters & search */
+/* Progress bar – cyber red with glow */
+.progress-container {
+  margin: 1rem 0 0.5rem;
+}
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.3rem;
+}
+.progress-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 0 5px rgba(255, 107, 107, 0.3);
+}
+.progress-bar-fill {
+  height: 100%;
+  width: 52.5%;
+  background: var(--red);
+  border-radius: 4px;
+  box-shadow: 0 0 10px var(--red);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
+/* Filters & search – cyber glow */
 .filters {
   display: flex;
   gap: 1rem;
@@ -210,9 +272,9 @@ header {
   color: var(--muted);
 }
 .search-box:focus-visible {
-  outline: 2px solid var(--blue);
-  outline-offset: 2px;
-  border-color: transparent;
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 15px var(--blue);
 }
 .search-clear {
   position: absolute;
@@ -252,20 +314,23 @@ header {
   border-radius: 4px;
 }
 .filter-tag:focus-visible {
-  outline: 2px solid var(--blue);
-  outline-offset: 2px;
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 10px var(--blue);
 }
 .filter-tag:hover {
   border-color: var(--blue);
   color: var(--blue);
+  box-shadow: 0 0 8px var(--blue);
 }
 .filter-tag.active {
-  background: rgba(78, 205, 196, 0.15);
+  background: rgba(0, 255, 255, 0.1);
   border-color: var(--blue);
   color: var(--blue);
+  box-shadow: 0 0 12px var(--blue);
 }
 
-/* ---------- POST ENTRIES (Reddit style) ---------- */
+/* ---------- POST ENTRIES ---------- */
 .entry-list {
   display: flex;
   flex-direction: column;
@@ -277,7 +342,7 @@ header {
   padding: 0.5rem 0 1.5rem 0;
   margin: 0 -0.5rem;
   border-bottom: 1px solid var(--border);
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease, padding 0.15s ease, box-shadow 0.15s ease;
   border-radius: 8px;
 }
 
@@ -286,6 +351,7 @@ header {
   border-bottom-color: hsla(var(--hover-hue, 0), 70%, 60%, 0.5);
   padding-left: 0.5rem;
   padding-right: 0.5rem;
+  box-shadow: 0 0 15px hsla(var(--hover-hue, 0), 70%, 60%, 0.2);
 }
 
 .entry:last-child {
@@ -306,7 +372,12 @@ header {
 }
 
 .entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
   margin-bottom: 0.25rem;
+  flex-wrap: wrap;
 }
 
 .entry-title {
@@ -315,16 +386,20 @@ header {
   font-weight: 600;
   line-height: 1.4;
   color: var(--fg);
-  margin-bottom: 0.1rem;
+  margin: 0;
+  transition: text-shadow 0.2s;
+}
+.entry:hover .entry-title {
+  text-shadow: 0 0 5px currentColor;
 }
 
-.entry-meta {
+.entry-time {
   font-family: var(--mono);
   font-size: 0.65rem;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 0.4rem;
+  white-space: nowrap;
 }
 
 .entry-excerpt {
@@ -342,10 +417,11 @@ header {
   border: 1px solid var(--border);
   background: var(--bg);
   border-radius: 4px;
-  transition: box-shadow 0.2s;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
 }
 .entry:hover .entry-thumb {
-  box-shadow: 0 0 0 2px hsla(var(--hover-hue, 0), 70%, 60%, 0.3);
+  box-shadow: 0 0 0 2px hsla(var(--hover-hue, 0), 70%, 60%, 0.3), 0 0 20px hsla(var(--hover-hue, 0), 70%, 60%, 0.4);
+  border-color: hsla(var(--hover-hue, 0), 70%, 60%, 0.5);
 }
 
 .entry.locked .entry-title::after {
@@ -394,9 +470,9 @@ header {
   flex-shrink: 0;
 }
 
-/* Sidebar */
+/* Sidebar: rules and social boxes */
 .sidebar-section {
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
 }
 .sidebar-title {
   font-family: var(--mono);
@@ -408,75 +484,80 @@ header {
   padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--border);
 }
-.update-item {
-  display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border);
-  align-items: flex-start;
-}
-.update-item:last-child {
-  border-bottom: none;
-}
-.update-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-top: 0.3rem;
-  flex-shrink: 0;
-}
-.update-dot.essay { background: var(--blue); }
-.update-dot.code { background: var(--green); }
-.update-dot.notes { background: var(--yellow); }
-.update-date {
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  color: var(--blue);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.25rem;
-}
-.update-content {
-  font-size: 0.875rem;
-  line-height: 1.6;
+
+.rules-content {
+  font-family: var(--serif);
   color: var(--muted);
-  flex: 1;
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
-.stats-grid {
+.rules-content p {
+  margin-bottom: 1rem;
+}
+.rules-list {
+  list-style: none;
+  margin: 1rem 0;
+}
+.rules-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.rule-icon {
+  font-size: 1.2rem;
+  min-width: 1.8rem;
+  color: var(--blue);
+  text-shadow: 0 0 5px var(--blue);
+}
+.rules-footer {
+  font-style: italic;
+  border-top: 1px dashed var(--border);
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+  color: var(--fg);
+}
+
+/* Social boxes – cyber hover */
+.social-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
+  margin-top: 1rem;
 }
-.stat-item {
-  padding: 1rem;
+.social-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.2rem 0.5rem;
   background: var(--highlight);
   border: 1px solid var(--border);
   border-radius: 6px;
-  transition: transform 0.2s, border-color 0.2s;
+  text-decoration: none;
+  color: var(--fg);
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  gap: 0.3rem;
 }
-.stat-item:hover {
+.social-box:hover {
   transform: translateY(-2px);
   border-color: var(--blue);
+  box-shadow: 0 0 15px var(--blue);
 }
-.stat-value {
-  font-family: var(--mono);
-  font-size: 1.5rem;
-  color: var(--fg);
-  display: block;
-  margin-bottom: 0.25rem;
-  transition: transform 0.2s;
-}
-.stat-item:hover .stat-value {
-  transform: scale(1.05); /* more subtle */
-}
-.stat-label {
-  font-family: var(--mono);
-  font-size: 0.65rem;
+.social-icon {
+  font-size: 1.8rem;
   color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  transition: color 0.2s, text-shadow 0.2s;
 }
+.social-box:hover .social-icon {
+  color: var(--blue);
+  text-shadow: 0 0 8px var(--blue);
+}
+
 .sidebar-note {
   font-family: var(--hand);
   font-size: 1rem;
@@ -486,6 +567,7 @@ header {
   border-left: 2px solid var(--yellow);
   margin-top: 2rem;
   transform: rotate(-0.5deg);
+  box-shadow: 0 0 10px rgba(255, 230, 109, 0.2);
 }
 
 @media (max-width: 1024px) {
@@ -541,6 +623,16 @@ header {
       <div class="section-header">
         <h1>Archive</h1>
         <p class="section-subtitle">Unfiltered documentation</p>
+        <!-- Progress bar -->
+        <div class="progress-container">
+          <div class="progress-label">
+            <span>$525 raised</span>
+            <span>goal: $1000</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill"></div>
+          </div>
+        </div>
       </div>
 
       <div class="filters">
@@ -578,30 +670,41 @@ header {
     </section>
 
     <aside class="updates-sidebar">
+      <!-- Rules section (human tone) -->
       <div class="sidebar-section">
-        <h3 class="sidebar-title">Recent Updates</h3>
-        <div id="updatesList"></div>
+        <h3 class="sidebar-title">How this place works</h3>
+        <div class="rules-content">
+          <p>I think out loud here. Essays and code get better over time; notes are just quick scratches. Everything’s free unless it’s locked (those are for paid folks). Dates show when something first appeared – updates are mentioned inside.</p>
+          <ul class="rules-list">
+            <li><span class="rule-icon">📝</span> <strong>Essays & code</strong> evolve – I keep editing them.</li>
+            <li><span class="rule-icon">📌</span> <strong>Notes</strong> stay as they are – raw and unpolished.</li>
+            <li><span class="rule-icon">🔓</span> Most is free. Locked ones are for subscribers.</li>
+            <li><span class="rule-icon">🕰️</span> The date is when I first hit publish.</li>
+          </ul>
+          <p class="rules-footer">Come with curiosity, leave with something.</p>
+        </div>
       </div>
 
+      <!-- Social media boxes (4) -->
       <div class="sidebar-section">
-        <h3 class="sidebar-title">Archive Stats</h3>
-        <div class="stats-grid">
-          <div class="stat-item">
-            <span class="stat-value" id="totalEntries">0</span>
-            <span class="stat-label">Total entries</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value" id="freeEntries">0</span>
-            <span class="stat-label">Free</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value">Irregular</span>
-            <span class="stat-label">Cadence</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-value" id="paidEntries">0</span>
-            <span class="stat-label">Paid</span>
-          </div>
+        <h3 class="sidebar-title">Elsewhere</h3>
+        <div class="social-grid">
+          <a href="#" target="_blank" rel="noopener" class="social-box">
+            <span class="social-icon">🐦</span>
+            <span>Twitter</span>
+          </a>
+          <a href="#" target="_blank" rel="noopener" class="social-box">
+            <span class="social-icon">💻</span>
+            <span>GitHub</span>
+          </a>
+          <a href="#" target="_blank" rel="noopener" class="social-box">
+            <span class="social-icon">📷</span>
+            <span>Instagram</span>
+          </a>
+          <a href="#" target="_blank" rel="noopener" class="social-box">
+            <span class="social-icon">📧</span>
+            <span>Email</span>
+          </a>
         </div>
       </div>
 
@@ -624,10 +727,28 @@ header {
   const entryList = document.getElementById('entryList');
   const searchBox = document.getElementById('searchBox');
   const searchClear = document.getElementById('searchClear');
-  const updatesList = document.getElementById('updatesList');
-  const totalEl = document.getElementById('totalEntries');
-  const freeEl = document.getElementById('freeEntries');
-  const paidEl = document.getElementById('paidEntries');
+
+  function getRelativeTime(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHour = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHour / 24);
+    const diffWeek = Math.floor(diffDay / 7);
+    const diffMonth = Math.floor(diffDay / 30);
+    const diffYear = Math.floor(diffDay / 365);
+
+    if (diffSec < 60) return 'just now';
+    if (diffMin < 60) return diffMin + ' minute' + (diffMin > 1 ? 's' : '') + ' ago';
+    if (diffHour < 24) return diffHour + ' hour' + (diffHour > 1 ? 's' : '') + ' ago';
+    if (diffDay === 1) return 'yesterday';
+    if (diffDay < 7) return diffDay + ' days ago';
+    if (diffWeek < 4) return diffWeek + ' week' + (diffWeek > 1 ? 's' : '') + ' ago';
+    if (diffMonth < 12) return diffMonth + ' month' + (diffMonth > 1 ? 's' : '') + ' ago';
+    return diffYear + ' year' + (diffYear > 1 ? 's' : '') + ' ago';
+  }
 
   async function loadPosts() {
     try {
@@ -640,8 +761,6 @@ header {
 
       allPosts = data || [];
       renderPosts(allPosts);
-      updateStats(allPosts);
-      updateRecentUpdates(allPosts);
     } catch (err) {
       console.error('Failed to load posts:', err);
       entryList.innerHTML = `<div style="padding:3rem;text-align:center;color:var(--muted);">Could not load posts. Please try again later.</div>`;
@@ -677,9 +796,9 @@ header {
       const isPaid = post.access === 'paid';
       const title = escapeHtml(post.title);
       const excerpt = generateExcerpt(post);
-      const date = new Date(post.created_at).toLocaleDateString();
+      const relativeTime = getRelativeTime(post.created_at);
       const coverUrl = post.cover_url ? escapeHtml(post.cover_url) : null;
-      const linkTarget = `/post.html?id=${post.id}`; // adjust if your post page URL is different
+      const linkTarget = `/post.html?id=${post.id}`;
 
       return `
         <div class="entry ${isPaid ? 'locked' : ''}" data-id="${post.id}">
@@ -687,8 +806,8 @@ header {
             <div class="entry-content">
               <div class="entry-header">
                 <h2 class="entry-title">${title}</h2>
+                <span class="entry-time">${relativeTime}</span>
               </div>
-              <div class="entry-meta">${date}</div>
               <p class="entry-excerpt">${excerpt}</p>
             </div>
             ${coverUrl ? `<img src="${coverUrl}" alt="" class="entry-thumb" loading="lazy">` : ''}
@@ -701,27 +820,6 @@ header {
       const hue = Math.floor(Math.random() * 360);
       entry.style.setProperty('--hover-hue', hue);
     });
-  }
-
-  function updateStats(posts) {
-    const free = posts.filter(p => p.access === "free").length;
-    const paid = posts.filter(p => p.access === "paid").length;
-    totalEl.textContent = posts.length;
-    freeEl.textContent = free;
-    paidEl.textContent = paid;
-  }
-
-  function updateRecentUpdates(posts) {
-    const recent = posts.slice(0,4);
-    updatesList.innerHTML = recent.map(post => `
-      <div class="update-item">
-        <div class="update-dot ${post.type || 'essay'}"></div>
-        <div>
-          <div class="update-date">${new Date(post.created_at).toLocaleDateString()}</div>
-          <div class="update-content">Added: ${escapeHtml(post.title)}</div>
-        </div>
-      </div>
-    `).join('');
   }
 
   searchBox.addEventListener('input', (e) => {
@@ -755,7 +853,6 @@ header {
     });
   });
 
-  // Start loading
   loadPosts();
 })();
 </script>
