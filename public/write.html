@@ -3,7 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Write — Colin Archive</title>
+<title>Archive — Colin Archive</title>
+
+<!-- Cache‑busting meta tags -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
@@ -13,14 +18,13 @@
   --bg: #0d0d0d;
   --paper: #1a1a1a;
   --fg: #e8e8e8;
-  --muted: #8a8a8a;
+  --muted: #b8b8b8;
   --border: #2a2a2a;
   --accent: #e8e8e8;
-  --highlight: #1f1f1f;
+  --highlight: rgba(31, 31, 31, 0.85);
   --red: #ff6b6b;
   --blue: #4ecdc4;
   --yellow: #ffe66d;
-  --green: #51cf66;
   --serif: 'Crimson Text', 'Georgia', serif;
   --mono: 'IBM Plex Mono', 'Courier New', monospace;
   --hand: 'Caveat', cursive;
@@ -38,6 +42,7 @@ body {
   font-family: var(--serif);
   min-height: 100vh;
   line-height: 1.6;
+  position: relative;
 }
 
 body::before {
@@ -63,22 +68,25 @@ body::before {
 }
 
 .container {
-  max-width: 900px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
   position: relative;
   z-index: 2;
-  padding: 3rem 2rem;
 }
 
 header {
-  padding-bottom: 2rem;
+  padding: 2rem 3rem;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 3rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 2rem;
+  background: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 100;
   flex-wrap: wrap;
-  gap: 1rem;
 }
 
 .logo {
@@ -87,53 +95,55 @@ header {
   letter-spacing: 0.15em;
   text-transform: uppercase;
   font-weight: 500;
+  text-decoration: none;
   color: var(--fg);
 }
 
-.header-actions {
+.logo::after {
+  content: '|';
+  color: var(--red);
+  animation: blink 1s step-end infinite;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.header-nav {
   display: flex;
-  gap: 1rem;
+  gap: 2rem;
   align-items: center;
+  font-family: var(--mono);
+  font-size: 0.7rem;
   flex-wrap: wrap;
 }
 
-.btn {
-  padding: 0.5rem 1rem;
-  background: transparent;
+.header-nav a,
+.header-nav button {
   color: var(--muted);
-  border: 1px solid var(--border);
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.3s;
   text-decoration: none;
-  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: color 0.3s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+  line-height: 1;
 }
 
-.btn:hover {
-  border-color: var(--blue);
+.header-nav a:hover,
+.header-nav button:hover,
+.header-nav a.active,
+.header-nav button.active {
   color: var(--blue);
 }
 
-.btn.primary {
-  background: var(--green);
-  color: var(--bg);
-  border-color: var(--green);
-}
-
-.btn.primary:hover {
-  background: var(--fg);
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-/* User menu / login button */
+/* Logged-in user indicator */
 .user-menu {
   display: flex;
   align-items: center;
@@ -221,349 +231,550 @@ header {
   font-family: var(--mono);
 }
 
-h1 {
+/* ---------- GRID: sidebar right, content left ---------- */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 3rem;
+  padding: 3rem;
+  background: var(--paper);
+  min-height: calc(100vh - 80px);
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+.archive-section {
+  animation: slideInLeft 0.8s ease forwards;
+}
+
+@keyframes slideInLeft {
+  0% { opacity: 0; transform: translateX(-20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+.updates-sidebar {
+  position: sticky;
+  top: 100px;
+  height: fit-content;
+  animation: slideInRight 0.8s ease forwards;
+  opacity: 0;
+}
+
+@keyframes slideInRight {
+  0% { opacity: 0; transform: translateX(20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+.section-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--fg);
+  position: relative;
+}
+
+.section-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 30%;
+  height: 2px;
+  background: var(--red);
+  animation: underlineGrow 1.5s ease forwards;
+}
+
+@keyframes underlineGrow {
+  0% { width: 0%; }
+  100% { width: 30%; }
+}
+
+.section-header h1 {
   font-family: var(--serif);
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 600;
-  margin-bottom: 2rem;
-}
-
-.form-group {
-  margin-bottom: 2rem;
-}
-
-label {
-  display: block;
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
   margin-bottom: 0.5rem;
 }
 
-input[type="text"],
-textarea,
-select {
-  width: 100%;
+.section-subtitle {
+  font-style: italic;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 250px;
+  padding: 0.75rem 1rem;
   background: var(--highlight);
   border: 1px solid var(--border);
   color: var(--fg);
-  font-family: var(--serif);
-  font-size: 1rem;
-  padding: 0.75rem 1rem;
+  font-family: var(--mono);
+  font-size: 0.875rem;
   transition: all 0.3s;
-  resize: vertical;
 }
 
-select {
-  appearance: none;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a8a8a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 1rem;
-  padding-right: 2.5rem;
+.search-box::placeholder {
+  color: var(--muted);
 }
 
-input[type="text"]:focus,
-textarea:focus,
-select:focus {
+.search-box:focus {
   outline: none;
   border-color: var(--blue);
   box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.1);
 }
 
-#title {
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-#content {
-  min-height: 400px;
-  line-height: 1.8;
-  font-size: 1.125rem;
-}
-
-#excerpt {
-  min-height: 80px;
-}
-
-.word-count {
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  color: var(--muted);
-  text-align: right;
-  margin-top: 0.5rem;
-}
-
-.tags-container {
+.filter-tags {
   display: flex;
+  gap: 0.5rem;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
 }
 
-.tag-item {
-  padding: 0.35rem 0.75rem;
-  background: var(--highlight);
-  border: 1px solid var(--border);
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.tag-remove {
-  cursor: pointer;
-  color: var(--red);
-  font-weight: bold;
-}
-
-.tag-input-wrapper {
-  display: flex;
-  gap: 0.5rem;
-}
-
-#tagInput {
-  flex: 1;
-}
-
-.access-toggle {
-  display: flex;
-  gap: 1rem;
-  margin-top: 0.5rem;
-}
-
-.toggle-option {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
+.filter-tag {
   padding: 0.5rem 1rem;
+  background: transparent;
   border: 1px solid var(--border);
+  color: var(--muted);
   font-family: var(--mono);
   font-size: 0.7rem;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
+  cursor: pointer;
   transition: all 0.3s;
 }
 
-.toggle-option:hover {
+.filter-tag:hover,
+.filter-tag.active {
   border-color: var(--blue);
+  color: var(--blue);
+  background: rgba(78, 205, 196, 0.05);
 }
 
-.toggle-option.active {
-  border-color: var(--blue);
-  background: rgba(78, 205, 196, 0.1);
+/* ---------- POST ENTRIES (Reddit style) ---------- */
+.entry-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-.success-message {
-  position: fixed;
-  top: 2rem;
-  right: 2rem;
-  padding: 1rem 2rem;
-  background: var(--green);
-  color: var(--bg);
+.entry {
+  position: relative;
+  padding: 0 0 1.5rem 0;
+  border-bottom: 1px solid var(--border);
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+.entry:hover {
+  background-color: hsla(var(--hover-hue, 0), 70%, 60%, 0.08);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  margin-left: -1rem;
+  margin-right: -1rem;
+  border-bottom-color: hsla(var(--hover-hue, 0), 70%, 60%, 0.5);
+}
+
+.entry:last-child {
+  border-bottom: none;
+}
+
+/* Delete button */
+.delete-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 10;
+  font-family: var(--mono);
+  font-size: 1rem;
+  color: var(--red);
+  background: transparent;
+  border: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1;
+  opacity: 0.5;
+  display: none;
+}
+
+.entry.edit-mode .delete-btn {
+  display: flex;
+}
+
+.delete-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* New flex container for post content + image */
+.entry-link {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+/* Left column: text content */
+.entry-content {
+  flex: 1;
+  min-width: 0; /* prevent overflow */
+}
+
+.entry-header {
+  margin-bottom: 0.25rem;
+  padding-right: 2rem; /* space for delete button */
+}
+
+.entry-title {
+  font-family: var(--serif);
+  font-size: 1.2rem;  /* smaller, like Reddit */
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--fg);
+  margin-bottom: 0.1rem;
+}
+
+.entry-meta {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.4rem;
+}
+
+.entry-excerpt {
+  line-height: 1.6;
+  font-size: 0.95rem;
+  color: var(--muted);
+  max-width: 80ch;
+}
+
+/* Right column: thumbnail image */
+.entry-thumb {
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 4px;
+}
+
+/* If no image, we don't show the thumb */
+.entry-thumb.hidden {
+  display: none;
+}
+
+.entry.locked .entry-title::after {
+  content: ' 🔒';
+  font-size: 1rem;
+  opacity: 0.8;
+  margin-left: 0.3rem;
+}
+
+/* Sidebar styles */
+.sidebar-section {
+  margin-bottom: 3rem;
+}
+
+.sidebar-title {
   font-family: var(--mono);
   font-size: 0.75rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  opacity: 0;
-  transform: translateY(-20px);
-  transition: all 0.4s ease;
-  z-index: 1000;
+  color: var(--muted);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
 }
 
-.success-message.show {
-  opacity: 1;
-  transform: translateY(0);
+.update-item {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
 }
 
-.error-message {
-  position: fixed;
-  top: 2rem;
-  right: 2rem;
-  padding: 1rem 2rem;
-  background: var(--red);
-  color: var(--bg);
+.update-item:last-child {
+  border-bottom: none;
+}
+
+.update-date {
   font-family: var(--mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
+  font-size: 0.65rem;
+  color: var(--blue);
   text-transform: uppercase;
-  opacity: 0;
-  transform: translateY(-20px);
-  transition: all 0.4s ease;
-  z-index: 1000;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
 }
 
-.error-message.show {
-  opacity: 1;
-  transform: translateY(0);
+.update-content {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--muted);
 }
 
-@media (max-width: 768px) {
-  .container {
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.stat-item {
+  padding: 1rem;
+  background: var(--highlight);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+  border-color: var(--blue);
+}
+
+.stat-value {
+  font-family: var(--mono);
+  font-size: 1.5rem;
+  color: var(--fg);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sidebar-note {
+  font-family: var(--hand);
+  font-size: 1rem;
+  color: var(--yellow);
+  padding: 1rem;
+  background: rgba(255, 230, 109, 0.05);
+  border-left: 2px solid var(--yellow);
+  margin-top: 2rem;
+  transform: rotate(-0.5deg);
+}
+
+@media (max-width: 1024px) {
+  .main-grid {
+    grid-template-columns: 1fr;
     padding: 2rem 1.5rem;
   }
 
+  .updates-sidebar {
+    position: relative;
+    top: 0;
+    margin-top: 3rem;
+  }
+
   header {
+    padding: 1.5rem;
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .header-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .filters {
+    flex-direction: column;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  .entry-title {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .entry-link {
+    flex-direction: column;
+  }
+  .entry-thumb {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    object-fit: contain;
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 </style>
 </head>
-
 <body>
-
-<div class="success-message" id="successMessage">✓ Published</div>
-<div class="error-message" id="errorMessage">✗ Error</div>
-
-<!-- Login Modal -->
-<div class="modal" id="loginModal">
-  <div class="modal-content">
-    <h3>Log in to Archive</h3>
-    <input type="email" id="loginEmail" placeholder="Email" />
-    <input type="password" id="loginPassword" placeholder="Password" />
-    <button id="loginSubmit">Log In</button>
-    <button class="modal-close" id="closeModal">Cancel</button>
-    <div class="error-message" id="loginError"></div>
-  </div>
-</div>
 
 <div class="container">
   <header>
-    <div class="logo">Colin Archive / Write</div>
-    <div class="header-actions" id="headerActions">
-      <!-- Dynamic auth content will go here -->
-    </div>
+    <a href="/" class="logo">Colin Archive</a>
+    <nav class="header-nav" id="headerNav">
+      <!-- Dynamic content injected by JS -->
+    </nav>
   </header>
 
-  <h1 id="formTitle">New Entry</h1>
-
-  <form id="postForm">
-    <input type="hidden" id="postId" value="">
-
-    <div class="form-group">
-      <label for="title">Title</label>
-      <input type="text" id="title" required>
+  <!-- Login Modal -->
+  <div class="modal" id="loginModal">
+    <div class="modal-content">
+      <h3>Log in to Archive</h3>
+      <input type="email" id="loginEmail" placeholder="Email" />
+      <input type="password" id="loginPassword" placeholder="Password" />
+      <button id="loginSubmit">Log In</button>
+      <button class="modal-close" id="closeModal">Cancel</button>
+      <div class="error-message" id="loginError"></div>
     </div>
+  </div>
 
-    <!-- New Cover Image URL field -->
-    <div class="form-group">
-      <label for="cover">Cover Image URL</label>
-      <input type="text" id="cover" placeholder="https://site.com/image.jpg">
-    </div>
-
-    <div class="form-group">
-      <label for="excerpt">Excerpt</label>
-      <textarea id="excerpt"></textarea>
-    </div>
-
-    <div class="form-group">
-      <label for="content">Content</label>
-      <textarea id="content" required></textarea>
-      <div class="word-count">
-        <span id="wordCount">0 words</span> · <span id="readTime">0 min read</span>
+  <div class="main-grid">
+    <section class="archive-section">
+      <div class="section-header">
+        <h1>Archive</h1>
+        <p class="section-subtitle">Unfiltered documentation</p>
       </div>
-    </div>
 
-    <div class="form-group">
-      <label for="type">Type (main category)</label>
-      <select id="type" required>
-        <option value="essay">Essay</option>
-        <option value="code">Code</option>
-        <option value="notes">Notes</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="tagInput">Tags (additional)</label>
-      <div class="tags-container" id="tagsContainer"></div>
-      <div class="tag-input-wrapper">
-        <input type="text" id="tagInput" placeholder="e.g., philosophy, tutorial, update...">
-        <button type="button" class="btn" onclick="addTag()">Add</button>
+      <div class="filters">
+        <input type="text" class="search-box" id="searchBox" placeholder="Search entries...">
+        <div class="filter-tags">
+          <button class="filter-tag active" data-filter="all">All</button>
+          <button class="filter-tag" data-filter="essays">Essays</button>
+          <button class="filter-tag" data-filter="code">Code</button>
+          <button class="filter-tag" data-filter="notes">Notes</button>
+        </div>
       </div>
-    </div>
 
-    <div class="form-group">
-      <label>Access</label>
-      <div class="access-toggle">
-        <label class="toggle-option active" id="freeOption">
-          <input type="radio" name="access" value="free" checked>
-          <span>Free</span>
-        </label>
-        <label class="toggle-option" id="paidOption">
-          <input type="radio" name="access" value="paid">
-          <span>🔒 Paid</span>
-        </label>
+      <div class="entry-list" id="entryList">
+        <div style="padding: 3rem; text-align: center; color: var(--muted);">
+          <p style="font-family: var(--mono); font-size: 0.875rem;">Loading...</p>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <div class="form-group">
-      <button type="button" class="btn primary" id="publishBtn" onclick="publishPost()">Publish</button>
-      <a href="/archive.html" class="btn">← Archive</a>
-    </div>
-  </form>
+    <aside class="updates-sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Recent Updates</h3>
+        <div id="updatesList"></div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Archive Stats</h3>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-value" id="totalEntries">0</span>
+            <span class="stat-label">Total entries</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="freeEntries">0</span>
+            <span class="stat-label">Free</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">Irregular</span>
+            <span class="stat-label">Cadence</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="paidEntries">0</span>
+            <span class="stat-label">Paid</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-note">
+        Not all entries are essays. Some are just messy notes.
+      </div>
+    </aside>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// ---------- Your original working code (with auth) ----------
 const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
 
 window.db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let tags = [];
-let editingId = null;
+let allPosts = [];
+let editMode = false;
 let currentUser = null;
 
-// DOM elements for auth
-const headerActions = document.getElementById('headerActions');
+// DOM elements
+const headerNav = document.getElementById('headerNav');
 const loginModal = document.getElementById('loginModal');
 const loginEmail = document.getElementById('loginEmail');
 const loginPassword = document.getElementById('loginPassword');
 const loginSubmit = document.getElementById('loginSubmit');
 const closeModal = document.getElementById('closeModal');
 const loginError = document.getElementById('loginError');
-const publishBtn = document.getElementById('publishBtn');
 
-// ---------- Auth functions (same as archive) ----------
 function updateHeaderUI() {
   let html = '';
   if (currentUser) {
     html = `
-      <span class="user-menu">
+      <a href="/write.html">Write</a>
+      <button id="editModeToggle" class="${editMode ? 'active' : ''}">Edit</button>
+      <div class="user-menu">
         <span class="user-email">${escapeHtml(currentUser.email)}</span>
-        <button class="logout-btn btn" id="logoutBtn">Logout</button>
-      </span>
+        <button class="logout-btn" id="logoutBtn">Logout</button>
+      </div>
     `;
   } else {
-    html = `<button class="btn" id="loginBtn">Login</button>`;
+    html = `<button id="loginBtn">Login</button>`;
   }
-  headerActions.innerHTML = html;
+  headerNav.innerHTML = html;
 
   if (currentUser) {
+    document.getElementById('editModeToggle')?.addEventListener('click', toggleEditMode);
     document.getElementById('logoutBtn')?.addEventListener('click', logout);
-    publishBtn.disabled = false;
   } else {
     document.getElementById('loginBtn')?.addEventListener('click', () => {
       loginModal.classList.add('active');
     });
-    publishBtn.disabled = true;
   }
+}
+
+function toggleEditMode() {
+  if (!currentUser) return;
+  editMode = !editMode;
+  const btn = document.getElementById('editModeToggle');
+  if (btn) btn.classList.toggle('active', editMode);
+  renderPosts(allPosts);
 }
 
 async function logout() {
   await window.db.auth.signOut();
   currentUser = null;
+  editMode = false;
   updateHeaderUI();
-  publishBtn.disabled = true;
-  // Optionally redirect to archive
-  // location.href = '/archive.html';
+  renderPosts(allPosts);
 }
 
 async function checkSession() {
@@ -591,6 +802,7 @@ loginSubmit.addEventListener('click', async () => {
     loginPassword.value = '';
     loginError.textContent = '';
     updateHeaderUI();
+    renderPosts(allPosts);
   }
 });
 
@@ -606,167 +818,26 @@ loginModal.addEventListener('click', (e) => {
   }
 });
 
-// ---------- Existing write page functionality ----------
-const urlParams = new URLSearchParams(window.location.search);
-editingId = urlParams.get('id');
-
-if (editingId) {
-  document.getElementById('formTitle').textContent = 'Edit Entry';
-  document.getElementById('publishBtn').textContent = 'Update';
-  loadPostForEditing(editingId);
-}
-
-async function loadPostForEditing(id) {
-  const { data, error } = await window.db.from('posts').select('*').eq('id', id).single();
-  if (error || !data) {
-    showMessage('error', 'Post not found');
-    return;
-  }
-
-  document.getElementById('postId').value = data.id;
-  document.getElementById('title').value = data.title || '';
-  document.getElementById('cover').value = data.cover_url || '';
-  document.getElementById('excerpt').value = data.excerpt || '';
-  document.getElementById('content').value = data.content || '';
-  document.getElementById('type').value = data.type || 'essay';
-
-  if (data.access === 'paid') {
-    document.getElementById('paidOption').classList.add('active');
-    document.getElementById('freeOption').classList.remove('active');
-    document.querySelector('input[name="access"][value="paid"]').checked = true;
-  } else {
-    document.getElementById('freeOption').classList.add('active');
-    document.getElementById('paidOption').classList.remove('active');
-    document.querySelector('input[name="access"][value="free"]').checked = true;
-  }
-
-  tags = (data.tags || "").split(",").map(t => t.trim()).filter(Boolean);
-  renderTags();
-  contentTextarea.dispatchEvent(new Event('input'));
-}
-
-const contentTextarea = document.getElementById('content');
-contentTextarea.addEventListener('input', () => {
-  const text = contentTextarea.value;
-  const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
-  const readTime = Math.max(1, Math.ceil(words / 200));
-  document.getElementById('wordCount').textContent = `${words} words`;
-  document.getElementById('readTime').textContent = `${readTime} min read`;
-});
-
-document.getElementById('tagInput').addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    addTag();
-  }
-});
-
-function addTag() {
-  const input = document.getElementById('tagInput');
-  const tag = input.value.trim();
-  if (tag && !tags.includes(tag)) {
-    tags.push(tag);
-    renderTags();
-    input.value = '';
-  }
-}
-
-function removeTag(tag) {
-  tags = tags.filter(t => t !== tag);
-  renderTags();
-}
-
-function renderTags() {
-  document.getElementById('tagsContainer').innerHTML = tags.map(tag => `
-    <div class="tag-item">
-      <span>${escapeHtml(tag)}</span>
-      <span class="tag-remove" onclick="removeTag('${tag}')">×</span>
-    </div>
-  `).join('');
-}
-
-document.getElementById('freeOption').addEventListener('click', () => {
-  document.getElementById('freeOption').classList.add('active');
-  document.getElementById('paidOption').classList.remove('active');
-  document.querySelector('input[name="access"][value="free"]').checked = true;
-});
-
-document.getElementById('paidOption').addEventListener('click', () => {
-  document.getElementById('paidOption').classList.add('active');
-  document.getElementById('freeOption').classList.remove('active');
-  document.querySelector('input[name="access"][value="paid"]').checked = true;
-});
-
-function showMessage(type, text) {
-  const el = document.getElementById(type === 'success' ? 'successMessage' : 'errorMessage');
-  el.textContent = type === 'success' ? `✓ ${text}` : `✗ ${text}`;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 3000);
-}
-
-async function publishPost() {
-  if (!currentUser) {
-    showMessage('error', 'You must be logged in to publish');
-    loginModal.classList.add('active');
-    return;
-  }
-
-  const id = document.getElementById('postId').value;
-  const title = document.getElementById('title').value.trim();
-  const cover = document.getElementById('cover').value.trim();
-  const excerpt = document.getElementById('excerpt').value.trim();
-  const content = document.getElementById('content').value.trim();
-  const type = document.getElementById('type').value;
-  const access = document.querySelector('input[name="access"]:checked').value;
-
-  if (!title || !content) {
-    showMessage('error', 'Title and content required');
-    return;
-  }
-
-  const originalText = publishBtn.textContent;
-  publishBtn.disabled = true;
-  publishBtn.textContent = id ? 'Updating...' : 'Publishing...';
-
-  const words = content.split(/\s+/).filter(w => w.length > 0).length;
-  const readtime = Math.max(1, Math.ceil(words / 200));
-
-  let error;
-  if (id) {
-    ({ error } = await window.db.from('posts').update({
-      title,
-      cover_url: cover,
-      excerpt,
-      content,
-      type,
-      tags: tags.join(", "),
-      access,
-      readtime
-    }).eq('id', id));
-  } else {
-    ({ error } = await window.db.from('posts').insert([{
-      title,
-      cover_url: cover,
-      excerpt,
-      content,
-      type,
-      tags: tags.join(", "),
-      access,
-      readtime
-    }]));
-  }
+// ---------- Data functions ----------
+async function loadPosts() {
+  const { data, error } = await window.db
+    .from('posts')
+    .select('*')
+    .order('created_at', { ascending: false });
 
   if (error) {
-    console.error(error);
-    showMessage('error', 'Failed to save');
-    publishBtn.disabled = false;
-    publishBtn.textContent = originalText;
+    console.error("Database error:", error);
+    document.getElementById('entryList').innerHTML = `
+      <div style="padding:3rem;text-align:center;color:var(--muted);">
+        Error loading posts
+      </div>`;
     return;
   }
 
-  showMessage('success', id ? 'Updated' : 'Published');
-  // Cache‑busting redirect
-  setTimeout(() => location.href = '/archive.html?t=' + Date.now(), 1000);
+  allPosts = data || [];
+  renderPosts(allPosts);
+  updateStats(allPosts);
+  updateRecentUpdates(allPosts);
 }
 
 function escapeHtml(unsafe) {
@@ -779,8 +850,131 @@ function escapeHtml(unsafe) {
     .replace(/'/g, "&#039;");
 }
 
+function generateExcerpt(post) {
+  if (post.excerpt) return escapeHtml(post.excerpt);
+  if (post.content) {
+    const plain = post.content.replace(/<[^>]*>/g, '');
+    return escapeHtml(plain.substring(0, 120)) + (plain.length > 120 ? '…' : '');
+  }
+  return '<em style="opacity:0.6;">(no preview)</em>';
+}
+
+function renderPosts(posts) {
+  const entryList = document.getElementById('entryList');
+
+  if (!posts.length) {
+    entryList.innerHTML = `
+      <div style="padding:3rem;text-align:center;color:var(--muted);">
+        No entries yet
+      </div>`;
+    return;
+  }
+
+  entryList.innerHTML = posts.map(post => {
+    const isPaid = post.access === 'paid';
+    const title = escapeHtml(post.title);
+    const excerpt = generateExcerpt(post);
+    const date = new Date(post.created_at).toLocaleDateString();
+    const linkTarget = (currentUser && editMode) ? `/write.html?id=${post.id}` : `/post.html?id=${post.id}`;
+    const coverUrl = post.cover_url ? escapeHtml(post.cover_url) : null;
+
+    return `
+      <div class="entry ${isPaid ? 'locked' : ''} ${(currentUser && editMode) ? 'edit-mode' : ''}" data-id="${post.id}">
+        ${currentUser ? `<button class="delete-btn" onclick="deletePost('${post.id}', event)" aria-label="Delete post">✕</button>` : ''}
+        <a href="${linkTarget}" class="entry-link">
+          <div class="entry-content">
+            <div class="entry-header">
+              <h2 class="entry-title">${title}</h2>
+            </div>
+            <div class="entry-meta">${date}</div>
+            <p class="entry-excerpt">${excerpt}</p>
+          </div>
+          ${coverUrl ? `<img src="${coverUrl}" alt="" class="entry-thumb" loading="lazy">` : ''}
+        </a>
+      </div>
+    `;
+  }).join('');
+
+  // Assign random hover color to each entry
+  document.querySelectorAll('.entry').forEach(entry => {
+    const hue = Math.floor(Math.random() * 360);
+    entry.style.setProperty('--hover-hue', hue);
+  });
+}
+
+async function deletePost(id, event) {
+  event.preventDefault();
+  event.stopPropagation();
+
+  if (!currentUser) {
+    alert('You must be logged in to delete.');
+    return;
+  }
+
+  if (!confirm('Delete this post forever?')) return;
+
+  const { error } = await window.db.from('posts').delete().eq('id', id);
+  if (error) {
+    alert('Error deleting post: ' + error.message);
+    return;
+  }
+
+  loadPosts();
+}
+
+function updateStats(posts) {
+  const free = posts.filter(p => p.access === "free").length;
+  const paid = posts.filter(p => p.access === "paid").length;
+  document.getElementById('totalEntries').textContent = posts.length;
+  document.getElementById('freeEntries').textContent = free;
+  document.getElementById('paidEntries').textContent = paid;
+}
+
+function updateRecentUpdates(posts) {
+  const updatesList = document.getElementById('updatesList');
+  const recent = posts.slice(0,4);
+  updatesList.innerHTML = recent.map(post => `
+    <div class="update-item">
+      <div class="update-date">${new Date(post.created_at).toLocaleDateString()}</div>
+      <div class="update-content">Added: ${escapeHtml(post.title)}</div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('searchBox').addEventListener('input', (e) => {
+  const search = e.target.value.toLowerCase();
+  const filtered = allPosts.filter(post =>
+    (post.title || "").toLowerCase().includes(search) ||
+    (post.excerpt || "").toLowerCase().includes(search) ||
+    (post.content || "").toLowerCase().includes(search)
+  );
+  renderPosts(filtered);
+});
+
+document.querySelectorAll('.filter-tag').forEach(tag => {
+  tag.addEventListener('click', () => {
+    document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+    tag.classList.add('active');
+
+    const filter = tag.dataset.filter;
+    if (filter === 'all') {
+      renderPosts(allPosts);
+    } else {
+      const typeMap = {
+        essays: 'essay',
+        code: 'code',
+        notes: 'notes'
+      };
+      const postType = typeMap[filter];
+      const filtered = allPosts.filter(post => (post.type || "essay") === postType);
+      renderPosts(filtered);
+    }
+  });
+});
+
 // Initialize
 checkSession();
+loadPosts();
 </script>
 
 </body>
