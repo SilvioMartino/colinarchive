@@ -1,410 +1,787 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Comic Panel · Colin Archive</title>
-  <!-- Comic‑themed fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Graduate&family=Press+Start+2P&family=Space+Mono&family=Special+Elite&display=swap" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Archive — Colin Archive</title>
 
-    body {
-      background: #1f1f1f; /* dark background for contrast */
-      padding: 2rem;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: 'Comic Neue', cursive;
-    }
+<!-- Cache‑busting meta tags -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 
-    /* main container – comic book page */
-    .comic-page {
-      max-width: 1400px;
-      width: 100%;
-      background: #f0e7d6;  /* aged paper */
-      padding: 2rem;
-      border-radius: 30px 30px 15px 15px;
-      box-shadow: 0 20px 30px rgba(0,0,0,0.5), inset 0 0 0 2px #d4bc9e, inset 0 0 20px #b2926a;
-      position: relative;
-    }
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
 
-    /* header with comic title */
-    .comic-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #fcd34d; /* comic yellow */
-      padding: 1rem 2rem;
-      border-radius: 60px 60px 20px 20px;
-      margin-bottom: 2rem;
-      border: 4px solid #000;
-      box-shadow: 8px 8px 0 #000;
-      transform: rotate(-1deg);
-    }
+<style>
+:root {
+  --bg: #0d0d0d;
+  --paper: #1a1a1a;
+  --fg: #e8e8e8;
+  --muted: #8a8a8a;
+  --border: #2a2a2a;
+  --accent: #e8e8e8;
+  --highlight: rgba(31, 31, 31, 0.85);
+  --red: #ff6b6b;
+  --blue: #4ecdc4;
+  --yellow: #ffe66d;
+  --serif: 'Crimson Text', 'Georgia', serif;
+  --mono: 'IBM Plex Mono', 'Courier New', monospace;
+  --hand: 'Caveat', cursive;
+}
 
-    .comic-logo {
-      font-family: 'Bangers', cursive;
-      font-size: 2.5rem;
-      letter-spacing: 3px;
-      color: #000;
-      text-shadow: 3px 3px 0 #ff3e3e;
-    }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-    .comic-nav {
-      display: flex;
-      gap: 1.5rem;
-    }
-    .comic-nav a {
-      font-family: 'Graduate', cursive;
-      font-size: 1rem;
-      text-decoration: none;
-      color: #000;
-      background: #fff;
-      padding: 0.4rem 1.2rem;
-      border-radius: 40px;
-      border: 2px solid #000;
-      box-shadow: 4px 4px 0 #000;
-      transition: 0.1s linear;
-    }
-    .comic-nav a:hover {
-      transform: translate(2px, 2px);
-      box-shadow: 2px 2px 0 #000;
-    }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--serif);
+  min-height: 100vh;
+  line-height: 1.6;
+  position: relative;
+}
 
-    /* explanation banner – like a thought bubble */
-    .thought-bubble {
-      background: #fff;
-      border: 4px solid #000;
-      border-radius: 60px 60px 60px 20px;
-      padding: 1rem 2rem;
-      margin-bottom: 2rem;
-      font-size: 1.3rem;
-      font-family: 'Comic Neue', cursive;
-      font-weight: 700;
-      position: relative;
-      box-shadow: 10px 10px 0 rgba(0,0,0,0.2);
-    }
-    .thought-bubble::after {
-      content: '';
-      position: absolute;
-      bottom: -20px;
-      left: 40px;
-      width: 0;
-      height: 0;
-      border-left: 20px solid transparent;
-      border-right: 20px solid transparent;
-      border-top: 30px solid #fff;
-      filter: drop-shadow(4px 8px 0 #000);
-    }
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.01) 2px,
+      rgba(255, 255, 255, 0.01) 4px
+    );
+  pointer-events: none;
+  z-index: 0;
+  animation: paperSlide 20s linear infinite;
+}
 
-    /* comic panel grid – 5 panels, dynamic arrangement */
-    .panel-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr;
-      grid-template-rows: auto auto;
-      gap: 1.5rem;
-      margin-top: 3rem;
-    }
+@keyframes paperSlide {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(4px); }
+}
 
-    /* each panel is a card */
-    .panel {
-      border: 4px solid #000;
-      border-radius: 15px 30px 15px 30px; /* irregular comic shape */
-      padding: 1.5rem;
-      box-shadow: 10px 10px 0 rgba(0,0,0,0.3), inset 0 0 0 2px #fff3;
-      transition: transform 0.2s, box-shadow 0.2s;
-      animation: float 3s infinite alternate ease-in-out;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      min-height: 280px;
-    }
+/* Full‑width container */
+.container {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  position: relative;
+  z-index: 2;
+}
 
-    .panel:hover {
-      transform: scale(1.02) translate(-2px, -2px);
-      box-shadow: 15px 15px 0 rgba(0,0,0,0.4);
-    }
+header {
+  padding: 2rem 3rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  background: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-wrap: wrap;
+}
 
-    /* different sizes for panels */
-    .panel:nth-child(1) { grid-column: span 2; grid-row: span 1; }  /* coffee – large */
-    .panel:nth-child(2) { grid-column: span 1; grid-row: span 1; }  /* military */
-    .panel:nth-child(3) { grid-column: span 1; grid-row: span 1; }  /* tech */
-    .panel:nth-child(4) { grid-column: span 2; grid-row: span 1; }  /* freestyle1 – wide */
-    .panel:nth-child(5) { grid-column: span 2; grid-row: span 1; }  /* freestyle2 – also wide, but we need 5 items: maybe adjust */
-    /* We have 5 panels, but our grid is 4 columns. Let's do:
-       panel1: col 1-2 (span 2)
-       panel2: col 3 (span 1)
-       panel3: col 4 (span 1)
-       panel4: col 1-2 (span 2) (next row)
-       panel5: col 3-4 (span 2) (next row)
-    */
-    .panel:nth-child(4) { grid-column: 1 / span 2; grid-row: 2; }
-    .panel:nth-child(5) { grid-column: 3 / span 2; grid-row: 2; }
+.logo {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--fg);
+}
 
-    /* floating animation */
-    @keyframes float {
-      0% { transform: translateY(0px); }
-      100% { transform: translateY(-8px); }
-    }
+.logo::after {
+  content: '|';
+  color: var(--red);
+  animation: blink 1s step-end infinite;
+  margin-left: 2px;
+}
 
-    /* individual panel themes */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
 
-    /* COFFEE */
-    .panel.coffee {
-      background: #6f4e37; /* coffee brown */
-      background-image: radial-gradient(circle at 10px 10px, #8b5e3c 2px, transparent 2px),
-                        linear-gradient(45deg, #5a3e2b 1px, transparent 1px);
-      background-size: 20px 20px, 10px 10px;
-      color: #f5e7d9;
-      border-color: #c79a6e;
-      box-shadow: 0 8px 0 #7b5a42, 10px 10px 0 #00000030;
-      font-family: 'Special Elite', cursive;
-    }
-    .panel.coffee h2 {
-      font-family: 'Bangers', cursive;
-      font-size: 2rem;
-      letter-spacing: 2px;
-      color: #ffd966;
-      text-shadow: 3px 3px 0 #a0522d;
-    }
-    .panel.coffee .meta {
-      border-top: 3px dashed #e0b589;
-    }
+.header-nav {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  flex-wrap: wrap;
+}
 
-    /* MILITARY */
-    .panel.military {
-      background: #3a5f40;
-      background-image: repeating-linear-gradient(45deg, #4a7040 0px, #4a7040 5px, #2f4f2f 5px, #2f4f2f 10px);
-      color: #d1d1b8;
-      border-color: #7c9c5e;
-      border-style: double;
-      border-width: 6px;
-      font-family: 'Graduate', cursive;
-      text-transform: uppercase;
-    }
-    .panel.military h2 {
-      font-family: 'Graduate', cursive;
-      font-size: 1.8rem;
-      background: #00000080;
-      display: inline-block;
-      padding: 0.2rem 1rem;
-      border-radius: 0 20px 0 20px;
-    }
-    .panel.military .meta {
-      font-family: 'Space Mono', monospace;
-    }
+.header-nav a,
+.header-nav button {
+  color: var(--muted);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: color 0.3s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+  line-height: 1;
+}
 
-    /* TECH */
-    .panel.tech {
-      background: #0b1020;
-      background-image: linear-gradient(0deg, #00ffff20 1px, transparent 1px),
-                        linear-gradient(90deg, #00ffff20 1px, transparent 1px);
-      background-size: 20px 20px;
-      color: #00ffff;
-      border-color: #00ffff;
-      border-width: 3px;
-      border-style: solid;
-      box-shadow: 0 0 20px cyan, 0 8px 0 #005f5f;
-      font-family: 'Press Start 2P', cursive;
-      font-size: 0.7rem;
-    }
-    .panel.tech h2 {
-      font-family: 'Press Start 2P', cursive;
-      font-size: 1rem;
-      line-height: 1.5;
-      text-transform: uppercase;
-    }
+.header-nav a:hover,
+.header-nav button:hover,
+.header-nav a.active,
+.header-nav button.active {
+  color: var(--blue);
+}
 
-    /* FREESTYLE A – ARTISTIC / WEIRD */
-    .panel.freestyle1 {
-      background: linear-gradient(145deg, #f7b731, #e67e22);
-      border: 6px dotted #c44569;
-      color: #2d1b3a;
-      font-family: 'Comic Neue', cursive;
-      font-weight: 700;
-      transform: rotate(1deg);
-      box-shadow: -8px 8px 0 #c44569, 8px -8px 0 #f7b731;
-    }
-    .panel.freestyle1 h2 {
-      font-family: 'Bangers', cursive;
-      font-size: 2.5rem;
-      background: #fff;
-      display: inline-block;
-      padding: 0.2rem 1rem;
-      border-radius: 40px 0 40px 0;
-      transform: rotate(-2deg);
-      border: 3px solid #000;
-    }
-    .panel.freestyle1 .meta {
-      border-top: 5px wavy #c44569;
-    }
+/* Main grid */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 3rem;
+  padding: 3rem;
+  background: var(--paper);
+  min-height: calc(100vh - 80px);
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
 
-    /* FREESTYLE B – MINIMALIST */
-    .panel.freestyle2 {
-      background: #f5f5f5;
-      border: 2px solid #333;
-      color: #111;
-      font-family: 'Helvetica', 'Arial', sans-serif;
-      box-shadow: 0 4px 0 #ccc, 0 8px 0 #aaa;
-    }
-    .panel.freestyle2 h2 {
-      font-weight: 300;
-      font-size: 3rem;
-      letter-spacing: -2px;
-      margin-bottom: 0.2rem;
-    }
-    .panel.freestyle2 .meta {
-      border-top: 1px solid #333;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-    }
+.archive-section {
+  animation: slideIn 0.8s ease forwards;
+}
 
-    /* panel content */
-    .panel h2 {
-      margin-bottom: 0.5rem;
-      line-height: 1.2;
-    }
-    .panel p {
-      flex: 1;
-      font-size: 0.9rem;
-      opacity: 0.9;
-      margin: 0.5rem 0;
-    }
-    .panel .meta {
-      display: flex;
-      justify-content: space-between;
-      padding-top: 0.5rem;
-      margin-top: auto;
-      font-weight: bold;
-    }
+@keyframes slideIn {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
 
-    /* sound effects / pop art */
-    .panel::before {
-      content: 'BAM!';
-      position: absolute;
-      top: -10px;
-      right: -10px;
-      background: #ff3e3e;
-      color: #fff;
-      font-family: 'Bangers', cursive;
-      font-size: 1.8rem;
-      padding: 0.2rem 0.8rem;
-      border-radius: 50%;
-      border: 3px solid #000;
-      transform: rotate(15deg);
-      opacity: 0;
-      transition: opacity 0.2s;
-      pointer-events: none;
-    }
-    .panel:hover::before {
-      opacity: 0.8;
-    }
+.section-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--fg);
+  position: relative;
+}
 
-    /* different sound for each? optional */
-    .panel.coffee::before { content: '☕️ ZING!'; }
-    .panel.military::before { content: '💥 KABOOM'; }
-    .panel.tech::before { content: '⚡ GLITCH'; }
-    .panel.freestyle1::before { content: '🌀 WOW'; }
-    .panel.freestyle2::before { content: '▪️ SHHH'; }
+.section-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 30%;
+  height: 2px;
+  background: var(--red);
+  animation: underlineGrow 1.5s ease forwards;
+}
 
-    /* speech bubble for excerpt */
-    .panel p {
-      background: rgba(255,255,255,0.2);
-      padding: 0.5rem;
-      border-radius: 20px 20px 20px 5px;
-      border: 1px solid currentColor;
-      backdrop-filter: blur(2px);
-    }
+@keyframes underlineGrow {
+  0% { width: 0%; }
+  100% { width: 30%; }
+}
 
-    /* responsive */
-    @media (max-width: 800px) {
-      .panel-grid {
-        display: flex;
-        flex-direction: column;
-      }
-      .panel {
-        margin-bottom: 1rem;
-      }
-      .comic-header {
-        flex-direction: column;
-        gap: 1rem;
-      }
-    }
-  </style>
+.section-header h1 {
+  font-family: var(--serif);
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.section-subtitle {
+  font-style: italic;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 250px;
+  padding: 0.75rem 1rem;
+  background: var(--highlight);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: 0.875rem;
+  transition: all 0.3s;
+}
+
+.search-box::placeholder {
+  color: var(--muted);
+}
+
+.search-box:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.1);
+}
+
+.filter-tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-tag {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.filter-tag:hover,
+.filter-tag.active {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: rgba(78, 205, 196, 0.05);
+}
+
+/* Two‑column grid for posts */
+.entry-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+/* Base card styles */
+.entry-card {
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Cards with cover – no dark overlays */
+.entry-card.has-cover {}
+
+/* Cards without cover – original semi‑transparent dark */
+.entry-card:not(.has-cover) {
+  background: var(--highlight);
+}
+
+/* Torn‑paper edge */
+.entry-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background:
+    linear-gradient(135deg, var(--highlight) 4px, transparent 0),
+    linear-gradient(225deg, var(--highlight) 4px, transparent 0);
+  background-size: 8px 6px;
+  background-repeat: repeat-x;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+  z-index: 1;
+}
+
+/* For cards with cover, torn edge is semi‑transparent */
+.entry-card.has-cover::before {
+  background:
+    linear-gradient(135deg, rgba(31,31,31,0.7) 4px, transparent 0),
+    linear-gradient(225deg, rgba(31,31,31,0.7) 4px, transparent 0);
+  background-size: 8px 6px;
+  background-repeat: repeat-x;
+}
+
+.entry-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px) rotate(0.3deg);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+}
+
+/* Delete button – small red X in top‑right corner */
+.delete-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+  font-family: var(--mono);
+  font-size: 1rem;
+  color: var(--red);
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--red);
+  border-radius: 4px;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1;
+  text-decoration: none;
+  opacity: 0.7;
+}
+
+.delete-btn:hover {
+  opacity: 1;
+  background: rgba(255, 107, 107, 0.2);
+  transform: scale(1.1);
+}
+
+/* Header area */
+.entry-header {
+  margin-bottom: 0.75rem;
+  position: relative;
+  z-index: 2;
+}
+
+.entry-card.has-cover .entry-title,
+.entry-card.has-cover .entry-meta {
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.entry-title {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin-bottom: 0.25rem;
+}
+
+.entry-meta {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.entry-card.has-cover .entry-title {
+  color: #fff;
+}
+.entry-card.has-cover .entry-meta {
+  color: #eee;
+}
+
+/* Excerpt */
+.entry-excerpt {
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+}
+
+.entry-card.has-cover .entry-excerpt {
+  color: #fff;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.entry-card:not(.has-cover) .entry-excerpt {
+  color: var(--muted);
+}
+
+/* Locked indicator */
+.entry-card.locked::after {
+  content: '🔒';
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  font-size: 0.9rem;
+  z-index: 10;
+  opacity: 0.8;
+}
+
+/* Sidebar (unchanged) */
+.updates-sidebar {
+  position: sticky;
+  top: 100px;
+  height: fit-content;
+  animation: slideInRight 0.8s ease forwards;
+  opacity: 0;
+}
+
+@keyframes slideInRight {
+  0% { opacity: 0; transform: translateX(20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+.sidebar-section {
+  margin-bottom: 3rem;
+}
+
+.sidebar-title {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.update-item {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.update-item:last-child {
+  border-bottom: none;
+}
+
+.update-date {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--blue);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.update-content {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.stat-item {
+  padding: 1rem;
+  background: var(--highlight);
+  border: 1px solid var(--border);
+}
+
+.stat-value {
+  font-family: var(--mono);
+  font-size: 1.5rem;
+  color: var(--fg);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sidebar-note {
+  font-family: var(--hand);
+  font-size: 1rem;
+  color: var(--yellow);
+  padding: 1rem;
+  background: rgba(255, 230, 109, 0.05);
+  border-left: 2px solid var(--yellow);
+  margin-top: 2rem;
+  transform: rotate(-0.5deg);
+}
+
+@media (max-width: 1024px) {
+  .main-grid {
+    grid-template-columns: 1fr;
+    padding: 2rem 1.5rem;
+  }
+
+  .updates-sidebar {
+    position: relative;
+    top: 0;
+    margin-top: 3rem;
+  }
+
+  header {
+    padding: 1.5rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .filters {
+    flex-direction: column;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  .entry-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
 </head>
 <body>
-  <div class="comic-page">
-    <header class="comic-header">
-      <div class="comic-logo">COLIN ARCHIVE</div>
-      <nav class="comic-nav">
-        <a href="#">Archive</a>
-        <a href="#">Write</a>
-        <a href="#">Edit</a>
-      </nav>
-    </header>
 
-    <div class="thought-bubble">
-      💭 Every post has its own style – coffee, military, tech, and freestyle! Hover over each panel.
-    </div>
+<div class="container">
+  <header>
+    <a href="/" class="logo">Colin Archive</a>
+    <nav class="header-nav">
+      <a href="/archive.html" class="active">Archive</a>
+      <a href="/write.html">Write</a>
+      <button id="editModeToggle">Edit</button>
+    </nav>
+  </header>
 
-    <div class="panel-grid">
-      <!-- Coffee Panel -->
-      <div class="panel coffee">
-        <h2>MORNING RITUAL</h2>
-        <p>The scent of fresh brew, the quiet before dawn. Notes on espresso, community, and slow living.</p>
-        <div class="meta">
-          <span>☕ Coffee</span>
-          <span>5 min</span>
+  <div class="main-grid">
+    <section class="archive-section">
+      <div class="section-header">
+        <h1>Archive</h1>
+        <p class="section-subtitle">Unfiltered documentation</p>
+      </div>
+
+      <div class="filters">
+        <input type="text" class="search-box" id="searchBox" placeholder="Search entries...">
+        <div class="filter-tags">
+          <button class="filter-tag active" data-filter="all">All</button>
+          <button class="filter-tag" data-filter="essays">Essays</button>
+          <button class="filter-tag" data-filter="code">Code</button>
+          <button class="filter-tag" data-filter="notes">Notes</button>
         </div>
       </div>
 
-      <!-- Military Panel -->
-      <div class="panel military">
-        <h2>OP: SILENT WATCH</h2>
-        <p>Tactical briefings, night ops, and the discipline of the unseen. A field report from the edge.</p>
-        <div class="meta">
-          <span>⚔️ Military</span>
-          <span>12 min</span>
+      <div class="entry-list" id="entryList">
+        <div style="padding: 3rem; text-align: center; color: var(--muted); grid-column: 1/-1;">
+          <p style="font-family: var(--mono); font-size: 0.875rem;">Loading...</p>
+        </div>
+      </div>
+    </section>
+
+    <aside class="updates-sidebar">
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Recent Updates</h3>
+        <div id="updatesList"></div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">Archive Stats</h3>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <span class="stat-value" id="totalEntries">0</span>
+            <span class="stat-label">Total entries</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="freeEntries">0</span>
+            <span class="stat-label">Free</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value">Irregular</span>
+            <span class="stat-label">Cadence</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="paidEntries">0</span>
+            <span class="stat-label">Paid</span>
+          </div>
         </div>
       </div>
 
-      <!-- Tech Panel -->
-      <div class="panel tech">
-        <h2>AI & EDGE</h2>
-        <p>Neural nets, latency wars, and the future of distributed intelligence. Code deep dive.</p>
-        <div class="meta">
-          <span>⚙️ Tech</span>
-          <span>8 min</span>
-        </div>
+      <div class="sidebar-note">
+        Not all entries are essays. Some are just messy notes.
       </div>
-
-      <!-- Freestyle A (Artistic) -->
-      <div class="panel freestyle1">
-        <h2>FLUX</h2>
-        <p>dreams, scribbles, and the spaces between. a visual journal of half‑remembered things.</p>
-        <div class="meta">
-          <span>🎨 Freestyle</span>
-          <span>∞</span>
-        </div>
-      </div>
-
-      <!-- Freestyle B (Minimalist) -->
-      <div class="panel freestyle2">
-        <h2>UNTITLED</h2>
-        <p>White space. Silence. A single line of text that waits for you to finish it.</p>
-        <div class="meta">
-          <span>⬜ Minimal</span>
-          <span>—</span>
-        </div>
-      </div>
-    </div>
+    </aside>
   </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
+
+window.db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let allPosts = [];
+let editMode = false;
+
+const editToggle = document.getElementById('editModeToggle');
+
+editToggle.addEventListener('click', () => {
+  editMode = !editMode;
+  if (editMode) {
+    editToggle.classList.add('active');
+  } else {
+    editToggle.classList.remove('active');
+  }
+  renderPosts(allPosts);
+});
+
+async function loadPosts() {
+  const { data, error } = await db
+    .from('posts')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error("Database error:", error);
+    document.getElementById('entryList').innerHTML = `
+      <div style="padding:3rem;text-align:center;color:var(--muted); grid-column:1/-1;">
+        Error loading posts
+      </div>`;
+    return;
+  }
+
+  allPosts = data || [];
+  renderPosts(allPosts);
+  updateStats(allPosts);
+  updateRecentUpdates(allPosts);
+}
+
+function escapeHtml(unsafe) {
+  if (!unsafe) return '';
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function renderPosts(posts) {
+  const entryList = document.getElementById('entryList');
+
+  if (!posts.length) {
+    entryList.innerHTML = `
+      <div style="padding:3rem;text-align:center;color:var(--muted); grid-column:1/-1;">
+        No entries yet
+      </div>`;
+    return;
+  }
+
+  entryList.innerHTML = posts.map(post => {
+    const isPaid = post.access === 'paid';
+    const title = escapeHtml(post.title);
+    const excerpt = escapeHtml(post.excerpt || '');
+    const date = new Date(post.created_at).toLocaleDateString();
+    const linkTarget = editMode ? `/write.html?id=${post.id}` : `/post.html?id=${post.id}`;
+    
+    const hasCover = !!post.cover_url;
+    const coverStyle = hasCover ? `background-image: url('${escapeHtml(post.cover_url)}');` : '';
+
+    return `
+      <a href="${linkTarget}" class="entry-card ${hasCover ? 'has-cover' : ''} ${isPaid ? 'locked' : ''}" style="${coverStyle}">
+        <button class="delete-btn" onclick="deletePost('${post.id}', event)">✕</button>
+        <div class="entry-header">
+          <h2 class="entry-title">${title}</h2>
+          <div class="entry-meta">${date}</div>
+        </div>
+        <p class="entry-excerpt">${excerpt}</p>
+      </a>
+    `;
+  }).join('');
+}
+
+async function deletePost(id, event) {
+  event.preventDefault();
+  event.stopPropagation();
+
+  if (!confirm('Delete this post forever?')) return;
+
+  const { error } = await db.from('posts').delete().eq('id', id);
+  if (error) {
+    alert('Error deleting post: ' + error.message);
+    return;
+  }
+
+  loadPosts();
+}
+
+function updateStats(posts) {
+  const free = posts.filter(p => p.access === "free").length;
+  const paid = posts.filter(p => p.access === "paid").length;
+  document.getElementById('totalEntries').textContent = posts.length;
+  document.getElementById('freeEntries').textContent = free;
+  document.getElementById('paidEntries').textContent = paid;
+}
+
+function updateRecentUpdates(posts) {
+  const updatesList = document.getElementById('updatesList');
+  const recent = posts.slice(0,4);
+  updatesList.innerHTML = recent.map(post => `
+    <div class="update-item">
+      <div class="update-date">${new Date(post.created_at).toLocaleDateString()}</div>
+      <div class="update-content">Added: ${escapeHtml(post.title)}</div>
+    </div>
+  `).join('');
+}
+
+document.getElementById('searchBox').addEventListener('input', (e) => {
+  const search = e.target.value.toLowerCase();
+  const filtered = allPosts.filter(post =>
+    (post.title || "").toLowerCase().includes(search) ||
+    (post.excerpt || "").toLowerCase().includes(search)
+  );
+  renderPosts(filtered);
+});
+
+document.querySelectorAll('.filter-tag').forEach(tag => {
+  tag.addEventListener('click', () => {
+    document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+    tag.classList.add('active');
+
+    const filter = tag.dataset.filter;
+    if (filter === 'all') {
+      renderPosts(allPosts);
+    } else {
+      const typeMap = {
+        essays: 'essay',
+        code: 'code',
+        notes: 'notes'
+      };
+      const postType = typeMap[filter];
+      const filtered = allPosts.filter(post => (post.type || "essay") === postType);
+      renderPosts(filtered);
+    }
+  });
+});
+
+loadPosts();
+</script>
+
 </body>
 </html>
