@@ -4,6 +4,12 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Archive — Colin Archive</title>
+<meta name="description" content="A quiet archive of essays, code, and notes – unfiltered and unpolished." />
+<meta property="og:title" content="Colin Archive" />
+<meta property="og:description" content="A quiet archive of essays, code, and notes – unfiltered and unpolished." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://yourdomain.com" />
+<meta property="og:image" content="https://yourdomain.com/og-image.jpg" />
 
 <!-- Cache‑busting meta tags -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -23,8 +29,7 @@
   --accent: #e8e8e8;
   --highlight: rgba(31, 31, 31, 0.85);
   --red: #ff6b6b;
-  --blue: #0ff;                /* neon cyan */
-  --pink: #f0f;                /* neon magenta (unused but ready) */
+  --blue: #4ecdc4;
   --green: #51cf66;
   --yellow: #ffe66d;
   --serif: 'Crimson Text', 'Georgia', serif;
@@ -48,58 +53,27 @@ body {
   overflow-x: hidden;
 }
 
-/* Paper texture + cyberpunk grid overlay */
+/* Paper texture only */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: 
+  background-image:
     repeating-linear-gradient(
       0deg,
       transparent,
       transparent 2px,
       rgba(255, 255, 255, 0.01) 2px,
       rgba(255, 255, 255, 0.01) 4px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 4px,
-      rgba(0, 255, 255, 0.02) 4px,
-      rgba(0, 255, 255, 0.02) 8px
     );
   pointer-events: none;
   z-index: 0;
   animation: paperSlide 20s linear infinite;
 }
 
-/* Scanning line animation */
-body::after {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, transparent, var(--blue), transparent);
-  opacity: 0.3;
-  animation: scan 8s linear infinite;
-  pointer-events: none;
-  z-index: 1;
-}
-
 @keyframes paperSlide {
   0% { transform: translateY(0); }
   100% { transform: translateY(4px); }
-}
-
-@keyframes scan {
-  0% { top: -10%; }
-  20% { top: 20%; opacity: 0.4; }
-  40% { top: 40%; opacity: 0.3; }
-  60% { top: 60%; opacity: 0.4; }
-  80% { top: 80%; opacity: 0.2; }
-  100% { top: 110%; opacity: 0; }
 }
 
 .container {
@@ -123,7 +97,6 @@ header {
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
-  box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
 }
 
 .logo {
@@ -136,11 +109,10 @@ header {
   color: var(--fg);
   transition: transform 0.2s, text-shadow 0.2s;
   display: inline-block;
-  text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
 }
 .logo:hover {
   transform: scale(1.05);
-  text-shadow: 0 0 10px var(--blue);
+  text-shadow: 0 0 8px var(--blue);
 }
 .logo::after {
   content: '|';
@@ -200,7 +172,6 @@ header {
   font-size: 2.5rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  text-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
 }
 
 .section-subtitle {
@@ -210,7 +181,7 @@ header {
   margin-bottom: 1.5rem;
 }
 
-/* Progress bar – cyber red with glow */
+/* Progress bar – static */
 .progress-container {
   margin: 1rem 0 0.5rem;
 }
@@ -228,23 +199,16 @@ header {
   background: var(--border);
   border-radius: 4px;
   overflow: hidden;
-  box-shadow: 0 0 5px rgba(255, 107, 107, 0.3);
 }
 .progress-bar-fill {
   height: 100%;
   width: 52.5%;
   background: var(--red);
   border-radius: 4px;
-  box-shadow: 0 0 10px var(--red);
-  animation: pulse 2s infinite;
-}
-@keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.8; }
-  100% { opacity: 1; }
+  box-shadow: 0 0 8px var(--red);
 }
 
-/* Filters & search – cyber glow */
+/* Filters & search – subtle glow */
 .filters {
   display: flex;
   gap: 1rem;
@@ -274,7 +238,7 @@ header {
 .search-box:focus-visible {
   outline: none;
   border-color: var(--blue);
-  box-shadow: 0 0 15px var(--blue);
+  box-shadow: 0 0 8px var(--blue);
 }
 .search-clear {
   position: absolute;
@@ -316,7 +280,7 @@ header {
 .filter-tag:focus-visible {
   outline: none;
   border-color: var(--blue);
-  box-shadow: 0 0 10px var(--blue);
+  box-shadow: 0 0 8px var(--blue);
 }
 .filter-tag:hover {
   border-color: var(--blue);
@@ -324,13 +288,13 @@ header {
   box-shadow: 0 0 8px var(--blue);
 }
 .filter-tag.active {
-  background: rgba(0, 255, 255, 0.1);
+  background: rgba(78, 205, 196, 0.05);
   border-color: var(--blue);
   color: var(--blue);
-  box-shadow: 0 0 12px var(--blue);
+  box-shadow: 0 0 8px var(--blue);
 }
 
-/* ---------- POST ENTRIES ---------- */
+/* ---------- POST ENTRIES (stable hover hue based on post id) ---------- */
 .entry-list {
   display: flex;
   flex-direction: column;
@@ -351,7 +315,7 @@ header {
   border-bottom-color: hsla(var(--hover-hue, 0), 70%, 60%, 0.5);
   padding-left: 0.5rem;
   padding-right: 0.5rem;
-  box-shadow: 0 0 15px hsla(var(--hover-hue, 0), 70%, 60%, 0.2);
+  box-shadow: 0 0 12px hsla(var(--hover-hue, 0), 70%, 60%, 0.15);
 }
 
 .entry:last-child {
@@ -418,9 +382,10 @@ header {
   background: var(--bg);
   border-radius: 4px;
   transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  background-color: var(--highlight); /* placeholder color while loading */
 }
 .entry:hover .entry-thumb {
-  box-shadow: 0 0 0 2px hsla(var(--hover-hue, 0), 70%, 60%, 0.3), 0 0 20px hsla(var(--hover-hue, 0), 70%, 60%, 0.4);
+  box-shadow: 0 0 0 2px hsla(var(--hover-hue, 0), 70%, 60%, 0.3), 0 0 15px hsla(var(--hover-hue, 0), 70%, 60%, 0.2);
   border-color: hsla(var(--hover-hue, 0), 70%, 60%, 0.5);
 }
 
@@ -468,6 +433,36 @@ header {
   width: 100px;
   height: 100px;
   flex-shrink: 0;
+}
+
+/* Load more button */
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0 1rem;
+}
+.load-more-btn {
+  padding: 0.75rem 2rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-radius: 4px;
+}
+.load-more-btn:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  box-shadow: 0 0 8px var(--blue);
+}
+.load-more-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* Sidebar: rules and social boxes */
@@ -518,7 +513,7 @@ header {
   color: var(--fg);
 }
 
-/* Social boxes – cyber hover */
+/* Social boxes – subtle glow */
 .social-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -546,7 +541,7 @@ header {
 .social-box:hover {
   transform: translateY(-2px);
   border-color: var(--blue);
-  box-shadow: 0 0 15px var(--blue);
+  box-shadow: 0 0 12px var(--blue);
 }
 .social-icon {
   font-size: 1.8rem;
@@ -555,7 +550,7 @@ header {
 }
 .social-box:hover .social-icon {
   color: var(--blue);
-  text-shadow: 0 0 8px var(--blue);
+  text-shadow: 0 0 5px var(--blue);
 }
 
 .sidebar-note {
@@ -567,7 +562,7 @@ header {
   border-left: 2px solid var(--yellow);
   margin-top: 2rem;
   transform: rotate(-0.5deg);
-  box-shadow: 0 0 10px rgba(255, 230, 109, 0.2);
+  box-shadow: 0 0 10px rgba(255, 230, 109, 0.1);
 }
 
 @media (max-width: 1024px) {
@@ -667,6 +662,10 @@ header {
           <div class="skeleton skeleton-thumb"></div>
         </div>
       </div>
+
+      <div class="load-more-container">
+        <button class="load-more-btn" id="loadMoreBtn">Load more</button>
+      </div>
     </section>
 
     <aside class="updates-sidebar">
@@ -722,12 +721,31 @@ header {
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  let allPosts = [];
+  let allPosts = [];           // full set (used for filtering)
+  let displayedPosts = [];     // currently visible posts (after filter + pagination)
+  let currentFilter = 'all';
+  let currentSearch = '';
+  let offset = 0;
+  const limit = 10;            // posts per page
 
   const entryList = document.getElementById('entryList');
   const searchBox = document.getElementById('searchBox');
   const searchClear = document.getElementById('searchClear');
+  const loadMoreBtn = document.getElementById('loadMoreBtn');
+  const filterTags = document.querySelectorAll('.filter-tag');
 
+  // Stable hue per post (based on id)
+  function getPostHue(postId) {
+    // simple hash to generate a number between 0 and 360
+    let hash = 0;
+    for (let i = 0; i < postId.length; i++) {
+      hash = ((hash << 5) - hash) + postId.charCodeAt(i);
+      hash |= 0; // convert to 32-bit integer
+    }
+    return Math.abs(hash) % 360;
+  }
+
+  // Relative time formatter
   function getRelativeTime(dateString) {
     const date = new Date(dateString);
     const now = new Date();
@@ -750,23 +768,7 @@ header {
     return diffYear + ' year' + (diffYear > 1 ? 's' : '') + ' ago';
   }
 
-  async function loadPosts() {
-    try {
-      const { data, error } = await supabase
-        .from('posts')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      allPosts = data || [];
-      renderPosts(allPosts);
-    } catch (err) {
-      console.error('Failed to load posts:', err);
-      entryList.innerHTML = `<div style="padding:3rem;text-align:center;color:var(--muted);">Could not load posts. Please try again later.</div>`;
-    }
-  }
-
+  // Escape HTML
   function escapeHtml(unsafe) {
     if (!unsafe) return '';
     return unsafe
@@ -777,6 +779,7 @@ header {
       .replace(/'/g, "&#039;");
   }
 
+  // Generate excerpt with fallback
   function generateExcerpt(post) {
     if (post.excerpt) return escapeHtml(post.excerpt);
     if (post.content) {
@@ -786,74 +789,145 @@ header {
     return '<em style="opacity:0.6;">(no preview)</em>';
   }
 
-  function renderPosts(posts) {
-    if (!posts.length) {
-      entryList.innerHTML = `<div style="padding:3rem;text-align:center;color:var(--muted);">No entries yet</div>`;
-      return;
+  // Filter posts based on currentFilter and currentSearch
+  function getFilteredPosts() {
+    let filtered = allPosts;
+    if (currentFilter !== 'all') {
+      const typeMap = { essays: 'essay', code: 'code', notes: 'notes' };
+      const postType = typeMap[currentFilter];
+      filtered = filtered.filter(post => (post.type || 'essay') === postType);
     }
+    if (currentSearch) {
+      const searchLower = currentSearch.toLowerCase();
+      filtered = filtered.filter(post =>
+        (post.title || '').toLowerCase().includes(searchLower) ||
+        (post.excerpt || '').toLowerCase().includes(searchLower) ||
+        (post.content || '').toLowerCase().includes(searchLower)
+      );
+    }
+    return filtered;
+  }
 
-    entryList.innerHTML = posts.map(post => {
+  // Render a slice of posts (pagination)
+  function renderSlice(postsSlice) {
+    const fragment = document.createDocumentFragment();
+    postsSlice.forEach(post => {
       const isPaid = post.access === 'paid';
       const title = escapeHtml(post.title);
       const excerpt = generateExcerpt(post);
       const relativeTime = getRelativeTime(post.created_at);
       const coverUrl = post.cover_url ? escapeHtml(post.cover_url) : null;
       const linkTarget = `/post.html?id=${post.id}`;
+      const hue = getPostHue(post.id);
 
-      return `
-        <div class="entry ${isPaid ? 'locked' : ''}" data-id="${post.id}">
-          <a href="${linkTarget}" class="entry-link">
-            <div class="entry-content">
-              <div class="entry-header">
-                <h2 class="entry-title">${title}</h2>
-                <span class="entry-time">${relativeTime}</span>
-              </div>
-              <p class="entry-excerpt">${excerpt}</p>
+      const entryDiv = document.createElement('div');
+      entryDiv.className = `entry ${isPaid ? 'locked' : ''}`;
+      entryDiv.dataset.id = post.id;
+      entryDiv.style.setProperty('--hover-hue', hue);
+
+      entryDiv.innerHTML = `
+        <a href="${linkTarget}" class="entry-link">
+          <div class="entry-content">
+            <div class="entry-header">
+              <h2 class="entry-title">${title}</h2>
+              <span class="entry-time">${relativeTime}</span>
             </div>
-            ${coverUrl ? `<img src="${coverUrl}" alt="" class="entry-thumb" loading="lazy">` : ''}
-          </a>
-        </div>
+            <p class="entry-excerpt">${excerpt}</p>
+          </div>
+          ${coverUrl ? `<img src="${coverUrl}" alt="" class="entry-thumb" loading="lazy" onerror="this.style.display='none'">` : ''}
+        </a>
       `;
-    }).join('');
-
-    document.querySelectorAll('.entry').forEach(entry => {
-      const hue = Math.floor(Math.random() * 360);
-      entry.style.setProperty('--hover-hue', hue);
+      fragment.appendChild(entryDiv);
     });
+    entryList.appendChild(fragment);
   }
 
+  // Load initial data (all posts)
+  async function loadAllPosts() {
+    try {
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      allPosts = data || [];
+      // initial render: first page
+      offset = 0;
+      entryList.innerHTML = ''; // clear skeletons
+      const filtered = getFilteredPosts();
+      const toRender = filtered.slice(0, limit);
+      renderSlice(toRender);
+      displayedPosts = filtered;
+
+      // show/hide load more
+      if (filtered.length <= limit) {
+        loadMoreBtn.style.display = 'none';
+      } else {
+        loadMoreBtn.style.display = 'block';
+      }
+    } catch (err) {
+      console.error('Failed to load posts:', err);
+      entryList.innerHTML = `<div style="padding:3rem;text-align:center;color:var(--muted);">Could not load posts. Please try again later.</div>`;
+    }
+  }
+
+  // Load more posts (append)
+  function loadMore() {
+    const filtered = getFilteredPosts();
+    const nextPosts = filtered.slice(offset + limit, offset + limit * 2);
+    if (nextPosts.length > 0) {
+      renderSlice(nextPosts);
+      offset += limit;
+    }
+    // hide button if no more
+    if (filtered.length <= offset + limit) {
+      loadMoreBtn.style.display = 'none';
+    }
+  }
+
+  // Apply filter/search (reset pagination)
+  function applyFilter() {
+    offset = 0;
+    entryList.innerHTML = ''; // clear
+    const filtered = getFilteredPosts();
+    displayedPosts = filtered;
+    const toRender = filtered.slice(0, limit);
+    renderSlice(toRender);
+    if (filtered.length <= limit) {
+      loadMoreBtn.style.display = 'none';
+    } else {
+      loadMoreBtn.style.display = 'block';
+    }
+  }
+
+  // Event listeners
   searchBox.addEventListener('input', (e) => {
-    const search = e.target.value.toLowerCase();
-    const filtered = allPosts.filter(post =>
-      (post.title || "").toLowerCase().includes(search) ||
-      (post.excerpt || "").toLowerCase().includes(search) ||
-      (post.content || "").toLowerCase().includes(search)
-    );
-    renderPosts(filtered);
+    currentSearch = e.target.value;
+    applyFilter();
   });
 
   searchClear.addEventListener('click', () => {
     searchBox.value = '';
-    renderPosts(allPosts);
+    currentSearch = '';
+    applyFilter();
     searchBox.focus();
   });
 
-  document.querySelectorAll('.filter-tag').forEach(tag => {
+  filterTags.forEach(tag => {
     tag.addEventListener('click', () => {
-      document.querySelectorAll('.filter-tag').forEach(t => t.classList.remove('active'));
+      filterTags.forEach(t => t.classList.remove('active'));
       tag.classList.add('active');
-      const filter = tag.dataset.filter;
-      if (filter === 'all') {
-        renderPosts(allPosts);
-      } else {
-        const typeMap = { essays:'essay', code:'code', notes:'notes' };
-        const filtered = allPosts.filter(post => (post.type || "essay") === typeMap[filter]);
-        renderPosts(filtered);
-      }
+      currentFilter = tag.dataset.filter;
+      applyFilter();
     });
   });
 
-  loadPosts();
+  loadMoreBtn.addEventListener('click', loadMore);
+
+  // Start
+  loadAllPosts();
 })();
 </script>
 </body>
