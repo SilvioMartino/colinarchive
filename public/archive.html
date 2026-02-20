@@ -18,7 +18,7 @@
   --bg: #0d0d0d;
   --paper: #1a1a1a;
   --fg: #e8e8e8;
-  --muted: #8a8a8a;
+  --muted: #b8b8b8;
   --border: #2a2a2a;
   --accent: #e8e8e8;
   --highlight: rgba(31, 31, 31, 0.85);
@@ -67,7 +67,6 @@ body::before {
   100% { transform: translateY(4px); }
 }
 
-/* Full‑width container */
 .container {
   width: 100%;
   max-width: none;
@@ -144,7 +143,95 @@ header {
   color: var(--blue);
 }
 
-/* Main grid */
+/* Logged-in user indicator */
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--blue);
+}
+.user-email {
+  font-size: 0.7rem;
+  text-transform: none;
+  letter-spacing: 0;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.logout-btn {
+  color: var(--red);
+}
+.logout-btn:hover {
+  color: #ff8a8a;
+}
+
+/* Login modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal.active {
+  display: flex;
+}
+.modal-content {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  max-width: 350px;
+  width: 90%;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.modal-content h3 {
+  margin-bottom: 1rem;
+  font-family: var(--mono);
+  color: var(--fg);
+}
+.modal-content input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  background: var(--highlight);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  font-family: var(--mono);
+}
+.modal-content button {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--blue);
+  border: none;
+  color: #000;
+  font-family: var(--mono);
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+}
+.modal-content button:hover {
+  opacity: 0.9;
+}
+.modal-close {
+  background: transparent !important;
+  color: var(--muted) !important;
+  border: 1px solid var(--border) !important;
+}
+.error-message {
+  color: var(--red);
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  font-family: var(--mono);
+}
+
+/* ---------- GRID: sidebar right, content left ---------- */
 .main-grid {
   display: grid;
   grid-template-columns: 1fr 350px;
@@ -158,12 +245,25 @@ header {
 }
 
 .archive-section {
-  animation: slideIn 0.8s ease forwards;
+  animation: slideInLeft 0.8s ease forwards;
 }
 
-@keyframes slideIn {
-  0% { opacity: 0; transform: translateY(20px); }
-  100% { opacity: 1; transform: translateY(0); }
+@keyframes slideInLeft {
+  0% { opacity: 0; transform: translateX(-20px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+.updates-sidebar {
+  position: sticky;
+  top: 100px;
+  height: fit-content;
+  animation: slideInRight 0.8s ease forwards;
+  opacity: 0;
+}
+
+@keyframes slideInRight {
+  0% { opacity: 0; transform: translateX(20px); }
+  100% { opacity: 1; transform: translateX(0); }
 }
 
 .section-header {
@@ -257,80 +357,48 @@ header {
   background: rgba(78, 205, 196, 0.05);
 }
 
-/* Two‑column grid for posts */
+/* ---------- POST ENTRIES ---------- */
 .entry-list {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
-/* Base card styles */
-.entry-card {
-  border: 1px solid var(--border);
-  padding: 1.5rem;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+.entry {
   position: relative;
-  cursor: pointer;
+  padding: 0 0 1.5rem 0;
+  border-bottom: 1px solid var(--border);
+  transition: all 0.3s ease;
   text-decoration: none;
   color: inherit;
   display: block;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  border-radius: 8px;
 }
 
-/* Cards with cover – no dark overlays */
-.entry-card.has-cover {}
-
-/* Cards without cover – original semi‑transparent dark */
-.entry-card:not(.has-cover) {
-  background: var(--highlight);
+.entry:hover {
+  background-color: hsla(var(--hover-hue, 0), 70%, 60%, 0.08);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  margin-left: -1rem;
+  margin-right: -1rem;
+  border-bottom-color: hsla(var(--hover-hue, 0), 70%, 60%, 0.5);
 }
 
-/* Torn‑paper edge */
-.entry-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 6px;
-  background:
-    linear-gradient(135deg, var(--highlight) 4px, transparent 0),
-    linear-gradient(225deg, var(--highlight) 4px, transparent 0);
-  background-size: 8px 6px;
-  background-repeat: repeat-x;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
-  z-index: 1;
+.entry:last-child {
+  border-bottom: none;
 }
 
-/* For cards with cover, torn edge is semi‑transparent */
-.entry-card.has-cover::before {
-  background:
-    linear-gradient(135deg, rgba(31,31,31,0.7) 4px, transparent 0),
-    linear-gradient(225deg, rgba(31,31,31,0.7) 4px, transparent 0);
-  background-size: 8px 6px;
-  background-repeat: repeat-x;
-}
-
-.entry-card:hover {
-  border-color: var(--accent);
-  transform: translateY(-2px) rotate(0.3deg);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-}
-
-/* Delete button – small red X in top‑right corner */
+/* Delete button – hidden by default, shown only in edit mode + logged in */
 .delete-btn {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: 0;
+  right: 0;
   z-index: 10;
   font-family: var(--mono);
   font-size: 1rem;
   color: var(--red);
-  background: rgba(0,0,0,0.3);
-  border: 1px solid var(--red);
-  border-radius: 4px;
+  background: transparent;
+  border: none;
   width: 1.5rem;
   height: 1.5rem;
   display: flex;
@@ -339,98 +407,72 @@ header {
   cursor: pointer;
   transition: all 0.2s;
   line-height: 1;
-  text-decoration: none;
-  opacity: 0.7;
+  opacity: 0.5;
+  display: none;  /* hidden by default */
+}
+
+.entry.edit-mode .delete-btn {
+  display: flex;  /* shown when edit mode is active AND logged in */
 }
 
 .delete-btn:hover {
   opacity: 1;
-  background: rgba(255, 107, 107, 0.2);
   transform: scale(1.1);
 }
 
-/* Header area */
 .entry-header {
-  margin-bottom: 0.75rem;
-  position: relative;
-  z-index: 2;
-}
-
-.entry-card.has-cover .entry-title,
-.entry-card.has-cover .entry-meta {
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  margin-bottom: 0.5rem;
+  padding-right: 2rem;
 }
 
 .entry-title {
   font-family: var(--serif);
-  font-size: 1.3rem;
+  font-size: 1.8rem;
   font-weight: 600;
   line-height: 1.3;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.1rem;
+  color: var(--fg);
+  text-decoration: none;
+  letter-spacing: -0.01em;
 }
 
 .entry-meta {
   font-family: var(--mono);
-  font-size: 0.6rem;
+  font-size: 0.7rem;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-.entry-card.has-cover .entry-title {
-  color: #fff;
-}
-.entry-card.has-cover .entry-meta {
-  color: #eee;
+.entry-cover {
+  max-width: 100%;
+  max-height: 300px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  margin: 0.75rem 0;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 4px;
 }
 
-/* Excerpt */
 .entry-excerpt {
-  line-height: 1.6;
-  margin-bottom: 0.75rem;
-  font-size: 0.9rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  position: relative;
-  z-index: 2;
-}
-
-.entry-card.has-cover .entry-excerpt {
-  color: #fff;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-}
-
-.entry-card:not(.has-cover) .entry-excerpt {
+  line-height: 1.7;
+  font-size: 1rem;
   color: var(--muted);
+  margin: 0.5rem 0 0.25rem;
+  max-width: 80ch;
+  min-height: 1.5em;
 }
 
-/* Locked indicator */
-.entry-card.locked::after {
-  content: '🔒';
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
-  font-size: 0.9rem;
-  z-index: 10;
+.entry.locked .entry-title::after {
+  content: ' 🔒';
+  font-size: 1.2rem;
   opacity: 0.8;
+  margin-left: 0.3rem;
 }
 
-/* Sidebar (unchanged) */
-.updates-sidebar {
-  position: sticky;
-  top: 100px;
-  height: fit-content;
-  animation: slideInRight 0.8s ease forwards;
-  opacity: 0;
-}
-
-@keyframes slideInRight {
-  0% { opacity: 0; transform: translateX(20px); }
-  100% { opacity: 1; transform: translateX(0); }
-}
-
+/* Sidebar styles */
 .sidebar-section {
   margin-bottom: 3rem;
 }
@@ -481,6 +523,13 @@ header {
   padding: 1rem;
   background: var(--highlight);
   border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.stat-item:hover {
+  transform: translateY(-2px);
+  border-color: var(--blue);
 }
 
 .stat-value {
@@ -542,8 +591,8 @@ header {
     width: 100%;
   }
 
-  .entry-list {
-    grid-template-columns: 1fr;
+  .entry-title {
+    font-size: 1.6rem;
   }
 }
 
@@ -563,12 +612,22 @@ header {
 <div class="container">
   <header>
     <a href="/" class="logo">Colin Archive</a>
-    <nav class="header-nav">
-      <a href="/archive.html" class="active">Archive</a>
-      <a href="/write.html">Write</a>
-      <button id="editModeToggle">Edit</button>
+    <nav class="header-nav" id="headerNav">
+      <!-- Dynamic content injected by JS -->
     </nav>
   </header>
+
+  <!-- Login Modal -->
+  <div class="modal" id="loginModal">
+    <div class="modal-content">
+      <h3>Log in to Archive</h3>
+      <input type="email" id="loginEmail" placeholder="Email" />
+      <input type="password" id="loginPassword" placeholder="Password" />
+      <button id="loginSubmit">Log In</button>
+      <button class="modal-close" id="closeModal">Cancel</button>
+      <div class="error-message" id="loginError"></div>
+    </div>
+  </div>
 
   <div class="main-grid">
     <section class="archive-section">
@@ -588,7 +647,7 @@ header {
       </div>
 
       <div class="entry-list" id="entryList">
-        <div style="padding: 3rem; text-align: center; color: var(--muted); grid-column: 1/-1;">
+        <div style="padding: 3rem; text-align: center; color: var(--muted);">
           <p style="font-family: var(--mono); font-size: 0.875rem;">Loading...</p>
         </div>
       </div>
@@ -631,6 +690,7 @@ header {
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// ---------- Your original working code (unchanged) ----------
 const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
 
@@ -638,21 +698,104 @@ window.db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let allPosts = [];
 let editMode = false;
+let currentUser = null;  // will be set after login
 
-const editToggle = document.getElementById('editModeToggle');
+// ---------- Authentication & UI (added without breaking) ----------
+const headerNav = document.getElementById('headerNav');
+const loginModal = document.getElementById('loginModal');
+const loginEmail = document.getElementById('loginEmail');
+const loginPassword = document.getElementById('loginPassword');
+const loginSubmit = document.getElementById('loginSubmit');
+const closeModal = document.getElementById('closeModal');
+const loginError = document.getElementById('loginError');
 
-editToggle.addEventListener('click', () => {
-  editMode = !editMode;
-  if (editMode) {
-    editToggle.classList.add('active');
+function updateHeaderUI() {
+  let html = '';
+  if (currentUser) {
+    html = `
+      <a href="/write.html">Write</a>
+      <button id="editModeToggle" class="${editMode ? 'active' : ''}">Edit</button>
+      <div class="user-menu">
+        <span class="user-email">${escapeHtml(currentUser.email)}</span>
+        <button class="logout-btn" id="logoutBtn">Logout</button>
+      </div>
+    `;
   } else {
-    editToggle.classList.remove('active');
+    html = `<button id="loginBtn">Login</button>`;
   }
+  headerNav.innerHTML = html;
+
+  if (currentUser) {
+    document.getElementById('editModeToggle')?.addEventListener('click', toggleEditMode);
+    document.getElementById('logoutBtn')?.addEventListener('click', logout);
+  } else {
+    document.getElementById('loginBtn')?.addEventListener('click', () => {
+      loginModal.classList.add('active');
+    });
+  }
+}
+
+function toggleEditMode() {
+  if (!currentUser) return;
+  editMode = !editMode;
+  const btn = document.getElementById('editModeToggle');
+  if (btn) btn.classList.toggle('active', editMode);
+  // Re-render to show/hide delete buttons (which depend on editMode and currentUser)
   renderPosts(allPosts);
+}
+
+async function logout() {
+  await window.db.auth.signOut();
+  currentUser = null;
+  editMode = false;
+  updateHeaderUI();
+  renderPosts(allPosts);
+}
+
+async function checkSession() {
+  const { data: { session } } = await window.db.auth.getSession();
+  if (session?.user) {
+    currentUser = session.user;
+  }
+  updateHeaderUI();
+}
+
+loginSubmit.addEventListener('click', async () => {
+  const email = loginEmail.value.trim();
+  const password = loginPassword.value.trim();
+  if (!email || !password) {
+    loginError.textContent = 'Email and password required';
+    return;
+  }
+  const { data, error } = await window.db.auth.signInWithPassword({ email, password });
+  if (error) {
+    loginError.textContent = error.message;
+  } else {
+    currentUser = data.user;
+    loginModal.classList.remove('active');
+    loginEmail.value = '';
+    loginPassword.value = '';
+    loginError.textContent = '';
+    updateHeaderUI();
+    renderPosts(allPosts);  // re-render to show delete buttons if edit mode is on
+  }
 });
 
+closeModal.addEventListener('click', () => {
+  loginModal.classList.remove('active');
+  loginError.textContent = '';
+});
+
+loginModal.addEventListener('click', (e) => {
+  if (e.target === loginModal) {
+    loginModal.classList.remove('active');
+    loginError.textContent = '';
+  }
+});
+
+// ---------- Your original data functions (unchanted except renderPosts minor tweak) ----------
 async function loadPosts() {
-  const { data, error } = await db
+  const { data, error } = await window.db
     .from('posts')
     .select('*')
     .order('created_at', { ascending: false });
@@ -660,7 +803,7 @@ async function loadPosts() {
   if (error) {
     console.error("Database error:", error);
     document.getElementById('entryList').innerHTML = `
-      <div style="padding:3rem;text-align:center;color:var(--muted); grid-column:1/-1;">
+      <div style="padding:3rem;text-align:center;color:var(--muted);">
         Error loading posts
       </div>`;
     return;
@@ -682,12 +825,21 @@ function escapeHtml(unsafe) {
     .replace(/'/g, "&#039;");
 }
 
+function generateExcerpt(post) {
+  if (post.excerpt) return escapeHtml(post.excerpt);
+  if (post.content) {
+    const plain = post.content.replace(/<[^>]*>/g, '');
+    return escapeHtml(plain.substring(0, 120)) + (plain.length > 120 ? '…' : '');
+  }
+  return '<em style="opacity:0.6;">(no preview)</em>';
+}
+
 function renderPosts(posts) {
   const entryList = document.getElementById('entryList');
 
   if (!posts.length) {
     entryList.innerHTML = `
-      <div style="padding:3rem;text-align:center;color:var(--muted); grid-column:1/-1;">
+      <div style="padding:3rem;text-align:center;color:var(--muted);">
         No entries yet
       </div>`;
     return;
@@ -696,33 +848,50 @@ function renderPosts(posts) {
   entryList.innerHTML = posts.map(post => {
     const isPaid = post.access === 'paid';
     const title = escapeHtml(post.title);
-    const excerpt = escapeHtml(post.excerpt || '');
+    const excerpt = generateExcerpt(post);
     const date = new Date(post.created_at).toLocaleDateString();
-    const linkTarget = editMode ? `/write.html?id=${post.id}` : `/post.html?id=${post.id}`;
-    
-    const hasCover = !!post.cover_url;
-    const coverStyle = hasCover ? `background-image: url('${escapeHtml(post.cover_url)}');` : '';
+    // Link target depends on editMode AND logged in? Actually if logged in and edit mode, go to write, else to post.
+    const linkTarget = (currentUser && editMode) ? `/write.html?id=${post.id}` : `/post.html?id=${post.id}`;
 
+    const coverHtml = post.cover_url
+      ? `<img src="${escapeHtml(post.cover_url)}" alt="" class="entry-cover" loading="lazy">`
+      : '';
+
+    // Show delete button only if logged in AND edit mode is active (class will be added)
     return `
-      <a href="${linkTarget}" class="entry-card ${hasCover ? 'has-cover' : ''} ${isPaid ? 'locked' : ''}" style="${coverStyle}">
-        <button class="delete-btn" onclick="deletePost('${post.id}', event)">✕</button>
-        <div class="entry-header">
-          <h2 class="entry-title">${title}</h2>
+      <div class="entry ${isPaid ? 'locked' : ''} ${(currentUser && editMode) ? 'edit-mode' : ''}" data-id="${post.id}">
+        ${currentUser ? `<button class="delete-btn" onclick="deletePost('${post.id}', event)" aria-label="Delete post">✕</button>` : ''}
+        <a href="${linkTarget}" style="text-decoration: none; color: inherit; display: block;">
+          <div class="entry-header">
+            <h2 class="entry-title">${title}</h2>
+          </div>
           <div class="entry-meta">${date}</div>
-        </div>
-        <p class="entry-excerpt">${excerpt}</p>
-      </a>
+          ${coverHtml}
+          <p class="entry-excerpt">${excerpt}</p>
+        </a>
+      </div>
     `;
   }).join('');
+
+  // Assign random hover color to each entry
+  document.querySelectorAll('.entry').forEach(entry => {
+    const hue = Math.floor(Math.random() * 360);
+    entry.style.setProperty('--hover-hue', hue);
+  });
 }
 
 async function deletePost(id, event) {
   event.preventDefault();
   event.stopPropagation();
 
+  if (!currentUser) {
+    alert('You must be logged in to delete.');
+    return;
+  }
+
   if (!confirm('Delete this post forever?')) return;
 
-  const { error } = await db.from('posts').delete().eq('id', id);
+  const { error } = await window.db.from('posts').delete().eq('id', id);
   if (error) {
     alert('Error deleting post: ' + error.message);
     return;
@@ -754,7 +923,8 @@ document.getElementById('searchBox').addEventListener('input', (e) => {
   const search = e.target.value.toLowerCase();
   const filtered = allPosts.filter(post =>
     (post.title || "").toLowerCase().includes(search) ||
-    (post.excerpt || "").toLowerCase().includes(search)
+    (post.excerpt || "").toLowerCase().includes(search) ||
+    (post.content || "").toLowerCase().includes(search)
   );
   renderPosts(filtered);
 });
@@ -780,6 +950,8 @@ document.querySelectorAll('.filter-tag').forEach(tag => {
   });
 });
 
+// Initialize: check session and then load posts
+checkSession();
 loadPosts();
 </script>
 
