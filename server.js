@@ -13,9 +13,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public')); // Serve static files from public/
 
-// Homepage route
+// Homepage route – now serves index.html
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "archive.html"));
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 // Ensure posts directory exists
@@ -187,10 +187,10 @@ ensurePostsDir().then(() => {
 ║   http://localhost:${PORT}               ║
 ║                                       ║
 ║   Posts saved to: /posts/             ║
-║   Admin panel: /write.html            ║
+║   Homepage: /                         ║
 ║   Archive: /archive.html              ║
+║   Admin panel: /write.html            ║
 ╚═══════════════════════════════════════╝
     `);
   });
-
 });
