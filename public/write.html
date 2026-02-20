@@ -77,6 +77,8 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .logo {
@@ -86,6 +88,13 @@ header {
   text-transform: uppercase;
   font-weight: 500;
   color: var(--fg);
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .btn {
@@ -112,7 +121,6 @@ header {
   background: var(--green);
   color: var(--bg);
   border-color: var(--green);
-  margin-left: 0.5rem;
 }
 
 .btn.primary:hover {
@@ -122,6 +130,95 @@ header {
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* User menu / login button */
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--blue);
+}
+.user-email {
+  font-size: 0.7rem;
+  text-transform: none;
+  letter-spacing: 0;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.logout-btn {
+  color: var(--red);
+}
+.logout-btn:hover {
+  color: #ff8a8a;
+}
+
+/* Login modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal.active {
+  display: flex;
+}
+.modal-content {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  max-width: 350px;
+  width: 90%;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.modal-content h3 {
+  margin-bottom: 1rem;
+  font-family: var(--mono);
+  color: var(--fg);
+}
+.modal-content input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  background: var(--highlight);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  font-family: var(--mono);
+}
+.modal-content button {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--blue);
+  border: none;
+  color: #000;
+  font-family: var(--mono);
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+}
+.modal-content button:hover {
+  opacity: 0.9;
+}
+.modal-close {
+  background: transparent !important;
+  color: var(--muted) !important;
+  border: 1px solid var(--border) !important;
+}
+.error-message {
+  color: var(--red);
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  font-family: var(--mono);
 }
 
 h1 {
@@ -315,7 +412,6 @@ select:focus {
   header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1rem;
   }
 }
 </style>
@@ -326,12 +422,23 @@ select:focus {
 <div class="success-message" id="successMessage">✓ Published</div>
 <div class="error-message" id="errorMessage">✗ Error</div>
 
+<!-- Login Modal -->
+<div class="modal" id="loginModal">
+  <div class="modal-content">
+    <h3>Log in to Archive</h3>
+    <input type="email" id="loginEmail" placeholder="Email" />
+    <input type="password" id="loginPassword" placeholder="Password" />
+    <button id="loginSubmit">Log In</button>
+    <button class="modal-close" id="closeModal">Cancel</button>
+    <div class="error-message" id="loginError"></div>
+  </div>
+</div>
+
 <div class="container">
   <header>
     <div class="logo">Colin Archive / Write</div>
-    <div>
-      <a href="/archive.html" class="btn">← Archive</a>
-      <button class="btn primary" id="publishBtn" onclick="publishPost()">Publish</button>
+    <div class="header-actions" id="headerActions">
+      <!-- Dynamic auth content will go here -->
     </div>
   </header>
 
@@ -395,6 +502,11 @@ select:focus {
         </label>
       </div>
     </div>
+
+    <div class="form-group">
+      <button type="button" class="btn primary" id="publishBtn" onclick="publishPost()">Publish</button>
+      <a href="/archive.html" class="btn">← Archive</a>
+    </div>
   </form>
 </div>
 
@@ -402,11 +514,99 @@ select:focus {
 <script>
 const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
+
 window.db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let tags = [];
 let editingId = null;
+let currentUser = null;
 
+// DOM elements for auth
+const headerActions = document.getElementById('headerActions');
+const loginModal = document.getElementById('loginModal');
+const loginEmail = document.getElementById('loginEmail');
+const loginPassword = document.getElementById('loginPassword');
+const loginSubmit = document.getElementById('loginSubmit');
+const closeModal = document.getElementById('closeModal');
+const loginError = document.getElementById('loginError');
+const publishBtn = document.getElementById('publishBtn');
+
+// ---------- Auth functions (same as archive) ----------
+function updateHeaderUI() {
+  let html = '';
+  if (currentUser) {
+    html = `
+      <span class="user-menu">
+        <span class="user-email">${escapeHtml(currentUser.email)}</span>
+        <button class="logout-btn btn" id="logoutBtn">Logout</button>
+      </span>
+    `;
+  } else {
+    html = `<button class="btn" id="loginBtn">Login</button>`;
+  }
+  headerActions.innerHTML = html;
+
+  if (currentUser) {
+    document.getElementById('logoutBtn')?.addEventListener('click', logout);
+    publishBtn.disabled = false;
+  } else {
+    document.getElementById('loginBtn')?.addEventListener('click', () => {
+      loginModal.classList.add('active');
+    });
+    publishBtn.disabled = true;
+  }
+}
+
+async function logout() {
+  await window.db.auth.signOut();
+  currentUser = null;
+  updateHeaderUI();
+  publishBtn.disabled = true;
+  // Optionally redirect to archive
+  // location.href = '/archive.html';
+}
+
+async function checkSession() {
+  const { data: { session } } = await window.db.auth.getSession();
+  if (session?.user) {
+    currentUser = session.user;
+  }
+  updateHeaderUI();
+}
+
+loginSubmit.addEventListener('click', async () => {
+  const email = loginEmail.value.trim();
+  const password = loginPassword.value.trim();
+  if (!email || !password) {
+    loginError.textContent = 'Email and password required';
+    return;
+  }
+  const { data, error } = await window.db.auth.signInWithPassword({ email, password });
+  if (error) {
+    loginError.textContent = error.message;
+  } else {
+    currentUser = data.user;
+    loginModal.classList.remove('active');
+    loginEmail.value = '';
+    loginPassword.value = '';
+    loginError.textContent = '';
+    updateHeaderUI();
+  }
+});
+
+closeModal.addEventListener('click', () => {
+  loginModal.classList.remove('active');
+  loginError.textContent = '';
+});
+
+loginModal.addEventListener('click', (e) => {
+  if (e.target === loginModal) {
+    loginModal.classList.remove('active');
+    loginError.textContent = '';
+  }
+});
+
+// ---------- Existing write page functionality ----------
 const urlParams = new URLSearchParams(window.location.search);
 editingId = urlParams.get('id');
 
@@ -417,7 +617,7 @@ if (editingId) {
 }
 
 async function loadPostForEditing(id) {
-  const { data, error } = await db.from('posts').select('*').eq('id', id).single();
+  const { data, error } = await window.db.from('posts').select('*').eq('id', id).single();
   if (error || !data) {
     showMessage('error', 'Post not found');
     return;
@@ -425,7 +625,7 @@ async function loadPostForEditing(id) {
 
   document.getElementById('postId').value = data.id;
   document.getElementById('title').value = data.title || '';
-  document.getElementById('cover').value = data.cover_url || ''; // load cover
+  document.getElementById('cover').value = data.cover_url || '';
   document.getElementById('excerpt').value = data.excerpt || '';
   document.getElementById('content').value = data.content || '';
   document.getElementById('type').value = data.type || 'essay';
@@ -488,11 +688,13 @@ function renderTags() {
 document.getElementById('freeOption').addEventListener('click', () => {
   document.getElementById('freeOption').classList.add('active');
   document.getElementById('paidOption').classList.remove('active');
+  document.querySelector('input[name="access"][value="free"]').checked = true;
 });
 
 document.getElementById('paidOption').addEventListener('click', () => {
   document.getElementById('paidOption').classList.add('active');
   document.getElementById('freeOption').classList.remove('active');
+  document.querySelector('input[name="access"][value="paid"]').checked = true;
 });
 
 function showMessage(type, text) {
@@ -503,9 +705,15 @@ function showMessage(type, text) {
 }
 
 async function publishPost() {
+  if (!currentUser) {
+    showMessage('error', 'You must be logged in to publish');
+    loginModal.classList.add('active');
+    return;
+  }
+
   const id = document.getElementById('postId').value;
   const title = document.getElementById('title').value.trim();
-  const cover = document.getElementById('cover').value.trim(); // new cover field
+  const cover = document.getElementById('cover').value.trim();
   const excerpt = document.getElementById('excerpt').value.trim();
   const content = document.getElementById('content').value.trim();
   const type = document.getElementById('type').value;
@@ -516,7 +724,7 @@ async function publishPost() {
     return;
   }
 
-  const publishBtn = document.getElementById('publishBtn');
+  const originalText = publishBtn.textContent;
   publishBtn.disabled = true;
   publishBtn.textContent = id ? 'Updating...' : 'Publishing...';
 
@@ -525,9 +733,9 @@ async function publishPost() {
 
   let error;
   if (id) {
-    ({ error } = await db.from('posts').update({
+    ({ error } = await window.db.from('posts').update({
       title,
-      cover_url: cover,        // include cover
+      cover_url: cover,
       excerpt,
       content,
       type,
@@ -536,9 +744,9 @@ async function publishPost() {
       readtime
     }).eq('id', id));
   } else {
-    ({ error } = await db.from('posts').insert([{
+    ({ error } = await window.db.from('posts').insert([{
       title,
-      cover_url: cover,        // include cover
+      cover_url: cover,
       excerpt,
       content,
       type,
@@ -552,7 +760,7 @@ async function publishPost() {
     console.error(error);
     showMessage('error', 'Failed to save');
     publishBtn.disabled = false;
-    publishBtn.textContent = id ? 'Update' : 'Publish';
+    publishBtn.textContent = originalText;
     return;
   }
 
@@ -570,6 +778,9 @@ function escapeHtml(unsafe) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
+
+// Initialize
+checkSession();
 </script>
 
 </body>
