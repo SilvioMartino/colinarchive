@@ -19,8 +19,9 @@
 <!-- Font Awesome for modern icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
+<!-- Google Fonts: Crimson Text (body), Libre Baskerville (essays), IBM Plex Mono (code), Caveat (notes) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
 
 <style>
 :root {
@@ -38,6 +39,7 @@
   --serif: 'Crimson Text', 'Georgia', serif;
   --mono: 'IBM Plex Mono', 'Courier New', monospace;
   --hand: 'Caveat', cursive;
+  --essay-serif: 'Libre Baskerville', 'Georgia', serif;
 }
 
 * {
@@ -293,7 +295,7 @@ header {
   color: var(--blue);
 }
 
-/* ---------- POST ENTRIES (single column, refined) ---------- */
+/* ---------- POST ENTRIES (single column, type‑specific styles) ---------- */
 .entry-list {
   display: grid;
   grid-template-columns: 1fr;
@@ -301,6 +303,7 @@ header {
   margin-bottom: 2rem;
 }
 
+/* Base card styles */
 .entry {
   background: var(--paper);
   border: 1px solid var(--border);
@@ -308,10 +311,51 @@ header {
   padding: 1.5rem;
   transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
-.entry:hover {
+
+/* Essay – subtle cyan background, classic serif title */
+.type-essay {
+  border-left: 4px solid var(--blue);
+  background: rgba(78, 205, 196, 0.02);
+}
+.type-essay .entry-title {
+  font-family: var(--essay-serif);
+  font-weight: 700; /* Libre Baskerville bold has a nice weight */
+  letter-spacing: -0.01em;
+}
+.type-essay:hover {
   transform: translateY(-3px);
   border-color: var(--blue);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10px 20px rgba(78, 205, 196, 0.15);
+}
+
+/* Code – subtle green background, monospace title */
+.type-code {
+  border-left: 4px solid var(--green);
+  background: rgba(81, 207, 102, 0.02);
+}
+.type-code .entry-title {
+  font-family: var(--mono);
+  letter-spacing: -0.02em;
+}
+.type-code:hover {
+  transform: translateY(-3px);
+  border-color: var(--green);
+  box-shadow: 0 10px 20px rgba(81, 207, 102, 0.15);
+}
+
+/* Notes – subtle yellow background, handwritten title */
+.type-notes {
+  border-left: 4px solid var(--yellow);
+  background: rgba(255, 230, 109, 0.02);
+}
+.type-notes .entry-title {
+  font-family: var(--hand);
+  font-size: 1.6rem;
+}
+.type-notes:hover {
+  transform: translateY(-3px);
+  border-color: var(--yellow);
+  box-shadow: 0 10px 20px rgba(255, 230, 109, 0.1);
 }
 
 .entry-link {
@@ -337,7 +381,6 @@ header {
 }
 
 .entry-title {
-  font-family: var(--serif);
   font-size: 1.4rem;
   font-weight: 600;
   line-height: 1.4;
@@ -378,7 +421,7 @@ header {
   background-color: var(--highlight);
 }
 .entry:hover .entry-thumb {
-  border-color: var(--blue);
+  border-color: currentColor; /* uses the hover border color of the card */
 }
 
 .entry.locked .entry-title::after {
@@ -765,6 +808,7 @@ header {
     const fragment = document.createDocumentFragment();
     postsSlice.forEach(post => {
       const isPaid = post.access === 'paid';
+      const type = post.type || 'essay'; // default to essay
       const title = escapeHtml(post.title);
       const excerpt = generateExcerpt(post);
       const relativeTime = getRelativeTime(post.created_at);
@@ -772,7 +816,8 @@ header {
       const linkTarget = `/post.html?id=${post.id}`;
 
       const entryDiv = document.createElement('div');
-      entryDiv.className = `entry ${isPaid ? 'locked' : ''}`;
+      // Add base class and type-specific class
+      entryDiv.className = `entry type-${type} ${isPaid ? 'locked' : ''}`;
       entryDiv.dataset.id = post.id;
 
       entryDiv.innerHTML = `
