@@ -304,7 +304,7 @@ header {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  padding: 0; /* padding moved to .entry-link */
+  padding: 0;
 }
 
 /* Dark overlay for background images */
@@ -317,11 +317,10 @@ header {
   height: 100%;
   background: rgba(0, 0, 0, 0.6);
   z-index: 1;
-  pointer-events: none; /* allows clicks to pass through */
+  pointer-events: none;
   border-radius: 16px;
 }
 
-/* Ensure content is above overlay */
 .entry-link {
   position: relative;
   z-index: 2;
@@ -334,10 +333,9 @@ header {
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-  transition: transform 0.1s ease; /* subtle press animation */
+  transition: transform 0.1s ease;
 }
 
-/* Press effect (works on both mouse and touch) */
 .entry-link:active {
   transform: scale(0.98);
 }
@@ -353,7 +351,6 @@ header {
     padding-right: calc(1.5rem + 0.5rem);
   }
 
-  /* Type‑specific hover backgrounds (for non‑image posts) */
   .entry.type-essay:not(.has-cover):hover {
     background-color: rgba(78, 205, 196, 0.08);
     border-bottom-color: var(--blue);
@@ -376,7 +373,6 @@ header {
   border-bottom: none;
 }
 
-/* Type-specific right border (subtle bar) – applied to entry so it stays at edge */
 .entry.type-essay {
   border-right: 4px solid var(--blue);
 }
@@ -387,7 +383,6 @@ header {
   border-right: 4px solid var(--yellow);
 }
 
-/* Vertical type label */
 .entry-type-label {
   position: absolute;
   right: 12px;
@@ -402,7 +397,7 @@ header {
   color: var(--muted);
   opacity: 0.6;
   transition: opacity 0.2s, color 0.2s;
-  pointer-events: none; /* clicks pass through */
+  pointer-events: none;
   z-index: 3;
 }
 .entry.type-essay .entry-type-label {
@@ -453,7 +448,6 @@ header {
   text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
-/* Remove thumbnail image – now background */
 .entry-thumb {
   display: none;
 }
@@ -465,7 +459,7 @@ header {
   margin-left: 0.3rem;
 }
 
-/* Sidebar styles */
+/* Sidebar styles (unchanged) */
 .sidebar-section {
   margin-bottom: 2.5rem;
 }
@@ -515,7 +509,6 @@ header {
   gap: 0.3rem;
 }
 
-/* Social boxes hover (only for hover‑capable devices) */
 @media (hover: hover) {
   .social-box:hover {
     transform: translateY(-2px);
@@ -545,76 +538,25 @@ header {
 
 /* ----- Mobile Optimizations ----- */
 @media (max-width: 1024px) {
-  .main-grid {
-    grid-template-columns: 1fr;
-    padding: 2rem 1.5rem;
-  }
-
-  .updates-sidebar {
-    position: relative;
-    top: 0;
-    margin-top: 3rem;
-  }
-
-  header {
-    padding: 1.5rem;
-  }
-
-  .filters {
-    flex-direction: column;
-  }
-
-  .search-box {
-    width: 100%;
-  }
-
-  .entry-title {
-    font-size: 1.1rem;
-  }
-
-  .entry-type-label {
-    font-size: 0.55rem;
-    right: 8px;
-  }
+  .main-grid { grid-template-columns: 1fr; padding: 2rem 1.5rem; }
+  .updates-sidebar { position: relative; margin-top: 3rem; }
+  header { padding: 1.5rem; }
+  .filters { flex-direction: column; }
+  .search-box { width: 100%; }
+  .entry-title { font-size: 1.1rem; }
+  .entry-type-label { font-size: 0.55rem; right: 8px; }
 }
 
 @media (max-width: 600px) {
-  .entry-link {
-    padding: 1.2rem;
-    gap: 1rem;
-  }
-
-  .entry-header {
-    padding-right: 1.2rem; /* make room for label */
-  }
-
-  .entry-type-label {
-    font-size: 0.5rem;
-    right: 4px;
-    letter-spacing: 0.1em;
-  }
-
-  /* On mobile, hover effects are disabled by @media (hover: hover) anyway,
-     but we keep the hover padding rule inside that media query, so no need to adjust here. */
-
-  .sidebar-note {
-    font-size: 0.9rem;
-    padding: 0.8rem;
-  }
-
-  .social-box {
-    padding: 1rem 0.3rem;
-  }
+  .entry-link { padding: 1.2rem; gap: 1rem; }
+  .entry-header { padding-right: 1.2rem; }
+  .entry-type-label { font-size: 0.5rem; right: 4px; letter-spacing: 0.1em; }
+  .sidebar-note { font-size: 0.9rem; padding: 0.8rem; }
+  .social-box { padding: 1rem 0.3rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 </style>
 </head>
@@ -630,15 +572,9 @@ header {
       <div class="section-header">
         <h1>Archive</h1>
         <p class="section-subtitle">Unfiltered documentation</p>
-        <!-- Progress bar -->
         <div class="progress-container">
-          <div class="progress-label">
-            <span>$525 raised</span>
-            <span>goal: $1000</span>
-          </div>
-          <div class="progress-bar-bg">
-            <div class="progress-bar-fill"></div>
-          </div>
+          <div class="progress-label"><span>$525 raised</span><span>goal: $1000</span></div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill"></div></div>
         </div>
       </div>
 
@@ -653,134 +589,178 @@ header {
       </div>
 
       <div class="entry-list" id="entryList">
-        <div style="padding: 3rem; text-align: center; color: var(--muted);">
-          <p style="font-family: var(--mono); font-size: 0.875rem;">Loading...</p>
+        <div style="padding:3rem;text-align:center;color:var(--muted);">
+          <p style="font-family:var(--mono);font-size:0.875rem;">Loading...</p>
         </div>
+      </div>
+
+      <div class="load-more-container" id="loadMoreContainer" style="display:none;">
+        <button class="load-more-btn" id="loadMoreBtn">Load more</button>
       </div>
     </section>
 
     <aside class="updates-sidebar">
-      <!-- Personal description -->
       <div class="sidebar-section">
         <h3 class="sidebar-title">How this place works</h3>
         <div class="rules-content">
           <p>This is my personal archive where I upload essays, notes, and code for now. Essays and code usually get updated, so by checking them again you can see new content, while notes usually stay the same. I made this site in hopes of creating a safe space for any type of posts, and hopefully the info here might be worth a lot to someone.</p>
         </div>
       </div>
-
-      <!-- Social media boxes -->
       <div class="sidebar-section">
         <h3 class="sidebar-title">Elsewhere</h3>
         <div class="social-grid">
-          <a href="#" target="_blank" rel="noopener" class="social-box">
-            <i class="fab fa-twitter social-icon"></i>
-            <span>Twitter</span>
-          </a>
-          <a href="#" target="_blank" rel="noopener" class="social-box">
-            <i class="fab fa-github social-icon"></i>
-            <span>GitHub</span>
-          </a>
-          <a href="#" target="_blank" rel="noopener" class="social-box">
-            <i class="fab fa-instagram social-icon"></i>
-            <span>Instagram</span>
-          </a>
-          <a href="#" target="_blank" rel="noopener" class="social-box">
-            <i class="fas fa-envelope social-icon"></i>
-            <span>Email</span>
-          </a>
+          <a href="#" target="_blank" class="social-box"><i class="fab fa-twitter social-icon"></i><span>Twitter</span></a>
+          <a href="#" target="_blank" class="social-box"><i class="fab fa-github social-icon"></i><span>GitHub</span></a>
+          <a href="#" target="_blank" class="social-box"><i class="fab fa-instagram social-icon"></i><span>Instagram</span></a>
+          <a href="#" target="_blank" class="social-box"><i class="fas fa-envelope social-icon"></i><span>Email</span></a>
         </div>
       </div>
-
-      <div class="sidebar-note">
-        Not all entries are essays. Some are just messy notes.
-      </div>
+      <div class="sidebar-note">Not all entries are essays. Some are just messy notes.</div>
     </aside>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// Public archive – original data loading logic (no admin features)
+// Public archive – paginated loading for better mobile performance
 const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
 
 window.db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let allPosts = [];
+// State
+let allPosts = [];              // full dataset (loaded once, but we paginate)
+let displayedPosts = [];        // currently visible (filtered + paginated)
+let currentFilter = 'all';
+let currentSearch = '';
+let offset = 0;
+const limit = 10;               // posts per batch
+let isLoadingMore = false;
+let hasMore = true;
 
 // DOM elements
 const entryList = document.getElementById('entryList');
 const searchBox = document.getElementById('searchBox');
 const filterTags = document.querySelectorAll('.filter-tag');
+const loadMoreContainer = document.getElementById('loadMoreContainer');
+const loadMoreBtn = document.getElementById('loadMoreBtn');
 
-// Data functions
-async function loadPosts() {
-  const { data, error } = await window.db
-    .from('posts')
-    .select('*')
-    .order('created_at', { ascending: false });
+// Helper: return optimized cover URL (smaller thumbnail)
+function getOptimizedCoverUrl(url) {
+  if (!url) return null;
+  // If using Supabase storage, you can add width parameters
+  // e.g., `?width=400` – adjust based on your setup
+  // For simplicity, we'll assume the original URL is fine,
+  // but you can modify this to append a resize param.
+  return url;
+}
 
-  if (error) {
-    console.error("Database error:", error);
-    document.getElementById('entryList').innerHTML = `
-      <div style="padding:3rem;text-align:center;color:var(--muted);">
-        Error loading posts
-      </div>`;
+// Load initial posts (only first batch)
+async function loadInitialPosts() {
+  try {
+    const { data, error } = await window.db
+      .from('posts')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .range(0, limit - 1);  // fetch only first 10
+
+    if (error) throw error;
+
+    allPosts = data || [];
+    displayedPosts = allPosts;
+    renderPosts(displayedPosts);
+    // Check if there are more posts
+    if (allPosts.length < limit) {
+      hasMore = false;
+      loadMoreContainer.style.display = 'none';
+    } else {
+      hasMore = true;
+      loadMoreContainer.style.display = 'block';
+    }
+  } catch (err) {
+    console.error('Failed to load posts:', err);
+    entryList.innerHTML = `<div style="padding:3rem;text-align:center;color:var(--muted);">Could not load posts. Please try again later.</div>`;
+  }
+}
+
+// Load more posts (append)
+async function loadMorePosts() {
+  if (isLoadingMore || !hasMore) return;
+  isLoadingMore = true;
+  loadMoreBtn.textContent = 'Loading...';
+
+  try {
+    const { data, error } = await window.db
+      .from('posts')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .range(offset + limit, offset + limit * 2 - 1);
+
+    if (error) throw error;
+
+    if (data && data.length > 0) {
+      allPosts = [...allPosts, ...data];
+      // Re‑apply filter/search to displayedPosts
+      const filtered = getFilteredPosts();
+      // Append only the new ones (that match current filter/search)
+      const newPosts = filtered.slice(displayedPosts.length);
+      if (newPosts.length > 0) {
+        renderPosts(newPosts, true); // true = append
+        displayedPosts = filtered;
+      }
+      offset += limit;
+      if (data.length < limit) {
+        hasMore = false;
+        loadMoreContainer.style.display = 'none';
+      }
+    } else {
+      hasMore = false;
+      loadMoreContainer.style.display = 'none';
+    }
+  } catch (err) {
+    console.error('Failed to load more posts:', err);
+  } finally {
+    isLoadingMore = false;
+    loadMoreBtn.textContent = 'Load more';
+  }
+}
+
+// Filter posts based on currentFilter and currentSearch (using allPosts)
+function getFilteredPosts() {
+  let filtered = allPosts;
+  if (currentFilter !== 'all') {
+    const typeMap = { essays: 'essay', code: 'code', notes: 'notes' };
+    const postType = typeMap[currentFilter];
+    filtered = filtered.filter(post => (post.type || 'essay') === postType);
+  }
+  if (currentSearch) {
+    const s = currentSearch.toLowerCase();
+    filtered = filtered.filter(post =>
+      (post.title || '').toLowerCase().includes(s) ||
+      (post.excerpt || '').toLowerCase().includes(s) ||
+      (post.content || '').toLowerCase().includes(s)
+    );
+  }
+  return filtered;
+}
+
+// Render posts – if append is true, add to existing list
+function renderPosts(posts, append = false) {
+  if (!posts.length && !append) {
+    entryList.innerHTML = `<div style="padding:3rem;text-align:center;color:var(--muted);">No entries yet</div>`;
     return;
   }
 
-  allPosts = data || [];
-  renderPosts(allPosts);
-}
-
-function escapeHtml(unsafe) {
-  if (!unsafe) return '';
-  return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-function generateExcerpt(post) {
-  if (post.excerpt) return escapeHtml(post.excerpt);
-  if (post.content) {
-    const plain = post.content.replace(/<[^>]*>/g, '');
-    return escapeHtml(plain.substring(0, 120)) + (plain.length > 120 ? '…' : '');
-  }
-  return '<em style="opacity:0.6;">(no preview)</em>';
-}
-
-function renderPosts(posts) {
-  if (!posts.length) {
-    entryList.innerHTML = `
-      <div style="padding:3rem;text-align:center;color:var(--muted);">
-        No entries yet
-      </div>`;
-    return;
-  }
-
-  entryList.innerHTML = posts.map(post => {
+  const html = posts.map(post => {
     const isPaid = post.access === 'paid';
     const type = post.type || 'essay';
     const title = escapeHtml(post.title);
     const excerpt = generateExcerpt(post);
     const date = new Date(post.created_at).toLocaleDateString();
     const linkTarget = `/post.html?id=${post.id}`;
-    const coverUrl = post.cover_url ? escapeHtml(post.cover_url) : null;
-
-    // Determine label text based on type
-    let typeLabel = 'essay';
-    if (type === 'code') typeLabel = 'code';
-    if (type === 'notes') typeLabel = 'note';
-
-    // Build class list
-    let classes = `entry type-${type}`;
-    if (isPaid) classes += ' locked';
-    if (coverUrl) classes += ' has-cover';
-
-    // Inline style for background image if cover exists
+    const coverUrl = getOptimizedCoverUrl(post.cover_url);
+    const typeLabel = type === 'code' ? 'code' : (type === 'notes' ? 'note' : 'essay');
+    const classes = `entry type-${type} ${isPaid ? 'locked' : ''} ${coverUrl ? 'has-cover' : ''}`;
     const style = coverUrl ? `style="background-image: url('${coverUrl}');"` : '';
 
     return `
@@ -798,51 +778,69 @@ function renderPosts(posts) {
       </div>
     `;
   }).join('');
+
+  if (append) {
+    entryList.insertAdjacentHTML('beforeend', html);
+  } else {
+    entryList.innerHTML = html;
+  }
 }
 
-// Refresh posts when returning from bfcache (back button)
-window.addEventListener('pageshow', function(event) {
-  if (event.persisted) {
-    // Re‑render posts to clear any stuck visual states
-    renderPosts(allPosts);
+function escapeHtml(unsafe) {
+  if (!unsafe) return '';
+  return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+
+function generateExcerpt(post) {
+  if (post.excerpt) return escapeHtml(post.excerpt);
+  if (post.content) {
+    const plain = post.content.replace(/<[^>]*>/g, '');
+    return escapeHtml(plain.substring(0, 120)) + (plain.length > 120 ? '…' : '');
   }
-});
+  return '<em style="opacity:0.6;">(no preview)</em>';
+}
 
-// Search
+// Apply filter (reset pagination)
+function applyFilter() {
+  offset = 0;
+  const filtered = getFilteredPosts();
+  displayedPosts = filtered;
+  // Show only first page
+  renderPosts(filtered.slice(0, limit));
+  if (filtered.length <= limit) {
+    loadMoreContainer.style.display = 'none';
+  } else {
+    loadMoreContainer.style.display = 'block';
+  }
+}
+
+// Event listeners
 searchBox.addEventListener('input', (e) => {
-  const search = e.target.value.toLowerCase();
-  const filtered = allPosts.filter(post =>
-    (post.title || "").toLowerCase().includes(search) ||
-    (post.excerpt || "").toLowerCase().includes(search) ||
-    (post.content || "").toLowerCase().includes(search)
-  );
-  renderPosts(filtered);
+  currentSearch = e.target.value;
+  applyFilter();
 });
 
-// Filter tags
 filterTags.forEach(tag => {
   tag.addEventListener('click', () => {
     filterTags.forEach(t => t.classList.remove('active'));
     tag.classList.add('active');
-
-    const filter = tag.dataset.filter;
-    if (filter === 'all') {
-      renderPosts(allPosts);
-    } else {
-      const typeMap = {
-        essays: 'essay',
-        code: 'code',
-        notes: 'notes'
-      };
-      const postType = typeMap[filter];
-      const filtered = allPosts.filter(post => (post.type || "essay") === postType);
-      renderPosts(filtered);
-    }
+    currentFilter = tag.dataset.filter;
+    applyFilter();
   });
 });
 
-// Initialize
-loadPosts();
+loadMoreBtn.addEventListener('click', loadMorePosts);
+
+// Refresh when returning from bfcache (no full reload, just re‑render visible posts)
+window.addEventListener('pageshow', function(event) {
+  if (event.persisted) {
+    // Re‑render current displayed posts (clears any stuck hover states)
+    renderPosts(displayedPosts);
+  }
+});
+
+// Initial load
+loadInitialPosts();
 </script>
 
 </body>
