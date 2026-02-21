@@ -4,31 +4,23 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Archive — Colin Archive</title>
-<meta name="description" content="A quiet archive of essays, code, and notes – unfiltered and unpolished." />
-<meta property="og:title" content="Colin Archive" />
-<meta property="og:description" content="A quiet archive of essays, code, and notes – unfiltered and unpolished." />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://yourdomain.com" />
-<meta property="og:image" content="https://yourdomain.com/og-image.jpg" />
 
 <!-- Cache‑busting meta tags -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 
-<!-- Font Awesome for modern icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-<!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
+<!-- Font Awesome for social icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 <style>
 :root {
   --bg: #0d0d0d;
   --paper: #1a1a1a;
   --fg: #e8e8e8;
-  --muted: #c0c0c0;
+  --muted: #b8b8b8;
   --border: #2a2a2a;
   --accent: #e8e8e8;
   --highlight: rgba(31, 31, 31, 0.85);
@@ -39,7 +31,6 @@
   --serif: 'Crimson Text', 'Georgia', serif;
   --mono: 'IBM Plex Mono', 'Courier New', monospace;
   --hand: 'Caveat', cursive;
-  --essay-serif: 'Libre Baskerville', 'Georgia', serif;
 }
 
 * {
@@ -55,10 +46,8 @@ body {
   min-height: 100vh;
   line-height: 1.6;
   position: relative;
-  overflow-x: hidden;
 }
 
-/* Paper texture only */
 body::before {
   content: '';
   position: fixed;
@@ -89,7 +78,7 @@ body::before {
   z-index: 2;
 }
 
-/* Header */
+/* Header – only logo */
 header {
   padding: 2rem 3rem;
   border-bottom: 1px solid var(--border);
@@ -97,11 +86,6 @@ header {
   position: sticky;
   top: 0;
   z-index: 100;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
 }
 
 .logo {
@@ -112,20 +96,16 @@ header {
   font-weight: 500;
   text-decoration: none;
   color: var(--fg);
-  transition: transform 0.2s;
   display: inline-block;
-  border-bottom: 1px solid transparent;
 }
-.logo:hover {
-  transform: scale(1.05);
-  border-bottom-color: var(--blue);
-}
+
 .logo::after {
   content: '|';
   color: var(--red);
   animation: blink 1s step-end infinite;
   margin-left: 2px;
 }
+
 @keyframes blink {
   0%, 50% { opacity: 1; }
   51%, 100% { opacity: 0; }
@@ -187,7 +167,7 @@ header {
   margin-bottom: 1.5rem;
 }
 
-/* Progress bar – static */
+/* Progress bar */
 .progress-container {
   margin: 1rem 0 0.5rem;
 }
@@ -213,61 +193,42 @@ header {
   border-radius: 4px;
 }
 
-/* Filters & search – updated hover colors */
+/* Filters & search */
 .filters {
   display: flex;
   gap: 1rem;
   margin-bottom: 2rem;
   flex-wrap: wrap;
-  align-items: center;
 }
-.search-wrapper {
+
+.search-box {
   flex: 1;
   min-width: 250px;
-  position: relative;
-}
-.search-box {
-  width: 100%;
-  padding: 0.75rem 2rem 0.75rem 1rem;
+  padding: 0.75rem 1rem;
   background: var(--highlight);
   border: 1px solid var(--border);
   color: var(--fg);
   font-family: var(--mono);
   font-size: 0.875rem;
-  transition: border-color 0.2s;
-  border-radius: 4px;
+  transition: all 0.3s;
 }
+
 .search-box::placeholder {
   color: var(--muted);
 }
-.search-box:focus-visible {
+
+.search-box:focus {
   outline: none;
   border-color: var(--blue);
+  box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.1);
 }
-.search-clear {
-  position: absolute;
-  right: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: var(--muted);
-  font-size: 1.2rem;
-  cursor: pointer;
-  display: none;
-  padding: 0 0.25rem;
-}
-.search-clear:hover {
-  color: var(--fg);
-}
-.search-box:not(:placeholder-shown) + .search-clear {
-  display: block;
-}
+
 .filter-tags {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
 }
+
 .filter-tag {
   padding: 0.5rem 1rem;
   background: transparent;
@@ -278,119 +239,144 @@ header {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, background 0.2s;
-  border-radius: 4px;
-}
-.filter-tag:focus-visible {
-  outline: 1px solid var(--blue);
-  outline-offset: 2px;
+  transition: all 0.3s;
 }
 
-/* All button – cyan */
+/* Type-specific hover colors for filter tags */
 .filter-tag[data-filter="all"]:hover {
-  border-color: var(--blue);
+  border-color: #fff;
   color: #fff;
+  background: transparent;
 }
 .filter-tag[data-filter="all"].active {
-  background: rgba(78, 205, 196, 0.05);
   border-color: var(--blue);
   color: var(--blue);
+  background: rgba(78, 205, 196, 0.05);
 }
-
-/* Essays button – cyan */
-.filter-tag[data-filter="essays"]:hover {
-  border-color: var(--blue);
-  color: #fff;
-}
+.filter-tag[data-filter="essays"]:hover,
 .filter-tag[data-filter="essays"].active {
-  background: rgba(78, 205, 196, 0.05);
   border-color: var(--blue);
   color: var(--blue);
+  background: rgba(78, 205, 196, 0.05);
 }
-
-/* Code button – green */
-.filter-tag[data-filter="code"]:hover {
-  border-color: var(--green);
-  color: #fff;
-}
+.filter-tag[data-filter="code"]:hover,
 .filter-tag[data-filter="code"].active {
-  background: rgba(81, 207, 102, 0.05);
   border-color: var(--green);
   color: var(--green);
+  background: rgba(81, 207, 102, 0.05);
 }
-
-/* Notes button – yellow */
-.filter-tag[data-filter="notes"]:hover {
-  border-color: var(--yellow);
-  color: #fff;
-}
+.filter-tag[data-filter="notes"]:hover,
 .filter-tag[data-filter="notes"].active {
-  background: rgba(255, 230, 109, 0.05);
   border-color: var(--yellow);
   color: var(--yellow);
+  background: rgba(255, 230, 109, 0.05);
 }
 
 /* ---------- POST ENTRIES ---------- */
 .entry-list {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.8rem;
-  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
-/* Base card styles */
 .entry {
-  background: var(--paper);
-  border: 1px solid var(--border);
+  position: relative;
+  padding: 1.5rem; /* consistent padding */
+  border-bottom: 1px solid var(--border);
+  transition: all 0.3s ease;
+  border-radius: 16px; /* consistent with cards */
+  overflow: hidden; /* for background image */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Dark overlay for background images */
+.entry.has-cover::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6); /* dark overlay */
+  z-index: 1;
+  pointer-events: none;
   border-radius: 16px;
-  padding: 1.5rem;
-  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
-/* Essay – subtle cyan background, classic serif title */
-.type-essay {
-  border-left: 4px solid var(--blue);
-  background: rgba(78, 205, 196, 0.02);
-}
-.type-essay .entry-title {
-  font-family: var(--essay-serif);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-.type-essay:hover {
-  transform: translateY(-3px);
-  border-color: var(--blue);
-  box-shadow: 0 10px 20px rgba(78, 205, 196, 0.15);
+/* Ensure content is above overlay */
+.entry-link,
+.entry-type-label {
+  position: relative;
+  z-index: 2;
 }
 
-/* Code – subtle green background, monospace title */
-.type-code {
-  border-left: 4px solid var(--green);
-  background: rgba(81, 207, 102, 0.02);
+.entry:hover {
+  padding-left: calc(1.5rem + 0.5rem);
+  padding-right: calc(1.5rem + 0.5rem);
+  margin-left: -0.5rem;
+  margin-right: -0.5rem;
 }
-.type-code .entry-title {
+
+/* Type-specific hover backgrounds (for non‑image posts, fallback) */
+.entry.type-essay:not(.has-cover):hover {
+  background-color: rgba(78, 205, 196, 0.08);
+  border-bottom-color: var(--blue);
+}
+.entry.type-code:not(.has-cover):hover {
+  background-color: rgba(81, 207, 102, 0.08);
+  border-bottom-color: var(--green);
+}
+.entry.type-notes:not(.has-cover):hover {
+  background-color: rgba(255, 230, 109, 0.08);
+  border-bottom-color: var(--yellow);
+}
+
+.entry:last-child {
+  border-bottom: none;
+}
+
+/* Type-specific right border (subtle bar) */
+.entry.type-essay {
+  border-right: 4px solid var(--blue);
+}
+.entry.type-code {
+  border-right: 4px solid var(--green);
+}
+.entry.type-notes {
+  border-right: 4px solid var(--yellow);
+}
+
+/* Vertical type label */
+.entry-type-label {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
   font-family: var(--mono);
-  letter-spacing: -0.02em;
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  color: var(--muted);
+  opacity: 0.6;
+  transition: opacity 0.2s, color 0.2s;
+  pointer-events: none;
+  z-index: 3;
 }
-.type-code:hover {
-  transform: translateY(-3px);
-  border-color: var(--green);
-  box-shadow: 0 10px 20px rgba(81, 207, 102, 0.15);
+.entry:hover .entry-type-label {
+  opacity: 1;
 }
-
-/* Notes – subtle yellow background, handwritten title */
-.type-notes {
-  border-left: 4px solid var(--yellow);
-  background: rgba(255, 230, 109, 0.02);
+.entry.type-essay .entry-type-label {
+  color: var(--blue);
 }
-.type-notes .entry-title {
-  font-family: var(--hand);
-  font-size: 1.6rem;
+.entry.type-code .entry-type-label {
+  color: var(--green);
 }
-.type-notes:hover {
-  transform: translateY(-3px);
-  border-color: var(--yellow);
-  box-shadow: 0 10px 20px rgba(255, 230, 109, 0.1);
+.entry.type-notes .entry-type-label {
+  color: var(--yellow);
 }
 
 .entry-link {
@@ -407,56 +393,41 @@ header {
 }
 
 .entry-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 1rem;
-  margin-bottom: 0.5rem;
-  flex-wrap: wrap;
+  margin-bottom: 0.25rem;
+  padding-right: 2rem;
 }
 
 .entry-title {
-  font-size: 1.4rem;
+  font-family: var(--serif);
+  font-size: 1.2rem;
   font-weight: 600;
   line-height: 1.4;
   color: var(--fg);
-  margin: 0;
-  text-decoration: none;
+  margin-bottom: 0.1rem;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5); /* improve readability on images */
 }
 
-.entry-time {
+.entry-meta {
   font-family: var(--mono);
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  white-space: nowrap;
+  margin-bottom: 0.4rem;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
 .entry-excerpt {
   line-height: 1.6;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--muted);
   max-width: 80ch;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
+/* Remove thumbnail image – now background */
 .entry-thumb {
-  width: 120px;
-  height: 120px;
-  flex-shrink: 0;
-  object-fit: cover;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  border-radius: 8px;
-  transition: border-color 0.15s;
-  background-color: var(--highlight);
-}
-.entry:hover .entry-thumb {
-  border-color: currentColor;
+  display: none;
 }
 
 .entry.locked .entry-title::after {
@@ -466,85 +437,7 @@ header {
   margin-left: 0.3rem;
 }
 
-/* Skeleton loading */
-.skeleton-entry {
-  background: var(--paper);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 1.5rem;
-  display: flex;
-  gap: 1.5rem;
-  align-items: flex-start;
-}
-.skeleton-content {
-  flex: 1;
-}
-.skeleton {
-  background: linear-gradient(90deg, var(--highlight) 25%, var(--border) 50%, var(--highlight) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-  border-radius: 4px;
-}
-@keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-.skeleton-title {
-  width: 70%;
-  height: 1.8rem;
-  margin-bottom: 0.5rem;
-}
-.skeleton-meta {
-  width: 25%;
-  height: 0.9rem;
-  margin-bottom: 0.5rem;
-}
-.skeleton-excerpt {
-  width: 100%;
-  height: 3rem;
-}
-.skeleton-thumb {
-  width: 120px;
-  height: 120px;
-  flex-shrink: 0;
-  background: var(--highlight);
-  border-radius: 8px;
-}
-
-/* Load more button */
-.load-more-container {
-  display: flex;
-  justify-content: center;
-  margin: 2rem 0 1rem;
-}
-.load-more-btn {
-  padding: 0.75rem 2rem;
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
-  border-radius: 4px;
-}
-.load-more-btn:hover {
-  border-color: var(--blue);
-  color: var(--blue);
-}
-.load-more-btn:focus-visible {
-  outline: 1px solid var(--blue);
-  outline-offset: 2px;
-}
-.load-more-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-/* Sidebar */
+/* Sidebar styles */
 .sidebar-section {
   margin-bottom: 2.5rem;
 }
@@ -622,39 +515,52 @@ header {
     grid-template-columns: 1fr;
     padding: 2rem 1.5rem;
   }
+
   .updates-sidebar {
     position: relative;
     top: 0;
     margin-top: 3rem;
   }
+
   header {
     padding: 1.5rem;
   }
+
+  .filters {
+    flex-direction: column;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
   .entry-title {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
+  }
+
+  .entry-type-label {
+    font-size: 0.5rem;
+    right: 8px;
   }
 }
+
 @media (max-width: 600px) {
   .entry-link {
     flex-direction: column;
   }
-  .entry-thumb {
-    width: 100%;
-    height: auto;
-    max-height: 200px;
-    object-fit: contain;
-    margin-bottom: 0.5rem;
-  }
-  .skeleton-entry {
-    flex-direction: column;
-  }
-  .skeleton-thumb {
-    width: 100%;
-    height: 150px;
+  .entry-type-label {
+    display: none; /* hide on small screens */
   }
 }
+
 @media (prefers-reduced-motion: reduce) {
-  * { animation: none !important; transition: none !important; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 </style>
 </head>
@@ -683,10 +589,7 @@ header {
       </div>
 
       <div class="filters">
-        <div class="search-wrapper">
-          <input type="text" class="search-box" id="searchBox" placeholder="Search entries...">
-          <button class="search-clear" id="searchClear" aria-label="Clear search">×</button>
-        </div>
+        <input type="text" class="search-box" id="searchBox" placeholder="Search entries...">
         <div class="filter-tags">
           <button class="filter-tag active" data-filter="all">All</button>
           <button class="filter-tag" data-filter="essays">Essays</button>
@@ -696,27 +599,9 @@ header {
       </div>
 
       <div class="entry-list" id="entryList">
-        <!-- skeleton will be shown while loading -->
-        <div class="skeleton-entry">
-          <div class="skeleton-content">
-            <div class="skeleton skeleton-title"></div>
-            <div class="skeleton skeleton-meta"></div>
-            <div class="skeleton skeleton-excerpt"></div>
-          </div>
-          <div class="skeleton skeleton-thumb"></div>
+        <div style="padding: 3rem; text-align: center; color: var(--muted);">
+          <p style="font-family: var(--mono); font-size: 0.875rem;">Loading...</p>
         </div>
-        <div class="skeleton-entry">
-          <div class="skeleton-content">
-            <div class="skeleton skeleton-title"></div>
-            <div class="skeleton skeleton-meta"></div>
-            <div class="skeleton skeleton-excerpt"></div>
-          </div>
-          <div class="skeleton skeleton-thumb"></div>
-        </div>
-      </div>
-
-      <div class="load-more-container">
-        <button class="load-more-btn" id="loadMoreBtn">Load more</button>
       </div>
     </section>
 
@@ -761,188 +646,142 @@ header {
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-(function() {
-  const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+// Public archive – original data loading logic (no admin features)
+const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
 
-  let allPosts = [];
-  let currentFilter = 'all';
-  let currentSearch = '';
-  let offset = 0;
-  const limit = 10;
+window.db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  const entryList = document.getElementById('entryList');
-  const searchBox = document.getElementById('searchBox');
-  const searchClear = document.getElementById('searchClear');
-  const loadMoreBtn = document.getElementById('loadMoreBtn');
-  const filterTags = document.querySelectorAll('.filter-tag');
+let allPosts = [];
 
-  function getRelativeTime(dateString) {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now - date;
-    const diffSec = Math.floor(diffMs / 1000);
-    const diffMin = Math.floor(diffSec / 60);
-    const diffHour = Math.floor(diffMin / 60);
-    const diffDay = Math.floor(diffHour / 24);
-    const diffWeek = Math.floor(diffDay / 7);
-    const diffMonth = Math.floor(diffDay / 30);
-    const diffYear = Math.floor(diffDay / 365);
+// DOM elements
+const entryList = document.getElementById('entryList');
+const searchBox = document.getElementById('searchBox');
+const filterTags = document.querySelectorAll('.filter-tag');
 
-    if (diffSec < 60) return 'just now';
-    if (diffMin < 60) return diffMin + ' minute' + (diffMin > 1 ? 's' : '') + ' ago';
-    if (diffHour < 24) return diffHour + ' hour' + (diffHour > 1 ? 's' : '') + ' ago';
-    if (diffDay === 1) return 'yesterday';
-    if (diffDay < 7) return diffDay + ' days ago';
-    if (diffWeek < 4) return diffWeek + ' week' + (diffWeek > 1 ? 's' : '') + ' ago';
-    if (diffMonth < 12) return diffMonth + ' month' + (diffMonth > 1 ? 's' : '') + ' ago';
-    return diffYear + ' year' + (diffYear > 1 ? 's' : '') + ' ago';
+// Data functions
+async function loadPosts() {
+  const { data, error } = await window.db
+    .from('posts')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error("Database error:", error);
+    document.getElementById('entryList').innerHTML = `
+      <div style="padding:3rem;text-align:center;color:var(--muted);">
+        Error loading posts
+      </div>`;
+    return;
   }
 
-  function escapeHtml(unsafe) {
-    if (!unsafe) return '';
-    return unsafe
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+  allPosts = data || [];
+  renderPosts(allPosts);
+}
+
+function escapeHtml(unsafe) {
+  if (!unsafe) return '';
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function generateExcerpt(post) {
+  if (post.excerpt) return escapeHtml(post.excerpt);
+  if (post.content) {
+    const plain = post.content.replace(/<[^>]*>/g, '');
+    return escapeHtml(plain.substring(0, 120)) + (plain.length > 120 ? '…' : '');
+  }
+  return '<em style="opacity:0.6;">(no preview)</em>';
+}
+
+function renderPosts(posts) {
+  if (!posts.length) {
+    entryList.innerHTML = `
+      <div style="padding:3rem;text-align:center;color:var(--muted);">
+        No entries yet
+      </div>`;
+    return;
   }
 
-  function generateExcerpt(post) {
-    if (post.excerpt) return escapeHtml(post.excerpt);
-    if (post.content) {
-      const plain = post.content.replace(/<[^>]*>/g, '');
-      return escapeHtml(plain.substring(0, 120)) + (plain.length > 120 ? '…' : '');
-    }
-    return '<em style="opacity:0.6;">(no preview)</em>';
-  }
+  entryList.innerHTML = posts.map(post => {
+    const isPaid = post.access === 'paid';
+    const type = post.type || 'essay';
+    const title = escapeHtml(post.title);
+    const excerpt = generateExcerpt(post);
+    const date = new Date(post.created_at).toLocaleDateString();
+    const linkTarget = `/post.html?id=${post.id}`;
+    const coverUrl = post.cover_url ? escapeHtml(post.cover_url) : null;
 
-  function getFilteredPosts() {
-    let filtered = allPosts;
-    if (currentFilter !== 'all') {
-      const typeMap = { essays: 'essay', code: 'code', notes: 'notes' };
-      const postType = typeMap[currentFilter];
-      filtered = filtered.filter(post => (post.type || 'essay') === postType);
-    }
-    if (currentSearch) {
-      const s = currentSearch.toLowerCase();
-      filtered = filtered.filter(post =>
-        (post.title || '').toLowerCase().includes(s) ||
-        (post.excerpt || '').toLowerCase().includes(s) ||
-        (post.content || '').toLowerCase().includes(s)
-      );
-    }
-    return filtered;
-  }
+    // Determine label text based on type
+    let typeLabel = 'essay';
+    if (type === 'code') typeLabel = 'code';
+    if (type === 'notes') typeLabel = 'note';
 
-  function renderSlice(postsSlice) {
-    const fragment = document.createDocumentFragment();
-    postsSlice.forEach(post => {
-      const isPaid = post.access === 'paid';
-      const type = post.type || 'essay';
-      const title = escapeHtml(post.title);
-      const excerpt = generateExcerpt(post);
-      const relativeTime = getRelativeTime(post.created_at);
-      const coverUrl = post.cover_url ? escapeHtml(post.cover_url) : null;
-      const linkTarget = `/post.html?id=${post.id}`;
+    // Build class list
+    let classes = `entry type-${type}`;
+    if (isPaid) classes += ' locked';
+    if (coverUrl) classes += ' has-cover';
 
-      const entryDiv = document.createElement('div');
-      entryDiv.className = `entry type-${type} ${isPaid ? 'locked' : ''}`;
-      entryDiv.dataset.id = post.id;
+    // Inline style for background image if cover exists
+    const style = coverUrl ? `style="background-image: url('${coverUrl}');"` : '';
 
-      entryDiv.innerHTML = `
+    return `
+      <div class="${classes}" data-id="${post.id}" ${style}>
+        <span class="entry-type-label">${typeLabel}</span>
         <a href="${linkTarget}" class="entry-link">
           <div class="entry-content">
             <div class="entry-header">
               <h2 class="entry-title">${title}</h2>
-              <span class="entry-time">${relativeTime}</span>
             </div>
+            <div class="entry-meta">${date}</div>
             <p class="entry-excerpt">${excerpt}</p>
           </div>
-          ${coverUrl ? `<img src="${coverUrl}" alt="" class="entry-thumb" loading="lazy" onerror="this.style.display='none'">` : ''}
         </a>
-      `;
-      fragment.appendChild(entryDiv);
-    });
-    entryList.appendChild(fragment);
-  }
+      </div>
+    `;
+  }).join('');
+}
 
-  async function loadAllPosts() {
-    try {
-      const { data, error } = await supabase
-        .from('posts')
-        .select('*')
-        .order('created_at', { ascending: false });
+// Search
+searchBox.addEventListener('input', (e) => {
+  const search = e.target.value.toLowerCase();
+  const filtered = allPosts.filter(post =>
+    (post.title || "").toLowerCase().includes(search) ||
+    (post.excerpt || "").toLowerCase().includes(search) ||
+    (post.content || "").toLowerCase().includes(search)
+  );
+  renderPosts(filtered);
+});
 
-      if (error) throw error;
+// Filter tags
+filterTags.forEach(tag => {
+  tag.addEventListener('click', () => {
+    filterTags.forEach(t => t.classList.remove('active'));
+    tag.classList.add('active');
 
-      allPosts = data || [];
-      offset = 0;
-      entryList.innerHTML = '';
-      const filtered = getFilteredPosts();
-      renderSlice(filtered.slice(0, limit));
-      if (filtered.length <= limit) {
-        loadMoreBtn.style.display = 'none';
-      } else {
-        loadMoreBtn.style.display = 'inline-block';
-      }
-    } catch (err) {
-      console.error('Failed to load posts:', err);
-      entryList.innerHTML = `<div style="padding:3rem;text-align:center;color:var(--muted);">Could not load posts. Please try again later.</div>`;
-    }
-  }
-
-  function loadMore() {
-    const filtered = getFilteredPosts();
-    const nextPosts = filtered.slice(offset + limit, offset + limit * 2);
-    if (nextPosts.length > 0) {
-      renderSlice(nextPosts);
-      offset += limit;
-    }
-    if (filtered.length <= offset + limit) {
-      loadMoreBtn.style.display = 'none';
-    }
-  }
-
-  function applyFilter() {
-    offset = 0;
-    entryList.innerHTML = '';
-    const filtered = getFilteredPosts();
-    renderSlice(filtered.slice(0, limit));
-    if (filtered.length <= limit) {
-      loadMoreBtn.style.display = 'none';
+    const filter = tag.dataset.filter;
+    if (filter === 'all') {
+      renderPosts(allPosts);
     } else {
-      loadMoreBtn.style.display = 'inline-block';
+      const typeMap = {
+        essays: 'essay',
+        code: 'code',
+        notes: 'notes'
+      };
+      const postType = typeMap[filter];
+      const filtered = allPosts.filter(post => (post.type || "essay") === postType);
+      renderPosts(filtered);
     }
-  }
-
-  searchBox.addEventListener('input', (e) => {
-    currentSearch = e.target.value;
-    applyFilter();
   });
+});
 
-  searchClear.addEventListener('click', () => {
-    searchBox.value = '';
-    currentSearch = '';
-    applyFilter();
-    searchBox.focus();
-  });
-
-  filterTags.forEach(tag => {
-    tag.addEventListener('click', () => {
-      filterTags.forEach(t => t.classList.remove('active'));
-      tag.classList.add('active');
-      currentFilter = tag.dataset.filter;
-      applyFilter();
-    });
-  });
-
-  loadMoreBtn.addEventListener('click', loadMore);
-
-  loadAllPosts();
-})();
+// Initialize
+loadPosts();
 </script>
+
 </body>
 </html>
