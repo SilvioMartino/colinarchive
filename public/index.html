@@ -290,7 +290,7 @@ header {
   color: var(--blue);
 }
 
-/* ---------- POST ENTRIES (neutral gray hover) ---------- */
+/* ---------- POST ENTRIES (cards) ---------- */
 .entry-list {
   display: flex;
   flex-direction: column;
@@ -298,23 +298,16 @@ header {
 }
 
 .entry {
-  position: relative;
-  padding: 0.5rem 0 1.5rem 0;
-  margin: 0 -0.5rem;
-  border-bottom: 1px solid var(--border);
-  transition: background-color 0.15s ease, border-color 0.15s ease, padding 0.15s ease;
-  border-radius: 8px;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.2rem;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
-
 .entry:hover {
-  background-color: rgba(255, 255, 255, 0.05);
-  border-bottom-color: rgba(255, 255, 255, 0.2);
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-}
-
-.entry:last-child {
-  border-bottom: none;
+  transform: translateY(-2px);
+  border-color: var(--blue);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
 .entry-link {
@@ -377,7 +370,7 @@ header {
   background-color: var(--highlight); /* placeholder color while loading */
 }
 .entry:hover .entry-thumb {
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: var(--blue);
 }
 
 .entry.locked .entry-title::after {
@@ -387,7 +380,19 @@ header {
   margin-left: 0.3rem;
 }
 
-/* Skeleton loading */
+/* Skeleton loading – now also cards */
+.skeleton-entry {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.2rem;
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+.skeleton-content {
+  flex: 1;
+}
 .skeleton {
   background: linear-gradient(90deg, var(--highlight) 25%, var(--border) 50%, var(--highlight) 75%);
   background-size: 200% 100%;
@@ -397,14 +402,6 @@ header {
 @keyframes shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
-}
-.skeleton-entry {
-  display: flex;
-  gap: 1.5rem;
-  padding: 0.5rem 0;
-}
-.skeleton-content {
-  flex: 1;
 }
 .skeleton-title {
   width: 80%;
@@ -424,6 +421,8 @@ header {
   width: 100px;
   height: 100px;
   flex-shrink: 0;
+  background: var(--highlight);
+  border-radius: 4px;
 }
 
 /* Load more button – subtle outline */
@@ -711,12 +710,12 @@ header {
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  let allPosts = [];           // full set (used for filtering)
-  let displayedPosts = [];     // currently visible posts (after filter + pagination)
+  let allPosts = [];
+  let displayedPosts = [];
   let currentFilter = 'all';
   let currentSearch = '';
   let offset = 0;
-  const limit = 10;            // posts per page
+  const limit = 10;
 
   const entryList = document.getElementById('entryList');
   const searchBox = document.getElementById('searchBox');
@@ -724,7 +723,6 @@ header {
   const loadMoreBtn = document.getElementById('loadMoreBtn');
   const filterTags = document.querySelectorAll('.filter-tag');
 
-  // Relative time formatter
   function getRelativeTime(dateString) {
     const date = new Date(dateString);
     const now = new Date();
@@ -747,7 +745,6 @@ header {
     return diffYear + ' year' + (diffYear > 1 ? 's' : '') + ' ago';
   }
 
-  // Escape HTML
   function escapeHtml(unsafe) {
     if (!unsafe) return '';
     return unsafe
@@ -758,7 +755,6 @@ header {
       .replace(/'/g, "&#039;");
   }
 
-  // Generate excerpt with fallback
   function generateExcerpt(post) {
     if (post.excerpt) return escapeHtml(post.excerpt);
     if (post.content) {
@@ -768,7 +764,6 @@ header {
     return '<em style="opacity:0.6;">(no preview)</em>';
   }
 
-  // Filter posts based on currentFilter and currentSearch
   function getFilteredPosts() {
     let filtered = allPosts;
     if (currentFilter !== 'all') {
@@ -787,7 +782,6 @@ header {
     return filtered;
   }
 
-  // Render a slice of posts (pagination)
   function renderSlice(postsSlice) {
     const fragment = document.createDocumentFragment();
     postsSlice.forEach(post => {
@@ -819,7 +813,6 @@ header {
     entryList.appendChild(fragment);
   }
 
-  // Load initial data (all posts)
   async function loadAllPosts() {
     try {
       const { data, error } = await supabase
@@ -830,15 +823,13 @@ header {
       if (error) throw error;
 
       allPosts = data || [];
-      // initial render: first page
       offset = 0;
-      entryList.innerHTML = ''; // clear skeletons
+      entryList.innerHTML = '';
       const filtered = getFilteredPosts();
       const toRender = filtered.slice(0, limit);
       renderSlice(toRender);
       displayedPosts = filtered;
 
-      // show/hide load more
       if (filtered.length <= limit) {
         loadMoreBtn.style.display = 'none';
       } else {
@@ -850,7 +841,6 @@ header {
     }
   }
 
-  // Load more posts (append)
   function loadMore() {
     const filtered = getFilteredPosts();
     const nextPosts = filtered.slice(offset + limit, offset + limit * 2);
@@ -858,16 +848,14 @@ header {
       renderSlice(nextPosts);
       offset += limit;
     }
-    // hide button if no more
     if (filtered.length <= offset + limit) {
       loadMoreBtn.style.display = 'none';
     }
   }
 
-  // Apply filter/search (reset pagination)
   function applyFilter() {
     offset = 0;
-    entryList.innerHTML = ''; // clear
+    entryList.innerHTML = '';
     const filtered = getFilteredPosts();
     displayedPosts = filtered;
     const toRender = filtered.slice(0, limit);
@@ -879,7 +867,6 @@ header {
     }
   }
 
-  // Event listeners
   searchBox.addEventListener('input', (e) => {
     currentSearch = e.target.value;
     applyFilter();
@@ -903,7 +890,6 @@ header {
 
   loadMoreBtn.addEventListener('click', loadMore);
 
-  // Start
   loadAllPosts();
 })();
 </script>
