@@ -293,32 +293,32 @@ header {
   color: var(--blue);
 }
 
-/* ---------- POST ENTRIES (cards, now in two columns) ---------- */
+/* ---------- POST ENTRIES (single column, refined) ---------- */
 .entry-list {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: 1fr;
+  gap: 1.8rem;
   margin-bottom: 2rem;
 }
 
 .entry {
   background: var(--paper);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.2rem;
+  border-radius: 16px;
+  padding: 1.5rem;
   transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 .entry:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   border-color: var(--blue);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
 .entry-link {
   text-decoration: none;
   color: inherit;
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   align-items: flex-start;
 }
 
@@ -331,14 +331,14 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: 0.5rem;
-  margin-bottom: 0.25rem;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
   flex-wrap: wrap;
 }
 
 .entry-title {
   font-family: var(--serif);
-  font-size: 1.1rem;
+  font-size: 1.4rem;
   font-weight: 600;
   line-height: 1.4;
   color: var(--fg);
@@ -348,7 +348,7 @@ header {
 
 .entry-time {
   font-family: var(--mono);
-  font-size: 0.6rem;
+  font-size: 0.7rem;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -356,9 +356,10 @@ header {
 }
 
 .entry-excerpt {
-  line-height: 1.5;
-  font-size: 0.9rem;
+  line-height: 1.6;
+  font-size: 1rem;
   color: var(--muted);
+  max-width: 80ch;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -366,13 +367,13 @@ header {
 }
 
 .entry-thumb {
-  width: 80px;
-  height: 80px;
+  width: 120px;
+  height: 120px;
   flex-shrink: 0;
   object-fit: cover;
   border: 1px solid var(--border);
   background: var(--bg);
-  border-radius: 4px;
+  border-radius: 8px;
   transition: border-color 0.15s;
   background-color: var(--highlight);
 }
@@ -382,19 +383,19 @@ header {
 
 .entry.locked .entry-title::after {
   content: ' 🔒';
-  font-size: 0.9rem;
+  font-size: 1rem;
   opacity: 0.8;
-  margin-left: 0.2rem;
+  margin-left: 0.3rem;
 }
 
-/* Skeleton loading – now also two‑column friendly */
+/* Skeleton loading – single column style */
 .skeleton-entry {
   background: var(--paper);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 1.2rem;
+  border-radius: 16px;
+  padding: 1.5rem;
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   align-items: flex-start;
 }
 .skeleton-content {
@@ -411,25 +412,25 @@ header {
   100% { background-position: -200% 0; }
 }
 .skeleton-title {
-  width: 80%;
-  height: 1.2rem;
+  width: 70%;
+  height: 1.8rem;
   margin-bottom: 0.5rem;
 }
 .skeleton-meta {
-  width: 30%;
-  height: 0.7rem;
+  width: 25%;
+  height: 0.9rem;
   margin-bottom: 0.5rem;
 }
 .skeleton-excerpt {
   width: 100%;
-  height: 2.5rem;
+  height: 3rem;
 }
 .skeleton-thumb {
-  width: 80px;
-  height: 80px;
+  width: 120px;
+  height: 120px;
   flex-shrink: 0;
   background: var(--highlight);
-  border-radius: 4px;
+  border-radius: 8px;
 }
 
 /* Load more button – subtle outline */
@@ -480,6 +481,7 @@ header {
   border-bottom: 1px solid var(--border);
 }
 
+/* Personal description – just a paragraph */
 .rules-content {
   font-family: var(--serif);
   color: var(--muted);
@@ -489,30 +491,8 @@ header {
 .rules-content p {
   margin-bottom: 1rem;
 }
-.rules-list {
-  list-style: none;
-  margin: 1rem 0;
-}
-.rules-list li {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-.rule-icon {
-  font-size: 1.2rem;
-  min-width: 1.8rem;
-  color: var(--blue);
-}
-.rules-footer {
-  font-style: italic;
-  border-top: 1px dashed var(--border);
-  padding-top: 1rem;
-  margin-top: 0.5rem;
-  color: var(--fg);
-}
 
-/* Social boxes – now with Font Awesome icons */
+/* Social boxes – clean hover */
 .social-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -566,9 +546,6 @@ header {
     grid-template-columns: 1fr;
     padding: 2rem 1.5rem;
   }
-  .entry-list {
-    grid-template-columns: 1fr; /* stack on smaller screens */
-  }
   .updates-sidebar {
     position: relative;
     top: 0;
@@ -578,20 +555,26 @@ header {
     padding: 1.5rem;
   }
   .entry-title {
-    font-size: 1rem;
+    font-size: 1.3rem;
   }
 }
 @media (max-width: 600px) {
   .entry-link {
-    gap: 0.8rem;
+    flex-direction: column;
   }
   .entry-thumb {
-    width: 70px;
-    height: 70px;
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    object-fit: contain;
+    margin-bottom: 0.5rem;
+  }
+  .skeleton-entry {
+    flex-direction: column;
   }
   .skeleton-thumb {
-    width: 70px;
-    height: 70px;
+    width: 100%;
+    height: 150px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -662,7 +645,7 @@ header {
     </section>
 
     <aside class="updates-sidebar">
-      <!-- Updated rules section with new text -->
+      <!-- Personal description (just a paragraph) -->
       <div class="sidebar-section">
         <h3 class="sidebar-title">How this place works</h3>
         <div class="rules-content">
@@ -826,7 +809,7 @@ header {
       if (filtered.length <= limit) {
         loadMoreBtn.style.display = 'none';
       } else {
-        loadMoreBtn.style.display = 'block';
+        loadMoreBtn.style.display = 'inline-block';
       }
     } catch (err) {
       console.error('Failed to load posts:', err);
@@ -854,7 +837,7 @@ header {
     if (filtered.length <= limit) {
       loadMoreBtn.style.display = 'none';
     } else {
-      loadMoreBtn.style.display = 'block';
+      loadMoreBtn.style.display = 'inline-block';
     }
   }
 
