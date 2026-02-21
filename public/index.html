@@ -16,6 +16,9 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 
+<!-- Font Awesome for modern icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
 
@@ -290,11 +293,12 @@ header {
   color: var(--blue);
 }
 
-/* ---------- POST ENTRIES (cards) ---------- */
+/* ---------- POST ENTRIES (cards, now in two columns) ---------- */
 .entry-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .entry {
@@ -314,7 +318,7 @@ header {
   text-decoration: none;
   color: inherit;
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
   align-items: flex-start;
 }
 
@@ -327,14 +331,14 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: 1rem;
+  gap: 0.5rem;
   margin-bottom: 0.25rem;
   flex-wrap: wrap;
 }
 
 .entry-title {
   font-family: var(--serif);
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
   line-height: 1.4;
   color: var(--fg);
@@ -344,7 +348,7 @@ header {
 
 .entry-time {
   font-family: var(--mono);
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -352,22 +356,25 @@ header {
 }
 
 .entry-excerpt {
-  line-height: 1.6;
-  font-size: 0.95rem;
+  line-height: 1.5;
+  font-size: 0.9rem;
   color: var(--muted);
-  max-width: 80ch;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .entry-thumb {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   flex-shrink: 0;
   object-fit: cover;
   border: 1px solid var(--border);
   background: var(--bg);
   border-radius: 4px;
   transition: border-color 0.15s;
-  background-color: var(--highlight); /* placeholder color while loading */
+  background-color: var(--highlight);
 }
 .entry:hover .entry-thumb {
   border-color: var(--blue);
@@ -375,19 +382,19 @@ header {
 
 .entry.locked .entry-title::after {
   content: ' 🔒';
-  font-size: 1rem;
+  font-size: 0.9rem;
   opacity: 0.8;
-  margin-left: 0.3rem;
+  margin-left: 0.2rem;
 }
 
-/* Skeleton loading – now also cards */
+/* Skeleton loading – now also two‑column friendly */
 .skeleton-entry {
   background: var(--paper);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 1.2rem;
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
   align-items: flex-start;
 }
 .skeleton-content {
@@ -405,21 +412,21 @@ header {
 }
 .skeleton-title {
   width: 80%;
-  height: 1.5rem;
+  height: 1.2rem;
   margin-bottom: 0.5rem;
 }
 .skeleton-meta {
   width: 30%;
-  height: 0.8rem;
+  height: 0.7rem;
   margin-bottom: 0.5rem;
 }
 .skeleton-excerpt {
   width: 100%;
-  height: 3rem;
+  height: 2.5rem;
 }
 .skeleton-thumb {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   flex-shrink: 0;
   background: var(--highlight);
   border-radius: 4px;
@@ -505,10 +512,10 @@ header {
   color: var(--fg);
 }
 
-/* Social boxes – subtle outline */
+/* Social boxes – now with Font Awesome icons */
 .social-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
   margin-top: 1rem;
 }
@@ -559,6 +566,9 @@ header {
     grid-template-columns: 1fr;
     padding: 2rem 1.5rem;
   }
+  .entry-list {
+    grid-template-columns: 1fr; /* stack on smaller screens */
+  }
   .updates-sidebar {
     position: relative;
     top: 0;
@@ -568,26 +578,20 @@ header {
     padding: 1.5rem;
   }
   .entry-title {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 }
 @media (max-width: 600px) {
   .entry-link {
-    flex-direction: column;
+    gap: 0.8rem;
   }
   .entry-thumb {
-    width: 100%;
-    height: auto;
-    max-height: 200px;
-    object-fit: contain;
-    margin-bottom: 0.5rem;
-  }
-  .skeleton-entry {
-    flex-direction: column;
+    width: 70px;
+    height: 70px;
   }
   .skeleton-thumb {
-    width: 100%;
-    height: 150px;
+    width: 70px;
+    height: 70px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -658,39 +662,32 @@ header {
     </section>
 
     <aside class="updates-sidebar">
-      <!-- Rules section (human tone) -->
+      <!-- Updated rules section with new text -->
       <div class="sidebar-section">
         <h3 class="sidebar-title">How this place works</h3>
         <div class="rules-content">
-          <p>I think out loud here. Essays and code get better over time; notes are just quick scratches. Everything’s free unless it’s locked (those are for paid folks). Dates show when something first appeared – updates are mentioned inside.</p>
-          <ul class="rules-list">
-            <li><span class="rule-icon">📝</span> <strong>Essays & code</strong> evolve – I keep editing them.</li>
-            <li><span class="rule-icon">📌</span> <strong>Notes</strong> stay as they are – raw and unpolished.</li>
-            <li><span class="rule-icon">🔓</span> Most is free. Locked ones are for subscribers.</li>
-            <li><span class="rule-icon">🕰️</span> The date is when I first hit publish.</li>
-          </ul>
-          <p class="rules-footer">Come with curiosity, leave with something.</p>
+          <p>This is my personal archive where I upload essays, notes, and code for now. Essays and code usually get updated, so by checking them again you can see new content, while notes usually stay the same. I made this site in hopes of creating a safe space for any type of posts, and hopefully the info here might be worth a lot to someone.</p>
         </div>
       </div>
 
-      <!-- Social media boxes (4) -->
+      <!-- Social media boxes with modern Font Awesome icons -->
       <div class="sidebar-section">
         <h3 class="sidebar-title">Elsewhere</h3>
         <div class="social-grid">
           <a href="#" target="_blank" rel="noopener" class="social-box">
-            <span class="social-icon">🐦</span>
+            <i class="fab fa-twitter social-icon"></i>
             <span>Twitter</span>
           </a>
           <a href="#" target="_blank" rel="noopener" class="social-box">
-            <span class="social-icon">💻</span>
+            <i class="fab fa-github social-icon"></i>
             <span>GitHub</span>
           </a>
           <a href="#" target="_blank" rel="noopener" class="social-box">
-            <span class="social-icon">📷</span>
+            <i class="fab fa-instagram social-icon"></i>
             <span>Instagram</span>
           </a>
           <a href="#" target="_blank" rel="noopener" class="social-box">
-            <span class="social-icon">📧</span>
+            <i class="fas fa-envelope social-icon"></i>
             <span>Email</span>
           </a>
         </div>
@@ -711,11 +708,10 @@ header {
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   let allPosts = [];
-  let displayedPosts = [];
   let currentFilter = 'all';
   let currentSearch = '';
   let offset = 0;
-  const limit = 10;
+  const limit = 10; // posts per page
 
   const entryList = document.getElementById('entryList');
   const searchBox = document.getElementById('searchBox');
@@ -772,11 +768,11 @@ header {
       filtered = filtered.filter(post => (post.type || 'essay') === postType);
     }
     if (currentSearch) {
-      const searchLower = currentSearch.toLowerCase();
+      const s = currentSearch.toLowerCase();
       filtered = filtered.filter(post =>
-        (post.title || '').toLowerCase().includes(searchLower) ||
-        (post.excerpt || '').toLowerCase().includes(searchLower) ||
-        (post.content || '').toLowerCase().includes(searchLower)
+        (post.title || '').toLowerCase().includes(s) ||
+        (post.excerpt || '').toLowerCase().includes(s) ||
+        (post.content || '').toLowerCase().includes(s)
       );
     }
     return filtered;
@@ -824,12 +820,9 @@ header {
 
       allPosts = data || [];
       offset = 0;
-      entryList.innerHTML = '';
+      entryList.innerHTML = ''; // clear skeletons
       const filtered = getFilteredPosts();
-      const toRender = filtered.slice(0, limit);
-      renderSlice(toRender);
-      displayedPosts = filtered;
-
+      renderSlice(filtered.slice(0, limit));
       if (filtered.length <= limit) {
         loadMoreBtn.style.display = 'none';
       } else {
@@ -857,9 +850,7 @@ header {
     offset = 0;
     entryList.innerHTML = '';
     const filtered = getFilteredPosts();
-    displayedPosts = filtered;
-    const toRender = filtered.slice(0, limit);
-    renderSlice(toRender);
+    renderSlice(filtered.slice(0, limit));
     if (filtered.length <= limit) {
       loadMoreBtn.style.display = 'none';
     } else {
