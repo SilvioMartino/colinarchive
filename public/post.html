@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <!-- Added Caveat and Libre Baskerville for type-specific fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -17,7 +16,7 @@
       --bg: #0d0d0d;
       --paper: #1a1a1a;
       --fg: #e8e8e8;
-      --muted: #c0c0c0;        /* slightly brighter for better contrast */
+      --muted: #c0c0c0;
       --border: #2a2a2a;
       --accent: #e8e8e8;
       --highlight: #1f1f1f;
@@ -38,14 +37,14 @@
     }
 
     body {
-      background: var(--paper);  /* solid dark paper color, no texture */
+      background: var(--paper);
       color: var(--fg);
       font-family: var(--serif);
       min-height: 100vh;
       line-height: 1.6;
     }
 
-    /* ----- NAVBAR (matches archive page header exactly) ----- */
+    /* ----- NAVBAR (only logo linking to index) ----- */
     nav {
       background: var(--paper);
       border-bottom: 1px solid var(--border);
@@ -81,20 +80,7 @@
       51%, 100% { opacity: 0; }
     }
 
-    .links a {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      margin-left: 2rem;
-      text-decoration: none;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      transition: color 0.3s;
-    }
-
-    .links a:hover {
-      color: var(--blue);
-    }
+    /* No extra links – just the logo */
 
     /* ----- MAIN CONTENT (full width, no boxes) ----- */
     .wrapper {
@@ -105,7 +91,7 @@
       z-index: 2;
     }
 
-    /* Back link – styled like archive's "Load more" button */
+    /* Back link – now goes to index */
     .back-link {
       margin-bottom: 2rem;
     }
@@ -144,7 +130,7 @@
     }
     .type-notes .title {
       font-family: var(--hand);
-      font-size: 2rem; /* slightly larger to match handwritten feel */
+      font-size: 2rem;
     }
 
     .title {
@@ -201,7 +187,6 @@
       color: var(--fg);
     }
 
-    /* Cover image (if any) */
     .hero-image {
       width: 100%;
       max-height: 400px;
@@ -211,7 +196,6 @@
       border: 1px solid var(--border);
     }
 
-    /* Paid entry – minimal distinction */
     .locked {
       text-align: center;
       padding: 3rem 2rem;
@@ -261,13 +245,6 @@
     @media (max-width: 700px) {
       nav {
         padding: 1rem 1.5rem;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-      }
-      .links a {
-        margin-left: 0;
-        margin-right: 2rem;
       }
       .wrapper {
         padding: 0 1rem;
@@ -299,16 +276,13 @@
 <body>
 
 <nav>
-  <a href="/archive.html" class="logo">Colin Archive</a>
-  <div class="links">
-    <a href="/archive.html">Archive</a>
-    <a href="/write.html">Write</a>
-  </div>
+  <a href="/" class="logo">Colin Archive</a>
+  <!-- No Archive/Write links -->
 </nav>
 
 <div class="wrapper">
   <div class="back-link">
-    <a href="/archive.html">← Back to Archive</a>
+    <a href="/">← Back to Home</a>
   </div>
 
   <div class="post-content" id="postContent">
@@ -397,7 +371,6 @@
       `;
     }
 
-    // Wrap with type class to apply font styles
     document.getElementById("postContent").innerHTML = `
       <div class="type-${type}">
         ${innerHtml}
