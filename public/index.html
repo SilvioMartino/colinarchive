@@ -242,30 +242,46 @@ header {
   transition: all 0.3s;
 }
 
-/* Type-specific hover colors for filter tags */
-.filter-tag[data-filter="all"]:hover {
-  border-color: #fff;
-  color: #fff;
-  background: transparent;
+/* Hover effects only for devices that support hover (e.g., mouse) */
+@media (hover: hover) {
+  .filter-tag[data-filter="all"]:hover {
+    border-color: #fff;
+    color: #fff;
+    background: transparent;
+  }
+  .filter-tag[data-filter="essays"]:hover {
+    border-color: var(--blue);
+    color: var(--blue);
+    background: rgba(78, 205, 196, 0.05);
+  }
+  .filter-tag[data-filter="code"]:hover {
+    border-color: var(--green);
+    color: var(--green);
+    background: rgba(81, 207, 102, 0.05);
+  }
+  .filter-tag[data-filter="notes"]:hover {
+    border-color: var(--yellow);
+    color: var(--yellow);
+    background: rgba(255, 230, 109, 0.05);
+  }
 }
+
+/* Active states (remain for all devices) */
 .filter-tag[data-filter="all"].active {
   border-color: #fff;
   color: #fff;
   background: transparent;
 }
-.filter-tag[data-filter="essays"]:hover,
 .filter-tag[data-filter="essays"].active {
   border-color: var(--blue);
   color: var(--blue);
   background: rgba(78, 205, 196, 0.05);
 }
-.filter-tag[data-filter="code"]:hover,
 .filter-tag[data-filter="code"].active {
   border-color: var(--green);
   color: var(--green);
   background: rgba(81, 207, 102, 0.05);
 }
-.filter-tag[data-filter="notes"]:hover,
 .filter-tag[data-filter="notes"].active {
   border-color: var(--yellow);
   color: var(--yellow);
@@ -320,27 +336,34 @@ header {
   box-sizing: border-box;
 }
 
-.entry:hover {
-  margin-left: -0.5rem;
-  margin-right: -0.5rem;
-}
-.entry:hover .entry-link {
-  padding-left: calc(1.5rem + 0.5rem);
-  padding-right: calc(1.5rem + 0.5rem);
-}
+/* Hover effects only for hover‑capable devices */
+@media (hover: hover) {
+  .entry:hover {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+  }
+  .entry:hover .entry-link {
+    padding-left: calc(1.5rem + 0.5rem);
+    padding-right: calc(1.5rem + 0.5rem);
+  }
 
-/* Type-specific hover backgrounds (for non‑image posts, fallback) */
-.entry.type-essay:not(.has-cover):hover {
-  background-color: rgba(78, 205, 196, 0.08);
-  border-bottom-color: var(--blue);
-}
-.entry.type-code:not(.has-cover):hover {
-  background-color: rgba(81, 207, 102, 0.08);
-  border-bottom-color: var(--green);
-}
-.entry.type-notes:not(.has-cover):hover {
-  background-color: rgba(255, 230, 109, 0.08);
-  border-bottom-color: var(--yellow);
+  /* Type‑specific hover backgrounds (for non‑image posts) */
+  .entry.type-essay:not(.has-cover):hover {
+    background-color: rgba(78, 205, 196, 0.08);
+    border-bottom-color: var(--blue);
+  }
+  .entry.type-code:not(.has-cover):hover {
+    background-color: rgba(81, 207, 102, 0.08);
+    border-bottom-color: var(--green);
+  }
+  .entry.type-notes:not(.has-cover):hover {
+    background-color: rgba(255, 230, 109, 0.08);
+    border-bottom-color: var(--yellow);
+  }
+
+  .entry:hover .entry-type-label {
+    opacity: 1;
+  }
 }
 
 .entry:last-child {
@@ -375,9 +398,6 @@ header {
   transition: opacity 0.2s, color 0.2s;
   pointer-events: none; /* clicks pass through */
   z-index: 3;
-}
-.entry:hover .entry-type-label {
-  opacity: 1;
 }
 .entry.type-essay .entry-type-label {
   color: var(--blue);
@@ -488,17 +508,22 @@ header {
   text-transform: uppercase;
   gap: 0.3rem;
 }
-.social-box:hover {
-  transform: translateY(-2px);
-  border-color: var(--blue);
+
+/* Social boxes hover (only for hover‑capable devices) */
+@media (hover: hover) {
+  .social-box:hover {
+    transform: translateY(-2px);
+    border-color: var(--blue);
+  }
+  .social-box:hover .social-icon {
+    color: var(--blue);
+  }
 }
+
 .social-icon {
   font-size: 1.8rem;
   color: var(--muted);
   transition: color 0.2s;
-}
-.social-box:hover .social-icon {
-  color: var(--blue);
 }
 
 .sidebar-note {
@@ -548,10 +573,6 @@ header {
 }
 
 @media (max-width: 600px) {
-  .entry {
-    /* padding handled by link */
-  }
-
   .entry-link {
     padding: 1.2rem;
     gap: 1rem;
@@ -567,10 +588,8 @@ header {
     letter-spacing: 0.1em;
   }
 
-  .entry:hover .entry-link {
-    padding-left: calc(1.2rem + 0.5rem);
-    padding-right: calc(1.2rem + 0.5rem);
-  }
+  /* On mobile, hover effects are disabled by @media (hover: hover) anyway,
+     but we keep the hover padding rule inside that media query, so no need to adjust here. */
 
   .sidebar-note {
     font-size: 0.9rem;
