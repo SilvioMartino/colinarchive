@@ -19,7 +19,7 @@
 <!-- Font Awesome for modern icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-<!-- Google Fonts: Crimson Text (body), Libre Baskerville (essays), IBM Plex Mono (code), Caveat (notes) -->
+<!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
 
@@ -213,7 +213,7 @@ header {
   border-radius: 4px;
 }
 
-/* Filters & search – no glow, just border highlight */
+/* Filters & search – updated hover colors */
 .filters {
   display: flex;
   gap: 1rem;
@@ -278,24 +278,59 @@ header {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: border-color 0.2s, color 0.2s;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
   border-radius: 4px;
 }
 .filter-tag:focus-visible {
   outline: 1px solid var(--blue);
   outline-offset: 2px;
 }
-.filter-tag:hover {
+
+/* All button – cyan */
+.filter-tag[data-filter="all"]:hover {
   border-color: var(--blue);
-  color: var(--blue);
+  color: #fff;
 }
-.filter-tag.active {
+.filter-tag[data-filter="all"].active {
   background: rgba(78, 205, 196, 0.05);
   border-color: var(--blue);
   color: var(--blue);
 }
 
-/* ---------- POST ENTRIES (single column, type‑specific styles) ---------- */
+/* Essays button – cyan */
+.filter-tag[data-filter="essays"]:hover {
+  border-color: var(--blue);
+  color: #fff;
+}
+.filter-tag[data-filter="essays"].active {
+  background: rgba(78, 205, 196, 0.05);
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+/* Code button – green */
+.filter-tag[data-filter="code"]:hover {
+  border-color: var(--green);
+  color: #fff;
+}
+.filter-tag[data-filter="code"].active {
+  background: rgba(81, 207, 102, 0.05);
+  border-color: var(--green);
+  color: var(--green);
+}
+
+/* Notes button – yellow */
+.filter-tag[data-filter="notes"]:hover {
+  border-color: var(--yellow);
+  color: #fff;
+}
+.filter-tag[data-filter="notes"].active {
+  background: rgba(255, 230, 109, 0.05);
+  border-color: var(--yellow);
+  color: var(--yellow);
+}
+
+/* ---------- POST ENTRIES ---------- */
 .entry-list {
   display: grid;
   grid-template-columns: 1fr;
@@ -319,7 +354,7 @@ header {
 }
 .type-essay .entry-title {
   font-family: var(--essay-serif);
-  font-weight: 700; /* Libre Baskerville bold has a nice weight */
+  font-weight: 700;
   letter-spacing: -0.01em;
 }
 .type-essay:hover {
@@ -421,7 +456,7 @@ header {
   background-color: var(--highlight);
 }
 .entry:hover .entry-thumb {
-  border-color: currentColor; /* uses the hover border color of the card */
+  border-color: currentColor;
 }
 
 .entry.locked .entry-title::after {
@@ -431,7 +466,7 @@ header {
   margin-left: 0.3rem;
 }
 
-/* Skeleton loading – single column style */
+/* Skeleton loading */
 .skeleton-entry {
   background: var(--paper);
   border: 1px solid var(--border);
@@ -476,7 +511,7 @@ header {
   border-radius: 8px;
 }
 
-/* Load more button – subtle outline */
+/* Load more button */
 .load-more-container {
   display: flex;
   justify-content: center;
@@ -509,7 +544,7 @@ header {
   pointer-events: none;
 }
 
-/* Sidebar: rules and social boxes */
+/* Sidebar */
 .sidebar-section {
   margin-bottom: 2.5rem;
 }
@@ -524,7 +559,6 @@ header {
   border-bottom: 1px solid var(--border);
 }
 
-/* Personal description – just a paragraph */
 .rules-content {
   font-family: var(--serif);
   color: var(--muted);
@@ -535,7 +569,6 @@ header {
   margin-bottom: 1rem;
 }
 
-/* Social boxes – clean hover */
 .social-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -688,7 +721,7 @@ header {
     </section>
 
     <aside class="updates-sidebar">
-      <!-- Personal description (just a paragraph) -->
+      <!-- Personal description -->
       <div class="sidebar-section">
         <h3 class="sidebar-title">How this place works</h3>
         <div class="rules-content">
@@ -696,7 +729,7 @@ header {
         </div>
       </div>
 
-      <!-- Social media boxes with modern Font Awesome icons -->
+      <!-- Social media boxes -->
       <div class="sidebar-section">
         <h3 class="sidebar-title">Elsewhere</h3>
         <div class="social-grid">
@@ -737,7 +770,7 @@ header {
   let currentFilter = 'all';
   let currentSearch = '';
   let offset = 0;
-  const limit = 10; // posts per page
+  const limit = 10;
 
   const entryList = document.getElementById('entryList');
   const searchBox = document.getElementById('searchBox');
@@ -808,7 +841,7 @@ header {
     const fragment = document.createDocumentFragment();
     postsSlice.forEach(post => {
       const isPaid = post.access === 'paid';
-      const type = post.type || 'essay'; // default to essay
+      const type = post.type || 'essay';
       const title = escapeHtml(post.title);
       const excerpt = generateExcerpt(post);
       const relativeTime = getRelativeTime(post.created_at);
@@ -816,7 +849,6 @@ header {
       const linkTarget = `/post.html?id=${post.id}`;
 
       const entryDiv = document.createElement('div');
-      // Add base class and type-specific class
       entryDiv.className = `entry type-${type} ${isPaid ? 'locked' : ''}`;
       entryDiv.dataset.id = post.id;
 
@@ -848,7 +880,7 @@ header {
 
       allPosts = data || [];
       offset = 0;
-      entryList.innerHTML = ''; // clear skeletons
+      entryList.innerHTML = '';
       const filtered = getFilteredPosts();
       renderSlice(filtered.slice(0, limit));
       if (filtered.length <= limit) {
