@@ -249,9 +249,9 @@ header {
   background: transparent;
 }
 .filter-tag[data-filter="all"].active {
-  border-color: var(--blue);
-  color: var(--blue);
-  background: rgba(78, 205, 196, 0.05);
+  border-color: #fff;
+  color: #fff;
+  background: transparent;
 }
 .filter-tag[data-filter="essays"]:hover,
 .filter-tag[data-filter="essays"].active {
@@ -281,7 +281,6 @@ header {
 
 .entry {
   position: relative;
-  padding: 1.5rem;
   border-bottom: 1px solid var(--border);
   transition: all 0.3s ease;
   border-radius: 16px;
@@ -289,6 +288,7 @@ header {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  padding: 0; /* padding moved to .entry-link */
 }
 
 /* Dark overlay for background images */
@@ -301,22 +301,32 @@ header {
   height: 100%;
   background: rgba(0, 0, 0, 0.6);
   z-index: 1;
-  pointer-events: none;
+  pointer-events: none; /* allows clicks to pass through */
   border-radius: 16px;
 }
 
 /* Ensure content is above overlay */
-.entry-link,
-.entry-type-label {
+.entry-link {
   position: relative;
   z-index: 2;
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  text-decoration: none;
+  color: inherit;
+  padding: 1.5rem;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .entry:hover {
-  padding-left: calc(1.5rem + 0.5rem);
-  padding-right: calc(1.5rem + 0.5rem);
   margin-left: -0.5rem;
   margin-right: -0.5rem;
+}
+.entry:hover .entry-link {
+  padding-left: calc(1.5rem + 0.5rem);
+  padding-right: calc(1.5rem + 0.5rem);
 }
 
 /* Type-specific hover backgrounds (for non‑image posts, fallback) */
@@ -337,7 +347,7 @@ header {
   border-bottom: none;
 }
 
-/* Type-specific right border (subtle bar) */
+/* Type-specific right border (subtle bar) – applied to entry so it stays at edge */
 .entry.type-essay {
   border-right: 4px solid var(--blue);
 }
@@ -363,7 +373,7 @@ header {
   color: var(--muted);
   opacity: 0.6;
   transition: opacity 0.2s, color 0.2s;
-  pointer-events: none;
+  pointer-events: none; /* clicks pass through */
   z-index: 3;
 }
 .entry:hover .entry-type-label {
@@ -377,14 +387,6 @@ header {
 }
 .entry.type-notes .entry-type-label {
   color: var(--yellow);
-}
-
-.entry-link {
-  text-decoration: none;
-  color: inherit;
-  display: flex;
-  gap: 1.5rem;
-  align-items: flex-start;
 }
 
 .entry-content {
@@ -547,11 +549,11 @@ header {
 
 @media (max-width: 600px) {
   .entry {
-    padding: 1.2rem;
+    /* padding handled by link */
   }
 
   .entry-link {
-    flex-direction: column;
+    padding: 1.2rem;
     gap: 1rem;
   }
 
@@ -563,10 +565,9 @@ header {
     font-size: 0.5rem;
     right: 4px;
     letter-spacing: 0.1em;
-    /* keep vertical, but adjust */
   }
 
-  .entry:hover {
+  .entry:hover .entry-link {
     padding-left: calc(1.2rem + 0.5rem);
     padding-right: calc(1.2rem + 0.5rem);
   }
