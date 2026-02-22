@@ -16,7 +16,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
 
-  <!-- Font Awesome for lock icon -->
+  <!-- Font Awesome for lock icon and copy button -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -65,7 +65,7 @@
       border-bottom: 1px solid var(--border);
       padding: 1.2rem 3rem;
       display: flex;
-      justify-content: flex-start; /* align items left */
+      justify-content: flex-start;
       align-items: center;
       position: sticky;
       top: 0;
@@ -74,18 +74,17 @@
       transition: border-bottom-color 0.2s, box-shadow 0.2s;
     }
 
-    /* Type‑specific bottom border and glow */
-   nav.nav-type-essay {
-  border-bottom: 2px solid var(--blue);
-  box-shadow: 0 0 6px rgba(78, 205, 196, 0.3);
-}
-nav.nav-type-code {
-  border-bottom: 2px solid var(--green);
-  box-shadow: 0 0 6px rgba(81, 207, 102, 0.3);
-}
-nav.nav-type-notes {
-  border-bottom: 2px solid var(--yellow);
-  box-shadow: 0 0 6px rgba(255, 230, 109, 0.3);
+    nav.nav-type-essay {
+      border-bottom: 2px solid var(--blue);
+      box-shadow: 0 0 6px rgba(78, 205, 196, 0.3);
+    }
+    nav.nav-type-code {
+      border-bottom: 2px solid var(--green);
+      box-shadow: 0 0 6px rgba(81, 207, 102, 0.3);
+    }
+    nav.nav-type-notes {
+      border-bottom: 2px solid var(--yellow);
+      box-shadow: 0 0 6px rgba(255, 230, 109, 0.3);
     }
 
     .logo {
@@ -110,7 +109,6 @@ nav.nav-type-notes {
       51%, 100% { opacity: 0; }
     }
 
-    /* Type label next to logo */
     .post-type-label {
       margin-left: 1.5rem;
       font-size: 0.7rem;
@@ -139,7 +137,6 @@ nav.nav-type-notes {
       z-index: 2;
     }
 
-    /* Back link – matches archive's "Load more" style */
     .back-link {
       margin-bottom: 2rem;
     }
@@ -162,13 +159,35 @@ nav.nav-type-notes {
       transform: translateX(-2px);
     }
 
-    /* Post container – full width, no card */
     .post-container {
       max-width: 900px;
       margin: 0 auto;
+      position: relative;
     }
 
-    /* Title with type-specific fonts */
+    .type-bar {
+      width: 100%;
+      height: 4px;
+      margin-bottom: 2rem;
+    }
+    .type-bar.essay { background: var(--blue); }
+    .type-bar.code { background: var(--green); }
+    .type-bar.notes { background: var(--yellow); }
+
+    .post-content {
+      position: relative;
+      z-index: 3;
+    }
+
+    .hero-image {
+      width: 100%;
+      max-height: 400px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border);
+    }
+
     .title {
       font-family: var(--serif);
       font-size: 2.5rem;
@@ -198,7 +217,6 @@ nav.nav-type-notes {
       margin-bottom: 2rem;
     }
 
-    /* Tags */
     .tags {
       margin-bottom: 2rem;
     }
@@ -220,7 +238,17 @@ nav.nav-type-notes {
       color: var(--blue);
     }
 
-    /* Main content */
+    /* Excerpt */
+    .excerpt {
+      font-size: 1.3rem;
+      color: #bdbdbd;
+      margin-bottom: 2.2rem;
+      font-style: italic;
+      border-left: 3px solid var(--blue);
+      padding-left: 1rem;
+    }
+
+    /* Content area – base style */
     .content {
       font-size: 1.18rem;
       line-height: 1.85;
@@ -228,14 +256,59 @@ nav.nav-type-notes {
       color: var(--fg);
     }
 
-    /* Paid message (with subtle stripes) */
+    /* Terminal style for code posts */
+    .type-code .content {
+      background: #0a0a0a;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 1.5rem;
+      font-family: var(--mono);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #b0f0b0;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+      position: relative;
+    }
+
+    /* Copy button for code posts */
+    .copy-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: #1f1f1f;
+      border: 1px solid #3a3a3a;
+      border-radius: 4px;
+      color: #b0f0b0;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background 0.2s, border-color 0.2s;
+      z-index: 10;
+    }
+    .copy-btn:hover {
+      background: #2a2a2a;
+      border-color: #4ecdc4;
+    }
+    .copy-btn.copied {
+      background: #2a5a2a;
+      border-color: #b0f0b0;
+      color: #fff;
+    }
+    .copy-btn i {
+      font-size: 0.8rem;
+    }
+
+    /* Paid message */
     .locked-message {
       text-align: center;
       padding: 2rem;
       border: 1px dashed var(--red);
       border-radius: 8px;
       margin-top: 2rem;
-      position: relative;
       background: repeating-linear-gradient(
         45deg,
         rgba(179, 0, 45, 0.1) 0px,
@@ -243,6 +316,7 @@ nav.nav-type-notes {
         transparent 10px,
         transparent 20px
       );
+      position: relative;
     }
     .locked-message h3 {
       font-family: var(--mono);
@@ -275,7 +349,6 @@ nav.nav-type-notes {
       color: var(--bg);
     }
 
-    /* Lock icon for paid posts (floating) */
     .locked-icon {
       position: absolute;
       top: 1rem;
@@ -286,7 +359,6 @@ nav.nav-type-notes {
       pointer-events: none;
     }
 
-    /* Loading state */
     .loading {
       text-align: center;
       font-family: var(--mono);
@@ -295,43 +367,19 @@ nav.nav-type-notes {
       font-size: 1rem;
     }
 
-    /* Responsive */
     @media (max-width: 700px) {
-      nav {
-        padding: 1rem 1.5rem;
-      }
-      .post-type-label {
-        margin-left: 1rem;
-        font-size: 0.6rem;
-      }
-      .wrapper {
-        padding: 0 1rem;
-        margin: 40px 0;
-      }
-      .title {
-        font-size: 2rem;
-      }
-      .type-notes .title {
-        font-size: 1.8rem;
-      }
-      .back-link a {
-        display: block;
-        text-align: center;
-      }
-      .locked-icon {
-        top: 0.5rem;
-        right: 0.5rem;
-        font-size: 1.5rem;
-      }
+      nav { padding: 1rem 1.5rem; }
+      .post-type-label { margin-left: 1rem; font-size: 0.6rem; }
+      .wrapper { padding: 0 1rem; margin: 40px 0; }
+      .title { font-size: 2rem; }
+      .type-notes .title { font-size: 1.8rem; }
+      .back-link a { display: block; text-align: center; }
+      .locked-icon { top: 0.5rem; right: 0.5rem; font-size: 1.5rem; }
+      .copy-btn { top: 0.5rem; right: 0.5rem; font-size: 0.6rem; padding: 0.3rem 0.6rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      *,
-      *::before,
-      *::after {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-      }
+      *, *::before, *::after { animation: none !important; transition: none !important; }
     }
   </style>
 </head>
@@ -410,13 +458,17 @@ nav.nav-type-notes {
     const isPaid = post.access === 'paid';
 
     // Set nav type class and label
-    nav.className = ''; // reset
+    nav.className = '';
     nav.classList.add(`nav-type-${type}`);
     typeLabel.className = `post-type-label ${type}`;
     typeLabel.textContent = type === 'code' ? 'code' : (type === 'notes' ? 'note' : 'essay');
 
+    // Build the type bar
+    const typeBar = `<div class="type-bar ${type}"></div>`;
+
     // Build content
     let contentHtml;
+    let copyButton = '';
 
     if (isPaid) {
       contentHtml = `
@@ -433,20 +485,51 @@ nav.nav-type-notes {
         </div>
       `;
     } else {
+      // For code posts, we'll add a copy button
+      if (type === 'code') {
+        copyButton = `<button class="copy-btn" id="copyCodeBtn"><i class="far fa-copy"></i> Copy</button>`;
+      }
+
       contentHtml = `
         <h1 class="title">${escapeHtml(post.title)}</h1>
         <div class="meta">${metaDate} • ${readTime} min read</div>
         ${tags ? `<div class="tags">${tags}</div>` : ""}
-        <div class="content">${escapeHtml(post.content)}</div>
+        <div class="content" id="postContentBody">${escapeHtml(post.content)}</div>
       `;
     }
 
-    // Wrap with type class for font styling
+    // Assemble the full HTML
     container.innerHTML = `
-      <div class="type-${type}">
-        ${contentHtml}
+      <div class="post-container type-${type}">
+        ${typeBar}
+        <div class="post-content">
+          ${copyButton}
+          ${contentHtml}
+        </div>
       </div>
     `;
+
+    // Attach copy button functionality if it's a code post
+    if (type === 'code' && !isPaid) {
+      const copyBtn = document.getElementById('copyCodeBtn');
+      const contentBody = document.getElementById('postContentBody');
+      if (copyBtn && contentBody) {
+        copyBtn.addEventListener('click', async () => {
+          const text = contentBody.innerText; // get plain text
+          try {
+            await navigator.clipboard.writeText(text);
+            copyBtn.classList.add('copied');
+            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => {
+              copyBtn.classList.remove('copied');
+              copyBtn.innerHTML = '<i class="far fa-copy"></i> Copy';
+            }, 2000);
+          } catch (err) {
+            console.error('Copy failed:', err);
+          }
+        });
+      }
+    }
   }
 
   loadPost();
