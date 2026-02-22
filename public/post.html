@@ -59,18 +59,33 @@
       line-height: 1.6;
     }
 
-    /* ----- NAVBAR (only logo linking to index) ----- */
+    /* ----- NAVBAR (with type‑colored bottom border) ----- */
     nav {
       background: var(--paper);
       border-bottom: 1px solid var(--border);
       padding: 1.2rem 3rem;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start; /* align items left */
       align-items: center;
       position: sticky;
       top: 0;
       z-index: 100;
       width: 100%;
+      transition: border-bottom-color 0.2s, box-shadow 0.2s;
+    }
+
+    /* Type‑specific bottom border and glow */
+    nav.nav-type-essay {
+      border-bottom: 3px solid var(--blue);
+      box-shadow: 0 0 8px var(--blue);
+    }
+    nav.nav-type-code {
+      border-bottom: 3px solid var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+    nav.nav-type-notes {
+      border-bottom: 3px solid var(--yellow);
+      box-shadow: 0 0 8px var(--yellow);
     }
 
     .logo {
@@ -93,6 +108,26 @@
     @keyframes blink {
       0%, 50% { opacity: 1; }
       51%, 100% { opacity: 0; }
+    }
+
+    /* Type label next to logo */
+    .post-type-label {
+      margin-left: 1.5rem;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .post-type-label.essay {
+      font-family: var(--essay-serif);
+      color: var(--blue);
+    }
+    .post-type-label.code {
+      font-family: var(--mono);
+      color: var(--green);
+    }
+    .post-type-label.notes {
+      font-family: var(--hand);
+      color: var(--yellow);
     }
 
     /* ----- MAIN CONTENT ----- */
@@ -127,76 +162,10 @@
       transform: translateX(-2px);
     }
 
-    /* Post container – full width, no card, just a top bar */
+    /* Post container – full width, no card */
     .post-container {
       max-width: 900px;
       margin: 0 auto;
-      position: relative;
-    }
-
-    /* Type bar – thin stripe at the top */
-    .type-bar {
-      width: 100%;
-      height: 4px;
-      margin-bottom: 2rem;
-    }
-    .type-bar.essay {
-      background: var(--blue);
-    }
-    .type-bar.code {
-      background: var(--green);
-    }
-    .type-bar.notes {
-      background: var(--yellow);
-    }
-
-    /* Paid posts – diagonal stripes overlay */
-    .paid-overlay {
-      position: relative;
-    }
-    .paid-overlay::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: repeating-linear-gradient(
-        45deg,
-        rgba(179, 0, 45, 0.15) 0px,
-        rgba(179, 0, 45, 0.15) 10px,
-        transparent 10px,
-        transparent 20px
-      );
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .paid-overlay .locked-icon {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      font-size: 2rem;
-      color: rgba(255, 255, 255, 0.8);
-      text-shadow: 0 2px 5px rgba(0,0,0,0.5);
-      z-index: 2;
-      pointer-events: none;
-    }
-
-    /* Ensure content is above overlay */
-    .post-content {
-      position: relative;
-      z-index: 3;
-    }
-
-    /* Cover image */
-    .hero-image {
-      width: 100%;
-      max-height: 400px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-bottom: 2rem;
-      border: 1px solid var(--border);
     }
 
     /* Title with type-specific fonts */
@@ -251,16 +220,6 @@
       color: var(--blue);
     }
 
-    /* Excerpt */
-    .excerpt {
-      font-size: 1.3rem;
-      color: #bdbdbd;
-      margin-bottom: 2.2rem;
-      font-style: italic;
-      border-left: 3px solid var(--blue);
-      padding-left: 1rem;
-    }
-
     /* Main content */
     .content {
       font-size: 1.18rem;
@@ -269,13 +228,21 @@
       color: var(--fg);
     }
 
-    /* Paid message */
+    /* Paid message (with subtle stripes) */
     .locked-message {
       text-align: center;
       padding: 2rem;
       border: 1px dashed var(--red);
       border-radius: 8px;
       margin-top: 2rem;
+      position: relative;
+      background: repeating-linear-gradient(
+        45deg,
+        rgba(179, 0, 45, 0.1) 0px,
+        rgba(179, 0, 45, 0.1) 10px,
+        transparent 10px,
+        transparent 20px
+      );
     }
     .locked-message h3 {
       font-family: var(--mono);
@@ -308,6 +275,17 @@
       color: var(--bg);
     }
 
+    /* Lock icon for paid posts (floating) */
+    .locked-icon {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 2rem;
+      color: rgba(255, 255, 255, 0.6);
+      text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+      pointer-events: none;
+    }
+
     /* Loading state */
     .loading {
       text-align: center;
@@ -321,6 +299,10 @@
     @media (max-width: 700px) {
       nav {
         padding: 1rem 1.5rem;
+      }
+      .post-type-label {
+        margin-left: 1rem;
+        font-size: 0.6rem;
       }
       .wrapper {
         padding: 0 1rem;
@@ -348,7 +330,6 @@
       *::before,
       *::after {
         animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
       }
     }
@@ -356,8 +337,9 @@
 </head>
 <body>
 
-<nav>
+<nav id="mainNav">
   <a href="/" class="logo">Colin Archive</a>
+  <span class="post-type-label" id="postTypeLabel"></span>
 </nav>
 
 <div class="wrapper">
@@ -376,13 +358,16 @@
 
   const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  const nav = document.getElementById('mainNav');
+  const typeLabel = document.getElementById('postTypeLabel');
+  const container = document.getElementById('postContainer');
+
   function getPostId() {
     return new URLSearchParams(location.search).get("id");
   }
 
   async function loadPost() {
     const id = getPostId();
-    const container = document.getElementById("postContainer");
     if (!id) {
       container.innerHTML = "<div class='loading'>No post ID specified</div>";
       return;
@@ -422,52 +407,44 @@
     const metaDate = new Date(post.created_at).toLocaleDateString();
     const readTime = post.readtime || 1;
     const type = post.type || 'essay';
-    const coverHtml = post.cover_url
-      ? `<img src="${escapeHtml(post.cover_url)}" alt="" class="hero-image" loading="lazy" onerror="this.style.display='none'">`
-      : '';
-
     const isPaid = post.access === 'paid';
 
-    // Build the type bar
-    const typeBar = `<div class="type-bar ${type}"></div>`;
+    // Set nav type class and label
+    nav.className = ''; // reset
+    nav.classList.add(`nav-type-${type}`);
+    typeLabel.className = `post-type-label ${type}`;
+    typeLabel.textContent = type === 'code' ? 'code' : (type === 'notes' ? 'note' : 'essay');
 
-    // Build the content (paid or free)
+    // Build content
     let contentHtml;
+
     if (isPaid) {
       contentHtml = `
-        ${coverHtml}
-        <h1 class="title">${escapeHtml(post.title)}</h1>
-        <div class="meta">${metaDate} • ${readTime} min read</div>
-        ${tags ? `<div class="tags">${tags}</div>` : ""}
-        ${post.excerpt ? `<div class="excerpt">${escapeHtml(post.excerpt)}</div>` : ""}
-        <div class="locked-message">
-          <h3>🔒 PAID ENTRY</h3>
-          <p>This post requires access.</p>
-          <a class="btn" href="#">Unlock</a>
+        <div style="position: relative;">
+          <i class="fas fa-lock locked-icon"></i>
+          <h1 class="title">${escapeHtml(post.title)}</h1>
+          <div class="meta">${metaDate} • ${readTime} min read</div>
+          ${tags ? `<div class="tags">${tags}</div>` : ""}
+          <div class="locked-message">
+            <h3>🔒 PAID ENTRY</h3>
+            <p>This post requires access.</p>
+            <a class="btn" href="#">Unlock</a>
+          </div>
         </div>
       `;
     } else {
       contentHtml = `
-        ${coverHtml}
         <h1 class="title">${escapeHtml(post.title)}</h1>
         <div class="meta">${metaDate} • ${readTime} min read</div>
         ${tags ? `<div class="tags">${tags}</div>` : ""}
-        ${post.excerpt ? `<div class="excerpt">${escapeHtml(post.excerpt)}</div>` : ""}
         <div class="content">${escapeHtml(post.content)}</div>
       `;
     }
 
-    // Wrap everything
-    const paidClass = isPaid ? 'paid-overlay' : '';
-    const lockIcon = isPaid ? '<i class="fas fa-lock locked-icon"></i>' : '';
-
-    document.getElementById("postContainer").innerHTML = `
-      <div class="post-container type-${type}">
-        ${typeBar}
-        <div class="post-content ${paidClass}">
-          ${lockIcon}
-          ${contentHtml}
-        </div>
+    // Wrap with type class for font styling
+    container.innerHTML = `
+      <div class="type-${type}">
+        ${contentHtml}
       </div>
     `;
   }
