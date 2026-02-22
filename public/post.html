@@ -25,7 +25,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    /* ----- GLOBAL VARIABLES (exactly as archive page) ----- */
+    /* ----- GLOBAL VARIABLES ----- */
     :root {
       --bg: #0d0d0d;
       --paper: #1a1a1a;
@@ -52,42 +52,11 @@
     }
 
     body {
-      background: var(--paper);
+      background: var(--paper); /* solid grey, like homepage */
       color: var(--fg);
       font-family: var(--serif);
       min-height: 100vh;
       line-height: 1.6;
-      position: relative;
-    }
-
-    /* Paper texture (same as archive) */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 2px,
-          rgba(255, 255, 255, 0.01) 2px,
-          rgba(255, 255, 255, 0.01) 4px
-        );
-      pointer-events: none;
-      z-index: 0;
-      animation: paperSlide 40s linear infinite;
-    }
-
-    @keyframes paperSlide {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(4px); }
-    }
-
-    /* Disable animation on mobile for performance */
-    @media (max-width: 600px) {
-      body::before {
-        animation: none;
-      }
     }
 
     /* ----- NAVBAR (only logo linking to index) ----- */
@@ -158,34 +127,34 @@
       transform: translateX(-2px);
     }
 
-    /* Post card – now matches archive's card style (left border) */
-    .post-card {
-      background: var(--paper);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 2rem;
+    /* Post container – full width, no card, just a top bar */
+    .post-container {
       max-width: 900px;
       margin: 0 auto;
       position: relative;
-      overflow: hidden;
     }
 
-    /* Type-specific left border and subtle background */
-    .post-card.type-essay {
-      border-left: 4px solid var(--blue);
-      background: rgba(78, 205, 196, 0.02);
+    /* Type bar – thin stripe at the top */
+    .type-bar {
+      width: 100%;
+      height: 4px;
+      margin-bottom: 2rem;
     }
-    .post-card.type-code {
-      border-left: 4px solid var(--green);
-      background: rgba(81, 207, 102, 0.02);
+    .type-bar.essay {
+      background: var(--blue);
     }
-    .post-card.type-notes {
-      border-left: 4px solid var(--yellow);
-      background: rgba(255, 230, 109, 0.02);
+    .type-bar.code {
+      background: var(--green);
+    }
+    .type-bar.notes {
+      background: var(--yellow);
     }
 
-    /* Paid post – diagonal stripes and lock icon (like archive) */
-    .post-card.paid::before {
+    /* Paid posts – diagonal stripes overlay */
+    .paid-overlay {
+      position: relative;
+    }
+    .paid-overlay::before {
       content: '';
       position: absolute;
       top: 0;
@@ -194,30 +163,30 @@
       height: 100%;
       background: repeating-linear-gradient(
         45deg,
-        rgba(179, 0, 45, 0.3) 0px,
-        rgba(179, 0, 45, 0.3) 10px,
+        rgba(179, 0, 45, 0.15) 0px,
+        rgba(179, 0, 45, 0.15) 10px,
         transparent 10px,
         transparent 20px
       );
-      z-index: 0;
       pointer-events: none;
+      z-index: 1;
     }
 
-    .post-card.paid .locked-icon {
+    .paid-overlay .locked-icon {
       position: absolute;
       top: 1rem;
       right: 1rem;
       font-size: 2rem;
       color: rgba(255, 255, 255, 0.8);
       text-shadow: 0 2px 5px rgba(0,0,0,0.5);
-      z-index: 1;
+      z-index: 2;
       pointer-events: none;
     }
 
-    /* Ensure content is above stripes */
-    .post-card > * {
+    /* Ensure content is above overlay */
+    .post-content {
       position: relative;
-      z-index: 2;
+      z-index: 3;
     }
 
     /* Cover image */
@@ -260,7 +229,7 @@
       margin-bottom: 2rem;
     }
 
-    /* Tags – same as archive */
+    /* Tags */
     .tags {
       margin-bottom: 2rem;
     }
@@ -300,7 +269,7 @@
       color: var(--fg);
     }
 
-    /* Paid section – simplified (now just a callout, stripes cover the card) */
+    /* Paid message */
     .locked-message {
       text-align: center;
       padding: 2rem;
@@ -348,50 +317,6 @@
       font-size: 1rem;
     }
 
-    /* Skeleton loader */
-    .skeleton-card {
-      background: var(--paper);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 2rem;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .skeleton {
-      background: linear-gradient(90deg, var(--highlight) 25%, var(--border) 50%, var(--highlight) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
-      border-radius: 4px;
-    }
-    @keyframes shimmer {
-      0% { background-position: 200% 0; }
-      100% { background-position: -200% 0; }
-    }
-    .skeleton-title {
-      width: 80%;
-      height: 2.5rem;
-      margin-bottom: 1rem;
-    }
-    .skeleton-meta {
-      width: 30%;
-      height: 1rem;
-      margin-bottom: 1.5rem;
-    }
-    .skeleton-tags {
-      width: 50%;
-      height: 1.5rem;
-      margin-bottom: 1rem;
-    }
-    .skeleton-excerpt {
-      width: 100%;
-      height: 3rem;
-      margin-bottom: 2rem;
-    }
-    .skeleton-content {
-      width: 100%;
-      height: 200px;
-    }
-
     /* Responsive */
     @media (max-width: 700px) {
       nav {
@@ -400,9 +325,6 @@
       .wrapper {
         padding: 0 1rem;
         margin: 40px 0;
-      }
-      .post-card {
-        padding: 1.5rem;
       }
       .title {
         font-size: 2rem;
@@ -413,6 +335,11 @@
       .back-link a {
         display: block;
         text-align: center;
+      }
+      .locked-icon {
+        top: 0.5rem;
+        right: 0.5rem;
+        font-size: 1.5rem;
       }
     }
 
@@ -438,15 +365,8 @@
     <a href="/">← Back to Home</a>
   </div>
 
-  <div id="postContainer">
-    <!-- Skeleton shown while loading -->
-    <div class="skeleton-card">
-      <div class="skeleton skeleton-title"></div>
-      <div class="skeleton skeleton-meta"></div>
-      <div class="skeleton skeleton-tags"></div>
-      <div class="skeleton skeleton-excerpt"></div>
-      <div class="skeleton skeleton-content"></div>
-    </div>
+  <div class="post-container" id="postContainer">
+    <div class="loading">Loading post...</div>
   </div>
 </div>
 
@@ -507,13 +427,14 @@
       : '';
 
     const isPaid = post.access === 'paid';
-    const paidClass = isPaid ? 'paid' : '';
-    const lockIcon = isPaid ? '<i class="fas fa-lock locked-icon"></i>' : '';
 
-    let innerHtml;
+    // Build the type bar
+    const typeBar = `<div class="type-bar ${type}"></div>`;
 
+    // Build the content (paid or free)
+    let contentHtml;
     if (isPaid) {
-      innerHtml = `
+      contentHtml = `
         ${coverHtml}
         <h1 class="title">${escapeHtml(post.title)}</h1>
         <div class="meta">${metaDate} • ${readTime} min read</div>
@@ -526,7 +447,7 @@
         </div>
       `;
     } else {
-      innerHtml = `
+      contentHtml = `
         ${coverHtml}
         <h1 class="title">${escapeHtml(post.title)}</h1>
         <div class="meta">${metaDate} • ${readTime} min read</div>
@@ -536,10 +457,17 @@
       `;
     }
 
+    // Wrap everything
+    const paidClass = isPaid ? 'paid-overlay' : '';
+    const lockIcon = isPaid ? '<i class="fas fa-lock locked-icon"></i>' : '';
+
     document.getElementById("postContainer").innerHTML = `
-      <div class="post-card type-${type} ${paidClass}">
-        ${lockIcon}
-        ${innerHtml}
+      <div class="post-container type-${type}">
+        ${typeBar}
+        <div class="post-content ${paidClass}">
+          ${lockIcon}
+          ${contentHtml}
+        </div>
       </div>
     `;
   }
