@@ -230,9 +230,13 @@
       line-height: 1.85;
       white-space: pre-wrap;
       color: var(--fg);
+      display: block;
     }
 
     /* Terminal style for code posts */
+    .type-code .content-wrapper {
+      position: relative;
+    }
     .type-code .content {
       background: #0a0a0a;
       border: 1px solid #2a2a2a;
@@ -243,12 +247,11 @@
       line-height: 1.6;
       color: #b0f0b0;
       box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-      position: relative;
       overflow-x: auto;
       white-space: pre;
     }
 
-    /* Copy button for code posts */
+    /* Copy button for code posts – positioned absolutely in the wrapper */
     .copy-btn {
       position: absolute;
       top: 0.75rem;
@@ -428,7 +431,6 @@
   // Normalize indentation: remove common leading whitespace from every line
   function normalizeIndent(text) {
     const lines = text.split('\n');
-    // Find the smallest leading whitespace among non‑empty lines
     let minIndent = Infinity;
     lines.forEach(line => {
       if (line.trim().length > 0) {
@@ -437,7 +439,6 @@
       }
     });
     if (minIndent === Infinity) minIndent = 0;
-    // Remove that amount of whitespace from each line
     return lines.map(line => line.slice(minIndent)).join('\n');
   }
 
@@ -484,15 +485,15 @@
         </div>
       `;
     } else {
-      // For code posts, we'll wrap the content in a container that holds the copy button
+      // For code posts: wrap content and button in a relative container
       if (type === 'code') {
         contentHtml = `
           <h1 class="title">${escapeHtml(post.title)}</h1>
           <div class="meta">${metaDate} • ${readTime} min read</div>
           ${tags ? `<div class="tags">${tags}</div>` : ""}
-          <div class="content" id="postContentBody">
+          <div class="content-wrapper">
             <button class="copy-btn" id="copyCodeBtn"><i class="far fa-copy"></i> Copy</button>
-            ${escapedContent}
+            <div class="content" id="postContentBody">${escapedContent}</div>
           </div>
         `;
       } else {
@@ -516,11 +517,7 @@
       const copyBtn = document.getElementById('copyCodeBtn');
       const contentBody = document.getElementById('postContentBody');
       if (copyBtn && contentBody) {
-        // Get the text without the button itself
-        const clone = contentBody.cloneNode(true);
-        const btnClone = clone.querySelector('#copyCodeBtn');
-        if (btnClone) btnClone.remove();
-        const codeText = clone.innerText;
+        const codeText = contentBody.innerText; // clean text, no button
 
         copyBtn.addEventListener('click', async () => {
           try {
