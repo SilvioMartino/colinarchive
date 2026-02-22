@@ -4,6 +4,20 @@
   <meta charset="UTF-8">
   <title>Post — Colin Archive</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A quiet archive of essays, code, and notes – unfiltered and unpolished." />
+  <meta property="og:title" content="Colin Archive" />
+  <meta property="og:description" content="A quiet archive of essays, code, and notes – unfiltered and unpolished." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://yourdomain.com" />
+  <meta property="og:image" content="https://yourdomain.com/og-image.jpg" />
+
+  <!-- Cache‑busting meta tags -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
+  <!-- Font Awesome for lock icon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
@@ -21,6 +35,7 @@
       --accent: #e8e8e8;
       --highlight: #1f1f1f;
       --red: #ff6b6b;
+      --dark-red: #b3002d;
       --blue: #4ecdc4;
       --green: #51cf66;
       --yellow: #ffe66d;
@@ -42,6 +57,37 @@
       font-family: var(--serif);
       min-height: 100vh;
       line-height: 1.6;
+      position: relative;
+    }
+
+    /* Paper texture (same as archive) */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(255, 255, 255, 0.01) 2px,
+          rgba(255, 255, 255, 0.01) 4px
+        );
+      pointer-events: none;
+      z-index: 0;
+      animation: paperSlide 40s linear infinite;
+    }
+
+    @keyframes paperSlide {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(4px); }
+    }
+
+    /* Disable animation on mobile for performance */
+    @media (max-width: 600px) {
+      body::before {
+        animation: none;
+      }
     }
 
     /* ----- NAVBAR (only logo linking to index) ----- */
@@ -80,9 +126,7 @@
       51%, 100% { opacity: 0; }
     }
 
-    /* No extra links – just the logo */
-
-    /* ----- MAIN CONTENT (full width, no boxes) ----- */
+    /* ----- MAIN CONTENT ----- */
     .wrapper {
       width: 100%;
       margin: 70px 0;
@@ -91,7 +135,7 @@
       z-index: 2;
     }
 
-    /* Back link – now goes to index */
+    /* Back link – matches archive's "Load more" style */
     .back-link {
       margin-bottom: 2rem;
     }
@@ -114,12 +158,86 @@
       transform: translateX(-2px);
     }
 
-    .post-content {
+    /* Post card – now matches archive's card style (left border) */
+    .post-card {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
       max-width: 900px;
       margin: 0 auto;
+      position: relative;
+      overflow: hidden;
     }
 
-    /* Type-specific title fonts */
+    /* Type-specific left border and subtle background */
+    .post-card.type-essay {
+      border-left: 4px solid var(--blue);
+      background: rgba(78, 205, 196, 0.02);
+    }
+    .post-card.type-code {
+      border-left: 4px solid var(--green);
+      background: rgba(81, 207, 102, 0.02);
+    }
+    .post-card.type-notes {
+      border-left: 4px solid var(--yellow);
+      background: rgba(255, 230, 109, 0.02);
+    }
+
+    /* Paid post – diagonal stripes and lock icon (like archive) */
+    .post-card.paid::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        45deg,
+        rgba(179, 0, 45, 0.3) 0px,
+        rgba(179, 0, 45, 0.3) 10px,
+        transparent 10px,
+        transparent 20px
+      );
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .post-card.paid .locked-icon {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 2rem;
+      color: rgba(255, 255, 255, 0.8);
+      text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Ensure content is above stripes */
+    .post-card > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Cover image */
+    .hero-image {
+      width: 100%;
+      max-height: 400px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border);
+    }
+
+    /* Title with type-specific fonts */
+    .title {
+      font-family: var(--serif);
+      font-size: 2.5rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      line-height: 1.3;
+    }
     .type-essay .title {
       font-family: var(--essay-serif);
       font-weight: 700;
@@ -133,14 +251,6 @@
       font-size: 2rem;
     }
 
-    .title {
-      font-family: var(--serif);
-      font-size: 2.5rem;
-      font-weight: 600;
-      margin-bottom: 0.75rem;
-      line-height: 1.3;
-    }
-
     .meta {
       font-family: var(--mono);
       font-size: 0.7rem;
@@ -150,6 +260,7 @@
       margin-bottom: 2rem;
     }
 
+    /* Tags – same as archive */
     .tags {
       margin-bottom: 2rem;
     }
@@ -171,6 +282,7 @@
       color: var(--blue);
     }
 
+    /* Excerpt */
     .excerpt {
       font-size: 1.3rem;
       color: #bdbdbd;
@@ -180,6 +292,7 @@
       padding-left: 1rem;
     }
 
+    /* Main content */
     .content {
       font-size: 1.18rem;
       line-height: 1.85;
@@ -187,23 +300,15 @@
       color: var(--fg);
     }
 
-    .hero-image {
-      width: 100%;
-      max-height: 400px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-bottom: 2rem;
-      border: 1px solid var(--border);
-    }
-
-    .locked {
+    /* Paid section – simplified (now just a callout, stripes cover the card) */
+    .locked-message {
       text-align: center;
-      padding: 3rem 2rem;
+      padding: 2rem;
       border: 1px dashed var(--red);
-      margin-top: 2rem;
       border-radius: 8px;
+      margin-top: 2rem;
     }
-    .locked h3 {
+    .locked-message h3 {
       font-family: var(--mono);
       font-size: 0.8rem;
       letter-spacing: 0.1em;
@@ -211,7 +316,7 @@
       margin-bottom: 1rem;
       text-transform: uppercase;
     }
-    .locked p {
+    .locked-message p {
       color: var(--muted);
       margin-bottom: 1.5rem;
     }
@@ -234,6 +339,7 @@
       color: var(--bg);
     }
 
+    /* Loading state */
     .loading {
       text-align: center;
       font-family: var(--mono);
@@ -242,6 +348,51 @@
       font-size: 1rem;
     }
 
+    /* Skeleton loader */
+    .skeleton-card {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .skeleton {
+      background: linear-gradient(90deg, var(--highlight) 25%, var(--border) 50%, var(--highlight) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .skeleton-title {
+      width: 80%;
+      height: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    .skeleton-meta {
+      width: 30%;
+      height: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .skeleton-tags {
+      width: 50%;
+      height: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .skeleton-excerpt {
+      width: 100%;
+      height: 3rem;
+      margin-bottom: 2rem;
+    }
+    .skeleton-content {
+      width: 100%;
+      height: 200px;
+    }
+
+    /* Responsive */
     @media (max-width: 700px) {
       nav {
         padding: 1rem 1.5rem;
@@ -249,6 +400,9 @@
       .wrapper {
         padding: 0 1rem;
         margin: 40px 0;
+      }
+      .post-card {
+        padding: 1.5rem;
       }
       .title {
         font-size: 2rem;
@@ -277,7 +431,6 @@
 
 <nav>
   <a href="/" class="logo">Colin Archive</a>
-  <!-- No Archive/Write links -->
 </nav>
 
 <div class="wrapper">
@@ -285,8 +438,15 @@
     <a href="/">← Back to Home</a>
   </div>
 
-  <div class="post-content" id="postContent">
-    <div class="loading">Loading post...</div>
+  <div id="postContainer">
+    <!-- Skeleton shown while loading -->
+    <div class="skeleton-card">
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-meta"></div>
+      <div class="skeleton skeleton-tags"></div>
+      <div class="skeleton skeleton-excerpt"></div>
+      <div class="skeleton skeleton-content"></div>
+    </div>
   </div>
 </div>
 
@@ -302,8 +462,9 @@
 
   async function loadPost() {
     const id = getPostId();
+    const container = document.getElementById("postContainer");
     if (!id) {
-      document.getElementById("postContent").innerHTML = "<div class='loading'>No post ID specified</div>";
+      container.innerHTML = "<div class='loading'>No post ID specified</div>";
       return;
     }
 
@@ -314,7 +475,7 @@
       .single();
 
     if (error || !data) {
-      document.getElementById("postContent").innerHTML = "<div class='loading'>Post not found</div>";
+      container.innerHTML = "<div class='loading'>Post not found</div>";
       return;
     }
 
@@ -345,16 +506,20 @@
       ? `<img src="${escapeHtml(post.cover_url)}" alt="" class="hero-image" loading="lazy" onerror="this.style.display='none'">`
       : '';
 
+    const isPaid = post.access === 'paid';
+    const paidClass = isPaid ? 'paid' : '';
+    const lockIcon = isPaid ? '<i class="fas fa-lock locked-icon"></i>' : '';
+
     let innerHtml;
 
-    if (post.access === "paid") {
+    if (isPaid) {
       innerHtml = `
         ${coverHtml}
         <h1 class="title">${escapeHtml(post.title)}</h1>
         <div class="meta">${metaDate} • ${readTime} min read</div>
         ${tags ? `<div class="tags">${tags}</div>` : ""}
         ${post.excerpt ? `<div class="excerpt">${escapeHtml(post.excerpt)}</div>` : ""}
-        <div class="locked">
+        <div class="locked-message">
           <h3>🔒 PAID ENTRY</h3>
           <p>This post requires access.</p>
           <a class="btn" href="#">Unlock</a>
@@ -371,8 +536,9 @@
       `;
     }
 
-    document.getElementById("postContent").innerHTML = `
-      <div class="type-${type}">
+    document.getElementById("postContainer").innerHTML = `
+      <div class="post-card type-${type} ${paidClass}">
+        ${lockIcon}
         ${innerHtml}
       </div>
     `;
