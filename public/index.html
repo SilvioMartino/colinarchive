@@ -12,7 +12,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
-<!-- Font Awesome for social icons -->
+<!-- Font Awesome for social icons and lock -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
 <style>
@@ -25,6 +25,7 @@
   --accent: #e8e8e8;
   --highlight: rgba(31, 31, 31, 0.85);
   --red: #ff6b6b;
+  --dark-red: #b3002d; /* more imposing red */
   --blue: #4ecdc4;
   --green: #51cf66;
   --yellow: #ffe66d;
@@ -48,7 +49,7 @@ body {
   position: relative;
 }
 
-/* Paper texture – subtle, easy on the eyes */
+/* Paper texture */
 body::before {
   content: '';
   position: fixed;
@@ -296,6 +297,7 @@ header {
   gap: 1.5rem;
 }
 
+/* Make entry a flex container so the link can fill it */
 .entry {
   position: relative;
   border-bottom: 1px solid var(--border);
@@ -303,6 +305,9 @@ header {
   overflow: hidden;
   padding: 0;
   transition: background-color 0.3s ease, border-bottom-color 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 100px; /* fallback */
 }
 
 /* Ensure cards with images have a minimum height */
@@ -310,7 +315,7 @@ header {
   min-height: 200px;
 }
 
-/* Cover image – now an <img> */
+/* Cover image */
 .entry-img {
   position: absolute;
   top: 0;
@@ -319,6 +324,7 @@ header {
   height: 100%;
   object-fit: cover;
   z-index: 0;
+  pointer-events: none; /* So it doesn't block clicks */
 }
 
 /* Dark overlay for images */
@@ -335,9 +341,42 @@ header {
   border-radius: 16px;
 }
 
+/* Locked posts – dark red stripes and lock icon */
+.entry.locked::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(179, 0, 45, 0.4) 0px,
+    rgba(179, 0, 45, 0.4) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+  z-index: 2;
+  pointer-events: none;
+  border-radius: 16px;
+}
+
+/* Large lock icon on locked posts */
+.entry.locked .locked-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  z-index: 3;
+  pointer-events: none;
+}
+
 .entry-link {
   position: relative;
-  z-index: 2;
+  z-index: 3; /* above stripes, below lock icon */
   display: flex;
   gap: 1.5rem;
   align-items: flex-start;
@@ -348,6 +387,7 @@ header {
   height: 100%;
   box-sizing: border-box;
   transition: transform 0.1s ease;
+  flex: 1; /* Fill the entry height */
 }
 
 .entry-link:active {
@@ -397,6 +437,7 @@ header {
   border-right: 4px solid var(--yellow);
 }
 
+/* Vertical type label */
 .entry-type-label {
   position: absolute;
   right: 12px;
@@ -412,7 +453,7 @@ header {
   opacity: 0.6;
   transition: opacity 0.2s, color 0.2s;
   pointer-events: none;
-  z-index: 3;
+  z-index: 4;
 }
 .entry.type-essay .entry-type-label {
   color: var(--blue);
@@ -462,11 +503,9 @@ header {
   text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
+/* Locked posts no longer show emoji, we have stripes and icon */
 .entry.locked .entry-title::after {
-  content: ' 🔒';
-  font-size: 1rem;
-  opacity: 0.8;
-  margin-left: 0.3rem;
+  content: none;
 }
 
 /* Sidebar styles */
@@ -484,7 +523,6 @@ header {
   border-bottom: 1px solid var(--border);
 }
 
-/* New text */
 .rules-content {
   font-family: var(--serif);
   color: var(--muted);
@@ -559,7 +597,6 @@ header {
 }
 
 @media (max-width: 600px) {
-  /* Disable heavy paper animation on mobile */
   body::before { animation: none; }
 
   .entry-link { padding: 1.2rem; gap: 1rem; }
@@ -617,7 +654,7 @@ header {
       <div class="sidebar-section">
         <h3 class="sidebar-title">How this place works</h3>
         <div class="rules-content">
-          <p>This is my personal archive where I publish essays, notes, and code. Essays and code are updated often, so revisiting them may reveal new material, while notes generally remain unchanged. I created this site as a place to document and share my work, in the belief that even a single idea here could matter to the right person.</p>
+          <p>This is my personal archive where I publish essays, notes, and code. Essays and code are updated periodically, so revisiting them may reveal new material, while notes generally remain unchanged. I created this site as a place to document and share my work, in the belief that even a single idea here could matter to the right person.</p>
         </div>
       </div>
       <div class="sidebar-section">
@@ -776,10 +813,12 @@ function renderPosts(posts, append = false) {
     const typeLabel = type === 'code' ? 'code' : (type === 'notes' ? 'note' : 'essay');
     const classes = `entry type-${type} ${isPaid ? 'locked' : ''} ${coverUrl ? 'has-cover' : ''}`;
     const imgHtml = coverUrl ? `<img src="${coverUrl}" alt="" class="entry-img" loading="lazy" onerror="this.style.display='none'">` : '';
+    const lockIcon = isPaid ? '<i class="fas fa-lock locked-icon"></i>' : '';
 
     return `
       <div class="${classes}" data-id="${post.id}">
         ${imgHtml}
+        ${lockIcon}
         <span class="entry-type-label">${typeLabel}</span>
         <a href="${linkTarget}" class="entry-link">
           <div class="entry-content">
