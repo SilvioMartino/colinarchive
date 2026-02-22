@@ -16,7 +16,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
 
-  <!-- Font Awesome for lock icon and copy button -->
+  <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -233,25 +233,89 @@
       display: block;
     }
 
-    /* Terminal style for code posts */
-    .type-code .content-wrapper {
+    /* ----- ENHANCED TERMINAL FOR CODE POSTS ----- */
+    .type-code .terminal {
       position: relative;
-    }
-    .type-code .content {
-      background: #0a0a0a;
+      background: #0c0c0c;
       border: 1px solid #2a2a2a;
-      border-radius: 8px;
-      padding: 2.5rem 1.5rem 1.5rem 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,255,0,0.05);
       font-family: var(--mono);
       font-size: 0.95rem;
       line-height: 1.6;
       color: #b0f0b0;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-      overflow-x: auto;
-      white-space: pre;
+      overflow: hidden;
     }
 
-    /* Copy button for code posts – positioned absolutely in the wrapper */
+    /* Terminal header (fake window bar) */
+    .terminal-header {
+      background: #1a1a1a;
+      padding: 0.5rem 1rem;
+      border-bottom: 1px solid #2a2a2a;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ff5f56;
+    }
+    .terminal-dot:nth-child(2) {
+      background: #ffbd2e;
+    }
+    .terminal-dot:nth-child(3) {
+      background: #27c93f;
+    }
+    .terminal-title {
+      font-size: 0.65rem;
+      color: #888;
+      margin-left: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* Wrapper for line numbers and code */
+    .terminal-body {
+      display: flex;
+      position: relative;
+    }
+
+    /* Line numbers column */
+    .line-numbers {
+      padding: 1rem 0 1rem 1rem;
+      text-align: right;
+      color: #4a7a4a;
+      user-select: none;
+      border-right: 1px solid #2a2a2a;
+      background: #0a0a0a;
+      font-family: var(--mono);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      white-space: nowrap;
+    }
+    .line-numbers div {
+      padding-right: 1rem;
+    }
+
+    /* Code column */
+    .code-lines {
+      flex: 1;
+      padding: 1rem;
+      overflow-x: auto;
+      background: #0a0a0a;
+    }
+    .code-line {
+      display: block;
+      white-space: pre;
+      font-family: var(--mono);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #b0f0b0;
+    }
+
+    /* Copy button – positioned absolutely in terminal */
     .copy-btn {
       position: absolute;
       top: 0.75rem;
@@ -268,7 +332,7 @@
       align-items: center;
       gap: 0.4rem;
       transition: background 0.2s, border-color 0.2s, color 0.2s;
-      z-index: 10;
+      z-index: 20;
     }
     .copy-btn:hover {
       background: #2a2a2a;
@@ -358,7 +422,8 @@
       .back-link a { display: block; text-align: center; }
       .locked-icon { top: 0.5rem; right: 0.5rem; font-size: 1.5rem; }
       .copy-btn { top: 0.5rem; right: 0.5rem; font-size: 0.6rem; padding: 0.2rem 0.5rem; }
-      .type-code .content { padding: 2.2rem 1rem 1rem 1rem; }
+      .terminal-header { padding: 0.3rem 0.8rem; }
+      .terminal-dot { width: 8px; height: 8px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -485,15 +550,28 @@
         </div>
       `;
     } else {
-      // For code posts: wrap content and button in a relative container
       if (type === 'code') {
+        // Split code into lines for line numbering
+        const lines = escapedContent.split('\n');
+        const numberHtml = lines.map((_, i) => `<div>${i + 1}</div>`).join('');
+        const codeHtml = lines.map(line => `<span class="code-line">${line || ' '}</span>`).join('');
+
         contentHtml = `
           <h1 class="title">${escapeHtml(post.title)}</h1>
           <div class="meta">${metaDate} • ${readTime} min read</div>
           ${tags ? `<div class="tags">${tags}</div>` : ""}
-          <div class="content-wrapper">
+          <div class="terminal">
+            <div class="terminal-header">
+              <span class="terminal-dot"></span>
+              <span class="terminal-dot"></span>
+              <span class="terminal-dot"></span>
+              <span class="terminal-title">Terminal</span>
+            </div>
+            <div class="terminal-body">
+              <div class="line-numbers">${numberHtml}</div>
+              <div class="code-lines" id="postContentBody">${codeHtml}</div>
+            </div>
             <button class="copy-btn" id="copyCodeBtn"><i class="far fa-copy"></i> Copy</button>
-            <div class="content" id="postContentBody">${escapedContent}</div>
           </div>
         `;
       } else {
@@ -515,9 +593,9 @@
     // Attach copy button functionality for code posts
     if (type === 'code' && !isPaid) {
       const copyBtn = document.getElementById('copyCodeBtn');
-      const contentBody = document.getElementById('postContentBody');
-      if (copyBtn && contentBody) {
-        const codeText = contentBody.innerText; // clean text, no button
+      if (copyBtn) {
+        // Raw code text (without numbers)
+        const codeText = contentText; // already normalized
 
         copyBtn.addEventListener('click', async () => {
           try {
