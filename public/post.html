@@ -237,18 +237,18 @@
       background: #0a0a0a;
       border: 1px solid #2a2a2a;
       border-radius: 8px;
-      padding: 2.5rem 1.5rem 1.5rem 1.5rem; /* extra top padding for copy button */
+      padding: 2.5rem 1.5rem 1.5rem 1.5rem;
       font-family: var(--mono);
       font-size: 0.95rem;
       line-height: 1.6;
       color: #b0f0b0;
       box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
       position: relative;
-      overflow-x: auto; /* horizontal scroll for long lines */
-      white-space: pre;   /* preserve formatting with scroll */
+      overflow-x: auto;
+      white-space: pre;
     }
 
-    /* Copy button for code posts – positioned inside the terminal, top‑right */
+    /* Copy button for code posts */
     .copy-btn {
       position: absolute;
       top: 0.75rem;
@@ -425,6 +425,22 @@
       .replace(/'/g, "&#039;");
   }
 
+  // Normalize indentation: remove common leading whitespace from every line
+  function normalizeIndent(text) {
+    const lines = text.split('\n');
+    // Find the smallest leading whitespace among non‑empty lines
+    let minIndent = Infinity;
+    lines.forEach(line => {
+      if (line.trim().length > 0) {
+        const match = line.match(/^(\s*)/);
+        minIndent = Math.min(minIndent, match[0].length);
+      }
+    });
+    if (minIndent === Infinity) minIndent = 0;
+    // Remove that amount of whitespace from each line
+    return lines.map(line => line.slice(minIndent)).join('\n');
+  }
+
   function renderPost(post) {
     const tags = (post.tags || "")
       .split(",")
@@ -442,6 +458,13 @@
     nav.classList.add(`nav-type-${type}`);
     typeLabel.className = `post-type-label ${type}`;
     typeLabel.textContent = type === 'code' ? 'code' : (type === 'notes' ? 'note' : 'essay');
+
+    // Prepare content with optional indentation normalization
+    let contentText = post.content || '';
+    if (type === 'code') {
+      contentText = normalizeIndent(contentText);
+    }
+    const escapedContent = escapeHtml(contentText);
 
     // Build content
     let contentHtml;
@@ -469,7 +492,7 @@
           ${tags ? `<div class="tags">${tags}</div>` : ""}
           <div class="content" id="postContentBody">
             <button class="copy-btn" id="copyCodeBtn"><i class="far fa-copy"></i> Copy</button>
-            ${escapeHtml(post.content)}
+            ${escapedContent}
           </div>
         `;
       } else {
@@ -477,7 +500,7 @@
           <h1 class="title">${escapeHtml(post.title)}</h1>
           <div class="meta">${metaDate} • ${readTime} min read</div>
           ${tags ? `<div class="tags">${tags}</div>` : ""}
-          <div class="content">${escapeHtml(post.content)}</div>
+          <div class="content">${escapedContent}</div>
         `;
       }
     }
@@ -493,8 +516,7 @@
       const copyBtn = document.getElementById('copyCodeBtn');
       const contentBody = document.getElementById('postContentBody');
       if (copyBtn && contentBody) {
-        // We need to get the text without the button itself
-        // Clone the node, remove the button, then get text
+        // Get the text without the button itself
         const clone = contentBody.cloneNode(true);
         const btnClone = clone.querySelector('#copyCodeBtn');
         if (btnClone) btnClone.remove();
