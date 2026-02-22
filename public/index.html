@@ -48,7 +48,7 @@ body {
   position: relative;
 }
 
-/* Paper texture – simplified, disabled on mobile */
+/* Paper texture – subtle, easy on the eyes */
 body::before {
   content: '';
   position: fixed;
@@ -138,7 +138,7 @@ header {
   position: sticky;
   top: 100px;
   height: fit-content;
-  opacity: 1; /* default visible, animation will override */
+  opacity: 1;
   animation: slideInRight 0.8s ease forwards;
 }
 
@@ -484,6 +484,7 @@ header {
   border-bottom: 1px solid var(--border);
 }
 
+/* New text */
 .rules-content {
   font-family: var(--serif);
   color: var(--muted);
@@ -616,7 +617,7 @@ header {
       <div class="sidebar-section">
         <h3 class="sidebar-title">How this place works</h3>
         <div class="rules-content">
-          <p>This is my personal archive where I upload essays, notes, and code for now. Essays and code usually get updated, so by checking them again you can see new content, while notes usually stay the same. I made this site in hopes of creating a safe space for any type of posts, and hopefully the info here might be worth a lot to someone.</p>
+          <p>This is my personal archive where I publish essays, notes, and code. Essays and code are updated often, so revisiting them may reveal new material, while notes generally remain unchanged. I created this site as a place to document and share my work, in the belief that even a single idea here could matter to the right person.</p>
         </div>
       </div>
       <div class="sidebar-section">
@@ -807,7 +808,6 @@ function escapeHtml(unsafe) {
 
 function generateExcerpt(post) {
   if (post.excerpt) return escapeHtml(post.excerpt);
-  // If no excerpt and no content (we don't fetch content), fallback to empty
   return '<em style="opacity:0.6;">(no preview)</em>';
 }
 
