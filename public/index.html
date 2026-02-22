@@ -1,16 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-EGVY0MKEZE"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-EGVY0MKEZE');
-</script>
-  
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Archive — Colin Archive</title>
@@ -58,6 +48,7 @@ body {
   position: relative;
 }
 
+/* Paper texture – simplified, disabled on mobile */
 body::before {
   content: '';
   position: fixed;
@@ -72,7 +63,7 @@ body::before {
     );
   pointer-events: none;
   z-index: 0;
-  animation: paperSlide 20s linear infinite;
+  animation: paperSlide 40s linear infinite;
 }
 
 @keyframes paperSlide {
@@ -147,8 +138,8 @@ header {
   position: sticky;
   top: 100px;
   height: fit-content;
+  opacity: 1; /* default visible, animation will override */
   animation: slideInRight 0.8s ease forwards;
-  opacity: 0;
 }
 
 @keyframes slideInRight {
@@ -220,7 +211,7 @@ header {
   color: var(--fg);
   font-family: var(--mono);
   font-size: 0.875rem;
-  transition: all 0.3s;
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .search-box::placeholder {
@@ -249,7 +240,7 @@ header {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: border-color 0.3s, color 0.3s, background 0.3s;
 }
 
 /* Hover effects only for devices that support hover (e.g., mouse) */
@@ -308,17 +299,30 @@ header {
 .entry {
   position: relative;
   border-bottom: 1px solid var(--border);
-  transition: all 0.3s ease;
   border-radius: 16px;
   overflow: hidden;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
   padding: 0;
+  transition: background-color 0.3s ease, border-bottom-color 0.3s ease, margin 0.3s ease, padding 0.3s ease;
 }
 
-/* Dark overlay for background images */
-.entry.has-cover::before {
+/* Ensure cards with images have a minimum height */
+.entry.has-cover {
+  min-height: 200px;
+}
+
+/* Cover image – now an <img> */
+.entry-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* Dark overlay for images */
+.entry.has-cover::after {
   content: '';
   position: absolute;
   top: 0;
@@ -458,10 +462,6 @@ header {
   text-shadow: 0 1px 2px rgba(0,0,0,0.5);
 }
 
-.entry-thumb {
-  display: none;
-}
-
 .entry.locked .entry-title::after {
   content: ' 🔒';
   font-size: 1rem;
@@ -469,7 +469,7 @@ header {
   margin-left: 0.3rem;
 }
 
-/* Sidebar styles (unchanged) */
+/* Sidebar styles */
 .sidebar-section {
   margin-bottom: 2.5rem;
 }
@@ -558,6 +558,9 @@ header {
 }
 
 @media (max-width: 600px) {
+  /* Disable heavy paper animation on mobile */
+  body::before { animation: none; }
+
   .entry-link { padding: 1.2rem; gap: 1rem; }
   .entry-header { padding-right: 1.2rem; }
   .entry-type-label { font-size: 0.5rem; right: 4px; letter-spacing: 0.1em; }
@@ -639,12 +642,12 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 window.db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // State
-let allPosts = [];              // full dataset (loaded once, but we paginate)
-let displayedPosts = [];        // currently visible (filtered + paginated)
+let allPosts = [];
+let displayedPosts = [];
 let currentFilter = 'all';
 let currentSearch = '';
 let offset = 0;
-const limit = 10;               // posts per batch
+const limit = 10;
 let isLoadingMore = false;
 let hasMore = true;
 
@@ -655,31 +658,34 @@ const filterTags = document.querySelectorAll('.filter-tag');
 const loadMoreContainer = document.getElementById('loadMoreContainer');
 const loadMoreBtn = document.getElementById('loadMoreBtn');
 
-// Helper: return optimized cover URL (smaller thumbnail)
-function getOptimizedCoverUrl(url) {
-  if (!url) return null;
-  // If using Supabase storage, you can add width parameters
-  // e.g., `?width=400` – adjust based on your setup
-  // For simplicity, we'll assume the original URL is fine,
-  // but you can modify this to append a resize param.
-  return url;
+// Debounce helper
+function debounce(func, wait) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
 }
 
-// Load initial posts (only first batch)
+// Helper: return optimized cover URL (you can add width params if needed)
+function getOptimizedCoverUrl(url) {
+  return url; // modify if your Supabase storage supports transformations
+}
+
+// Load initial posts (only first batch) – select only needed columns
 async function loadInitialPosts() {
   try {
     const { data, error } = await window.db
       .from('posts')
-      .select('*')
+      .select('id, title, excerpt, type, access, cover_url, created_at')
       .order('created_at', { ascending: false })
-      .range(0, limit - 1);  // fetch only first 10
+      .range(0, limit - 1);
 
     if (error) throw error;
 
     allPosts = data || [];
     displayedPosts = allPosts;
     renderPosts(displayedPosts);
-    // Check if there are more posts
     if (allPosts.length < limit) {
       hasMore = false;
       loadMoreContainer.style.display = 'none';
@@ -693,7 +699,7 @@ async function loadInitialPosts() {
   }
 }
 
-// Load more posts (append)
+// Load more posts (append) – select only needed columns
 async function loadMorePosts() {
   if (isLoadingMore || !hasMore) return;
   isLoadingMore = true;
@@ -702,7 +708,7 @@ async function loadMorePosts() {
   try {
     const { data, error } = await window.db
       .from('posts')
-      .select('*')
+      .select('id, title, excerpt, type, access, cover_url, created_at')
       .order('created_at', { ascending: false })
       .range(offset + limit, offset + limit * 2 - 1);
 
@@ -710,12 +716,10 @@ async function loadMorePosts() {
 
     if (data && data.length > 0) {
       allPosts = [...allPosts, ...data];
-      // Re‑apply filter/search to displayedPosts
       const filtered = getFilteredPosts();
-      // Append only the new ones (that match current filter/search)
       const newPosts = filtered.slice(displayedPosts.length);
       if (newPosts.length > 0) {
-        renderPosts(newPosts, true); // true = append
+        renderPosts(newPosts, true);
         displayedPosts = filtered;
       }
       offset += limit;
@@ -735,7 +739,7 @@ async function loadMorePosts() {
   }
 }
 
-// Filter posts based on currentFilter and currentSearch (using allPosts)
+// Filter posts – now only title and excerpt (no content)
 function getFilteredPosts() {
   let filtered = allPosts;
   if (currentFilter !== 'all') {
@@ -747,8 +751,7 @@ function getFilteredPosts() {
     const s = currentSearch.toLowerCase();
     filtered = filtered.filter(post =>
       (post.title || '').toLowerCase().includes(s) ||
-      (post.excerpt || '').toLowerCase().includes(s) ||
-      (post.content || '').toLowerCase().includes(s)
+      (post.excerpt || '').toLowerCase().includes(s)
     );
   }
   return filtered;
@@ -771,10 +774,11 @@ function renderPosts(posts, append = false) {
     const coverUrl = getOptimizedCoverUrl(post.cover_url);
     const typeLabel = type === 'code' ? 'code' : (type === 'notes' ? 'note' : 'essay');
     const classes = `entry type-${type} ${isPaid ? 'locked' : ''} ${coverUrl ? 'has-cover' : ''}`;
-    const style = coverUrl ? `style="background-image: url('${coverUrl}');"` : '';
+    const imgHtml = coverUrl ? `<img src="${coverUrl}" alt="" class="entry-img" loading="lazy" onerror="this.style.display='none'">` : '';
 
     return `
-      <div class="${classes}" data-id="${post.id}" ${style}>
+      <div class="${classes}" data-id="${post.id}">
+        ${imgHtml}
         <span class="entry-type-label">${typeLabel}</span>
         <a href="${linkTarget}" class="entry-link">
           <div class="entry-content">
@@ -803,10 +807,7 @@ function escapeHtml(unsafe) {
 
 function generateExcerpt(post) {
   if (post.excerpt) return escapeHtml(post.excerpt);
-  if (post.content) {
-    const plain = post.content.replace(/<[^>]*>/g, '');
-    return escapeHtml(plain.substring(0, 120)) + (plain.length > 120 ? '…' : '');
-  }
+  // If no excerpt and no content (we don't fetch content), fallback to empty
   return '<em style="opacity:0.6;">(no preview)</em>';
 }
 
@@ -815,7 +816,6 @@ function applyFilter() {
   offset = 0;
   const filtered = getFilteredPosts();
   displayedPosts = filtered;
-  // Show only first page
   renderPosts(filtered.slice(0, limit));
   if (filtered.length <= limit) {
     loadMoreContainer.style.display = 'none';
@@ -824,10 +824,15 @@ function applyFilter() {
   }
 }
 
+// Debounced search handler
+const debouncedSearch = debounce(() => {
+  applyFilter();
+}, 200);
+
 // Event listeners
 searchBox.addEventListener('input', (e) => {
   currentSearch = e.target.value;
-  applyFilter();
+  debouncedSearch();
 });
 
 filterTags.forEach(tag => {
@@ -844,7 +849,6 @@ loadMoreBtn.addEventListener('click', loadMorePosts);
 // Refresh when returning from bfcache (no full reload, just re‑render visible posts)
 window.addEventListener('pageshow', function(event) {
   if (event.persisted) {
-    // Re‑render current displayed posts (clears any stuck hover states)
     renderPosts(displayedPosts);
   }
 });
