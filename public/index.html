@@ -25,7 +25,7 @@
   --accent: #e8e8e8;
   --highlight: rgba(31, 31, 31, 0.85);
   --red: #ff6b6b;
-  --dark-red: #b3002d; /* more imposing red */
+  --dark-red: #b3002d;
   --blue: #4ecdc4;
   --green: #51cf66;
   --yellow: #ffe66d;
@@ -574,17 +574,6 @@ header {
   transition: color 0.2s;
 }
 
-.sidebar-note {
-  font-family: var(--hand);
-  font-size: 1rem;
-  color: var(--yellow);
-  padding: 1rem;
-  background: rgba(255, 230, 109, 0.05);
-  border-left: 2px solid var(--yellow);
-  margin-top: 2rem;
-  transform: rotate(-0.5deg);
-}
-
 /* ----- Mobile Optimizations ----- */
 @media (max-width: 1024px) {
   .main-grid { grid-template-columns: 1fr; padding: 2rem 1.5rem; }
@@ -602,7 +591,6 @@ header {
   .entry-link { padding: 1.2rem; gap: 1rem; }
   .entry-header { padding-right: 1.2rem; }
   .entry-type-label { font-size: 0.5rem; right: 4px; letter-spacing: 0.1em; }
-  .sidebar-note { font-size: 0.9rem; padding: 0.8rem; }
   .social-box { padding: 1rem 0.3rem; }
 }
 
@@ -666,7 +654,7 @@ header {
           <a href="#" target="_blank" class="social-box"><i class="fas fa-envelope social-icon"></i><span>Email</span></a>
         </div>
       </div>
-      <div class="sidebar-note">Not all entries are essays. Some are just messy notes.</div>
+      <!-- Sidebar note removed -->
     </aside>
   </div>
 </div>
@@ -705,12 +693,35 @@ function debounce(func, wait) {
   };
 }
 
-// Helper: return optimized cover URL (you can add width params if needed)
+// Helper: return optimized cover URL
 function getOptimizedCoverUrl(url) {
-  return url; // modify if your Supabase storage supports transformations
+  return url;
 }
 
-// Load initial posts (only first batch) – select only needed columns
+// Relative time formatter (like YouTube)
+function getRelativeTime(dateString) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHour = Math.floor(diffMin / 60);
+  const diffDay = Math.floor(diffHour / 24);
+  const diffWeek = Math.floor(diffDay / 7);
+  const diffMonth = Math.floor(diffDay / 30);
+  const diffYear = Math.floor(diffDay / 365);
+
+  if (diffSec < 60) return 'just now';
+  if (diffMin < 60) return diffMin + ' minute' + (diffMin > 1 ? 's' : '') + ' ago';
+  if (diffHour < 24) return diffHour + ' hour' + (diffHour > 1 ? 's' : '') + ' ago';
+  if (diffDay === 1) return 'yesterday';
+  if (diffDay < 7) return diffDay + ' days ago';
+  if (diffWeek < 4) return diffWeek + ' week' + (diffWeek > 1 ? 's' : '') + ' ago';
+  if (diffMonth < 12) return diffMonth + ' month' + (diffMonth > 1 ? 's' : '') + ' ago';
+  return diffYear + ' year' + (diffYear > 1 ? 's' : '') + ' ago';
+}
+
+// Load initial posts
 async function loadInitialPosts() {
   try {
     const { data, error } = await window.db
@@ -737,7 +748,7 @@ async function loadInitialPosts() {
   }
 }
 
-// Load more posts (append) – select only needed columns
+// Load more posts
 async function loadMorePosts() {
   if (isLoadingMore || !hasMore) return;
   isLoadingMore = true;
@@ -807,7 +818,7 @@ function renderPosts(posts, append = false) {
     const type = post.type || 'essay';
     const title = escapeHtml(post.title);
     const excerpt = generateExcerpt(post);
-    const date = new Date(post.created_at).toLocaleDateString();
+    const relativeTime = getRelativeTime(post.created_at);
     const linkTarget = `/post.html?id=${post.id}`;
     const coverUrl = getOptimizedCoverUrl(post.cover_url);
     const typeLabel = type === 'code' ? 'code' : (type === 'notes' ? 'note' : 'essay');
@@ -825,7 +836,7 @@ function renderPosts(posts, append = false) {
             <div class="entry-header">
               <h2 class="entry-title">${title}</h2>
             </div>
-            <div class="entry-meta">${date}</div>
+            <div class="entry-meta">${relativeTime}</div>
             <p class="entry-excerpt">${excerpt}</p>
           </div>
         </a>
@@ -885,7 +896,7 @@ filterTags.forEach(tag => {
 
 loadMoreBtn.addEventListener('click', loadMorePosts);
 
-// Refresh when returning from bfcache (no full reload, just re‑render visible posts)
+// Refresh when returning from bfcache
 window.addEventListener('pageshow', function(event) {
   if (event.persisted) {
     renderPosts(displayedPosts);
