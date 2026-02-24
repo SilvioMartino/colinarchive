@@ -399,44 +399,58 @@
       position: relative;
       z-index: 1;
       background: var(--term-bg);
-      display: flex;
-      overflow: hidden;
+      overflow-x: auto;
+      overflow-y: visible;
     }
+    .term-body::-webkit-scrollbar { height: 6px; }
+    .term-body::-webkit-scrollbar-track { background: var(--term-gutter); }
+    .term-body::-webkit-scrollbar-thumb { background: var(--term-border-l); border-radius: 3px; }
+    .term-body::-webkit-scrollbar-thumb:hover { background: var(--term-green-d); }
 
-    /* Line numbers */
-    .term-gutter-col {
-      background: var(--term-gutter);
-      border-right: 1px solid var(--term-border);
-      padding: 1.25rem 0;
-      user-select: none;
-      flex-shrink: 0;
-      min-width: 52px;
-      text-align: right;
+    /* Table keeps number + line in the same row — they can never drift */
+    .term-table {
+      display: table;
+      border-collapse: collapse;
+      min-width: 100%;
+      padding: 1rem 0;
     }
-    .term-gutter-col span {
-      display: block;
+    .term-row {
+      display: table-row;
+    }
+    .term-row:hover .term-ln { color: var(--term-green-d); }
+    .term-row:hover .code-line { background: rgba(77,204,106,0.025); }
+
+    .term-ln {
+      display: table-cell;
       font-family: var(--code);
       font-size: 0.8rem;
       font-weight: 300;
       line-height: 1.7;
       color: var(--term-muted);
-      padding: 0 1rem 0 0.75rem;
+      background: var(--term-gutter);
+      border-right: 1px solid var(--term-border);
+      text-align: right;
+      padding: 0 0.9rem 0 0.75rem;
+      user-select: none;
+      white-space: nowrap;
+      vertical-align: top;
       transition: color 0.1s;
     }
-    .term-gutter-col span.active { color: var(--term-green-d); }
 
-    /* Code area */
-    .term-code {
-      flex: 1;
-      padding: 1.25rem 1.5rem;
-      overflow-x: auto;
-      overflow-y: visible;
-      position: relative;
+    .code-line {
+      display: table-cell;
+      font-family: var(--code);
+      font-size: 0.82rem;
+      font-weight: 400;
+      line-height: 1.7;
+      white-space: pre;
+      color: #9ecb9e;
+      letter-spacing: 0.01em;
+      padding: 0 1.5rem;
+      vertical-align: top;
+      width: 100%;
+      transition: background 0.1s;
     }
-    .term-code::-webkit-scrollbar { height: 6px; }
-    .term-code::-webkit-scrollbar-track { background: var(--term-gutter); }
-    .term-code::-webkit-scrollbar-thumb { background: var(--term-border-l); border-radius: 3px; }
-    .term-code::-webkit-scrollbar-thumb:hover { background: var(--term-green-d); }
 
     .code-line {
       display: block;
