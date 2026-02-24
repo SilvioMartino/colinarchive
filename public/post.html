@@ -327,18 +327,6 @@
       gap: 0.75rem;
     }
 
-    /* Language badge */
-    .term-lang {
-      font-family: var(--code);
-      font-size: 0.5rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--term-green-d);
-      border: 1px solid var(--term-border-l);
-      padding: 0.15rem 0.5rem;
-      border-radius: 2px;
-      background: rgba(77,204,106,0.04);
-    }
 
     /* Copy button */
     .copy-btn {
@@ -362,50 +350,6 @@
     .copy-btn.copied { background: rgba(77,204,106,0.1); border-color: var(--term-green); color: var(--term-green-b); }
     .copy-btn i { font-size: 0.6rem; }
 
-    /* ── TABS BAR ── */
-    .term-tabs {
-      position: relative;
-      z-index: 2;
-      background: var(--term-gutter);
-      border-bottom: 1px solid var(--term-border);
-      display: flex;
-      align-items: flex-end;
-      padding: 0 1rem;
-      gap: 0;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .term-tabs::-webkit-scrollbar { display: none; }
-
-    .term-tab {
-      font-family: var(--code);
-      font-size: 0.6rem;
-      font-weight: 400;
-      letter-spacing: 0.03em;
-      padding: 0.55rem 1.1rem;
-      border-radius: 4px 4px 0 0;
-      border: 1px solid transparent;
-      border-bottom: none;
-      white-space: nowrap;
-      color: var(--term-muted);
-      cursor: default;
-    }
-    .term-tab.active {
-      background: var(--term-bg);
-      border-color: var(--term-border);
-      border-bottom-color: var(--term-bg);
-      color: var(--term-green);
-      margin-bottom: -1px;
-    }
-    .term-tab-dot {
-      display: inline-block;
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--term-green-d);
-      margin-right: 0.5rem;
-      vertical-align: middle;
-    }
-    .term-tab.active .term-tab-dot { background: var(--term-green); box-shadow: 0 0 4px var(--term-green); }
 
     /* ── STATUSBAR ── */
     .term-statusbar {
@@ -672,24 +616,7 @@
     return s;
   }
 
-  // Guess language from content
-  function guessLang(text) {
-    if (/\bdef\b|\bprint\b|\belif\b/.test(text)) return 'Python';
-    if (/\bconst\b|\blet\b|\barrow|\bfetch\b/.test(text)) return 'JavaScript';
-    if (/\bpackage\b|\bfunc\b/.test(text)) return 'Go';
-    if (/\bfn\b|\blet mut\b/.test(text)) return 'Rust';
-    if (/\bimport\b.*java|class\b.*{/.test(text)) return 'Java';
-    if (/<\/?[a-z]+.*>/.test(text)) return 'HTML';
-    if (/^\s*[\.\#][a-z].*{/m.test(text)) return 'CSS';
-    if (/\bbash\b|^#!/.test(text)) return 'Shell';
-    return 'Code';
-  }
 
-  function getFileName(title, lang) {
-    const ext = { Python:'py', JavaScript:'js', Go:'go', Rust:'rs', Java:'java', HTML:'html', CSS:'css', Shell:'sh', Code:'txt' };
-    const slug = (title||'untitled').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-    return `${slug}.${ext[lang]||'txt'}`;
-  }
 
   async function loadPost() {
     const id = getPostId();
@@ -722,8 +649,7 @@
         <span class="post-meta-item"><i class="far fa-calendar"></i>${date}</span>
         ${isPaid ? `<span class="post-meta-sep"></span><span class="post-meta-item" style="color:var(--red)"><i class="fas fa-lock"></i>Paid</span>` : ''}
       </div>`;
-    const excerptEl = post.excerpt
-      ? `<div class="post-excerpt">${escapeHtml(post.excerpt)}</div>` : '';
+    const excerptEl = '';
     const tagsEl = tags ? `<div class="tags">${tags}</div>` : '';
 
     let bodyHtml = '';
@@ -737,8 +663,6 @@
         </div>`;
     } else if (type === 'code') {
       const raw  = normalizeIndent(post.content || '');
-      const lang = guessLang(raw);
-      const file = getFileName(post.title, lang);
       const lines = raw.split('\n');
 
       // Remove trailing empty lines
@@ -767,20 +691,12 @@
             </div>
             <div class="term-title-center">
               <i class="fas fa-code term-title-icon"></i>
-              ${escapeHtml(file)}
+              ${escapeHtml(post.title)}
             </div>
             <div class="term-titlebar-right">
-              <span class="term-lang">${lang}</span>
               <button class="copy-btn" id="copyBtn">
                 <i class="far fa-copy"></i> Copy
               </button>
-            </div>
-          </div>
-
-          <!-- Tabs -->
-          <div class="term-tabs">
-            <div class="term-tab active">
-              <span class="term-tab-dot"></span>${escapeHtml(file)}
             </div>
           </div>
 
@@ -804,9 +720,6 @@
               </span>
             </div>
             <div class="term-status-right">
-              <span class="term-status-item">
-                <span class="term-status-indicator"></span> ${lang}
-              </span>
               <span class="term-status-item">UTF-8</span>
               <span class="term-status-item">Spaces: 2</span>
             </div>
