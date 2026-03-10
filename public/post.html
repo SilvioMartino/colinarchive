@@ -4,28 +4,28 @@
   <meta charset="UTF-8">
   <title>Post — Colin Archive</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="A quiet archive of essays, code, and notes – unfiltered and unpolished." />
-  <meta property="og:title" content="Colin Archive" />
-  <meta property="og:description" content="A quiet archive of essays, code, and notes – unfiltered and unpolished." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://yourdomain.com" />
-  <meta property="og:image" content="https://yourdomain.com/og-image.jpg" />
 
-  <!-- Cache‑busting meta tags -->
+  <!-- Dynamic meta — filled by JS after fetch -->
+  <meta name="description" id="metaDesc" content="A quiet archive of essays, code, and notes – unfiltered and unpolished." />
+  <meta property="og:title" id="ogTitle" content="Colin Archive" />
+  <meta property="og:description" id="ogDesc" content="A quiet archive of essays, code, and notes – unfiltered and unpolished." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" id="ogUrl" content="" />
+  <meta property="og:image" id="ogImage" content="https://yourdomain.com/og-image.jpg" />
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" id="twTitle" content="Colin Archive">
+  <meta name="twitter:description" id="twDesc" content="">
+
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
 
-  <!-- Font Awesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    /* ----- GLOBAL VARIABLES ----- */
     :root {
       --bg: #0d0d0d;
       --paper: #1a1a1a;
@@ -39,17 +39,14 @@
       --blue: #4ecdc4;
       --green: #51cf66;
       --yellow: #ffe66d;
+      --type-color: var(--blue);
       --serif: 'Crimson Text', 'Georgia', serif;
       --mono: 'IBM Plex Mono', 'Courier New', monospace;
       --hand: 'Caveat', cursive;
       --essay-serif: 'Libre Baskerville', 'Georgia', serif;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       background: var(--paper);
@@ -59,7 +56,7 @@
       line-height: 1.6;
     }
 
-    /* ----- NAVBAR (with type‑colored bottom border only) ----- */
+    /* ----- NAVBAR — untouched from your original ----- */
     nav {
       background: var(--paper);
       border-bottom: 1px solid var(--border);
@@ -73,19 +70,9 @@
       width: 100%;
       transition: border-bottom-color 0.2s, box-shadow 0.2s;
     }
-
-    nav.nav-type-essay {
-      border-bottom: 2px solid var(--blue);
-      box-shadow: 0 0 6px rgba(78, 205, 196, 0.3);
-    }
-    nav.nav-type-code {
-      border-bottom: 2px solid var(--green);
-      box-shadow: 0 0 6px rgba(81, 207, 102, 0.3);
-    }
-    nav.nav-type-notes {
-      border-bottom: 2px solid var(--yellow);
-      box-shadow: 0 0 6px rgba(255, 230, 109, 0.3);
-    }
+    nav.nav-type-essay { border-bottom: 2px solid var(--blue);   box-shadow: 0 0 6px rgba(78,205,196,0.3); }
+    nav.nav-type-code  { border-bottom: 2px solid var(--green);  box-shadow: 0 0 6px rgba(81,207,102,0.3); }
+    nav.nav-type-notes { border-bottom: 2px solid var(--yellow); box-shadow: 0 0 6px rgba(255,230,109,0.3); }
 
     .logo {
       font-family: var(--mono);
@@ -96,18 +83,13 @@
       text-decoration: none;
       color: var(--fg);
     }
-
     .logo::after {
       content: '|';
       color: var(--red);
       animation: blink 1s step-end infinite;
       margin-left: 2px;
     }
-
-    @keyframes blink {
-      0%, 50% { opacity: 1; }
-      51%, 100% { opacity: 0; }
-    }
+    @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
 
     .post-type-label {
       margin-left: 1.5rem;
@@ -115,20 +97,74 @@
       text-transform: uppercase;
       letter-spacing: 0.1em;
     }
-    .post-type-label.essay {
-      font-family: var(--essay-serif);
-      color: var(--blue);
-    }
-    .post-type-label.code {
-      font-family: var(--mono);
-      color: var(--green);
-    }
-    .post-type-label.notes {
-      font-family: var(--hand);
-      color: var(--yellow);
-    }
+    .post-type-label.essay { font-family: var(--essay-serif); color: var(--blue); }
+    .post-type-label.code  { font-family: var(--mono);        color: var(--green); }
+    .post-type-label.notes { font-family: var(--hand);        color: var(--yellow); }
 
-    /* ----- MAIN CONTENT ----- */
+    /* Share — margin-left:auto pushes it right, line-height:1 + no padding-top/bottom keeps height neutral */
+    .share-wrap { position: relative; margin-left: auto; }
+
+    .share-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0;          /* zero padding so it can't push nav height */
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.7rem;   /* match .post-type-label font size */
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.2s;
+    }
+    .share-btn:hover { color: var(--type-color); }
+    .share-btn i { font-size: 0.7rem; }
+
+    .share-dropdown {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      background: #1c1c1c;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.4rem;
+      display: none;
+      flex-direction: column;
+      gap: 0.2rem;
+      min-width: 160px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      z-index: 200;
+    }
+    .share-dropdown.open { display: flex; animation: dropIn 0.15s ease; }
+    @keyframes dropIn { from { opacity:0; transform:translateY(-6px) } to { opacity:1; transform:none } }
+
+    .share-option {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.55rem 0.75rem;
+      border-radius: 5px;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      width: 100%;
+      text-align: left;
+      transition: background 0.15s, color 0.15s;
+      text-decoration: none;
+    }
+    .share-option:hover { background: rgba(255,255,255,0.05); color: var(--type-color); }
+    .share-option i { width: 14px; text-align: center; font-size: 0.8rem; }
+    .share-option.copy-success { color: var(--green); }
+
+    /* ----- MAIN CONTENT — untouched from your original ----- */
     .wrapper {
       width: 100%;
       margin: 70px 0;
@@ -137,9 +173,7 @@
       z-index: 2;
     }
 
-    .back-link {
-      margin-bottom: 2rem;
-    }
+    .back-link { margin-bottom: 2rem; }
     .back-link a {
       display: inline-block;
       padding: 0.6rem 1.5rem;
@@ -153,18 +187,10 @@
       text-decoration: none;
       transition: border-color 0.2s, color 0.2s, transform 0.2s;
     }
-    .back-link a:hover {
-      border-color: var(--blue);
-      color: var(--blue);
-      transform: translateX(-2px);
-    }
+    .back-link a:hover { border-color: var(--blue); color: var(--blue); transform: translateX(-2px); }
 
-    .post-container {
-      max-width: 900px;
-      margin: 0 auto;
-    }
+    .post-container { max-width: 900px; margin: 0 auto; }
 
-    /* Title with type-specific fonts */
     .title {
       font-family: var(--serif);
       font-size: 2.5rem;
@@ -172,18 +198,9 @@
       margin-bottom: 0.75rem;
       line-height: 1.3;
     }
-    .type-essay .title {
-      font-family: var(--essay-serif);
-      font-weight: 700;
-    }
-    .type-code .title {
-      font-family: var(--mono);
-      letter-spacing: -0.02em;
-    }
-    .type-notes .title {
-      font-family: var(--hand);
-      font-size: 2rem;
-    }
+    .type-essay .title { font-family: var(--essay-serif); font-weight: 700; }
+    .type-code  .title { font-family: var(--mono); letter-spacing: -0.02em; }
+    .type-notes .title { font-family: var(--hand); font-size: 2rem; }
 
     .meta {
       font-family: var(--mono);
@@ -194,9 +211,7 @@
       margin-bottom: 2rem;
     }
 
-    .tags {
-      margin-bottom: 2rem;
-    }
+    .tags { margin-bottom: 2rem; }
     .tag {
       display: inline-block;
       border: 1px solid var(--border);
@@ -210,10 +225,7 @@
       border-radius: 4px;
       transition: border-color 0.2s, color 0.2s;
     }
-    .tag:hover {
-      border-color: var(--blue);
-      color: var(--blue);
-    }
+    .tag:hover { border-color: var(--blue); color: var(--blue); }
 
     .excerpt {
       font-size: 1.3rem;
@@ -224,7 +236,6 @@
       padding-left: 1rem;
     }
 
-    /* Base content style */
     .content {
       font-size: 1.18rem;
       line-height: 1.85;
@@ -233,7 +244,6 @@
       display: block;
     }
 
-    /* ----- ENHANCED TERMINAL FOR CODE POSTS ----- */
     .type-code .terminal {
       position: relative;
       background: #0c0c0c;
@@ -246,8 +256,6 @@
       color: #b0f0b0;
       overflow: hidden;
     }
-
-    /* Terminal header (fake window bar) */
     .terminal-header {
       background: #1a1a1a;
       padding: 0.5rem 1rem;
@@ -256,33 +264,11 @@
       align-items: center;
       gap: 0.5rem;
     }
-    .terminal-dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #ff5f56;
-    }
-    .terminal-dot:nth-child(2) {
-      background: #ffbd2e;
-    }
-    .terminal-dot:nth-child(3) {
-      background: #27c93f;
-    }
-    .terminal-title {
-      font-size: 0.65rem;
-      color: #888;
-      margin-left: 0.5rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-
-    /* Wrapper for line numbers and code */
-    .terminal-body {
-      display: flex;
-      position: relative;
-    }
-
-    /* Line numbers column */
+    .terminal-dot { width: 12px; height: 12px; border-radius: 50%; background: #ff5f56; }
+    .terminal-dot:nth-child(2) { background: #ffbd2e; }
+    .terminal-dot:nth-child(3) { background: #27c93f; }
+    .terminal-title { font-size: 0.65rem; color: #888; margin-left: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+    .terminal-body { display: flex; position: relative; }
     .line-numbers {
       padding: 1rem 0 1rem 1rem;
       text-align: right;
@@ -295,123 +281,46 @@
       line-height: 1.6;
       white-space: nowrap;
     }
-    .line-numbers div {
-      padding-right: 1rem;
-    }
-
-    /* Code column */
-    .code-lines {
-      flex: 1;
-      padding: 1rem;
-      overflow-x: auto;
-      background: #0a0a0a;
-    }
-    .code-line {
-      display: block;
-      white-space: pre;
-      font-family: var(--mono);
-      font-size: 0.95rem;
-      line-height: 1.6;
-      color: #b0f0b0;
-    }
-
-    /* Copy button – positioned absolutely in terminal */
+    .line-numbers div { padding-right: 1rem; }
+    .code-lines { flex: 1; padding: 1rem; overflow-x: auto; background: #0a0a0a; }
+    .code-line { display: block; white-space: pre; font-family: var(--mono); font-size: 0.95rem; line-height: 1.6; color: #b0f0b0; }
     .copy-btn {
-      position: absolute;
-      top: 0.75rem;
-      right: 0.75rem;
-      background: #1f1f1f;
-      border: 1px solid #3a3a3a;
-      border-radius: 4px;
-      color: #b0f0b0;
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      padding: 0.3rem 0.7rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      transition: background 0.2s, border-color 0.2s, color 0.2s;
-      z-index: 20;
+      position: absolute; top: 0.75rem; right: 0.75rem;
+      background: #1f1f1f; border: 1px solid #3a3a3a; border-radius: 4px;
+      color: #b0f0b0; font-family: var(--mono); font-size: 0.7rem;
+      padding: 0.3rem 0.7rem; cursor: pointer;
+      display: flex; align-items: center; gap: 0.4rem;
+      transition: background 0.2s, border-color 0.2s, color 0.2s; z-index: 20;
     }
-    .copy-btn:hover {
-      background: #2a2a2a;
-      border-color: #b0f0b0;
-      color: #d0f0d0;
-    }
-    .copy-btn.copied {
-      background: #2a5a2a;
-      border-color: #b0f0b0;
-      color: #fff;
-    }
-    .copy-btn i {
-      font-size: 0.8rem;
-    }
+    .copy-btn:hover { background: #2a2a2a; border-color: #b0f0b0; color: #d0f0d0; }
+    .copy-btn.copied { background: #2a5a2a; border-color: #b0f0b0; color: #fff; }
+    .copy-btn i { font-size: 0.8rem; }
 
-    /* Paid post */
     .locked-message {
-      text-align: center;
-      padding: 2rem;
-      border: 1px dashed var(--red);
-      border-radius: 8px;
-      margin-top: 2rem;
+      text-align: center; padding: 2rem;
+      border: 1px dashed var(--red); border-radius: 8px; margin-top: 2rem;
       background: repeating-linear-gradient(
-        45deg,
-        rgba(179, 0, 45, 0.1) 0px,
-        rgba(179, 0, 45, 0.1) 10px,
-        transparent 10px,
-        transparent 20px
+        45deg, rgba(179,0,45,0.1) 0px, rgba(179,0,45,0.1) 10px,
+        transparent 10px, transparent 20px
       );
       position: relative;
     }
-    .locked-message h3 {
-      font-family: var(--mono);
-      font-size: 0.8rem;
-      letter-spacing: 0.1em;
-      color: var(--red);
-      margin-bottom: 1rem;
-      text-transform: uppercase;
-    }
-    .locked-message p {
-      color: var(--muted);
-      margin-bottom: 1.5rem;
-    }
+    .locked-message h3 { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.1em; color: var(--red); margin-bottom: 1rem; text-transform: uppercase; }
+    .locked-message p { color: var(--muted); margin-bottom: 1.5rem; }
     .btn {
-      display: inline-block;
-      padding: 0.7rem 1.4rem;
-      background: transparent;
-      border: 1px solid var(--red);
-      border-radius: 4px;
-      color: var(--red);
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      letter-spacing: 0.1em;
-      text-decoration: none;
-      text-transform: uppercase;
+      display: inline-block; padding: 0.7rem 1.4rem;
+      background: transparent; border: 1px solid var(--red); border-radius: 4px;
+      color: var(--red); font-family: var(--mono); font-size: 0.7rem;
+      letter-spacing: 0.1em; text-decoration: none; text-transform: uppercase;
       transition: background 0.2s, color 0.2s;
     }
-    .btn:hover {
-      background: var(--red);
-      color: var(--bg);
-    }
-
+    .btn:hover { background: var(--red); color: var(--bg); }
     .locked-icon {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      font-size: 2rem;
-      color: rgba(255, 255, 255, 0.6);
-      text-shadow: 0 2px 5px rgba(0,0,0,0.5);
-      pointer-events: none;
+      position: absolute; top: 1rem; right: 1rem; font-size: 2rem;
+      color: rgba(255,255,255,0.6); text-shadow: 0 2px 5px rgba(0,0,0,0.5); pointer-events: none;
     }
 
-    .loading {
-      text-align: center;
-      font-family: var(--mono);
-      color: var(--muted);
-      padding: 3rem;
-      font-size: 1rem;
-    }
+    .loading { text-align: center; font-family: var(--mono); color: var(--muted); padding: 3rem; font-size: 1rem; }
 
     @media (max-width: 700px) {
       nav { padding: 1rem 1.5rem; }
@@ -424,8 +333,8 @@
       .copy-btn { top: 0.5rem; right: 0.5rem; font-size: 0.6rem; padding: 0.2rem 0.5rem; }
       .terminal-header { padding: 0.3rem 0.8rem; }
       .terminal-dot { width: 8px; height: 8px; }
+      .share-dropdown { right: 0; }
     }
-
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
     }
@@ -436,25 +345,38 @@
 <nav id="mainNav">
   <a href="/" class="logo">Colin Archive</a>
   <span class="post-type-label" id="postTypeLabel"></span>
+  <div class="share-wrap" id="shareWrap">
+    <button class="share-btn" id="shareBtn">
+      <i class="fas fa-share-nodes"></i>
+      <span>Share</span>
+    </button>
+    <div class="share-dropdown" id="shareDropdown">
+      <button class="share-option" id="copyLinkBtn"><i class="fas fa-link"></i> Copy link</button>
+      <a class="share-option" id="shareWhatsapp" href="#" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+      <a class="share-option" id="shareTwitter" href="#" target="_blank" rel="noopener"><i class="fab fa-twitter"></i> Twitter / X</a>
+      <a class="share-option" id="shareReddit" href="#" target="_blank" rel="noopener"><i class="fab fa-reddit"></i> Reddit</a>
+      
+      
+    </div>
+  </div>
 </nav>
 
 <div class="wrapper">
   <div class="back-link">
     <a href="/">← Back to Home</a>
   </div>
-
   <div class="post-container" id="postContainer">
     <div class="loading">Loading post...</div>
   </div>
 </div>
 
 <script>
+  // ⚠️ Anon key is public — ensure Supabase RLS policies are locked down.
   const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
 
-  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-  const nav = document.getElementById('mainNav');
+  const db        = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const nav       = document.getElementById('mainNav');
   const typeLabel = document.getElementById('postTypeLabel');
   const container = document.getElementById('postContainer');
 
@@ -462,82 +384,122 @@
     return new URLSearchParams(location.search).get("id");
   }
 
-  async function loadPost() {
-    const id = getPostId();
-    if (!id) {
-      container.innerHTML = "<div class='loading'>No post ID specified</div>";
-      return;
-    }
+  function setMeta(post) {
+    const title   = post.title   || 'Colin Archive';
+    const excerpt = post.excerpt || 'A quiet archive of essays, code, and notes.';
+    const image   = post.cover_url || 'https://yourdomain.com/og-image.jpg';
+    document.title = `${title} — Colin Archive`;
+    document.getElementById('metaDesc').content = excerpt;
+    document.getElementById('ogTitle').content  = title;
+    document.getElementById('ogDesc').content   = excerpt;
+    document.getElementById('ogUrl').content    = location.href;
+    document.getElementById('ogImage').content  = image;
+    document.getElementById('twTitle').content  = title;
+    document.getElementById('twDesc').content   = excerpt;
+  }
 
-    const { data, error } = await db
-      .from("posts")
-      .select("*")
-      .eq("id", id)
-      .single();
+  function initShare(post, typeColor) {
+    const url   = location.href;
+    const title = post.title || 'Colin Archive';
 
-    if (error || !data) {
-      container.innerHTML = "<div class='loading'>Post not found</div>";
-      return;
-    }
+    document.documentElement.style.setProperty('--type-color', typeColor);
 
-    renderPost(data);
+    const shareBtn      = document.getElementById('shareBtn');
+    const shareDropdown = document.getElementById('shareDropdown');
+    const copyLinkBtn   = document.getElementById('copyLinkBtn');
+
+    document.getElementById('shareTwitter').href =
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+    document.getElementById('shareReddit').href =
+      `https://reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
+    document.getElementById('shareWhatsapp').href =
+      `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`;
+
+
+
+
+    shareBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (navigator.share && window.innerWidth < 700) {
+        navigator.share({ title, url }).catch(() => {});
+        return;
+      }
+      shareDropdown.classList.toggle('open');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!document.getElementById('shareWrap').contains(e.target)) {
+        shareDropdown.classList.remove('open');
+      }
+    });
+
+    copyLinkBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(url);
+        copyLinkBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        copyLinkBtn.classList.add('copy-success');
+        setTimeout(() => {
+          copyLinkBtn.innerHTML = '<i class="fas fa-link"></i> Copy link';
+          copyLinkBtn.classList.remove('copy-success');
+          shareDropdown.classList.remove('open');
+        }, 1800);
+      } catch(err) { console.error(err); }
+    });
   }
 
   function escapeHtml(unsafe) {
     if (!unsafe) return "";
     return unsafe
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
   }
 
-  // Normalize indentation: remove common leading whitespace from every line
   function normalizeIndent(text) {
     const lines = text.split('\n');
     let minIndent = Infinity;
     lines.forEach(line => {
       if (line.trim().length > 0) {
-        const match = line.match(/^(\s*)/);
-        minIndent = Math.min(minIndent, match[0].length);
+        minIndent = Math.min(minIndent, line.match(/^(\s*)/)[0].length);
       }
     });
     if (minIndent === Infinity) minIndent = 0;
     return lines.map(line => line.slice(minIndent)).join('\n');
   }
 
+  function calcReadTime(text) {
+    const words = (text || '').trim().split(/\s+/).length;
+    return Math.max(1, Math.round(words / 200));
+  }
+
   function renderPost(post) {
-    const tags = (post.tags || "")
-      .split(",")
-      .filter(Boolean)
-      .map(t => `<span class="tag">${escapeHtml(t.trim())}</span>`)
-      .join("");
+    setMeta(post);
 
+    const type     = post.type || 'essay';
+    const isPaid   = post.access === 'paid';
     const metaDate = new Date(post.created_at).toLocaleDateString();
-    const readTime = post.readtime || 1;
-    const type = post.type || 'essay';
-    const isPaid = post.access === 'paid';
+    const readTime = post.readtime || calcReadTime(post.content);
 
-    // Set nav type class and label
-    nav.className = '';
-    nav.classList.add(`nav-type-${type}`);
+    const colorMap  = { essay: '#4ecdc4', code: '#51cf66', notes: '#ffe66d' };
+    const typeColor = colorMap[type] || '#4ecdc4';
+
+    nav.className = `nav-type-${type}`;
     typeLabel.className = `post-type-label ${type}`;
     typeLabel.textContent = type === 'code' ? 'code' : (type === 'notes' ? 'note' : 'essay');
 
-    // Prepare content with optional indentation normalization
+    initShare(post, typeColor);
+
+    const tags = (post.tags || "").split(",").filter(Boolean)
+      .map(t => `<span class="tag">${escapeHtml(t.trim())}</span>`).join("");
+
     let contentText = post.content || '';
-    if (type === 'code') {
-      contentText = normalizeIndent(contentText);
-    }
+    if (type === 'code') contentText = normalizeIndent(contentText);
     const escapedContent = escapeHtml(contentText);
 
-    // Build content
     let contentHtml;
 
     if (isPaid) {
       contentHtml = `
-        <div style="position: relative;">
+        <div style="position:relative;">
           <i class="fas fa-lock locked-icon"></i>
           <h1 class="title">${escapeHtml(post.title)}</h1>
           <div class="meta">${metaDate} • ${readTime} min read</div>
@@ -547,71 +509,68 @@
             <p>This post requires access.</p>
             <a class="btn" href="#">Unlock</a>
           </div>
-        </div>
-      `;
-    } else {
-      if (type === 'code') {
-        // Split code into lines for line numbering
-        const lines = escapedContent.split('\n');
-        const numberHtml = lines.map((_, i) => `<div>${i + 1}</div>`).join('');
-        const codeHtml = lines.map(line => `<span class="code-line">${line || ' '}</span>`).join('');
-
-        contentHtml = `
-          <h1 class="title">${escapeHtml(post.title)}</h1>
-          <div class="meta">${metaDate} • ${readTime} min read</div>
-          ${tags ? `<div class="tags">${tags}</div>` : ""}
-          <div class="terminal">
-            <div class="terminal-header">
-              <span class="terminal-dot"></span>
-              <span class="terminal-dot"></span>
-              <span class="terminal-dot"></span>
-              <span class="terminal-title">Terminal</span>
-            </div>
-            <div class="terminal-body">
-              <div class="line-numbers">${numberHtml}</div>
-              <div class="code-lines" id="postContentBody">${codeHtml}</div>
-            </div>
-            <button class="copy-btn" id="copyCodeBtn"><i class="far fa-copy"></i> Copy</button>
+        </div>`;
+    } else if (type === 'code') {
+      const lines      = escapedContent.split('\n');
+      const numberHtml = lines.map((_,i) => `<div>${i+1}</div>`).join('');
+      const codeHtml   = lines.map(line => `<span class="code-line">${line||' '}</span>`).join('');
+      contentHtml = `
+        <h1 class="title">${escapeHtml(post.title)}</h1>
+        <div class="meta">${metaDate} • ${readTime} min read</div>
+        ${tags ? `<div class="tags">${tags}</div>` : ""}
+        <div class="terminal">
+          <div class="terminal-header">
+            <span class="terminal-dot"></span>
+            <span class="terminal-dot"></span>
+            <span class="terminal-dot"></span>
+            <span class="terminal-title">Terminal</span>
           </div>
-        `;
-      } else {
-        contentHtml = `
-          <h1 class="title">${escapeHtml(post.title)}</h1>
-          <div class="meta">${metaDate} • ${readTime} min read</div>
-          ${tags ? `<div class="tags">${tags}</div>` : ""}
-          <div class="content">${escapedContent}</div>
-        `;
-      }
+          <div class="terminal-body">
+            <div class="line-numbers">${numberHtml}</div>
+            <div class="code-lines" id="postContentBody">${codeHtml}</div>
+          </div>
+          <button class="copy-btn" id="copyCodeBtn"><i class="far fa-copy"></i> Copy</button>
+        </div>`;
+    } else {
+      contentHtml = `
+        <h1 class="title">${escapeHtml(post.title)}</h1>
+        <div class="meta">${metaDate} • ${readTime} min read</div>
+        ${tags ? `<div class="tags">${tags}</div>` : ""}
+        <div class="content">${escapedContent}</div>`;
     }
 
-    container.innerHTML = `
-      <div class="type-${type}">
-        ${contentHtml}
-      </div>
-    `;
+    container.innerHTML = `<div class="type-${type}">${contentHtml}</div>`;
 
-    // Attach copy button functionality for code posts
     if (type === 'code' && !isPaid) {
       const copyBtn = document.getElementById('copyCodeBtn');
       if (copyBtn) {
-        // Raw code text (without numbers)
-        const codeText = contentText; // already normalized
-
         copyBtn.addEventListener('click', async () => {
           try {
-            await navigator.clipboard.writeText(codeText);
+            await navigator.clipboard.writeText(contentText);
             copyBtn.classList.add('copied');
             copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
             setTimeout(() => {
               copyBtn.classList.remove('copied');
               copyBtn.innerHTML = '<i class="far fa-copy"></i> Copy';
             }, 2000);
-          } catch (err) {
-            console.error('Copy failed:', err);
-          }
+          } catch (err) { console.error('Copy failed:', err); }
         });
       }
     }
+  }
+
+  async function loadPost() {
+    const id = getPostId();
+    if (!id) {
+      container.innerHTML = "<div class='loading'>No post ID specified</div>";
+      return;
+    }
+    const { data, error } = await db.from("posts").select("*").eq("id", id).single();
+    if (error || !data) {
+      container.innerHTML = "<div class='loading'>Post not found</div>";
+      return;
+    }
+    renderPost(data);
   }
 
   loadPost();
