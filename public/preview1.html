@@ -353,6 +353,8 @@
     <div class="share-dropdown" id="shareDropdown">
       <button class="share-option" id="copyLinkBtn"><i class="fas fa-link"></i> Copy link</button>
       <a class="share-option" id="shareWhatsapp" href="#" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+      <a class="share-option" id="shareTwitter" href="#" target="_blank" rel="noopener"><i class="fab fa-twitter"></i> Twitter / X</a>
+      <a class="share-option" id="shareReddit" href="#" target="_blank" rel="noopener"><i class="fab fa-reddit"></i> Reddit</a>
       
       
     </div>
@@ -406,6 +408,10 @@
     const shareDropdown = document.getElementById('shareDropdown');
     const copyLinkBtn   = document.getElementById('copyLinkBtn');
 
+    document.getElementById('shareTwitter').href =
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+    document.getElementById('shareReddit').href =
+      `https://reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
     document.getElementById('shareWhatsapp').href =
       `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`;
 
