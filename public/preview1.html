@@ -6,12 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <!-- Dynamic meta — filled by JS after fetch -->
-  <meta name="description" id="metaDesc" content="A quiet archive of essays, code, and notes.">
-  <meta property="og:title" id="ogTitle" content="Colin Archive">
-  <meta property="og:description" id="ogDesc" content="A quiet archive of essays, code, and notes.">
-  <meta property="og:type" content="article">
-  <meta property="og:url" id="ogUrl" content="">
-  <meta property="og:image" id="ogImage" content="https://yourdomain.com/og-image.jpg">
+  <meta name="description" id="metaDesc" content="A quiet archive of essays, code, and notes – unfiltered and unpolished." />
+  <meta property="og:title" id="ogTitle" content="Colin Archive" />
+  <meta property="og:description" id="ogDesc" content="A quiet archive of essays, code, and notes – unfiltered and unpolished." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" id="ogUrl" content="" />
+  <meta property="og:image" id="ogImage" content="https://yourdomain.com/og-image.jpg" />
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" id="twTitle" content="Colin Archive">
   <meta name="twitter:description" id="twDesc" content="">
@@ -22,15 +22,15 @@
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     :root {
+      --bg: #0d0d0d;
       --paper: #1a1a1a;
       --fg: #e8e8e8;
       --muted: #c0c0c0;
-      --muted-dim: #888;
       --border: #2a2a2a;
       --highlight: #1f1f1f;
       --red: #ff6b6b;
@@ -38,13 +38,14 @@
       --blue: #4ecdc4;
       --green: #51cf66;
       --yellow: #ffe66d;
+      --type-color: var(--blue); /* overridden per post type via JS */
       --serif: 'Crimson Text', 'Georgia', serif;
       --mono: 'IBM Plex Mono', 'Courier New', monospace;
       --hand: 'Caveat', cursive;
       --essay-serif: 'Libre Baskerville', 'Georgia', serif;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       background: var(--paper);
@@ -54,11 +55,9 @@
       line-height: 1.6;
     }
 
-    /* ── NAV ── */
+    /* NAV */
     nav {
-      background: rgba(26,26,26,0.92);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      background: var(--paper);
       border-bottom: 1px solid var(--border);
       padding: 1.2rem 3rem;
       display: flex;
@@ -67,14 +66,15 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      transition: border-bottom-color 0.3s, box-shadow 0.3s;
+      width: 100%;
+      transition: border-bottom-color 0.2s, box-shadow 0.2s;
     }
-    nav.nav-type-essay { border-bottom: 2px solid var(--blue);   box-shadow: 0 0 8px rgba(78,205,196,0.25); }
-    nav.nav-type-code  { border-bottom: 2px solid var(--green);  box-shadow: 0 0 8px rgba(81,207,102,0.25); }
-    nav.nav-type-notes { border-bottom: 2px solid var(--yellow); box-shadow: 0 0 8px rgba(255,230,109,0.25); }
+    nav.nav-type-essay { border-bottom: 2px solid var(--blue);   box-shadow: 0 0 6px rgba(78,205,196,0.3); }
+    nav.nav-type-code  { border-bottom: 2px solid var(--green);  box-shadow: 0 0 6px rgba(81,207,102,0.3); }
+    nav.nav-type-notes { border-bottom: 2px solid var(--yellow); box-shadow: 0 0 6px rgba(255,230,109,0.3); }
 
-    .nav-left  { display: flex; align-items: center; gap: 1.5rem; }
-    .nav-right { display: flex; align-items: center; gap: 0.75rem; }
+    .nav-left { display: flex; align-items: center; }
+    .nav-right { display: flex; align-items: center; }
 
     .logo {
       font-family: var(--mono);
@@ -94,24 +94,27 @@
     @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
 
     .post-type-label {
+      margin-left: 1.5rem;
       font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 0.1em;
     }
     .post-type-label.essay { font-family: var(--essay-serif); color: var(--blue); }
     .post-type-label.code  { font-family: var(--mono);        color: var(--green); }
-    .post-type-label.notes { font-family: var(--hand);        color: var(--yellow); font-size: 0.9rem; }
+    .post-type-label.notes { font-family: var(--hand);        color: var(--yellow); }
 
-    /* ── SHARE BUTTON ── */
+    /* SHARE */
+    .share-wrap { position: relative; }
+
     .share-btn {
       display: flex;
       align-items: center;
-      gap: 0.45rem;
+      gap: 0.4rem;
       padding: 0.45rem 1rem;
       background: transparent;
       border: 1px solid var(--border);
       border-radius: 4px;
-      color: var(--muted-dim);
+      color: var(--muted);
       font-family: var(--mono);
       font-size: 0.65rem;
       letter-spacing: 0.1em;
@@ -119,12 +122,12 @@
       cursor: pointer;
       transition: border-color 0.2s, color 0.2s;
     }
-    .share-btn:hover { border-color: var(--fg); color: var(--fg); }
-    .share-btn.copied { border-color: var(--green); color: var(--green); }
+    .share-btn:hover {
+      border-color: var(--type-color);
+      color: var(--type-color);
+    }
     .share-btn i { font-size: 0.75rem; }
 
-    /* Share dropdown */
-    .share-wrap { position: relative; }
     .share-dropdown {
       position: absolute;
       top: calc(100% + 8px);
@@ -136,7 +139,7 @@
       display: none;
       flex-direction: column;
       gap: 0.2rem;
-      min-width: 170px;
+      min-width: 160px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.5);
       z-index: 200;
     }
@@ -162,245 +165,182 @@
       transition: background 0.15s, color 0.15s;
       text-decoration: none;
     }
-    .share-option:hover { background: rgba(255,255,255,0.05); color: var(--fg); }
+    .share-option:hover { background: rgba(255,255,255,0.05); color: var(--type-color); }
     .share-option i { width: 14px; text-align: center; font-size: 0.8rem; }
     .share-option.copy-success { color: var(--green); }
 
-    /* ── WRAPPER ── */
+    /* WRAPPER */
     .wrapper {
-      max-width: 780px;
-      margin: 0 auto;
-      padding: 3rem 2rem 5rem;
-      animation: fadeUp 0.5s ease both;
+      width: 100%;
+      margin: 70px 0;
+      padding: 0 3rem;
+      position: relative;
+      z-index: 2;
     }
-    @keyframes fadeUp { from { opacity:0; transform:translateY(14px) } to { opacity:1; transform:none } }
 
-    .back-link { margin-bottom: 2.5rem; }
+    .back-link { margin-bottom: 2rem; }
     .back-link a {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.5rem 1.2rem;
+      display: inline-block;
+      padding: 0.6rem 1.5rem;
       border: 1px solid var(--border);
       border-radius: 4px;
       font-family: var(--mono);
-      font-size: 0.68rem;
+      font-size: 0.7rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--muted-dim);
+      color: var(--muted);
       text-decoration: none;
       transition: border-color 0.2s, color 0.2s, transform 0.2s;
     }
-    .back-link a:hover { border-color: var(--blue); color: var(--blue); transform: translateX(-3px); }
+    .back-link a:hover { border-color: var(--blue); color: var(--blue); transform: translateX(-2px); }
 
-    /* ── POST HEADER ── */
-    .post-header { margin-bottom: 2.5rem; }
+    .post-container { max-width: 900px; margin: 0 auto; }
 
+    /* TITLE */
     .title {
       font-family: var(--serif);
-      font-size: 2.6rem;
+      font-size: 2.5rem;
       font-weight: 600;
-      line-height: 1.25;
       margin-bottom: 0.75rem;
-      letter-spacing: -0.01em;
+      line-height: 1.3;
     }
     .type-essay .title { font-family: var(--essay-serif); font-weight: 700; }
-    .type-code  .title { font-family: var(--mono); font-size: 2rem; letter-spacing: -0.03em; }
-    .type-notes .title { font-family: var(--hand); font-size: 2.4rem; font-weight: 600; }
+    .type-code  .title { font-family: var(--mono); letter-spacing: -0.02em; }
+    .type-notes .title { font-family: var(--hand); font-size: 2rem; }
 
     .meta {
       font-family: var(--mono);
-      font-size: 0.68rem;
-      color: var(--muted-dim);
+      font-size: 0.7rem;
+      color: var(--muted);
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      letter-spacing: 0.05em;
+      margin-bottom: 2rem;
     }
-    .meta-dot { color: var(--border); }
 
-    .tags { margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .tags { margin-bottom: 2rem; }
     .tag {
       display: inline-block;
       border: 1px solid var(--border);
-      padding: 0.25rem 0.7rem;
+      padding: 0.3rem 0.8rem;
+      margin: 0.2rem;
       font-family: var(--mono);
-      font-size: 0.62rem;
-      color: var(--muted-dim);
+      font-size: 0.65rem;
+      color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      border-radius: 3px;
+      border-radius: 4px;
       transition: border-color 0.2s, color 0.2s;
     }
     .tag:hover { border-color: var(--blue); color: var(--blue); }
 
-    /* excerpt */
     .excerpt {
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       color: #bdbdbd;
+      margin-bottom: 2.2rem;
       font-style: italic;
       border-left: 3px solid var(--blue);
-      padding: 0.5rem 0 0.5rem 1.2rem;
-      margin-bottom: 2.5rem;
-      line-height: 1.6;
-    }
-    .type-code  .excerpt { border-left-color: var(--green); }
-    .type-notes .excerpt { border-left-color: var(--yellow); font-family: var(--hand); font-size: 1.3rem; }
-
-    /* divider */
-    .post-divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 0 0 2.5rem;
+      padding-left: 1rem;
     }
 
-    /* ── ESSAY / NOTES CONTENT ── */
     .content {
       font-size: 1.18rem;
-      line-height: 1.9;
-      color: var(--fg);
+      line-height: 1.85;
       white-space: pre-wrap;
+      color: var(--fg);
+      display: block;
     }
-    .type-essay .content { font-family: var(--essay-serif); font-size: 1.1rem; line-height: 2; }
-    .type-notes .content { font-family: var(--serif); }
 
-    /* ── TERMINAL (code posts) ── */
-    .terminal {
+    /* TERMINAL */
+    .type-code .terminal {
       position: relative;
       background: #0c0c0c;
       border: 1px solid #2a2a2a;
       border-radius: 10px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,255,0,0.03);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,255,0,0.05);
       font-family: var(--mono);
-      font-size: 0.9rem;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #b0f0b0;
       overflow: hidden;
     }
     .terminal-header {
-      background: #161616;
-      padding: 0.55rem 1rem;
-      border-bottom: 1px solid #222;
+      background: #1a1a1a;
+      padding: 0.5rem 1rem;
+      border-bottom: 1px solid #2a2a2a;
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
-    .terminal-dot { width: 11px; height: 11px; border-radius: 50%; }
-    .terminal-dot:nth-child(1) { background: #ff5f56; }
+    .terminal-dot { width: 12px; height: 12px; border-radius: 50%; background: #ff5f56; }
     .terminal-dot:nth-child(2) { background: #ffbd2e; }
     .terminal-dot:nth-child(3) { background: #27c93f; }
-    .terminal-title {
-      font-size: 0.62rem; color: #555; margin-left: 0.5rem;
-      text-transform: uppercase; letter-spacing: 0.1em;
-    }
-    .terminal-body { display: flex; }
+    .terminal-title { font-size: 0.65rem; color: #888; margin-left: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
+    .terminal-body { display: flex; position: relative; }
     .line-numbers {
-      padding: 1rem 0;
+      padding: 1rem 0 1rem 1rem;
       text-align: right;
-      color: #3a5a3a;
+      color: #4a7a4a;
       user-select: none;
-      border-right: 1px solid #1e1e1e;
+      border-right: 1px solid #2a2a2a;
       background: #0a0a0a;
-      font-size: 0.85rem;
-      line-height: 1.65;
-      min-width: 3rem;
-    }
-    .line-numbers div { padding: 0 0.75rem; }
-    .code-lines {
-      flex: 1;
-      padding: 1rem 1.25rem;
-      overflow-x: auto;
-      background: #0a0a0a;
-    }
-    .code-line {
-      display: block;
-      white-space: pre;
-      font-size: 0.9rem;
-      line-height: 1.65;
-      color: #b0f0b0;
-    }
-    .copy-btn {
-      position: absolute;
-      top: 0.6rem;
-      right: 0.75rem;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 4px;
-      color: #6a9a6a;
       font-family: var(--mono);
-      font-size: 0.65rem;
-      padding: 0.25rem 0.65rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-      transition: all 0.2s;
-      z-index: 10;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      white-space: nowrap;
     }
-    .copy-btn:hover { background: #222; border-color: #b0f0b0; color: #b0f0b0; }
-    .copy-btn.copied { background: #1a3a1a; border-color: #51cf66; color: #51cf66; }
+    .line-numbers div { padding-right: 1rem; }
+    .code-lines { flex: 1; padding: 1rem; overflow-x: auto; background: #0a0a0a; }
+    .code-line { display: block; white-space: pre; font-family: var(--mono); font-size: 0.95rem; line-height: 1.6; color: #b0f0b0; }
+    .copy-btn {
+      position: absolute; top: 0.75rem; right: 0.75rem;
+      background: #1f1f1f; border: 1px solid #3a3a3a; border-radius: 4px;
+      color: #b0f0b0; font-family: var(--mono); font-size: 0.7rem;
+      padding: 0.3rem 0.7rem; cursor: pointer;
+      display: flex; align-items: center; gap: 0.4rem;
+      transition: background 0.2s, border-color 0.2s, color 0.2s; z-index: 20;
+    }
+    .copy-btn:hover { background: #2a2a2a; border-color: #b0f0b0; color: #d0f0d0; }
+    .copy-btn.copied { background: #2a5a2a; border-color: #b0f0b0; color: #fff; }
+    .copy-btn i { font-size: 0.8rem; }
 
-    /* ── LOCKED ── */
+    /* LOCKED */
     .locked-message {
-      text-align: center;
-      padding: 2.5rem 2rem;
-      border: 1px dashed rgba(179,0,45,0.4);
-      border-radius: 10px;
-      margin-top: 2rem;
+      text-align: center; padding: 2rem;
+      border: 1px dashed var(--red); border-radius: 8px; margin-top: 2rem;
       background: repeating-linear-gradient(
-        45deg,
-        rgba(179,0,45,0.07) 0px, rgba(179,0,45,0.07) 10px,
+        45deg, rgba(179,0,45,0.1) 0px, rgba(179,0,45,0.1) 10px,
         transparent 10px, transparent 20px
       );
       position: relative;
     }
-    .locked-message h3 {
-      font-family: var(--mono);
-      font-size: 0.75rem;
-      letter-spacing: 0.12em;
-      color: var(--red);
-      margin-bottom: 1rem;
-      text-transform: uppercase;
-    }
-    .locked-message p { color: var(--muted); margin-bottom: 1.5rem; font-size: 0.95rem; }
+    .locked-message h3 { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.1em; color: var(--red); margin-bottom: 1rem; text-transform: uppercase; }
+    .locked-message p { color: var(--muted); margin-bottom: 1.5rem; }
     .btn {
-      display: inline-block;
-      padding: 0.65rem 1.4rem;
-      background: transparent;
-      border: 1px solid var(--red);
-      border-radius: 4px;
-      color: var(--red);
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      letter-spacing: 0.1em;
-      text-decoration: none;
-      text-transform: uppercase;
+      display: inline-block; padding: 0.7rem 1.4rem;
+      background: transparent; border: 1px solid var(--red); border-radius: 4px;
+      color: var(--red); font-family: var(--mono); font-size: 0.7rem;
+      letter-spacing: 0.1em; text-decoration: none; text-transform: uppercase;
       transition: background 0.2s, color 0.2s;
     }
-    .btn:hover { background: var(--red); color: #111; }
-    .locked-icon-abs {
-      position: absolute; top: 1rem; right: 1rem;
-      font-size: 1.8rem; color: rgba(255,255,255,0.15); pointer-events: none;
+    .btn:hover { background: var(--red); color: var(--bg); }
+    .locked-icon {
+      position: absolute; top: 1rem; right: 1rem; font-size: 2rem;
+      color: rgba(255,255,255,0.6); text-shadow: 0 2px 5px rgba(0,0,0,0.5); pointer-events: none;
     }
 
-    /* loading */
-    .loading {
-      text-align: center;
-      font-family: var(--mono);
-      color: var(--muted-dim);
-      padding: 4rem;
-      font-size: 0.85rem;
-      letter-spacing: 0.08em;
-    }
+    .loading { text-align: center; font-family: var(--mono); color: var(--muted); padding: 3rem; font-size: 1rem; }
 
-    /* ── MOBILE ── */
     @media (max-width: 700px) {
-      nav { padding: 1rem 1.25rem; }
-      .wrapper { padding: 2rem 1.25rem 4rem; }
+      nav { padding: 1rem 1.5rem; }
+      .post-type-label { margin-left: 1rem; font-size: 0.6rem; }
+      .wrapper { padding: 0 1rem; margin: 40px 0; }
       .title { font-size: 2rem; }
-      .type-code .title { font-size: 1.6rem; }
-      .type-notes .title { font-size: 2rem; }
-      .post-type-label { display: none; }
+      .type-notes .title { font-size: 1.8rem; }
+      .back-link a { display: block; text-align: center; }
+      .locked-icon { top: 0.5rem; right: 0.5rem; font-size: 1.5rem; }
+      .copy-btn { top: 0.5rem; right: 0.5rem; font-size: 0.6rem; padding: 0.2rem 0.5rem; }
+      .terminal-header { padding: 0.3rem 0.8rem; }
+      .terminal-dot { width: 8px; height: 8px; }
       .share-dropdown { right: 0; }
     }
     @media (prefers-reduced-motion: reduce) {
@@ -417,7 +357,7 @@
   </div>
   <div class="nav-right">
     <div class="share-wrap" id="shareWrap">
-      <button class="share-btn" id="shareBtn" aria-label="Share post">
+      <button class="share-btn" id="shareBtn">
         <i class="fas fa-share-nodes"></i>
         <span>Share</span>
       </button>
@@ -425,7 +365,6 @@
         <button class="share-option" id="copyLinkBtn"><i class="fas fa-link"></i> Copy link</button>
         <a class="share-option" id="shareTwitter" href="#" target="_blank" rel="noopener"><i class="fab fa-twitter"></i> Twitter / X</a>
         <a class="share-option" id="shareReddit" href="#" target="_blank" rel="noopener"><i class="fab fa-reddit"></i> Reddit</a>
-        <a class="share-option" id="shareHN" href="#" target="_blank" rel="noopener"><i class="fab fa-y-combinator"></i> Hacker News</a>
       </div>
     </div>
   </div>
@@ -433,19 +372,19 @@
 
 <div class="wrapper">
   <div class="back-link">
-    <a href="/"><i class="fas fa-arrow-left" style="font-size:0.6rem;"></i> Archive</a>
+    <a href="/">← Back to Home</a>
   </div>
-  <div id="postContainer">
-    <div class="loading">Loading post…</div>
+  <div class="post-container" id="postContainer">
+    <div class="loading">Loading post...</div>
   </div>
 </div>
 
 <script>
-  // ⚠️ Anon key is public — ensure Supabase RLS is locked down.
+  // ⚠️ Anon key is public — ensure Supabase RLS policies are locked down.
   const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
-  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  const db        = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   const nav       = document.getElementById('mainNav');
   const typeLabel = document.getElementById('postTypeLabel');
   const container = document.getElementById('postContainer');
@@ -454,59 +393,54 @@
     return new URLSearchParams(location.search).get("id");
   }
 
-  // ── Dynamic meta ──
+  // Dynamic meta
   function setMeta(post) {
-    const title   = post.title || 'Colin Archive';
+    const title   = post.title   || 'Colin Archive';
     const excerpt = post.excerpt || 'A quiet archive of essays, code, and notes.';
-    const url     = location.href;
     const image   = post.cover_url || 'https://yourdomain.com/og-image.jpg';
-
     document.title = `${title} — Colin Archive`;
-    document.getElementById('metaDesc').content  = excerpt;
-    document.getElementById('ogTitle').content   = title;
-    document.getElementById('ogDesc').content    = excerpt;
-    document.getElementById('ogUrl').content     = url;
-    document.getElementById('ogImage').content   = image;
-    document.getElementById('twTitle').content   = title;
-    document.getElementById('twDesc').content    = excerpt;
+    document.getElementById('metaDesc').content = excerpt;
+    document.getElementById('ogTitle').content  = title;
+    document.getElementById('ogDesc').content   = excerpt;
+    document.getElementById('ogUrl').content    = location.href;
+    document.getElementById('ogImage').content  = image;
+    document.getElementById('twTitle').content  = title;
+    document.getElementById('twDesc').content   = excerpt;
   }
 
-  // ── Share logic ──
-  function initShare(post) {
+  // Share
+  function initShare(post, typeColor) {
     const url   = location.href;
     const title = post.title || 'Colin Archive';
-    const text  = post.excerpt || '';
+
+    // Set CSS var so button + options inherit the type color
+    document.documentElement.style.setProperty('--type-color', typeColor);
 
     const shareBtn      = document.getElementById('shareBtn');
     const shareDropdown = document.getElementById('shareDropdown');
     const copyLinkBtn   = document.getElementById('copyLinkBtn');
-    const twitterLink   = document.getElementById('shareTwitter');
-    const redditLink    = document.getElementById('shareReddit');
-    const hnLink        = document.getElementById('shareHN');
 
-    twitterLink.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
-    redditLink.href  = `https://reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
-    hnLink.href      = `https://news.ycombinator.com/submitlink?u=${encodeURIComponent(url)}&t=${encodeURIComponent(title)}`;
+    document.getElementById('shareTwitter').href =
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+    document.getElementById('shareReddit').href =
+      `https://reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
 
-    // Toggle dropdown
     shareBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      // Try native share first on mobile
+      // Native share on mobile
       if (navigator.share && window.innerWidth < 700) {
-        navigator.share({ title, text, url }).catch(() => {});
+        navigator.share({ title, url }).catch(() => {});
         return;
       }
       shareDropdown.classList.toggle('open');
     });
 
-    // Close on outside click
     document.addEventListener('click', (e) => {
       if (!document.getElementById('shareWrap').contains(e.target)) {
         shareDropdown.classList.remove('open');
       }
     });
 
-    // Copy link
     copyLinkBtn.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(url);
@@ -517,24 +451,27 @@
           copyLinkBtn.classList.remove('copy-success');
           shareDropdown.classList.remove('open');
         }, 1800);
-      } catch(e) {
-        console.error(e);
-      }
+      } catch(err) { console.error(err); }
     });
   }
 
-  // ── Helpers ──
-  function escapeHtml(s) {
-    if (!s) return '';
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+  function escapeHtml(unsafe) {
+    if (!unsafe) return "";
+    return unsafe
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
   }
 
   function normalizeIndent(text) {
     const lines = text.split('\n');
-    let min = Infinity;
-    lines.forEach(l => { if (l.trim()) min = Math.min(min, l.match(/^(\s*)/)[0].length); });
-    if (!isFinite(min)) min = 0;
-    return lines.map(l => l.slice(min)).join('\n');
+    let minIndent = Infinity;
+    lines.forEach(line => {
+      if (line.trim().length > 0) {
+        minIndent = Math.min(minIndent, line.match(/^(\s*)/)[0].length);
+      }
+    });
+    if (minIndent === Infinity) minIndent = 0;
+    return lines.map(line => line.slice(minIndent)).join('\n');
   }
 
   function calcReadTime(text) {
@@ -542,110 +479,106 @@
     return Math.max(1, Math.round(words / 200));
   }
 
-  // ── Render ──
   function renderPost(post) {
     setMeta(post);
-    initShare(post);
 
-    const type   = post.type || 'essay';
-    const isPaid = post.access === 'paid';
-    const date   = new Date(post.created_at).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+    const type    = post.type || 'essay';
+    const isPaid  = post.access === 'paid';
+    const metaDate = new Date(post.created_at).toLocaleDateString();
+    // Fix: calculate read time from content if readtime column isn't set
     const readTime = post.readtime || calcReadTime(post.content);
+
+    // Type color — drives share button + dropdown hover
+    const colorMap = { essay: '#4ecdc4', code: '#51cf66', notes: '#ffe66d' };
+    const typeColor = colorMap[type] || '#4ecdc4';
 
     // Nav
     nav.className = `nav-type-${type}`;
     typeLabel.className = `post-type-label ${type}`;
-    typeLabel.textContent = type === 'code' ? 'code' : type === 'notes' ? 'note' : 'essay';
+    typeLabel.textContent = type === 'code' ? 'code' : (type === 'notes' ? 'note' : 'essay');
 
-    const tags = (post.tags || '').split(',').filter(Boolean)
-      .map(t => `<span class="tag">${escapeHtml(t.trim())}</span>`).join('');
+    initShare(post, typeColor);
 
-    const excerptHtml = post.excerpt
-      ? `<div class="excerpt">${escapeHtml(post.excerpt)}</div>`
-      : '';
+    const tags = (post.tags || "").split(",").filter(Boolean)
+      .map(t => `<span class="tag">${escapeHtml(t.trim())}</span>`).join("");
 
-    // Header
-    const headerHtml = `
-      <div class="post-header">
-        <h1 class="title">${escapeHtml(post.title)}</h1>
-        <div class="meta">
-          <span>${date}</span>
-          <span class="meta-dot">·</span>
-          <span>${readTime} min read</span>
-          <span class="meta-dot">·</span>
-          <span>${type}</span>
-        </div>
-        ${tags ? `<div class="tags">${tags}</div>` : ''}
-      </div>
-      ${excerptHtml}
-      <hr class="post-divider">
-    `;
+    let contentText = post.content || '';
+    if (type === 'code') contentText = normalizeIndent(contentText);
+    const escapedContent = escapeHtml(contentText);
 
-    let bodyHtml = '';
+    let contentHtml;
 
     if (isPaid) {
-      bodyHtml = `
-        <div class="locked-message">
-          <i class="fas fa-lock locked-icon-abs"></i>
-          <h3>🔒 Paid Entry</h3>
-          <p>This post requires access to read.</p>
-          <a class="btn" href="#">Unlock access</a>
-        </div>
-      `;
+      contentHtml = `
+        <div style="position:relative;">
+          <i class="fas fa-lock locked-icon"></i>
+          <h1 class="title">${escapeHtml(post.title)}</h1>
+          <div class="meta">${metaDate} • ${readTime} min read</div>
+          ${tags ? `<div class="tags">${tags}</div>` : ""}
+          <div class="locked-message">
+            <h3>🔒 PAID ENTRY</h3>
+            <p>This post requires access.</p>
+            <a class="btn" href="#">Unlock</a>
+          </div>
+        </div>`;
     } else if (type === 'code') {
-      const normalized = normalizeIndent(post.content || '');
-      const lines = escapeHtml(normalized).split('\n');
-      const numHtml  = lines.map((_,i) => `<div>${i+1}</div>`).join('');
-      const codeHtml = lines.map(l => `<span class="code-line">${l||' '}</span>`).join('');
-      bodyHtml = `
+      const lines      = escapedContent.split('\n');
+      const numberHtml = lines.map((_,i) => `<div>${i+1}</div>`).join('');
+      const codeHtml   = lines.map(line => `<span class="code-line">${line||' '}</span>`).join('');
+      contentHtml = `
+        <h1 class="title">${escapeHtml(post.title)}</h1>
+        <div class="meta">${metaDate} • ${readTime} min read</div>
+        ${tags ? `<div class="tags">${tags}</div>` : ""}
         <div class="terminal">
           <div class="terminal-header">
             <span class="terminal-dot"></span>
             <span class="terminal-dot"></span>
             <span class="terminal-dot"></span>
-            <span class="terminal-title">${escapeHtml(post.title)}</span>
+            <span class="terminal-title">Terminal</span>
           </div>
           <div class="terminal-body">
-            <div class="line-numbers">${numHtml}</div>
-            <div class="code-lines" id="postCodeBody">${codeHtml}</div>
+            <div class="line-numbers">${numberHtml}</div>
+            <div class="code-lines" id="postContentBody">${codeHtml}</div>
           </div>
           <button class="copy-btn" id="copyCodeBtn"><i class="far fa-copy"></i> Copy</button>
-        </div>
-      `;
+        </div>`;
     } else {
-      bodyHtml = `<div class="content">${escapeHtml(post.content || '')}</div>`;
+      contentHtml = `
+        <h1 class="title">${escapeHtml(post.title)}</h1>
+        <div class="meta">${metaDate} • ${readTime} min read</div>
+        ${tags ? `<div class="tags">${tags}</div>` : ""}
+        <div class="content">${escapedContent}</div>`;
     }
 
-    container.innerHTML = `<div class="type-${type}">${headerHtml}${bodyHtml}</div>`;
+    container.innerHTML = `<div class="type-${type}">${contentHtml}</div>`;
 
-    // Copy code button
     if (type === 'code' && !isPaid) {
-      const btn = document.getElementById('copyCodeBtn');
-      const raw = normalizeIndent(post.content || '');
-      btn && btn.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(raw);
-          btn.classList.add('copied');
-          btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-          setTimeout(() => {
-            btn.classList.remove('copied');
-            btn.innerHTML = '<i class="far fa-copy"></i> Copy';
-          }, 2000);
-        } catch(e) { console.error(e); }
-      });
+      const copyBtn = document.getElementById('copyCodeBtn');
+      if (copyBtn) {
+        copyBtn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(contentText);
+            copyBtn.classList.add('copied');
+            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => {
+              copyBtn.classList.remove('copied');
+              copyBtn.innerHTML = '<i class="far fa-copy"></i> Copy';
+            }, 2000);
+          } catch (err) { console.error('Copy failed:', err); }
+        });
+      }
     }
   }
 
-  // ── Load ──
   async function loadPost() {
     const id = getPostId();
     if (!id) {
-      container.innerHTML = "<div class='loading'>No post ID specified.</div>";
+      container.innerHTML = "<div class='loading'>No post ID specified</div>";
       return;
     }
-    const { data, error } = await db.from('posts').select('*').eq('id', id).single();
+    const { data, error } = await db.from("posts").select("*").eq("id", id).single();
     if (error || !data) {
-      container.innerHTML = "<div class='loading'>Post not found.</div>";
+      container.innerHTML = "<div class='loading'>Post not found</div>";
       return;
     }
     renderPost(data);
@@ -653,5 +586,6 @@
 
   loadPost();
 </script>
+
 </body>
 </html>
