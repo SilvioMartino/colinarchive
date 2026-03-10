@@ -32,13 +32,14 @@
       --fg: #e8e8e8;
       --muted: #c0c0c0;
       --border: #2a2a2a;
+      --accent: #e8e8e8;
       --highlight: #1f1f1f;
       --red: #ff6b6b;
       --dark-red: #b3002d;
       --blue: #4ecdc4;
       --green: #51cf66;
       --yellow: #ffe66d;
-      --type-color: var(--blue); /* overridden per post type via JS */
+      --type-color: var(--blue);
       --serif: 'Crimson Text', 'Georgia', serif;
       --mono: 'IBM Plex Mono', 'Courier New', monospace;
       --hand: 'Caveat', cursive;
@@ -55,13 +56,13 @@
       line-height: 1.6;
     }
 
-    /* NAV */
+    /* NAV — exact original structure, just added share wrap at the end */
     nav {
       background: var(--paper);
       border-bottom: 1px solid var(--border);
       padding: 1.2rem 3rem;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       align-items: center;
       position: sticky;
       top: 0;
@@ -72,9 +73,6 @@
     nav.nav-type-essay { border-bottom: 2px solid var(--blue);   box-shadow: 0 0 6px rgba(78,205,196,0.3); }
     nav.nav-type-code  { border-bottom: 2px solid var(--green);  box-shadow: 0 0 6px rgba(81,207,102,0.3); }
     nav.nav-type-notes { border-bottom: 2px solid var(--yellow); box-shadow: 0 0 6px rgba(255,230,109,0.3); }
-
-    .nav-left { display: flex; align-items: center; }
-    .nav-right { display: flex; align-items: center; }
 
     .logo {
       font-family: var(--mono);
@@ -103,8 +101,11 @@
     .post-type-label.code  { font-family: var(--mono);        color: var(--green); }
     .post-type-label.notes { font-family: var(--hand);        color: var(--yellow); }
 
-    /* SHARE */
-    .share-wrap { position: relative; }
+    /* Share — pushed to the right with margin-left: auto */
+    .share-wrap {
+      position: relative;
+      margin-left: auto;
+    }
 
     .share-btn {
       display: flex;
@@ -169,7 +170,7 @@
     .share-option i { width: 14px; text-align: center; font-size: 0.8rem; }
     .share-option.copy-success { color: var(--green); }
 
-    /* WRAPPER */
+    /* WRAPPER — exact original */
     .wrapper {
       width: 100%;
       margin: 70px 0;
@@ -196,7 +197,6 @@
 
     .post-container { max-width: 900px; margin: 0 auto; }
 
-    /* TITLE */
     .title {
       font-family: var(--serif);
       font-size: 2.5rem;
@@ -303,7 +303,6 @@
     .copy-btn.copied { background: #2a5a2a; border-color: #b0f0b0; color: #fff; }
     .copy-btn i { font-size: 0.8rem; }
 
-    /* LOCKED */
     .locked-message {
       text-align: center; padding: 2rem;
       border: 1px dashed var(--red); border-radius: 8px; margin-top: 2rem;
@@ -350,22 +349,19 @@
 </head>
 <body>
 
+<!-- Exact original nav structure, share wrap added at end with margin-left:auto -->
 <nav id="mainNav">
-  <div class="nav-left">
-    <a href="/" class="logo">Colin Archive</a>
-    <span class="post-type-label" id="postTypeLabel"></span>
-  </div>
-  <div class="nav-right">
-    <div class="share-wrap" id="shareWrap">
-      <button class="share-btn" id="shareBtn">
-        <i class="fas fa-share-nodes"></i>
-        <span>Share</span>
-      </button>
-      <div class="share-dropdown" id="shareDropdown">
-        <button class="share-option" id="copyLinkBtn"><i class="fas fa-link"></i> Copy link</button>
-        <a class="share-option" id="shareTwitter" href="#" target="_blank" rel="noopener"><i class="fab fa-twitter"></i> Twitter / X</a>
-        <a class="share-option" id="shareReddit" href="#" target="_blank" rel="noopener"><i class="fab fa-reddit"></i> Reddit</a>
-      </div>
+  <a href="/" class="logo">Colin Archive</a>
+  <span class="post-type-label" id="postTypeLabel"></span>
+  <div class="share-wrap" id="shareWrap">
+    <button class="share-btn" id="shareBtn">
+      <i class="fas fa-share-nodes"></i>
+      <span>Share</span>
+    </button>
+    <div class="share-dropdown" id="shareDropdown">
+      <button class="share-option" id="copyLinkBtn"><i class="fas fa-link"></i> Copy link</button>
+      <a class="share-option" id="shareTwitter" href="#" target="_blank" rel="noopener"><i class="fab fa-twitter"></i> Twitter / X</a>
+      <a class="share-option" id="shareReddit" href="#" target="_blank" rel="noopener"><i class="fab fa-reddit"></i> Reddit</a>
     </div>
   </div>
 </nav>
@@ -393,7 +389,6 @@
     return new URLSearchParams(location.search).get("id");
   }
 
-  // Dynamic meta
   function setMeta(post) {
     const title   = post.title   || 'Colin Archive';
     const excerpt = post.excerpt || 'A quiet archive of essays, code, and notes.';
@@ -408,12 +403,10 @@
     document.getElementById('twDesc').content   = excerpt;
   }
 
-  // Share
   function initShare(post, typeColor) {
     const url   = location.href;
     const title = post.title || 'Colin Archive';
 
-    // Set CSS var so button + options inherit the type color
     document.documentElement.style.setProperty('--type-color', typeColor);
 
     const shareBtn      = document.getElementById('shareBtn');
@@ -427,7 +420,6 @@
 
     shareBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      // Native share on mobile
       if (navigator.share && window.innerWidth < 700) {
         navigator.share({ title, url }).catch(() => {});
         return;
@@ -482,17 +474,14 @@
   function renderPost(post) {
     setMeta(post);
 
-    const type    = post.type || 'essay';
-    const isPaid  = post.access === 'paid';
+    const type     = post.type || 'essay';
+    const isPaid   = post.access === 'paid';
     const metaDate = new Date(post.created_at).toLocaleDateString();
-    // Fix: calculate read time from content if readtime column isn't set
     const readTime = post.readtime || calcReadTime(post.content);
 
-    // Type color — drives share button + dropdown hover
-    const colorMap = { essay: '#4ecdc4', code: '#51cf66', notes: '#ffe66d' };
+    const colorMap  = { essay: '#4ecdc4', code: '#51cf66', notes: '#ffe66d' };
     const typeColor = colorMap[type] || '#4ecdc4';
 
-    // Nav
     nav.className = `nav-type-${type}`;
     typeLabel.className = `post-type-label ${type}`;
     typeLabel.textContent = type === 'code' ? 'code' : (type === 'notes' ? 'note' : 'essay');
