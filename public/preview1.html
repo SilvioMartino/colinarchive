@@ -56,7 +56,7 @@
       line-height: 1.6;
     }
 
-    /* ----- NAVBAR — untouched from your original ----- */
+    /* ----- NAVBAR ----- */
     nav {
       background: var(--paper);
       border-bottom: 1px solid var(--border);
@@ -101,19 +101,18 @@
     .post-type-label.code  { font-family: var(--mono);        color: var(--green); }
     .post-type-label.notes { font-family: var(--hand);        color: var(--yellow); }
 
-    /* Share — margin-left:auto pushes it right, line-height:1 + no padding-top/bottom keeps height neutral */
     .share-wrap { position: relative; margin-left: auto; }
 
     .share-btn {
       display: flex;
       align-items: center;
       gap: 0.35rem;
-      padding: 0;          /* zero padding so it can't push nav height */
+      padding: 0;
       background: transparent;
       border: none;
       color: var(--muted);
       font-family: var(--mono);
-      font-size: 0.7rem;   /* match .post-type-label font size */
+      font-size: 0.7rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       cursor: pointer;
@@ -164,7 +163,7 @@
     .share-option i { width: 14px; text-align: center; font-size: 0.8rem; }
     .share-option.copy-success { color: var(--green); }
 
-    /* ----- MAIN CONTENT — untouched from your original ----- */
+    /* ----- MAIN CONTENT ----- */
     .wrapper {
       width: 100%;
       margin: 70px 0;
@@ -236,12 +235,17 @@
       padding-left: 1rem;
     }
 
+    /* — UPDATED: proper paragraph rendering, tighter spacing — */
     .content {
       font-size: 1.18rem;
-      line-height: 1.85;
-      white-space: pre-wrap;
+      line-height: 1.7;
       color: var(--fg);
-      display: block;
+    }
+    .content p {
+      margin-bottom: 1.1em;
+    }
+    .content p:last-child {
+      margin-bottom: 0;
     }
 
     .type-code .terminal {
@@ -355,8 +359,6 @@
       <a class="share-option" id="shareWhatsapp" href="#" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> WhatsApp</a>
       <a class="share-option" id="shareTwitter" href="#" target="_blank" rel="noopener"><i class="fab fa-twitter"></i> Twitter / X</a>
       <a class="share-option" id="shareReddit" href="#" target="_blank" rel="noopener"><i class="fab fa-reddit"></i> Reddit</a>
-      
-      
     </div>
   </div>
 </nav>
@@ -415,9 +417,6 @@
     document.getElementById('shareWhatsapp').href =
       `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`;
 
-
-
-
     shareBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (navigator.share && window.innerWidth < 700) {
@@ -469,6 +468,16 @@
   function calcReadTime(text) {
     const words = (text || '').trim().split(/\s+/).length;
     return Math.max(1, Math.round(words / 200));
+  }
+
+  // — UPDATED: split content into <p> tags instead of pre-wrap
+  function renderParagraphs(text) {
+    return text
+      .split(/\n\n+/)
+      .map(p => p.trim())
+      .filter(Boolean)
+      .map(p => `<p>${escapeHtml(p)}</p>`)
+      .join('');
   }
 
   function renderPost(post) {
@@ -532,11 +541,12 @@
           <button class="copy-btn" id="copyCodeBtn"><i class="far fa-copy"></i> Copy</button>
         </div>`;
     } else {
+      // — UPDATED: use renderParagraphs instead of escapedContent directly
       contentHtml = `
         <h1 class="title">${escapeHtml(post.title)}</h1>
         <div class="meta">${metaDate} • ${readTime} min read</div>
         ${tags ? `<div class="tags">${tags}</div>` : ""}
-        <div class="content">${escapedContent}</div>`;
+        <div class="content">${renderParagraphs(contentText)}</div>`;
     }
 
     container.innerHTML = `<div class="type-${type}">${contentHtml}</div>`;
