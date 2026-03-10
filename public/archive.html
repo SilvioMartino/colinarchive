@@ -71,7 +71,7 @@ body::before {
   width: 100%;
   max-width: none;
   margin: 0;
-  position: relative;
+  position: relative;t
   z-index: 2;
 }
 
@@ -875,7 +875,7 @@ function renderPosts(posts) {
     const title = escapeHtml(post.title);
     const excerpt = generateExcerpt(post);
     const date = new Date(post.created_at).toLocaleDateString();
-    const linkTarget = (currentUser && editMode) ? `/write.html?id=${post.id}` : `/post.html?id=${post.id}`;
+    const linkTarget = (currentUser && editMode) ? `/write.html?id=${post.id}` : `/preview1.html?id=${post.id}`;
     const coverUrl = post.cover_url ? escapeHtml(post.cover_url) : null;
 
     return `
@@ -979,3 +979,4 @@ loadPosts();
 
 </body>
 </html>
+
