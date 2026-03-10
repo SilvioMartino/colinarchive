@@ -56,7 +56,7 @@
       line-height: 1.6;
     }
 
-    /* NAV — exact original structure, just added share wrap at the end */
+    /* ----- NAVBAR — untouched from your original ----- */
     nav {
       background: var(--paper);
       border-bottom: 1px solid var(--border);
@@ -101,37 +101,31 @@
     .post-type-label.code  { font-family: var(--mono);        color: var(--green); }
     .post-type-label.notes { font-family: var(--hand);        color: var(--yellow); }
 
-    /* Share — pushed to the right with margin-left: auto */
-    .share-wrap {
-      position: relative;
-      margin-left: auto;
-    }
+    /* Share — margin-left:auto pushes it right, line-height:1 + no padding-top/bottom keeps height neutral */
+    .share-wrap { position: relative; margin-left: auto; }
 
     .share-btn {
       display: flex;
       align-items: center;
-      gap: 0.4rem;
-      padding: 0.45rem 1rem;
+      gap: 0.35rem;
+      padding: 0;          /* zero padding so it can't push nav height */
       background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 4px;
+      border: none;
       color: var(--muted);
       font-family: var(--mono);
-      font-size: 0.65rem;
+      font-size: 0.7rem;   /* match .post-type-label font size */
       letter-spacing: 0.1em;
       text-transform: uppercase;
       cursor: pointer;
-      transition: border-color 0.2s, color 0.2s;
+      line-height: 1;
+      transition: color 0.2s;
     }
-    .share-btn:hover {
-      border-color: var(--type-color);
-      color: var(--type-color);
-    }
-    .share-btn i { font-size: 0.75rem; }
+    .share-btn:hover { color: var(--type-color); }
+    .share-btn i { font-size: 0.7rem; }
 
     .share-dropdown {
       position: absolute;
-      top: calc(100% + 8px);
+      top: calc(100% + 10px);
       right: 0;
       background: #1c1c1c;
       border: 1px solid var(--border);
@@ -170,7 +164,7 @@
     .share-option i { width: 14px; text-align: center; font-size: 0.8rem; }
     .share-option.copy-success { color: var(--green); }
 
-    /* WRAPPER — exact original */
+    /* ----- MAIN CONTENT — untouched from your original ----- */
     .wrapper {
       width: 100%;
       margin: 70px 0;
@@ -250,7 +244,6 @@
       display: block;
     }
 
-    /* TERMINAL */
     .type-code .terminal {
       position: relative;
       background: #0c0c0c;
@@ -349,7 +342,6 @@
 </head>
 <body>
 
-<!-- Exact original nav structure, share wrap added at end with margin-left:auto -->
 <nav id="mainNav">
   <a href="/" class="logo">Colin Archive</a>
   <span class="post-type-label" id="postTypeLabel"></span>
