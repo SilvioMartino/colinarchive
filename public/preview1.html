@@ -31,8 +31,6 @@
       --fg: #e8e8e8;
       --muted: #c0c0c0;
       --border: #2a2a2a;
-      --accent: #e8e8e8;
-      --highlight: #1f1f1f;
       --red: #ff6b6b;
       --dark-red: #b3002d;
       --blue: #4ecdc4;
@@ -43,6 +41,7 @@
       --mono: 'IBM Plex Mono', 'Courier New', monospace;
       --hand: 'Caveat', cursive;
       --essay-serif: 'Libre Baskerville', 'Georgia', serif;
+      --page-width: 680px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -55,7 +54,7 @@
       line-height: 1.6;
     }
 
-    /* ----- NAVBAR — untouched ----- */
+    /* ----- NAVBAR ----- */
     nav {
       background: var(--paper);
       border-bottom: 1px solid var(--border);
@@ -162,7 +161,7 @@
     .share-option i { width: 14px; text-align: center; font-size: 0.8rem; }
     .share-option.copy-success { color: var(--green); }
 
-    /* ----- WORD-DOC STYLE LAYOUT ----- */
+    /* ----- LAYOUT ----- */
     .wrapper {
       width: 100%;
       padding: 50px 1rem 80px;
@@ -170,15 +169,65 @@
       justify-content: center;
     }
 
-    /* The "page" — centered column with margins like a Word doc */
+    /* The resizable page column */
     .page {
       background: var(--paper);
-      width: 100%;
-      max-width: 680px;
+      width: var(--page-width);
+      min-width: 320px;
+      max-width: calc(100vw - 2rem);
       padding: 4rem 4.5rem;
       box-shadow: 0 2px 30px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.03);
       border-radius: 2px;
+      position: relative;
+      /* no transition here so drag feels instant */
     }
+
+    /* Drag handle — right edge of the page */
+    .drag-handle {
+      position: absolute;
+      top: 0;
+      right: -6px;
+      width: 12px;
+      height: 100%;
+      cursor: ew-resize;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .drag-handle::after {
+      content: '';
+      display: block;
+      width: 3px;
+      height: 40px;
+      border-radius: 3px;
+      background: var(--border);
+      transition: background 0.2s, height 0.2s;
+    }
+    .drag-handle:hover::after,
+    .drag-handle.dragging::after {
+      background: var(--type-color);
+      height: 60px;
+    }
+
+    /* Width indicator tooltip shown while dragging */
+    .width-indicator {
+      position: fixed;
+      background: #1c1c1c;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      padding: 0.3rem 0.6rem;
+      border-radius: 4px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 9999;
+      white-space: nowrap;
+    }
+    .width-indicator.visible { opacity: 1; }
 
     .back-link { margin-bottom: 2.5rem; }
     .back-link a {
@@ -243,7 +292,6 @@
       padding-left: 1rem;
     }
 
-    /* — content rendering untouched — */
     .content {
       font-size: 1.18rem;
       line-height: 1.85;
@@ -330,11 +378,15 @@
 
     .loading { text-align: center; font-family: var(--mono); color: var(--muted); padding: 3rem; font-size: 1rem; }
 
+    /* Prevent text selection while dragging */
+    body.is-resizing { user-select: none; cursor: ew-resize; }
+
     @media (max-width: 700px) {
       nav { padding: 1rem 1.5rem; }
       .post-type-label { margin-left: 1rem; font-size: 0.6rem; }
       .wrapper { padding: 0; }
-      .page { padding: 2rem 1.5rem; box-shadow: none; border-radius: 0; min-height: 100vh; }
+      .page { padding: 2rem 1.5rem; box-shadow: none; border-radius: 0; min-height: 100vh; width: 100% !important; }
+      .drag-handle { display: none; }
       .title { font-size: 2rem; }
       .type-notes .title { font-size: 1.8rem; }
       .back-link a { display: block; text-align: center; }
@@ -368,8 +420,12 @@
   </div>
 </nav>
 
+<!-- Width indicator shown while dragging -->
+<div class="width-indicator" id="widthIndicator"></div>
+
 <div class="wrapper">
-  <div class="page">
+  <div class="page" id="page">
+    <div class="drag-handle" id="dragHandle" title="Drag to resize"></div>
     <div class="back-link">
       <a href="/">← Back to Home</a>
     </div>
@@ -389,6 +445,86 @@
   const typeLabel = document.getElementById('postTypeLabel');
   const container = document.getElementById('postContainer');
 
+  /* ---- RESIZABLE PAGE ---- */
+  (function() {
+    const page        = document.getElementById('page');
+    const handle      = document.getElementById('dragHandle');
+    const indicator   = document.getElementById('widthIndicator');
+    const STORAGE_KEY = 'colin-archive-page-width';
+    const MIN_W       = 320;
+    const MAX_W       = () => window.innerWidth - 32; // 1rem each side
+
+    // Restore saved width
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const w = Math.min(parseInt(saved), MAX_W());
+      page.style.width = w + 'px';
+      document.documentElement.style.setProperty('--page-width', w + 'px');
+    }
+
+    let startX, startW;
+
+    function onMouseMove(e) {
+      const dx  = e.clientX - startX;
+      // Page is centered — dragging right edge out increases width by 2× delta
+      // because the page expands symmetrically. Actually since it's centered via
+      // flexbox, right-drag increases by dx from the right edge only, so 1× is correct.
+      const newW = Math.min(Math.max(startW + dx, MIN_W), MAX_W());
+      page.style.width = newW + 'px';
+      document.documentElement.style.setProperty('--page-width', newW + 'px');
+
+      // Position indicator near cursor
+      indicator.textContent = newW + 'px';
+      indicator.style.left  = (e.clientX + 14) + 'px';
+      indicator.style.top   = (e.clientY - 10) + 'px';
+    }
+
+    function onMouseUp(e) {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      document.body.classList.remove('is-resizing');
+      handle.classList.remove('dragging');
+      indicator.classList.remove('visible');
+      // Save preference
+      localStorage.setItem(STORAGE_KEY, parseInt(page.style.width));
+    }
+
+    handle.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      startX = e.clientX;
+      startW = page.offsetWidth;
+      document.body.classList.add('is-resizing');
+      handle.classList.add('dragging');
+      indicator.textContent = startW + 'px';
+      indicator.style.left  = (e.clientX + 14) + 'px';
+      indicator.style.top   = (e.clientY - 10) + 'px';
+      indicator.classList.add('visible');
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    });
+
+    // Touch support
+    handle.addEventListener('touchstart', function(e) {
+      const t = e.touches[0];
+      startX = t.clientX;
+      startW = page.offsetWidth;
+      handle.classList.add('dragging');
+    }, { passive: true });
+
+    handle.addEventListener('touchmove', function(e) {
+      const t = e.touches[0];
+      const dx  = t.clientX - startX;
+      const newW = Math.min(Math.max(startW + dx, MIN_W), MAX_W());
+      page.style.width = newW + 'px';
+    }, { passive: true });
+
+    handle.addEventListener('touchend', function() {
+      handle.classList.remove('dragging');
+      localStorage.setItem(STORAGE_KEY, parseInt(page.style.width));
+    });
+  })();
+
+  /* ---- SUPABASE + RENDER ---- */
   function getPostId() {
     return new URLSearchParams(location.search).get("id");
   }
