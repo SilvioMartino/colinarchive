@@ -5,7 +5,6 @@
   <title>Post — Colin Archive</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Dynamic meta — filled by JS after fetch -->
   <meta name="description" id="metaDesc" content="A quiet archive of essays, code, and notes – unfiltered and unpolished." />
   <meta property="og:title" id="ogTitle" content="Colin Archive" />
   <meta property="og:description" id="ogDesc" content="A quiet archive of essays, code, and notes – unfiltered and unpolished." />
@@ -49,14 +48,14 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: var(--paper);
+      background: #111111;
       color: var(--fg);
       font-family: var(--serif);
       min-height: 100vh;
       line-height: 1.6;
     }
 
-    /* ----- NAVBAR ----- */
+    /* ----- NAVBAR — untouched ----- */
     nav {
       background: var(--paper);
       border-bottom: 1px solid var(--border);
@@ -163,16 +162,25 @@
     .share-option i { width: 14px; text-align: center; font-size: 0.8rem; }
     .share-option.copy-success { color: var(--green); }
 
-    /* ----- MAIN CONTENT ----- */
+    /* ----- WORD-DOC STYLE LAYOUT ----- */
     .wrapper {
       width: 100%;
-      margin: 70px 0;
-      padding: 0 3rem;
-      position: relative;
-      z-index: 2;
+      padding: 50px 1rem 80px;
+      display: flex;
+      justify-content: center;
     }
 
-    .back-link { margin-bottom: 2rem; }
+    /* The "page" — centered column with margins like a Word doc */
+    .page {
+      background: var(--paper);
+      width: 100%;
+      max-width: 680px;
+      padding: 4rem 4.5rem;
+      box-shadow: 0 2px 30px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.03);
+      border-radius: 2px;
+    }
+
+    .back-link { margin-bottom: 2.5rem; }
     .back-link a {
       display: inline-block;
       padding: 0.6rem 1.5rem;
@@ -188,7 +196,7 @@
     }
     .back-link a:hover { border-color: var(--blue); color: var(--blue); transform: translateX(-2px); }
 
-    .post-container { max-width: 900px; margin: 0 auto; }
+    .post-container { width: 100%; }
 
     .title {
       font-family: var(--serif);
@@ -235,17 +243,13 @@
       padding-left: 1rem;
     }
 
-    /* — UPDATED: proper paragraph rendering, tighter spacing — */
+    /* — content rendering untouched — */
     .content {
       font-size: 1.18rem;
-      line-height: 1.7;
+      line-height: 1.85;
+      white-space: pre-wrap;
       color: var(--fg);
-    }
-    .content p {
-      margin-bottom: 1.1em;
-    }
-    .content p:last-child {
-      margin-bottom: 0;
+      display: block;
     }
 
     .type-code .terminal {
@@ -329,7 +333,8 @@
     @media (max-width: 700px) {
       nav { padding: 1rem 1.5rem; }
       .post-type-label { margin-left: 1rem; font-size: 0.6rem; }
-      .wrapper { padding: 0 1rem; margin: 40px 0; }
+      .wrapper { padding: 0; }
+      .page { padding: 2rem 1.5rem; box-shadow: none; border-radius: 0; min-height: 100vh; }
       .title { font-size: 2rem; }
       .type-notes .title { font-size: 1.8rem; }
       .back-link a { display: block; text-align: center; }
@@ -364,11 +369,13 @@
 </nav>
 
 <div class="wrapper">
-  <div class="back-link">
-    <a href="/">← Back to Home</a>
-  </div>
-  <div class="post-container" id="postContainer">
-    <div class="loading">Loading post...</div>
+  <div class="page">
+    <div class="back-link">
+      <a href="/">← Back to Home</a>
+    </div>
+    <div class="post-container" id="postContainer">
+      <div class="loading">Loading post...</div>
+    </div>
   </div>
 </div>
 
@@ -470,16 +477,6 @@
     return Math.max(1, Math.round(words / 200));
   }
 
-  // — UPDATED: split content into <p> tags instead of pre-wrap
-  function renderParagraphs(text) {
-    return text
-      .split(/\n\n+/)
-      .map(p => p.trim())
-      .filter(Boolean)
-      .map(p => `<p>${escapeHtml(p)}</p>`)
-      .join('');
-  }
-
   function renderPost(post) {
     setMeta(post);
 
@@ -541,12 +538,11 @@
           <button class="copy-btn" id="copyCodeBtn"><i class="far fa-copy"></i> Copy</button>
         </div>`;
     } else {
-      // — UPDATED: use renderParagraphs instead of escapedContent directly
       contentHtml = `
         <h1 class="title">${escapeHtml(post.title)}</h1>
         <div class="meta">${metaDate} • ${readTime} min read</div>
         ${tags ? `<div class="tags">${tags}</div>` : ""}
-        <div class="content">${renderParagraphs(contentText)}</div>`;
+        <div class="content">${escapedContent}</div>`;
     }
 
     container.innerHTML = `<div class="type-${type}">${contentHtml}</div>`;
