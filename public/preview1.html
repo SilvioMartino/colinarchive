@@ -382,11 +382,13 @@
     body.is-resizing { user-select: none; cursor: ew-resize; }
 
     @media (max-width: 700px) {
-      nav { padding: 1rem 1.5rem; }
+      nav { padding: 1rem 1rem; }
       .post-type-label { margin-left: 1rem; font-size: 0.6rem; }
-      .wrapper { padding: 0; }
-      .page { padding: 2rem 0; box-shadow: none; border-radius: 0; min-height: 100vh; width: 100% !important; }
+      .wrapper { padding: 0; margin: 0; }
+      .page { padding: 1.5rem 0; box-shadow: none; border-radius: 0; min-height: 100vh; width: 100% !important; max-width: 100% !important; }
       .drag-handle { display: none; }
+      .back-link { padding: 0 1rem; }
+      .post-container { padding: 0 1rem; }
       .title { font-size: 2rem; }
       .type-notes .title { font-size: 1.8rem; }
       .back-link a { display: block; text-align: center; }
@@ -395,7 +397,6 @@
       .terminal-header { padding: 0.3rem 0.8rem; }
       .terminal-dot { width: 8px; height: 8px; }
       .share-dropdown { right: 0; }
-      .post-container { padding: 0 1rem; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
