@@ -221,31 +221,52 @@
     .loading { text-align: center; font-family: var(--mono); color: var(--muted); padding: 3rem; font-size: 1rem; }
     body.is-resizing { user-select: none; cursor: ew-resize; }
 
-    /* ── COMMENTS ── */
+    /* ── COMMENTS — margin note aesthetic ── */
     .comments-wrap {
-      margin-top: 4rem;
-      padding-top: 2.5rem;
-      border-top: 1px solid var(--border);
+      margin-top: 5rem;
+      position: relative;
     }
 
-    /* Form section */
-    .comment-form-section {
+    /* Faint horizontal rule with a label floating over it */
+    .comments-divider {
+      position: relative;
+      text-align: center;
       margin-bottom: 3rem;
     }
-    .comment-form-title {
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
+    .comments-divider::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0; right: 0;
+      height: 1px;
+      background: var(--border);
+    }
+    .comments-divider-label {
+      position: relative;
+      display: inline-block;
+      background: var(--paper);
+      padding: 0 1rem;
+      font-family: var(--hand);
+      font-size: 1.1rem;
       color: var(--muted);
-      opacity: 0.6;
+      opacity: 0.55;
+      letter-spacing: 0.02em;
+    }
+
+    /* Form */
+    .comment-form-section { margin-bottom: 3.5rem; }
+
+    .comment-form-title {
+      font-family: var(--hand);
+      font-size: 1.3rem;
+      color: var(--fg);
+      opacity: 0.5;
       margin-bottom: 1.25rem;
+      letter-spacing: 0.01em;
     }
-    .comment-form {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
+
+    .comment-form { display: flex; flex-direction: column; gap: 0; }
+
     .comment-form input,
     .comment-form textarea {
       background: transparent;
@@ -254,87 +275,103 @@
       color: var(--fg);
       font-family: var(--serif);
       font-size: 1rem;
-      padding: 0.5rem 0;
+      padding: 0.65rem 0;
       transition: border-color 0.2s;
       resize: none;
       outline: none;
       width: 100%;
     }
     .comment-form input::placeholder,
-    .comment-form textarea::placeholder { color: var(--muted); opacity: 0.4; font-style: italic; }
+    .comment-form textarea::placeholder {
+      color: var(--muted);
+      opacity: 0.35;
+      font-style: italic;
+      font-family: var(--serif);
+    }
     .comment-form input:focus,
     .comment-form textarea:focus { border-bottom-color: var(--type-color); }
-    .comment-form textarea { min-height: 90px; line-height: 1.65; margin-top: 0.25rem; }
+    .comment-form textarea { min-height: 100px; line-height: 1.7; margin-top: 0.5rem; }
+
     .comment-form-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-top: 0.25rem;
+      margin-top: 1rem;
       gap: 1rem;
     }
     .comment-feedback {
       font-family: var(--mono);
-      font-size: 0.65rem;
+      font-size: 0.62rem;
       color: var(--green);
       letter-spacing: 0.04em;
       min-height: 1rem;
       flex: 1;
     }
     .comment-feedback.error { color: var(--red); }
+
     .comment-submit {
       padding: 0;
       background: transparent;
       border: none;
       color: var(--muted);
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
+      font-family: var(--hand);
+      font-size: 1.1rem;
       cursor: pointer;
       transition: color 0.2s;
       line-height: 1;
       flex-shrink: 0;
+      letter-spacing: 0.01em;
     }
     .comment-submit:hover { color: var(--type-color); }
-    .comment-submit:disabled { opacity: 0.3; cursor: not-allowed; }
+    .comment-submit:disabled { opacity: 0.25; cursor: not-allowed; }
 
-    /* Comments list section */
+    /* List */
     .comments-list-section {}
 
     .comments-header {
       display: flex;
       align-items: baseline;
       gap: 0.75rem;
-      margin-bottom: 1.5rem;
-      padding-top: 2.5rem;
-      border-top: 1px solid var(--border);
+      margin-bottom: 1.75rem;
     }
     .comments-header h3 {
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
+      font-family: var(--hand);
+      font-size: 1.15rem;
       color: var(--muted);
       font-weight: 400;
-      opacity: 0.6;
+      opacity: 0.5;
+      letter-spacing: 0.01em;
     }
     .comments-count {
       font-family: var(--mono);
-      font-size: 0.65rem;
+      font-size: 0.62rem;
       color: var(--type-color);
-      opacity: 0.8;
+      opacity: 0.7;
     }
 
-    /* Individual comments — card style */
-    .comment-list { display: flex; flex-direction: column; gap: 1rem; }
+    /* Each comment looks like a margin annotation */
+    .comment-list { display: flex; flex-direction: column; gap: 0; }
 
     .comment-item {
-      background: rgba(255,255,255,0.025);
-      border: 1px solid var(--border);
-      border-left: 3px solid var(--type-color);
-      border-radius: 4px;
-      padding: 1.1rem 1.25rem;
+      position: relative;
+      padding: 1.5rem 0 1.5rem 1.5rem;
+      border-bottom: 1px solid var(--border);
     }
+    .comment-item:first-child { border-top: 1px solid var(--border); }
+
+    /* The thin colored thread on the left */
+    .comment-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 1.5rem;
+      bottom: 1.5rem;
+      width: 1px;
+      background: var(--type-color);
+      opacity: 0.35;
+      transition: opacity 0.2s;
+    }
+    .comment-item:hover::before { opacity: 0.7; }
 
     .comment-item-header {
       display: flex;
@@ -343,33 +380,33 @@
       margin-bottom: 0.5rem;
     }
     .comment-item-name {
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      letter-spacing: 0.06em;
-      color: var(--type-color);
+      font-family: var(--hand);
+      font-size: 1.05rem;
+      color: var(--fg);
+      letter-spacing: 0.01em;
     }
     .comment-item-date {
       font-family: var(--mono);
-      font-size: 0.6rem;
+      font-size: 0.58rem;
       color: var(--muted);
-      opacity: 0.45;
+      opacity: 0.4;
     }
     .comment-item-body {
       font-family: var(--serif);
-      font-size: 1rem;
-      line-height: 1.7;
-      color: var(--fg);
+      font-size: 0.98rem;
+      line-height: 1.75;
+      color: var(--muted);
       white-space: pre-wrap;
       word-break: break-word;
     }
 
     .comments-empty {
-      font-family: var(--mono);
-      font-size: 0.72rem;
+      font-family: var(--hand);
+      font-size: 1.1rem;
       color: var(--muted);
-      opacity: 0.35;
-      padding: 0.5rem 0;
-      letter-spacing: 0.04em;
+      opacity: 0.3;
+      padding: 0.5rem 0 0.5rem 1.5rem;
+      letter-spacing: 0.01em;
     }
 
     @media (max-width: 700px) {
@@ -431,15 +468,20 @@
     <!-- Comments live inside the page column -->
     <div class="comments-wrap" id="commentsWrap" style="display:none;">
 
+      <!-- Divider -->
+      <div class="comments-divider">
+        <span class="comments-divider-label">reader notes</span>
+      </div>
+
       <!-- Form first -->
       <div class="comment-form-section">
-        <div class="comment-form-title">Leave a comment</div>
+        <div class="comment-form-title">add your note</div>
         <form class="comment-form" id="commentForm">
           <input type="text" id="commentName" placeholder="Your name" maxlength="60" required autocomplete="off">
           <textarea id="commentBody" placeholder="Write something…" maxlength="2000" required></textarea>
           <div class="comment-form-row">
             <span class="comment-feedback" id="commentFeedback"></span>
-            <button type="submit" class="comment-submit" id="commentSubmit">Post →</button>
+            <button type="submit" class="comment-submit" id="commentSubmit">leave it ↓</button>
           </div>
         </form>
       </div>
