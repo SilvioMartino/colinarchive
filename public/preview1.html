@@ -557,7 +557,7 @@
     const container = document.getElementById('postContainer');
 
     // ------------------------------------------------------------
-    // RESIZABLE PAGE (enhanced for touch)
+    // RESIZABLE PAGE (silky smooth, fixed)
     // ------------------------------------------------------------
     (function() {
       const page      = document.getElementById('page');
@@ -602,7 +602,7 @@
           const newW = startW + (clientX - startX);
           setWidth(newW, false);
           indicator.style.left = (clientX + 14) + 'px';
-          indicator.style.top  = (clientY - 10) + 'px';
+          // keep top position, no need to update y
         });
       }
 
@@ -647,8 +647,6 @@
         window.addEventListener('touchend', onUp, { passive: false });
         window.addEventListener('touchcancel', onUp, { passive: false });
       }, { passive: false });
-
-      // Keyboard accessibility not needed for drag handle
     })();
 
     // ------------------------------------------------------------
@@ -672,7 +670,6 @@
       shareBtn.setAttribute('aria-expanded', !isOpen);
     });
 
-    // Close on outside click
     document.addEventListener('click', (e) => {
       if (!shareWrap.contains(e.target) && shareDropdown.classList.contains('open')) {
         shareDropdown.classList.remove('open');
@@ -680,7 +677,6 @@
       }
     });
 
-    // Keyboard navigation inside dropdown
     shareDropdown.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         shareDropdown.classList.remove('open');
@@ -689,7 +685,6 @@
       }
     });
 
-    // Copy link button
     const copyLinkBtn = document.getElementById('copyLinkBtn');
     copyLinkBtn.addEventListener('click', async () => {
       try {
@@ -769,7 +764,6 @@
       typeLabel.className = `post-type-label ${type}`;
       typeLabel.textContent = type==='code' ? 'code' : type==='notes' ? 'note' : 'essay';
 
-      // Update share button color and ARIA
       document.documentElement.style.setProperty('--type-color', typeColor);
 
       const tags = (post.tags||"").split(",").filter(Boolean)
@@ -872,7 +866,6 @@
       replyIndicator.style.display = 'none';
     }
 
-    // Build comment tree
     function buildCommentTree(comments, parentId = null) {
       return comments
         .filter(c => c.parent_id === parentId)
@@ -934,7 +927,6 @@
 
       list.innerHTML = renderCommentTree(tree);
 
-      // Attach reply button listeners
       list.querySelectorAll('.comment-reply-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const parentId = btn.dataset.parentId;
