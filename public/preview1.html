@@ -670,7 +670,7 @@
     const countEl = document.getElementById('commentCount');
     const { data, error } = await db
       .from('comments')
-      .select('id, name, body, created_at')
+      .select('id, name, content, created_at')
       .eq('post_id', postId)
       .order('created_at', { ascending: true });
 
@@ -687,7 +687,7 @@
           <span class="comment-name">${escapeHtml(c.name)}</span>
           <span class="comment-date">${relTimeComment(c.created_at)}</span>
         </div>
-        <div class="comment-body">${escapeHtml(c.body)}</div>
+        <div class="comment-body">${escapeHtml(c.content)}</div>
       </div>
     `).join('');
   }
@@ -711,7 +711,7 @@
       feedback.textContent = '';
       feedback.className = 'comment-feedback';
 
-      const { error } = await db.from('comments').insert({ post_id: postId, name, body });
+      const { error } = await db.from('comments').insert({ post_id: postId, name, content: body });
 
       if (error) {
         feedback.textContent = 'Failed to post. Try again.';
