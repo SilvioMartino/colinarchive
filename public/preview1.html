@@ -391,7 +391,7 @@ header {
   <div class="main-wrap">
     <div class="page-header">
       <h1>Comments</h1>
-      <p class="page-subtitle">Moderate reader comments</p>
+      <p class="page-subtitle" id="pageSubtitle">Moderate reader comments</p>
     </div>
 
     <div id="appContent">
@@ -406,6 +406,8 @@ const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
 
 const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const postId = new URLSearchParams(location.search).get('id') || null;
 
 let currentUser   = null;
 let allComments   = [];
@@ -485,19 +487,25 @@ async function loadData() {
   // Load posts for title lookup
   const { data: posts } = await db.from('posts').select('id, title');
   if (posts) posts.forEach(p => { allPosts[p.id] = p.title; });
+  if (postId && allPosts[postId]) {
+    const s = document.getElementById('pageSubtitle');
+    if (s) s.textContent = allPosts[postId];
+  }
 
   // Load all comments (admin sees all including unapproved)
   const { data: comments, error } = await db
     .from('comments')
     .select('id, post_id, name, content, created_at, approved')
     .order('created_at', { ascending: false });
+  // postId filter applied client-side after fetch
 
   if (error) {
     appContent.innerHTML = `<div class="loading-state">Error loading comments: ${escapeHtml(error.message)}</div>`;
     return;
   }
 
-  allComments = comments || [];
+  allComments = (comments || []);
+  if (postId) allComments = allComments.filter(c => c.post_id === postId);
   renderUI();
 }
 
