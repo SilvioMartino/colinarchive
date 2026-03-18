@@ -97,6 +97,7 @@
       text-transform: uppercase; cursor: pointer; line-height: 1; transition: color 0.2s;
     }
     .share-btn:hover { color: var(--type-color); }
+    .share-btn:focus-visible { outline: 2px solid var(--type-color); outline-offset: 2px; }
     .share-btn i { font-size: 0.7rem; }
 
     .share-dropdown {
@@ -116,6 +117,7 @@
       text-align: left; transition: background 0.15s, color 0.15s; text-decoration: none;
     }
     .share-option:hover { background: rgba(255,255,255,0.05); color: var(--type-color); }
+    .share-option:focus-visible { outline: 2px solid var(--type-color); outline-offset: 2px; }
     .share-option i { width: 14px; text-align: center; font-size: 0.8rem; }
     .share-option.copy-success { color: var(--green); }
 
@@ -134,8 +136,9 @@
     }
 
     .drag-handle {
-      position: absolute; top: 0; right: -6px; width: 12px; height: 100%;
+      position: absolute; top: 0; right: -6px; width: 20px; height: 100%;
       cursor: ew-resize; z-index: 10; display: flex; align-items: center; justify-content: center;
+      touch-action: none; /* prevent scrolling while dragging */
     }
     .drag-handle::after {
       content: ''; display: block; width: 3px; height: 40px; border-radius: 3px;
@@ -431,6 +434,7 @@
       gap: 0.2rem;
     }
     .comment-reply-btn:hover { color: var(--type-color); }
+    .comment-reply-btn:focus-visible { outline: 2px solid var(--type-color); outline-offset: 2px; }
 
     .comments-empty {
       font-family: var(--hand);
@@ -471,15 +475,15 @@
   <a href="/" class="logo">Colin Archive</a>
   <span class="post-type-label" id="postTypeLabel"></span>
   <div class="share-wrap" id="shareWrap">
-    <button class="share-btn" id="shareBtn">
+    <button class="share-btn" id="shareBtn" aria-label="Share this post" aria-haspopup="true" aria-expanded="false">
       <i class="fas fa-share-nodes"></i>
       <span>Share</span>
     </button>
-    <div class="share-dropdown" id="shareDropdown">
-      <button class="share-option" id="copyLinkBtn"><i class="fas fa-link"></i> Copy link</button>
-      <a class="share-option" id="shareWhatsapp" href="#" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-      <a class="share-option" id="shareTwitter" href="#" target="_blank" rel="noopener"><i class="fab fa-twitter"></i> Twitter / X</a>
-      <a class="share-option" id="shareReddit" href="#" target="_blank" rel="noopener"><i class="fab fa-reddit"></i> Reddit</a>
+    <div class="share-dropdown" id="shareDropdown" role="menu" aria-labelledby="shareBtn">
+      <button class="share-option" id="copyLinkBtn" role="menuitem"><i class="fas fa-link"></i> Copy link</button>
+      <a class="share-option" id="shareWhatsapp" href="#" target="_blank" rel="noopener" role="menuitem"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+      <a class="share-option" id="shareTwitter" href="#" target="_blank" rel="noopener" role="menuitem"><i class="fab fa-twitter"></i> Twitter / X</a>
+      <a class="share-option" id="shareReddit" href="#" target="_blank" rel="noopener" role="menuitem"><i class="fab fa-reddit"></i> Reddit</a>
     </div>
   </div>
 </nav>
@@ -488,7 +492,7 @@
 
 <div class="wrapper">
   <div class="page" id="page">
-    <div class="drag-handle" id="dragHandle" title="Drag to resize"></div>
+    <div class="drag-handle" id="dragHandle" title="Drag to resize" aria-label="Drag to resize page width" role="slider" aria-valuemin="320" aria-valuemax="2000" aria-valuenow="680"></div>
 
     <div class="back-link">
       <a href="/">← Back to Home</a>
@@ -511,7 +515,7 @@
         <div class="comment-form-title">add your note</div>
         <div class="reply-indicator" id="replyIndicator">
           <span>Replying to <span id="replyToName"></span></span>
-          <span class="cancel-reply" id="cancelReply">✕</span>
+          <span class="cancel-reply" id="cancelReply" tabindex="0" role="button" aria-label="Cancel reply">✕</span>
         </div>
         <form class="comment-form" id="commentForm">
           <input type="hidden" id="commentParentId" value="">
@@ -539,393 +543,485 @@
 </div>
 
 <script>
-  // ⚠️ Anon key is public — ensure Supabase RLS policies are locked down.
-  const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
-
-  const db        = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  const nav       = document.getElementById('mainNav');
-  const typeLabel = document.getElementById('postTypeLabel');
-  const container = document.getElementById('postContainer');
-
-  /* ---- RESIZABLE PAGE ---- */
   (function() {
-    const page      = document.getElementById('page');
-    const handle    = document.getElementById('dragHandle');
-    const indicator = document.getElementById('widthIndicator');
-    const STORAGE_KEY = 'colin-archive-page-width';
-    const MIN_W = 320;
-    const MAX_W = () => window.innerWidth - 32;
+    // ------------------------------------------------------------
+    // CONFIG & INIT
+    // ------------------------------------------------------------
+    const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const w = Math.min(parseInt(saved), MAX_W());
-      page.style.width = w + 'px';
-      document.documentElement.style.setProperty('--page-width', w + 'px');
-    }
+    // DOM elements
+    const nav       = document.getElementById('mainNav');
+    const typeLabel = document.getElementById('postTypeLabel');
+    const container = document.getElementById('postContainer');
 
-    let startX, startW;
+    // ------------------------------------------------------------
+    // RESIZABLE PAGE (enhanced for touch)
+    // ------------------------------------------------------------
+    (function() {
+      const page      = document.getElementById('page');
+      const handle    = document.getElementById('dragHandle');
+      const indicator = document.getElementById('widthIndicator');
+      const STORAGE_KEY = 'colin-archive-page-width';
+      const MIN_W = 320;
+      const MAX_W = () => window.innerWidth - 32;
 
-    function onMouseMove(e) {
-      const newW = Math.min(Math.max(startW + (e.clientX - startX), MIN_W), MAX_W());
-      page.style.width = newW + 'px';
-      indicator.textContent = newW + 'px';
-      indicator.style.left = (e.clientX + 14) + 'px';
-      indicator.style.top  = (e.clientY - 10) + 'px';
-    }
+      // Restore saved width
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const w = Math.min(parseInt(saved), MAX_W());
+        page.style.width = w + 'px';
+        document.documentElement.style.setProperty('--page-width', w + 'px');
+        handle.setAttribute('aria-valuenow', w);
+      }
 
-    function onMouseUp() {
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-      document.body.classList.remove('is-resizing');
-      handle.classList.remove('dragging');
-      indicator.classList.remove('visible');
-      localStorage.setItem(STORAGE_KEY, parseInt(page.style.width));
-    }
+      let startX, startW, rafId;
 
-    handle.addEventListener('mousedown', function(e) {
-      e.preventDefault();
-      startX = e.clientX;
-      startW = page.offsetWidth;
-      document.body.classList.add('is-resizing');
-      handle.classList.add('dragging');
-      indicator.textContent = startW + 'px';
-      indicator.style.left = (e.clientX + 14) + 'px';
-      indicator.style.top  = (e.clientY - 10) + 'px';
-      indicator.classList.add('visible');
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
-    });
+      function setWidth(newW, updateAria = true) {
+        newW = Math.min(Math.max(newW, MIN_W), MAX_W());
+        page.style.width = newW + 'px';
+        indicator.textContent = newW + 'px';
+        if (updateAria) handle.setAttribute('aria-valuenow', newW);
+      }
 
-    handle.addEventListener('touchstart', function(e) {
-      const t = e.touches[0]; startX = t.clientX; startW = page.offsetWidth;
-      handle.classList.add('dragging');
-    }, { passive: true });
-    handle.addEventListener('touchmove', function(e) {
-      const t = e.touches[0];
-      const newW = Math.min(Math.max(startW + (t.clientX - startX), MIN_W), MAX_W());
-      page.style.width = newW + 'px';
-    }, { passive: true });
-    handle.addEventListener('touchend', function() {
-      handle.classList.remove('dragging');
-      localStorage.setItem(STORAGE_KEY, parseInt(page.style.width));
-    });
-  })();
+      function onDragStart(clientX) {
+        startX = clientX;
+        startW = page.offsetWidth;
+        document.body.classList.add('is-resizing');
+        handle.classList.add('dragging');
+        indicator.textContent = startW + 'px';
+        indicator.style.left = (clientX + 14) + 'px';
+        indicator.style.top  = (clientY - 10) + 'px';
+        indicator.classList.add('visible');
+      }
 
-  /* ---- HELPERS ---- */
-  function getPostId() { return new URLSearchParams(location.search).get("id"); }
+      function onDragMove(clientX) {
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(() => {
+          const newW = startW + (clientX - startX);
+          setWidth(newW, false);
+          indicator.style.left = (clientX + 14) + 'px';
+          indicator.style.top  = (clientY - 10) + 'px';
+        });
+      }
 
-  function escapeHtml(s) {
-    if (!s) return "";
-    return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
-  }
+      function onDragEnd() {
+        if (rafId) cancelAnimationFrame(rafId);
+        document.body.classList.remove('is-resizing');
+        handle.classList.remove('dragging');
+        indicator.classList.remove('visible');
+        localStorage.setItem(STORAGE_KEY, parseInt(page.style.width));
+      }
 
-  function relTime(iso) {
-    const d = new Date(iso), diff = Date.now() - d;
-    const s=diff/1e3, m=s/60, h=m/60, day=h/24;
-    if (s<60)  return 'just now';
-    if (m<60)  return Math.floor(m)+'m ago';
-    if (h<24)  return Math.floor(h)+'h ago';
-    if (day<2) return 'yesterday';
-    if (day<7) return Math.floor(day)+'d ago';
-    return new Date(iso).toLocaleDateString();
-  }
+      // Mouse events
+      handle.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        onDragStart(e.clientX);
+        const onMove = (e) => onDragMove(e.clientX);
+        const onUp = () => {
+          window.removeEventListener('mousemove', onMove);
+          window.removeEventListener('mouseup', onUp);
+          onDragEnd();
+        };
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+      });
 
-  /* ---- META ---- */
-  function setMeta(post) {
-    const title   = post.title   || 'Colin Archive';
-    const excerpt = post.excerpt || 'A quiet archive of essays, code, and notes.';
-    const image   = post.cover_url || 'https://yourdomain.com/og-image.jpg';
-    document.title = `${title} — Colin Archive`;
-    document.getElementById('metaDesc').content = excerpt;
-    document.getElementById('ogTitle').content  = title;
-    document.getElementById('ogDesc').content   = excerpt;
-    document.getElementById('ogUrl').content    = location.href;
-    document.getElementById('ogImage').content  = image;
-    document.getElementById('twTitle').content  = title;
-    document.getElementById('twDesc').content   = excerpt;
-  }
+      // Touch events
+      handle.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        onDragStart(touch.clientX);
+        const onMove = (e) => {
+          e.preventDefault();
+          onDragMove(e.touches[0].clientX);
+        };
+        const onUp = () => {
+          window.removeEventListener('touchmove', onMove);
+          window.removeEventListener('touchend', onUp);
+          window.removeEventListener('touchcancel', onUp);
+          onDragEnd();
+        };
+        window.addEventListener('touchmove', onMove, { passive: false });
+        window.addEventListener('touchend', onUp, { passive: false });
+        window.addEventListener('touchcancel', onUp, { passive: false });
+      }, { passive: false });
 
-  /* ---- SHARE ---- */
-  function initShare(post, typeColor) {
-    const url = location.href, title = post.title || 'Colin Archive';
-    document.documentElement.style.setProperty('--type-color', typeColor);
+      // Keyboard accessibility not needed for drag handle
+    })();
 
-    const shareBtn      = document.getElementById('shareBtn');
+    // ------------------------------------------------------------
+    // SHARE DROPDOWN (with keyboard support)
+    // ------------------------------------------------------------
+    const shareBtn = document.getElementById('shareBtn');
     const shareDropdown = document.getElementById('shareDropdown');
-    const copyLinkBtn   = document.getElementById('copyLinkBtn');
-
-    document.getElementById('shareTwitter').href  = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
-    document.getElementById('shareReddit').href   = `https://reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
-    document.getElementById('shareWhatsapp').href = `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`;
+    const shareWrap = document.getElementById('shareWrap');
 
     shareBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (navigator.share && window.innerWidth < 700) { navigator.share({ title, url }).catch(()=>{}); return; }
+      if (navigator.share && window.innerWidth < 700) {
+        navigator.share({
+          title: document.title,
+          url: location.href
+        }).catch(() => {});
+        return;
+      }
+      const isOpen = shareDropdown.classList.contains('open');
       shareDropdown.classList.toggle('open');
+      shareBtn.setAttribute('aria-expanded', !isOpen);
     });
+
+    // Close on outside click
     document.addEventListener('click', (e) => {
-      if (!document.getElementById('shareWrap').contains(e.target)) shareDropdown.classList.remove('open');
+      if (!shareWrap.contains(e.target) && shareDropdown.classList.contains('open')) {
+        shareDropdown.classList.remove('open');
+        shareBtn.setAttribute('aria-expanded', 'false');
+      }
     });
+
+    // Keyboard navigation inside dropdown
+    shareDropdown.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        shareDropdown.classList.remove('open');
+        shareBtn.setAttribute('aria-expanded', 'false');
+        shareBtn.focus();
+      }
+    });
+
+    // Copy link button
+    const copyLinkBtn = document.getElementById('copyLinkBtn');
     copyLinkBtn.addEventListener('click', async () => {
       try {
-        await navigator.clipboard.writeText(url);
+        await navigator.clipboard.writeText(location.href);
         copyLinkBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
         copyLinkBtn.classList.add('copy-success');
-        setTimeout(() => { copyLinkBtn.innerHTML = '<i class="fas fa-link"></i> Copy link'; copyLinkBtn.classList.remove('copy-success'); shareDropdown.classList.remove('open'); }, 1800);
-      } catch(err) { console.error(err); }
+        setTimeout(() => {
+          copyLinkBtn.innerHTML = '<i class="fas fa-link"></i> Copy link';
+          copyLinkBtn.classList.remove('copy-success');
+        }, 1800);
+      } catch(err) {
+        console.error(err);
+      }
     });
-  }
 
-  /* ---- RENDER POST ---- */
-  function normalizeIndent(text) {
-    const lines = text.split('\n');
-    let min = Infinity;
-    lines.forEach(l => { if (l.trim()) min = Math.min(min, l.match(/^(\s*)/)[0].length); });
-    if (!isFinite(min)) min = 0;
-    return lines.map(l => l.slice(min)).join('\n');
-  }
+    // ------------------------------------------------------------
+    // HELPERS
+    // ------------------------------------------------------------
+    function getPostId() { return new URLSearchParams(location.search).get("id"); }
+    function escapeHtml(s) {
+      if (!s) return "";
+      return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+    }
+    function relTime(iso) {
+      const d = new Date(iso), diff = Date.now() - d;
+      const s=diff/1e3, m=s/60, h=m/60, day=h/24;
+      if (s<60)  return 'just now';
+      if (m<60)  return Math.floor(m)+'m ago';
+      if (h<24)  return Math.floor(h)+'h ago';
+      if (day<2) return 'yesterday';
+      if (day<7) return Math.floor(day)+'d ago';
+      return new Date(iso).toLocaleDateString();
+    }
 
-  function calcReadTime(text) {
-    return Math.max(1, Math.round((text||'').trim().split(/\s+/).length / 200));
-  }
+    // ------------------------------------------------------------
+    // META TAGS
+    // ------------------------------------------------------------
+    function setMeta(post) {
+      const title   = post.title   || 'Colin Archive';
+      const excerpt = post.excerpt || 'A quiet archive of essays, code, and notes.';
+      const image   = post.cover_url || 'https://yourdomain.com/og-image.jpg';
+      document.title = `${title} — Colin Archive`;
+      document.getElementById('metaDesc').content = excerpt;
+      document.getElementById('ogTitle').content  = title;
+      document.getElementById('ogDesc').content   = excerpt;
+      document.getElementById('ogUrl').content    = location.href;
+      document.getElementById('ogImage').content  = image;
+      document.getElementById('twTitle').content  = title;
+      document.getElementById('twDesc').content   = excerpt;
+    }
 
-  function renderPost(post) {
-    setMeta(post);
+    // ------------------------------------------------------------
+    // RENDER POST
+    // ------------------------------------------------------------
+    function normalizeIndent(text) {
+      const lines = text.split('\n');
+      let min = Infinity;
+      lines.forEach(l => { if (l.trim()) min = Math.min(min, l.match(/^(\s*)/)[0].length); });
+      if (!isFinite(min)) min = 0;
+      return lines.map(l => l.slice(min)).join('\n');
+    }
+    function calcReadTime(text) {
+      return Math.max(1, Math.round((text||'').trim().split(/\s+/).length / 200));
+    }
 
-    const type     = post.type || 'essay';
-    const isPaid   = post.access === 'paid';
-    const metaDate = new Date(post.created_at).toLocaleDateString();
-    const readTime = post.readtime || calcReadTime(post.content);
-    const colorMap = { essay:'#4ecdc4', code:'#51cf66', notes:'#ffe66d' };
-    const typeColor = colorMap[type] || '#4ecdc4';
+    function renderPost(post) {
+      setMeta(post);
 
-    nav.className = `nav-type-${type}`;
-    typeLabel.className = `post-type-label ${type}`;
-    typeLabel.textContent = type==='code' ? 'code' : type==='notes' ? 'note' : 'essay';
+      const type     = post.type || 'essay';
+      const isPaid   = post.access === 'paid';
+      const metaDate = new Date(post.created_at).toLocaleDateString();
+      const readTime = post.readtime || calcReadTime(post.content);
+      const colorMap = { essay:'#4ecdc4', code:'#51cf66', notes:'#ffe66d' };
+      const typeColor = colorMap[type] || '#4ecdc4';
 
-    initShare(post, typeColor);
+      nav.className = `nav-type-${type}`;
+      typeLabel.className = `post-type-label ${type}`;
+      typeLabel.textContent = type==='code' ? 'code' : type==='notes' ? 'note' : 'essay';
 
-    const tags = (post.tags||"").split(",").filter(Boolean)
-      .map(t=>`<span class="tag">${escapeHtml(t.trim())}</span>`).join("");
+      // Update share button color and ARIA
+      document.documentElement.style.setProperty('--type-color', typeColor);
 
-    let contentText = post.content || '';
-    if (type === 'code') contentText = normalizeIndent(contentText);
-    const esc = escapeHtml(contentText);
+      const tags = (post.tags||"").split(",").filter(Boolean)
+        .map(t=>`<span class="tag">${escapeHtml(t.trim())}</span>`).join("");
 
-    let contentHtml;
-    if (isPaid) {
-      contentHtml = `
-        <div style="position:relative;">
-          <i class="fas fa-lock locked-icon"></i>
+      let contentText = post.content || '';
+      if (type === 'code') contentText = normalizeIndent(contentText);
+      const esc = escapeHtml(contentText);
+
+      let contentHtml;
+      if (isPaid) {
+        contentHtml = `
+          <div style="position:relative;">
+            <i class="fas fa-lock locked-icon"></i>
+            <h1 class="title">${escapeHtml(post.title)}</h1>
+            <div class="meta">${metaDate} • ${readTime} min read</div>
+            ${tags ? `<div class="tags">${tags}</div>` : ""}
+            <div class="locked-message">
+              <h3>🔒 PAID ENTRY</h3>
+              <p>This post requires access.</p>
+              <a class="btn" href="#">Unlock</a>
+            </div>
+          </div>`;
+      } else if (type === 'code') {
+        const lines = esc.split('\n');
+        contentHtml = `
           <h1 class="title">${escapeHtml(post.title)}</h1>
           <div class="meta">${metaDate} • ${readTime} min read</div>
           ${tags ? `<div class="tags">${tags}</div>` : ""}
-          <div class="locked-message">
-            <h3>🔒 PAID ENTRY</h3>
-            <p>This post requires access.</p>
-            <a class="btn" href="#">Unlock</a>
-          </div>
-        </div>`;
-    } else if (type === 'code') {
-      const lines = esc.split('\n');
-      contentHtml = `
-        <h1 class="title">${escapeHtml(post.title)}</h1>
-        <div class="meta">${metaDate} • ${readTime} min read</div>
-        ${tags ? `<div class="tags">${tags}</div>` : ""}
-        <div class="terminal">
-          <div class="terminal-header">
-            <span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span>
-            <span class="terminal-title">Terminal</span>
-          </div>
-          <div class="terminal-body">
-            <div class="line-numbers">${lines.map((_,i)=>`<div>${i+1}</div>`).join('')}</div>
-            <div class="code-lines">${lines.map(l=>`<span class="code-line">${l||' '}</span>`).join('')}</div>
-          </div>
-          <button class="copy-btn" id="copyCodeBtn"><i class="far fa-copy"></i> Copy</button>
-        </div>`;
-    } else {
-      contentHtml = `
-        <h1 class="title">${escapeHtml(post.title)}</h1>
-        <div class="meta">${metaDate} • ${readTime} min read</div>
-        ${tags ? `<div class="tags">${tags}</div>` : ""}
-        <div class="content">${esc}</div>`;
+          <div class="terminal">
+            <div class="terminal-header">
+              <span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span>
+              <span class="terminal-title">Terminal</span>
+            </div>
+            <div class="terminal-body">
+              <div class="line-numbers">${lines.map((_,i)=>`<div>${i+1}</div>`).join('')}</div>
+              <div class="code-lines">${lines.map(l=>`<span class="code-line">${l||' '}</span>`).join('')}</div>
+            </div>
+            <button class="copy-btn" id="copyCodeBtn"><i class="far fa-copy"></i> Copy</button>
+          </div>`;
+      } else {
+        contentHtml = `
+          <h1 class="title">${escapeHtml(post.title)}</h1>
+          <div class="meta">${metaDate} • ${readTime} min read</div>
+          ${tags ? `<div class="tags">${tags}</div>` : ""}
+          <div class="content">${esc}</div>`;
+      }
+
+      container.innerHTML = `<div class="type-${type}">${contentHtml}</div>`;
+
+      // Code copy button
+      if (type==='code' && !isPaid) {
+        const btn = document.getElementById('copyCodeBtn');
+        if (btn) btn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(contentText);
+            btn.classList.add('copied'); btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '<i class="far fa-copy"></i> Copy'; }, 2000);
+          } catch(e) { console.error(e); }
+        });
+      }
+
+      // Show comments only for non-locked posts
+      if (!isPaid) initComments(post.id);
     }
 
-    container.innerHTML = `<div class="type-${type}">${contentHtml}</div>`;
+    // ------------------------------------------------------------
+    // COMMENTS with replies (enhanced error messages)
+    // ------------------------------------------------------------
+    let currentPostId = null;
+    let replyParentId = null;
+    let replyToName = '';
 
-    if (type==='code' && !isPaid) {
-      const btn = document.getElementById('copyCodeBtn');
-      if (btn) btn.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(contentText);
-          btn.classList.add('copied'); btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-          setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = '<i class="far fa-copy"></i> Copy'; }, 2000);
-        } catch(e) { console.error(e); }
-      });
+    const replyIndicator = document.getElementById('replyIndicator');
+    const replyToNameSpan = document.getElementById('replyToName');
+    const cancelReplyBtn = document.getElementById('cancelReply');
+    const commentParentId = document.getElementById('commentParentId');
+
+    function setReply(parentId, name) {
+      replyParentId = parentId;
+      replyToName = name;
+      commentParentId.value = parentId;
+      replyToNameSpan.textContent = name;
+      replyIndicator.style.display = 'flex';
+      document.getElementById('commentBody').focus();
     }
 
-    // Show comments only for non-locked posts
-    if (!isPaid) initComments(post.id);
-  }
-
-  /* ---- COMMENTS (with replies) ---- */
-  let currentPostId = null;
-  let replyParentId = null;
-  let replyToName = '';
-
-  const replyIndicator = document.getElementById('replyIndicator');
-  const replyToNameSpan = document.getElementById('replyToName');
-  const cancelReplyBtn = document.getElementById('cancelReply');
-  const commentParentId = document.getElementById('commentParentId');
-
-  cancelReplyBtn.addEventListener('click', () => {
-    replyParentId = null;
-    replyToName = '';
-    commentParentId.value = '';
-    replyIndicator.style.display = 'none';
-  });
-
-  function setReply(parentId, name) {
-    replyParentId = parentId;
-    replyToName = name;
-    commentParentId.value = parentId;
-    replyToNameSpan.textContent = name;
-    replyIndicator.style.display = 'flex';
-    document.getElementById('commentBody').focus();
-  }
-
-  // Recursively build comment tree
-  function buildCommentTree(comments, parentId = null) {
-    return comments
-      .filter(c => c.parent_id === parentId)
-      .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
-      .map(c => ({
-        ...c,
-        replies: buildCommentTree(comments, c.id)
-      }));
-  }
-
-  function renderCommentTree(comments, depth = 0) {
-    if (!comments.length) return '';
-    return comments.map(c => {
-      const date = relTime(c.created_at);
-      const name = escapeHtml(c.name);
-      const body = escapeHtml(c.content);
-      const replyBtn = `<button class="comment-reply-btn" data-parent-id="${c.id}" data-parent-name="${c.name}"><i class="fas fa-reply"></i> reply</button>`;
-      const repliesHtml = c.replies.length ? `<div class="comment-thread">${renderCommentTree(c.replies, depth+1)}</div>` : '';
-      return `
-        <div class="comment-item" data-comment-id="${c.id}">
-          <div class="comment-item-header">
-            <span class="comment-item-name">${name}</span>
-            <span class="comment-item-date">${date}</span>
-          </div>
-          <div class="comment-item-body">${body}</div>
-          ${replyBtn}
-          ${repliesHtml}
-        </div>
-      `;
-    }).join('');
-  }
-
-  async function loadComments(postId) {
-    const list    = document.getElementById('commentList');
-    const countEl = document.getElementById('commentsCount');
-
-    const { data, error } = await db
-      .from('comments')
-      .select('id, name, content, created_at, parent_id')
-      .eq('post_id', postId)
-      .eq('approved', true)
-      .order('created_at', { ascending: true });
-
-    if (error) {
-      console.error('Error loading comments:', error);
-      list.innerHTML = '<div class="comments-empty">Could not load comments.</div>';
-      if (countEl) countEl.textContent = '';
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      list.innerHTML = '<div class="comments-empty">No comments yet.</div>';
-      if (countEl) countEl.textContent = '';
-      return;
-    }
-
-    const tree = buildCommentTree(data);
-    const totalTopLevel = tree.length;
-    if (countEl) countEl.textContent = `(${data.length})`;
-
-    list.innerHTML = renderCommentTree(tree);
-
-    // Attach reply button listeners
-    list.querySelectorAll('.comment-reply-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const parentId = btn.dataset.parentId;
-        const parentName = btn.dataset.parentName;
-        setReply(parentId, parentName);
-      });
+    cancelReplyBtn.addEventListener('click', () => cancelReply());
+    cancelReplyBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        cancelReply();
+      }
     });
-  }
 
-  function initComments(postId) {
-    currentPostId = postId;
-    document.getElementById('commentsWrap').style.display = '';
-    loadComments(postId);
+    function cancelReply() {
+      replyParentId = null;
+      replyToName = '';
+      commentParentId.value = '';
+      replyIndicator.style.display = 'none';
+    }
 
-    const form     = document.getElementById('commentForm');
-    const nameEl   = document.getElementById('commentName');
-    const bodyEl   = document.getElementById('commentBody');
-    const feedback = document.getElementById('commentFeedback');
-    const submit   = document.getElementById('commentSubmit');
-    const parentIdInput = document.getElementById('commentParentId');
+    // Build comment tree
+    function buildCommentTree(comments, parentId = null) {
+      return comments
+        .filter(c => c.parent_id === parentId)
+        .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+        .map(c => ({
+          ...c,
+          replies: buildCommentTree(comments, c.id)
+        }));
+    }
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = nameEl.value.trim();
-      const body = bodyEl.value.trim();
-      const parentId = parentIdInput.value ? parseInt(parentIdInput.value) : null;
-      if (!name || !body) return;
+    function renderCommentTree(comments) {
+      if (!comments.length) return '';
+      return comments.map(c => {
+        const date = relTime(c.created_at);
+        const name = escapeHtml(c.name);
+        const body = escapeHtml(c.content);
+        const replyBtn = `<button class="comment-reply-btn" data-parent-id="${c.id}" data-parent-name="${c.name}"><i class="fas fa-reply"></i> reply</button>`;
+        const repliesHtml = c.replies.length ? `<div class="comment-thread">${renderCommentTree(c.replies)}</div>` : '';
+        return `
+          <div class="comment-item" data-comment-id="${c.id}">
+            <div class="comment-item-header">
+              <span class="comment-item-name">${name}</span>
+              <span class="comment-item-date">${date}</span>
+            </div>
+            <div class="comment-item-body">${body}</div>
+            ${replyBtn}
+            ${repliesHtml}
+          </div>
+        `;
+      }).join('');
+    }
 
-      submit.disabled = true;
-      feedback.textContent = '';
-      feedback.className = 'comment-feedback';
+    async function loadComments(postId) {
+      const list    = document.getElementById('commentList');
+      const countEl = document.getElementById('commentsCount');
 
-      const { error } = await db.from('comments').insert({
-        post_id: postId,
-        name,
-        content: body,
-        parent_id: parentId
-      });
+      const { data, error } = await db
+        .from('comments')
+        .select('id, name, content, created_at, parent_id')
+        .eq('post_id', postId)
+        .eq('approved', true)
+        .order('created_at', { ascending: true });
 
       if (error) {
-        feedback.textContent = 'Failed. Try again.';
-        feedback.classList.add('error');
-        submit.disabled = false;
+        console.error('Error loading comments:', error);
+        list.innerHTML = '<div class="comments-empty">Could not load comments.</div>';
+        if (countEl) countEl.textContent = '';
         return;
       }
 
-      nameEl.value = '';
-      bodyEl.value = '';
-      parentIdInput.value = '';
-      replyParentId = null;
-      replyIndicator.style.display = 'none';
-      feedback.textContent = 'Posted.';
-      submit.disabled = false;
+      if (!data || data.length === 0) {
+        list.innerHTML = '<div class="comments-empty">No comments yet.</div>';
+        if (countEl) countEl.textContent = '';
+        return;
+      }
+
+      const tree = buildCommentTree(data);
+      if (countEl) countEl.textContent = `(${data.length})`;
+
+      list.innerHTML = renderCommentTree(tree);
+
+      // Attach reply button listeners
+      list.querySelectorAll('.comment-reply-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const parentId = btn.dataset.parentId;
+          const parentName = btn.dataset.parentName;
+          setReply(parentId, parentName);
+        });
+      });
+    }
+
+    function initComments(postId) {
+      currentPostId = postId;
+      document.getElementById('commentsWrap').style.display = '';
       loadComments(postId);
-    });
-  }
 
-  /* ---- LOAD ---- */
-  async function loadPost() {
-    const id = getPostId();
-    if (!id) { container.innerHTML = "<div class='loading'>No post ID specified</div>"; return; }
-    const { data, error } = await db.from("posts").select("*").eq("id", id).single();
-    if (error || !data) { container.innerHTML = "<div class='loading'>Post not found</div>"; return; }
-    renderPost(data);
-  }
+      const form     = document.getElementById('commentForm');
+      const nameEl   = document.getElementById('commentName');
+      const bodyEl   = document.getElementById('commentBody');
+      const feedback = document.getElementById('commentFeedback');
+      const submit   = document.getElementById('commentSubmit');
+      const parentIdInput = document.getElementById('commentParentId');
 
-  loadPost();
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = nameEl.value.trim();
+        const body = bodyEl.value.trim();
+        const parentId = parentIdInput.value ? parseInt(parentIdInput.value) : null;
+
+        if (!name || !body) {
+          feedback.textContent = 'Name and comment are required.';
+          feedback.classList.add('error');
+          return;
+        }
+
+        submit.disabled = true;
+        feedback.textContent = '';
+        feedback.className = 'comment-feedback';
+
+        const { error } = await db.from('comments').insert({
+          post_id: postId,
+          name,
+          content: body,
+          parent_id: parentId
+        });
+
+        if (error) {
+          console.error('Comment insert error:', error);
+          feedback.textContent = error.message || 'Failed to post. Try again.';
+          feedback.classList.add('error');
+          submit.disabled = false;
+          return;
+        }
+
+        nameEl.value = '';
+        bodyEl.value = '';
+        parentIdInput.value = '';
+        cancelReply();
+        feedback.textContent = 'Posted!';
+        feedback.classList.remove('error');
+        submit.disabled = false;
+        loadComments(postId);
+      });
+    }
+
+    // ------------------------------------------------------------
+    // LOAD POST
+    // ------------------------------------------------------------
+    async function loadPost() {
+      const id = getPostId();
+      if (!id) {
+        container.innerHTML = "<div class='loading'>No post ID specified</div>";
+        return;
+      }
+      const { data, error } = await db.from("posts").select("*").eq("id", id).single();
+      if (error) {
+        console.error(error);
+        container.innerHTML = `<div class='loading'>Error loading post: ${error.message}</div>`;
+        return;
+      }
+      if (!data) {
+        container.innerHTML = "<div class='loading'>Post not found</div>";
+        return;
+      }
+      renderPost(data);
+    }
+
+    loadPost();
+  })();
 </script>
 
 </body>
