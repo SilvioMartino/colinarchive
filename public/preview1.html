@@ -434,6 +434,19 @@
   </div>
 </div>
 
+<div class="comments-section" id="commentsSection">
+  <div class="comments-title">Comments <span id="commentCount"></span></div>
+  <form class="comment-form" id="commentForm">
+    <input type="text" id="commentName" placeholder="Your name" maxlength="60" required>
+    <textarea id="commentBody" placeholder="Leave a comment…" maxlength="2000" required></textarea>
+    <div class="comment-feedback" id="commentFeedback"></div>
+    <button type="submit" class="comment-submit" id="commentSubmit">Post comment</button>
+  </form>
+  <div class="comment-list" id="commentList">
+    <div class="comments-empty">Loading comments…</div>
+  </div>
+</div>
+
 <script>
   // ⚠️ Anon key is public — ensure Supabase RLS policies are locked down.
   const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
@@ -715,19 +728,6 @@
     });
   }
 </script>
-
-<div class="comments-section" id="commentsSection">
-  <div class="comments-title">Comments <span id="commentCount"></span></div>
-  <form class="comment-form" id="commentForm">
-    <input type="text" id="commentName" placeholder="Your name" maxlength="60" required>
-    <textarea id="commentBody" placeholder="Leave a comment…" maxlength="2000" required></textarea>
-    <div class="comment-feedback" id="commentFeedback"></div>
-    <button type="submit" class="comment-submit" id="commentSubmit">Post comment</button>
-  </form>
-  <div class="comment-list" id="commentList">
-    <div class="comments-empty">Loading comments…</div>
-  </div>
-</div>
 
 </body>
 </html>
