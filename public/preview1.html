@@ -1,732 +1,615 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Post — Colin Archive</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Comments — Colin Archive</title>
 
-  <!-- Dynamic meta — filled by JS after fetch -->
-  <meta name="description" id="metaDesc" content="A quiet archive of essays, code, and notes – unfiltered and unpolished." />
-  <meta property="og:title" id="ogTitle" content="Colin Archive" />
-  <meta property="og:description" id="ogDesc" content="A quiet archive of essays, code, and notes – unfiltered and unpolished." />
-  <meta property="og:type" content="article" />
-  <meta property="og:url" id="ogUrl" content="" />
-  <meta property="og:image" id="ogImage" content="https://yourdomain.com/og-image.jpg" />
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" id="twTitle" content="Colin Archive">
-  <meta name="twitter:description" id="twDesc" content="">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --bg: #0d0d0d;
+  --paper: #1a1a1a;
+  --fg: #e8e8e8;
+  --muted: #b8b8b8;
+  --border: #2a2a2a;
+  --highlight: rgba(31, 31, 31, 0.85);
+  --red: #ff6b6b;
+  --blue: #4ecdc4;
+  --green: #51cf66;
+  --yellow: #ffe66d;
+  --serif: 'Crimson Text', 'Georgia', serif;
+  --mono: 'IBM Plex Mono', 'Courier New', monospace;
+  --hand: 'Caveat', cursive;
+}
 
-  <style>
-    :root {
-      --bg: #0d0d0d;
-      --paper: #1a1a1a;
-      --fg: #e8e8e8;
-      --muted: #c0c0c0;
-      --border: #2a2a2a;
-      --accent: #e8e8e8;
-      --highlight: #1f1f1f;
-      --red: #ff6b6b;
-      --dark-red: #b3002d;
-      --blue: #4ecdc4;
-      --green: #51cf66;
-      --yellow: #ffe66d;
-      --type-color: var(--blue);
-      --serif: 'Crimson Text', 'Georgia', serif;
-      --mono: 'IBM Plex Mono', 'Courier New', monospace;
-      --hand: 'Caveat', cursive;
-      --essay-serif: 'Libre Baskerville', 'Georgia', serif;
-    }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--serif);
+  min-height: 100vh;
+  line-height: 1.6;
+  position: relative;
+}
 
-    body {
-      background: var(--paper);
-      color: var(--fg);
-      font-family: var(--serif);
-      min-height: 100vh;
-      line-height: 1.6;
-    }
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(255,255,255,0.01) 2px, rgba(255,255,255,0.01) 4px
+  );
+  pointer-events: none;
+  z-index: 0;
+  animation: paperSlide 20s linear infinite;
+}
+@keyframes paperSlide { 0%{transform:translateY(0)} 100%{transform:translateY(4px)} }
 
-    /* ----- NAVBAR — untouched from your original ----- */
-    nav {
-      background: var(--paper);
-      border-bottom: 1px solid var(--border);
-      padding: 1.2rem 3rem;
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      width: 100%;
-      transition: border-bottom-color 0.2s, box-shadow 0.2s;
-    }
-    nav.nav-type-essay { border-bottom: 2px solid var(--blue);   box-shadow: 0 0 6px rgba(78,205,196,0.3); }
-    nav.nav-type-code  { border-bottom: 2px solid var(--green);  box-shadow: 0 0 6px rgba(81,207,102,0.3); }
-    nav.nav-type-notes { border-bottom: 2px solid var(--yellow); box-shadow: 0 0 6px rgba(255,230,109,0.3); }
+.container { width: 100%; position: relative; z-index: 2; }
 
-    .logo {
-      font-family: var(--mono);
-      font-size: 0.75rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      font-weight: 500;
-      text-decoration: none;
-      color: var(--fg);
-    }
-    .logo::after {
-      content: '|';
-      color: var(--red);
-      animation: blink 1s step-end infinite;
-      margin-left: 2px;
-    }
-    @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
+/* HEADER */
+header {
+  padding: 2rem 3rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  background: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-wrap: wrap;
+}
 
-    .post-type-label {
-      margin-left: 1.5rem;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-    .post-type-label.essay { font-family: var(--essay-serif); color: var(--blue); }
-    .post-type-label.code  { font-family: var(--mono);        color: var(--green); }
-    .post-type-label.notes { font-family: var(--hand);        color: var(--yellow); }
+.logo {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--fg);
+}
+.logo::after {
+  content: '|';
+  color: var(--red);
+  animation: blink 1s step-end infinite;
+  margin-left: 2px;
+}
+@keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
 
-    /* Share — margin-left:auto pushes it right, line-height:1 + no padding-top/bottom keeps height neutral */
-    .share-wrap { position: relative; margin-left: auto; }
+.header-nav {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  flex-wrap: wrap;
+}
+.header-nav a,
+.header-nav button {
+  color: var(--muted);
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  transition: color 0.3s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 0;
+  line-height: 1;
+}
+.header-nav a:hover,
+.header-nav button:hover { color: var(--blue); }
 
-    .share-btn {
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0;          /* zero padding so it can't push nav height */
-      background: transparent;
-      border: none;
-      color: var(--muted);
-      font-family: var(--mono);
-      font-size: 0.7rem;   /* match .post-type-label font size */
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      cursor: pointer;
-      line-height: 1;
-      transition: color 0.2s;
-    }
-    .share-btn:hover { color: var(--type-color); }
-    .share-btn i { font-size: 0.7rem; }
+.user-menu { display: flex; align-items: center; gap: 1rem; color: var(--blue); }
+.user-email {
+  font-size: 0.7rem; text-transform: none; letter-spacing: 0;
+  max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.logout-btn { color: var(--red); }
+.logout-btn:hover { color: #ff8a8a; }
 
-    .share-dropdown {
-      position: absolute;
-      top: calc(100% + 10px);
-      right: 0;
-      background: #1c1c1c;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.4rem;
-      display: none;
-      flex-direction: column;
-      gap: 0.2rem;
-      min-width: 160px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-      z-index: 200;
-    }
-    .share-dropdown.open { display: flex; animation: dropIn 0.15s ease; }
-    @keyframes dropIn { from { opacity:0; transform:translateY(-6px) } to { opacity:1; transform:none } }
+/* LOGIN MODAL */
+.modal {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  align-items: center; justify-content: center; z-index: 1000;
+}
+.modal.active { display: flex; }
+.modal-content {
+  background: var(--paper); border: 1px solid var(--border);
+  padding: 2rem; max-width: 350px; width: 90%;
+  border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+.modal-content h3 { margin-bottom: 1rem; font-family: var(--mono); color: var(--fg); }
+.modal-content input {
+  width: 100%; padding: 0.75rem; margin-bottom: 1rem;
+  background: var(--highlight); border: 1px solid var(--border);
+  color: var(--fg); font-family: var(--mono);
+}
+.modal-content button {
+  width: 100%; padding: 0.75rem; background: var(--blue);
+  border: none; color: #000; font-family: var(--mono);
+  font-weight: bold; cursor: pointer; margin-bottom: 0.5rem;
+}
+.modal-content button:hover { opacity: 0.9; }
+.modal-close { background: transparent !important; color: var(--muted) !important; border: 1px solid var(--border) !important; }
+.error-message { color: var(--red); font-size: 0.8rem; margin-top: 0.5rem; font-family: var(--mono); }
 
-    .share-option {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      padding: 0.55rem 0.75rem;
-      border-radius: 5px;
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--muted);
-      cursor: pointer;
-      background: transparent;
-      border: none;
-      width: 100%;
-      text-align: left;
-      transition: background 0.15s, color 0.15s;
-      text-decoration: none;
-    }
-    .share-option:hover { background: rgba(255,255,255,0.05); color: var(--type-color); }
-    .share-option i { width: 14px; text-align: center; font-size: 0.8rem; }
-    .share-option.copy-success { color: var(--green); }
+/* MAIN */
+.main-wrap {
+  padding: 3rem;
+  background: var(--paper);
+  min-height: calc(100vh - 80px);
+}
 
-    /* ----- MAIN CONTENT — untouched from your original ----- */
-    .wrapper {
-      width: 100%;
-      margin: 70px 0;
-      padding: 0 3rem;
-      position: relative;
-      z-index: 2;
-    }
+.page-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--fg);
+  position: relative;
+}
+.page-header::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0;
+  width: 30%; height: 2px;
+  background: var(--red);
+  animation: underlineGrow 1.5s ease forwards;
+}
+@keyframes underlineGrow { 0%{width:0%} 100%{width:30%} }
 
-    .back-link { margin-bottom: 2rem; }
-    .back-link a {
-      display: inline-block;
-      padding: 0.6rem 1.5rem;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      text-decoration: none;
-      transition: border-color 0.2s, color 0.2s, transform 0.2s;
-    }
-    .back-link a:hover { border-color: var(--blue); color: var(--blue); transform: translateX(-2px); }
+.page-header h1 {
+  font-family: var(--serif);
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.page-subtitle { font-style: italic; color: var(--muted); font-size: 1rem; }
 
-    .post-container { max-width: 900px; margin: 0 auto; }
+/* LOCKED STATE */
+.locked-state {
+  padding: 4rem;
+  text-align: center;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.875rem;
+}
 
-    .title {
-      font-family: var(--serif);
-      font-size: 2.5rem;
-      font-weight: 600;
-      margin-bottom: 0.75rem;
-      line-height: 1.3;
-    }
-    .type-essay .title { font-family: var(--essay-serif); font-weight: 700; }
-    .type-code  .title { font-family: var(--mono); letter-spacing: -0.02em; }
-    .type-notes .title { font-family: var(--hand); font-size: 2rem; }
+/* FILTERS */
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.search-box {
+  flex: 1;
+  min-width: 250px;
+  padding: 0.75rem 1rem;
+  background: var(--highlight);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: 0.875rem;
+  transition: all 0.3s;
+}
+.search-box::placeholder { color: var(--muted); }
+.search-box:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 2px rgba(78,205,196,0.1); }
 
-    .meta {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 2rem;
-    }
+.filter-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.filter-tag {
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.filter-tag:hover, .filter-tag.active {
+  border-color: var(--blue); color: var(--blue);
+  background: rgba(78,205,196,0.05);
+}
+.filter-tag.active-red { border-color: var(--red); color: var(--red); background: rgba(255,107,107,0.05); }
 
-    .tags { margin-bottom: 2rem; }
-    .tag {
-      display: inline-block;
-      border: 1px solid var(--border);
-      padding: 0.3rem 0.8rem;
-      margin: 0.2rem;
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border-radius: 4px;
-      transition: border-color 0.2s, color 0.2s;
-    }
-    .tag:hover { border-color: var(--blue); color: var(--blue); }
+/* STATS BAR */
+.stats-bar {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+.stat-pill {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.stat-pill span { color: var(--fg); margin-right: 0.3rem; }
 
-    .excerpt {
-      font-size: 1.3rem;
-      color: #bdbdbd;
-      margin-bottom: 2.2rem;
-      font-style: italic;
-      border-left: 3px solid var(--blue);
-      padding-left: 1rem;
-    }
+/* COMMENT LIST */
+.comment-list { display: flex; flex-direction: column; gap: 0; }
 
-    .content {
-      font-size: 1.18rem;
-      line-height: 1.85;
-      white-space: pre-wrap;
-      color: var(--fg);
-      display: block;
-    }
+.comment-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  padding: 1.4rem 0;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s, padding 0.2s;
+  border-radius: 4px;
+}
+.comment-row:last-child { border-bottom: none; }
+.comment-row:hover {
+  background: rgba(78,205,196,0.04);
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  margin-left: -0.75rem;
+  margin-right: -0.75rem;
+}
 
-    .type-code .terminal {
-      position: relative;
-      background: #0c0c0c;
-      border: 1px solid #2a2a2a;
-      border-radius: 10px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,255,0,0.05);
-      font-family: var(--mono);
-      font-size: 0.95rem;
-      line-height: 1.6;
-      color: #b0f0b0;
-      overflow: hidden;
-    }
-    .terminal-header {
-      background: #1a1a1a;
-      padding: 0.5rem 1rem;
-      border-bottom: 1px solid #2a2a2a;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .terminal-dot { width: 12px; height: 12px; border-radius: 50%; background: #ff5f56; }
-    .terminal-dot:nth-child(2) { background: #ffbd2e; }
-    .terminal-dot:nth-child(3) { background: #27c93f; }
-    .terminal-title { font-size: 0.65rem; color: #888; margin-left: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
-    .terminal-body { display: flex; position: relative; }
-    .line-numbers {
-      padding: 1rem 0 1rem 1rem;
-      text-align: right;
-      color: #4a7a4a;
-      user-select: none;
-      border-right: 1px solid #2a2a2a;
-      background: #0a0a0a;
-      font-family: var(--mono);
-      font-size: 0.95rem;
-      line-height: 1.6;
-      white-space: nowrap;
-    }
-    .line-numbers div { padding-right: 1rem; }
-    .code-lines { flex: 1; padding: 1rem; overflow-x: auto; background: #0a0a0a; }
-    .code-line { display: block; white-space: pre; font-family: var(--mono); font-size: 0.95rem; line-height: 1.6; color: #b0f0b0; }
-    .copy-btn {
-      position: absolute; top: 0.75rem; right: 0.75rem;
-      background: #1f1f1f; border: 1px solid #3a3a3a; border-radius: 4px;
-      color: #b0f0b0; font-family: var(--mono); font-size: 0.7rem;
-      padding: 0.3rem 0.7rem; cursor: pointer;
-      display: flex; align-items: center; gap: 0.4rem;
-      transition: background 0.2s, border-color 0.2s, color 0.2s; z-index: 20;
-    }
-    .copy-btn:hover { background: #2a2a2a; border-color: #b0f0b0; color: #d0f0d0; }
-    .copy-btn.copied { background: #2a5a2a; border-color: #b0f0b0; color: #fff; }
-    .copy-btn i { font-size: 0.8rem; }
+.comment-main { flex: 1; min-width: 0; }
 
-    .locked-message {
-      text-align: center; padding: 2rem;
-      border: 1px dashed var(--red); border-radius: 8px; margin-top: 2rem;
-      background: repeating-linear-gradient(
-        45deg, rgba(179,0,45,0.1) 0px, rgba(179,0,45,0.1) 10px,
-        transparent 10px, transparent 20px
-      );
-      position: relative;
-    }
-    .locked-message h3 { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.1em; color: var(--red); margin-bottom: 1rem; text-transform: uppercase; }
-    .locked-message p { color: var(--muted); margin-bottom: 1.5rem; }
-    .btn {
-      display: inline-block; padding: 0.7rem 1.4rem;
-      background: transparent; border: 1px solid var(--red); border-radius: 4px;
-      color: var(--red); font-family: var(--mono); font-size: 0.7rem;
-      letter-spacing: 0.1em; text-decoration: none; text-transform: uppercase;
-      transition: background 0.2s, color 0.2s;
-    }
-    .btn:hover { background: var(--red); color: var(--bg); }
-    .locked-icon {
-      position: absolute; top: 1rem; right: 1rem; font-size: 2rem;
-      color: rgba(255,255,255,0.6); text-shadow: 0 2px 5px rgba(0,0,0,0.5); pointer-events: none;
-    }
+.comment-top {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+  flex-wrap: wrap;
+}
+.comment-name {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--blue);
+  letter-spacing: 0.05em;
+}
+.comment-date {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--muted);
+  opacity: 0.6;
+}
+.comment-post-link {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+  display: inline-block;
+}
+.comment-post-link:hover { color: var(--blue); border-color: var(--blue); }
 
-    .loading { text-align: center; font-family: var(--mono); color: var(--muted); padding: 3rem; font-size: 1rem; }
+.comment-body {
+  font-size: 0.975rem;
+  line-height: 1.65;
+  color: var(--muted);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
 
-    @media (max-width: 700px) {
-      nav { padding: 1rem 1.5rem; }
-      .post-type-label { margin-left: 1rem; font-size: 0.6rem; }
-      .wrapper { padding: 0 1rem; margin: 40px 0; }
-      .title { font-size: 2rem; }
-      .type-notes .title { font-size: 1.8rem; }
-      .back-link a { display: block; text-align: center; }
-      .locked-icon { top: 0.5rem; right: 0.5rem; font-size: 1.5rem; }
-      .copy-btn { top: 0.5rem; right: 0.5rem; font-size: 0.6rem; padding: 0.2rem 0.5rem; }
-      .terminal-header { padding: 0.3rem 0.8rem; }
-      .terminal-dot { width: 8px; height: 8px; }
-      .share-dropdown { right: 0; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation: none !important; transition: none !important; }
-    }
+/* Delete button — matches delete-btn style from admin */
+.comment-delete-btn {
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--red);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0.5;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.comment-delete-btn:hover {
+  opacity: 1;
+  border-color: var(--red);
+  background: rgba(255,107,107,0.07);
+}
 
-    /* ----- COMMENTS ----- */
-    .comments-section {
-      max-width: 900px;
-      margin: 4rem auto 5rem;
-      padding: 0 3rem;
-    }
-    .comments-title {
-      font-family: var(--mono);
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 2rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid var(--border);
-    }
-    .comments-title span { color: var(--type-color); margin-left: 0.5rem; }
-    .comment-form { margin-bottom: 3rem; display: flex; flex-direction: column; gap: 0.75rem; }
-    .comment-form input, .comment-form textarea {
-      background: var(--highlight);
-      border: 1px solid var(--border);
-      color: var(--fg);
-      font-family: var(--serif);
-      font-size: 1rem;
-      padding: 0.75rem 1rem;
-      border-radius: 4px;
-      transition: border-color 0.2s;
-      resize: none;
-    }
-    .comment-form input::placeholder, .comment-form textarea::placeholder { color: var(--muted); }
-    .comment-form input:focus, .comment-form textarea:focus { outline: none; border-color: var(--type-color); }
-    .comment-form textarea { min-height: 100px; line-height: 1.6; }
-    .comment-submit {
-      align-self: flex-end;
-      padding: 0.55rem 1.4rem;
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      color: var(--muted);
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: border-color 0.2s, color 0.2s;
-    }
-    .comment-submit:hover { border-color: var(--type-color); color: var(--type-color); }
-    .comment-submit:disabled { opacity: 0.4; cursor: not-allowed; }
-    .comment-list { display: flex; flex-direction: column; }
-    .comment-item { padding: 1.25rem 0; border-bottom: 1px solid var(--border); }
-    .comment-item:last-child { border-bottom: none; }
-    .comment-header { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.4rem; }
-    .comment-name { font-family: var(--mono); font-size: 0.7rem; color: var(--type-color); letter-spacing: 0.05em; }
-    .comment-date { font-family: var(--mono); font-size: 0.62rem; color: var(--muted); opacity: 0.6; }
-    .comment-body { font-size: 1rem; line-height: 1.65; color: var(--muted); white-space: pre-wrap; }
-    .comments-empty { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); opacity: 0.5; padding: 1rem 0; }
-    .comment-feedback { font-family: var(--mono); font-size: 0.7rem; color: var(--green); min-height: 1rem; }
-    .comment-feedback.error { color: var(--red); }
-    @media (max-width: 700px) {
-      .comments-section { padding: 0 1rem; margin-top: 3rem; }
-      .comment-submit { align-self: stretch; text-align: center; }
-    }
+.empty-state {
+  padding: 3rem;
+  text-align: center;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.875rem;
+}
 
-  </style>
+.loading-state {
+  padding: 3rem;
+  text-align: center;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.875rem;
+}
+
+@media (max-width: 1024px) {
+  .main-wrap { padding: 2rem 1.5rem; }
+  header { padding: 1.5rem; flex-direction: column; align-items: flex-start; }
+  .header-nav { flex-direction: row; flex-wrap: wrap; gap: 1rem; }
+  .filters { flex-direction: column; }
+  .search-box { width: 100%; }
+}
+@media (max-width: 600px) {
+  .comment-row { flex-direction: column; gap: 0.75rem; }
+  .comment-delete-btn { align-self: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
 </head>
 <body>
 
-<nav id="mainNav">
-  <a href="/" class="logo">Colin Archive</a>
-  <span class="post-type-label" id="postTypeLabel"></span>
-  <div class="share-wrap" id="shareWrap">
-    <button class="share-btn" id="shareBtn">
-      <i class="fas fa-share-nodes"></i>
-      <span>Share</span>
-    </button>
-    <div class="share-dropdown" id="shareDropdown">
-      <button class="share-option" id="copyLinkBtn"><i class="fas fa-link"></i> Copy link</button>
-      <a class="share-option" id="shareWhatsapp" href="#" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> WhatsApp</a>
-      <a class="share-option" id="shareTwitter" href="#" target="_blank" rel="noopener"><i class="fab fa-twitter"></i> Twitter / X</a>
-      <a class="share-option" id="shareReddit" href="#" target="_blank" rel="noopener"><i class="fab fa-reddit"></i> Reddit</a>
-      
-      
+<div class="container">
+  <header>
+    <a href="/" class="logo">Colin Archive</a>
+    <nav class="header-nav" id="headerNav"></nav>
+  </header>
+
+  <div class="modal" id="loginModal">
+    <div class="modal-content">
+      <h3>Log in to Archive</h3>
+      <input type="email" id="loginEmail" placeholder="Email" />
+      <input type="password" id="loginPassword" placeholder="Password" />
+      <button id="loginSubmit">Log In</button>
+      <button class="modal-close" id="closeModal">Cancel</button>
+      <div class="error-message" id="loginError"></div>
     </div>
   </div>
-</nav>
 
-<div class="wrapper">
-  <div class="back-link">
-    <a href="/">← Back to Home</a>
-  </div>
-  <div class="post-container" id="postContainer">
-    <div class="loading">Loading post...</div>
-  </div>
-</div>
+  <div class="main-wrap">
+    <div class="page-header">
+      <h1>Comments</h1>
+      <p class="page-subtitle">Moderate reader comments</p>
+    </div>
 
-<div class="comments-section" id="commentsSection">
-  <div class="comments-title">Comments <span id="commentCount"></span></div>
-  <form class="comment-form" id="commentForm">
-    <input type="text" id="commentName" placeholder="Your name" maxlength="60" required>
-    <textarea id="commentBody" placeholder="Leave a comment…" maxlength="2000" required></textarea>
-    <div class="comment-feedback" id="commentFeedback"></div>
-    <button type="submit" class="comment-submit" id="commentSubmit">Post comment</button>
-  </form>
-  <div class="comment-list" id="commentList">
-    <div class="comments-empty">Loading comments…</div>
+    <div id="appContent">
+      <div class="locked-state">You must be logged in to manage comments.</div>
+    </div>
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  // ⚠️ Anon key is public — ensure Supabase RLS policies are locked down.
-  const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
-  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
+const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
 
-  const db        = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  const nav       = document.getElementById('mainNav');
-  const typeLabel = document.getElementById('postTypeLabel');
-  const container = document.getElementById('postContainer');
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  function getPostId() {
-    return new URLSearchParams(location.search).get("id");
+let currentUser   = null;
+let allComments   = [];
+let allPosts      = {};  // id -> title map
+let currentFilter = 'all';
+let currentSearch = '';
+
+const headerNav  = document.getElementById('headerNav');
+const loginModal = document.getElementById('loginModal');
+const appContent = document.getElementById('appContent');
+
+// ── Auth ──
+function updateHeaderUI() {
+  if (currentUser) {
+    headerNav.innerHTML = `
+      <a href="/">Archive</a>
+      <div class="user-menu">
+        <span class="user-email">${escapeHtml(currentUser.email)}</span>
+        <button class="logout-btn" id="logoutBtn">Logout</button>
+      </div>`;
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+  } else {
+    headerNav.innerHTML = `<button id="loginBtn">Login</button>`;
+    document.getElementById('loginBtn').addEventListener('click', () => loginModal.classList.add('active'));
+  }
+}
+
+async function logout() {
+  await db.auth.signOut();
+  currentUser = null;
+  updateHeaderUI();
+  appContent.innerHTML = '<div class="locked-state">You must be logged in to manage comments.</div>';
+}
+
+async function checkSession() {
+  const { data: { session } } = await db.auth.getSession();
+  if (session?.user) {
+    currentUser = session.user;
+    updateHeaderUI();
+    await loadData();
+  } else {
+    updateHeaderUI();
+  }
+}
+
+document.getElementById('loginSubmit').addEventListener('click', async () => {
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+  const errEl    = document.getElementById('loginError');
+  if (!email || !password) { errEl.textContent = 'Email and password required'; return; }
+  const { data, error } = await db.auth.signInWithPassword({ email, password });
+  if (error) { errEl.textContent = error.message; return; }
+  currentUser = data.user;
+  loginModal.classList.remove('active');
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPassword').value = '';
+  errEl.textContent = '';
+  updateHeaderUI();
+  await loadData();
+});
+
+document.getElementById('closeModal').addEventListener('click', () => {
+  loginModal.classList.remove('active');
+  document.getElementById('loginError').textContent = '';
+});
+loginModal.addEventListener('click', (e) => {
+  if (e.target === loginModal) {
+    loginModal.classList.remove('active');
+    document.getElementById('loginError').textContent = '';
+  }
+});
+
+// ── Data ──
+async function loadData() {
+  appContent.innerHTML = '<div class="loading-state">Loading comments…</div>';
+
+  // Load posts for title lookup
+  const { data: posts } = await db.from('posts').select('id, title');
+  if (posts) posts.forEach(p => { allPosts[p.id] = p.title; });
+
+  // Load all comments (admin sees all including unapproved)
+  const { data: comments, error } = await db
+    .from('comments')
+    .select('id, post_id, name, content, created_at, approved')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    appContent.innerHTML = `<div class="loading-state">Error loading comments: ${escapeHtml(error.message)}</div>`;
+    return;
   }
 
-  function setMeta(post) {
-    const title   = post.title   || 'Colin Archive';
-    const excerpt = post.excerpt || 'A quiet archive of essays, code, and notes.';
-    const image   = post.cover_url || 'https://yourdomain.com/og-image.jpg';
-    document.title = `${title} — Colin Archive`;
-    document.getElementById('metaDesc').content = excerpt;
-    document.getElementById('ogTitle').content  = title;
-    document.getElementById('ogDesc').content   = excerpt;
-    document.getElementById('ogUrl').content    = location.href;
-    document.getElementById('ogImage').content  = image;
-    document.getElementById('twTitle').content  = title;
-    document.getElementById('twDesc').content   = excerpt;
-  }
+  allComments = comments || [];
+  renderUI();
+}
 
-  function initShare(post, typeColor) {
-    const url   = location.href;
-    const title = post.title || 'Colin Archive';
+// ── Render ──
+function renderUI() {
+  const filtered = getFiltered();
+  const total    = allComments.length;
+  const approved = allComments.filter(c => c.approved).length;
 
-    document.documentElement.style.setProperty('--type-color', typeColor);
-
-    const shareBtn      = document.getElementById('shareBtn');
-    const shareDropdown = document.getElementById('shareDropdown');
-    const copyLinkBtn   = document.getElementById('copyLinkBtn');
-
-    document.getElementById('shareTwitter').href =
-      `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
-    document.getElementById('shareReddit').href =
-      `https://reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
-    document.getElementById('shareWhatsapp').href =
-      `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`;
-
-
-
-
-    shareBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (navigator.share && window.innerWidth < 700) {
-        navigator.share({ title, url }).catch(() => {});
-        return;
-      }
-      shareDropdown.classList.toggle('open');
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!document.getElementById('shareWrap').contains(e.target)) {
-        shareDropdown.classList.remove('open');
-      }
-    });
-
-    copyLinkBtn.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(url);
-        copyLinkBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-        copyLinkBtn.classList.add('copy-success');
-        setTimeout(() => {
-          copyLinkBtn.innerHTML = '<i class="fas fa-link"></i> Copy link';
-          copyLinkBtn.classList.remove('copy-success');
-          shareDropdown.classList.remove('open');
-        }, 1800);
-      } catch(err) { console.error(err); }
-    });
-  }
-
-  function escapeHtml(unsafe) {
-    if (!unsafe) return "";
-    return unsafe
-      .replace(/&/g,"&amp;").replace(/</g,"&lt;")
-      .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
-  }
-
-  function normalizeIndent(text) {
-    const lines = text.split('\n');
-    let minIndent = Infinity;
-    lines.forEach(line => {
-      if (line.trim().length > 0) {
-        minIndent = Math.min(minIndent, line.match(/^(\s*)/)[0].length);
-      }
-    });
-    if (minIndent === Infinity) minIndent = 0;
-    return lines.map(line => line.slice(minIndent)).join('\n');
-  }
-
-  function calcReadTime(text) {
-    const words = (text || '').trim().split(/\s+/).length;
-    return Math.max(1, Math.round(words / 200));
-  }
-
-  function renderPost(post) {
-    setMeta(post);
-
-    const type     = post.type || 'essay';
-    const isPaid   = post.access === 'paid';
-    const metaDate = new Date(post.created_at).toLocaleDateString();
-    const readTime = post.readtime || calcReadTime(post.content);
-
-    const colorMap  = { essay: '#4ecdc4', code: '#51cf66', notes: '#ffe66d' };
-    const typeColor = colorMap[type] || '#4ecdc4';
-
-    nav.className = `nav-type-${type}`;
-    typeLabel.className = `post-type-label ${type}`;
-    typeLabel.textContent = type === 'code' ? 'code' : (type === 'notes' ? 'note' : 'essay');
-
-    initShare(post, typeColor);
-
-    const tags = (post.tags || "").split(",").filter(Boolean)
-      .map(t => `<span class="tag">${escapeHtml(t.trim())}</span>`).join("");
-
-    let contentText = post.content || '';
-    if (type === 'code') contentText = normalizeIndent(contentText);
-    const escapedContent = escapeHtml(contentText);
-
-    let contentHtml;
-
-    if (isPaid) {
-      contentHtml = `
-        <div style="position:relative;">
-          <i class="fas fa-lock locked-icon"></i>
-          <h1 class="title">${escapeHtml(post.title)}</h1>
-          <div class="meta">${metaDate} • ${readTime} min read</div>
-          ${tags ? `<div class="tags">${tags}</div>` : ""}
-          <div class="locked-message">
-            <h3>🔒 PAID ENTRY</h3>
-            <p>This post requires access.</p>
-            <a class="btn" href="#">Unlock</a>
-          </div>
-        </div>`;
-    } else if (type === 'code') {
-      const lines      = escapedContent.split('\n');
-      const numberHtml = lines.map((_,i) => `<div>${i+1}</div>`).join('');
-      const codeHtml   = lines.map(line => `<span class="code-line">${line||' '}</span>`).join('');
-      contentHtml = `
-        <h1 class="title">${escapeHtml(post.title)}</h1>
-        <div class="meta">${metaDate} • ${readTime} min read</div>
-        ${tags ? `<div class="tags">${tags}</div>` : ""}
-        <div class="terminal">
-          <div class="terminal-header">
-            <span class="terminal-dot"></span>
-            <span class="terminal-dot"></span>
-            <span class="terminal-dot"></span>
-            <span class="terminal-title">Terminal</span>
-          </div>
-          <div class="terminal-body">
-            <div class="line-numbers">${numberHtml}</div>
-            <div class="code-lines" id="postContentBody">${codeHtml}</div>
-          </div>
-          <button class="copy-btn" id="copyCodeBtn"><i class="far fa-copy"></i> Copy</button>
-        </div>`;
-    } else {
-      contentHtml = `
-        <h1 class="title">${escapeHtml(post.title)}</h1>
-        <div class="meta">${metaDate} • ${readTime} min read</div>
-        ${tags ? `<div class="tags">${tags}</div>` : ""}
-        <div class="content">${escapedContent}</div>`;
-    }
-
-    container.innerHTML = `<div class="type-${type}">${contentHtml}</div>`;
-
-    if (type === 'code' && !isPaid) {
-      const copyBtn = document.getElementById('copyCodeBtn');
-      if (copyBtn) {
-        copyBtn.addEventListener('click', async () => {
-          try {
-            await navigator.clipboard.writeText(contentText);
-            copyBtn.classList.add('copied');
-            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-            setTimeout(() => {
-              copyBtn.classList.remove('copied');
-              copyBtn.innerHTML = '<i class="far fa-copy"></i> Copy';
-            }, 2000);
-          } catch (err) { console.error('Copy failed:', err); }
-        });
-      }
-    }
-  }
-
-  async function loadPost() {
-    const id = getPostId();
-    if (!id) {
-      container.innerHTML = "<div class='loading'>No post ID specified</div>";
-      return;
-    }
-    const { data, error } = await db.from("posts").select("*").eq("id", id).single();
-    if (error || !data) {
-      container.innerHTML = "<div class='loading'>Post not found</div>";
-      return;
-    }
-    renderPost(data);
-    initComments(data.id);
-  }
-
-  loadPost();
-
-  // ----- COMMENTS -----
-  function relTimeComment(iso) {
-    const d = new Date(iso), now = Date.now(), diff = now - d;
-    const s=diff/1e3, m=s/60, h=m/60, day=h/24;
-    if (s<60)  return 'just now';
-    if (m<60)  return Math.floor(m)+'m ago';
-    if (h<24)  return Math.floor(h)+'h ago';
-    if (day<2) return 'yesterday';
-    if (day<7) return Math.floor(day)+'d ago';
-    return new Date(iso).toLocaleDateString();
-  }
-
-  async function loadComments(postId) {
-    const list = document.getElementById('commentList');
-    const countEl = document.getElementById('commentCount');
-    const { data, error } = await db
-      .from('comments')
-      .select('id, name, content, created_at')
-      .eq('post_id', postId)
-      .order('created_at', { ascending: true });
-
-    if (error || !data || data.length === 0) {
-      list.innerHTML = '<div class="comments-empty">No comments yet. Be the first.</div>';
-      if (countEl) countEl.textContent = '';
-      return;
-    }
-
-    if (countEl) countEl.textContent = '(' + data.length + ')';
-    list.innerHTML = data.map(c => `
-      <div class="comment-item">
-        <div class="comment-header">
-          <span class="comment-name">${escapeHtml(c.name)}</span>
-          <span class="comment-date">${relTimeComment(c.created_at)}</span>
-        </div>
-        <div class="comment-body">${escapeHtml(c.content)}</div>
+  appContent.innerHTML = `
+    <div class="stats-bar">
+      <div class="stat-pill"><span>${total}</span> total</div>
+      <div class="stat-pill"><span>${approved}</span> approved</div>
+      <div class="stat-pill"><span>${total - approved}</span> pending</div>
+    </div>
+    <div class="filters">
+      <input type="text" class="search-box" id="searchBox" placeholder="Search comments…" value="${escapeHtml(currentSearch)}">
+      <div class="filter-tags">
+        <button class="filter-tag ${currentFilter==='all'?'active':''}" data-filter="all">All</button>
+        <button class="filter-tag ${currentFilter==='approved'?'active':''}" data-filter="approved">Approved</button>
+        <button class="filter-tag ${currentFilter==='pending'?'active-red':''}" data-filter="pending">Pending</button>
       </div>
-    `).join('');
-  }
+    </div>
+    <div class="comment-list" id="commentList"></div>
+  `;
 
-  function initComments(postId) {
-    loadComments(postId);
-
-    const form     = document.getElementById('commentForm');
-    const nameEl   = document.getElementById('commentName');
-    const bodyEl   = document.getElementById('commentBody');
-    const feedback = document.getElementById('commentFeedback');
-    const submit   = document.getElementById('commentSubmit');
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = nameEl.value.trim();
-      const body = bodyEl.value.trim();
-      if (!name || !body) return;
-
-      submit.disabled = true;
-      feedback.textContent = '';
-      feedback.className = 'comment-feedback';
-
-      const { error } = await db.from('comments').insert({ post_id: postId, name, content: body });
-
-      if (error) {
-        feedback.textContent = 'Failed to post. Try again.';
-        feedback.classList.add('error');
-        submit.disabled = false;
-        return;
-      }
-
-      nameEl.value = '';
-      bodyEl.value = '';
-      feedback.textContent = 'Comment posted.';
-      submit.disabled = false;
-      loadComments(postId);
+  // Attach filter/search events
+  document.getElementById('searchBox').addEventListener('input', (e) => {
+    currentSearch = e.target.value;
+    renderList();
+  });
+  document.querySelectorAll('.filter-tag').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentFilter = btn.dataset.filter;
+      renderList();
     });
+  });
+
+  renderList();
+}
+
+function renderList() {
+  const list     = document.getElementById('commentList');
+  const filtered = getFiltered();
+
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty-state">No comments match.</div>';
+    return;
   }
+
+  list.innerHTML = filtered.map(c => {
+    const postTitle = allPosts[c.post_id] || 'Unknown post';
+    const date      = relTime(c.created_at);
+    return `
+      <div class="comment-row" data-id="${c.id}">
+        <div class="comment-main">
+          <div class="comment-top">
+            <span class="comment-name">${escapeHtml(c.name)}</span>
+            <span class="comment-date">${date}</span>
+            <a class="comment-post-link" href="/post.html?id=${escapeHtml(c.post_id)}" target="_blank" rel="noopener">${escapeHtml(postTitle)}</a>
+          </div>
+          <div class="comment-body">${escapeHtml(c.content)}</div>
+        </div>
+        <button class="comment-delete-btn" onclick="deleteComment('${c.id}')">Delete</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function getFiltered() {
+  let f = allComments;
+  if (currentFilter === 'approved') f = f.filter(c => c.approved);
+  if (currentFilter === 'pending')  f = f.filter(c => !c.approved);
+  if (currentSearch) {
+    const s = currentSearch.toLowerCase();
+    f = f.filter(c =>
+      (c.name || '').toLowerCase().includes(s) ||
+      (c.content || '').toLowerCase().includes(s) ||
+      (allPosts[c.post_id] || '').toLowerCase().includes(s)
+    );
+  }
+  return f;
+}
+
+// ── Delete ──
+async function deleteComment(id) {
+  if (!confirm('Delete this comment forever?')) return;
+  const { error } = await db.from('comments').delete().eq('id', id);
+  if (error) { alert('Error: ' + error.message); return; }
+  allComments = allComments.filter(c => c.id !== id);
+  renderUI();
+}
+
+// ── Helpers ──
+function escapeHtml(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+}
+
+function relTime(iso) {
+  const d = new Date(iso), now = Date.now(), diff = now - d;
+  const s=diff/1e3, m=s/60, h=m/60, day=h/24;
+  if (s<60)  return 'just now';
+  if (m<60)  return Math.floor(m)+'m ago';
+  if (h<24)  return Math.floor(h)+'h ago';
+  if (day<2) return 'yesterday';
+  if (day<7) return Math.floor(day)+'d ago';
+  return new Date(iso).toLocaleDateString();
+}
+
+// ── Boot ──
+checkSession();
 </script>
 
 </body>
