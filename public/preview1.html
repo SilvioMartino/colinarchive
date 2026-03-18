@@ -149,7 +149,7 @@
     .loading { text-align: center; font-family: var(--mono); color: var(--muted); padding: 3rem; font-size: 1rem; }
     body.is-resizing { user-select: none; cursor: ew-resize; }
 
-    /* ── COMMENTS ── */
+    /* ── COMMENTS — thick borders like homepage, with show/hide replies ── */
     .comments-wrap { margin-top: 5rem; position: relative; }
 
     .comments-divider { position: relative; text-align: center; margin-bottom: 3rem; }
@@ -157,7 +157,6 @@
     .comments-divider-label { position: relative; display: inline-block; background: var(--paper); padding: 0 1rem; font-family: var(--hand); font-size: 1.1rem; color: var(--muted); opacity: 0.55; letter-spacing: 0.02em; }
 
     .comment-form-section { margin-bottom: 3.5rem; }
-
     .comment-form-title { font-family: var(--hand); font-size: 1.3rem; color: var(--fg); opacity: 0.5; margin-bottom: 1.25rem; letter-spacing: 0.01em; }
 
     .reply-indicator { display: none; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-family: var(--hand); font-size: 0.9rem; color: var(--muted); }
@@ -166,7 +165,6 @@
     .reply-indicator .cancel-reply:hover { color: var(--red); }
 
     .comment-form { display: flex; flex-direction: column; gap: 0; }
-
     .comment-form input, .comment-form textarea { background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--fg); font-family: var(--serif); font-size: 1rem; padding: 0.65rem 0; transition: border-color 0.2s; resize: none; outline: none; width: 100%; }
     .comment-form input::placeholder, .comment-form textarea::placeholder { color: var(--muted); opacity: 0.35; font-style: italic; font-family: var(--serif); }
     .comment-form input:focus, .comment-form textarea:focus { border-bottom-color: var(--type-color); }
@@ -175,7 +173,6 @@
     .comment-form-row { display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; gap: 1rem; }
     .comment-feedback { font-family: var(--mono); font-size: 0.62rem; color: var(--green); letter-spacing: 0.04em; min-height: 1rem; flex: 1; }
     .comment-feedback.error { color: var(--red); }
-
     .comment-submit { padding: 0; background: transparent; border: none; color: var(--muted); font-family: var(--hand); font-size: 1.1rem; cursor: pointer; transition: color 0.2s; line-height: 1; flex-shrink: 0; letter-spacing: 0.01em; }
     .comment-submit:hover { color: var(--type-color); }
     .comment-submit:disabled { opacity: 0.25; cursor: not-allowed; }
@@ -184,10 +181,14 @@
     .comments-header h3 { font-family: var(--hand); font-size: 1.15rem; color: var(--muted); font-weight: 400; opacity: 0.5; letter-spacing: 0.01em; }
     .comments-count { font-family: var(--mono); font-size: 0.62rem; color: var(--type-color); opacity: 0.7; }
 
+    /* Thread styling – thick borders like homepage */
     .comment-thread { margin-left: 0; }
-    .comment-thread .comment-thread { margin-left: 1.5rem; border-left: 1px solid var(--border); padding-left: 1.5rem; }
+    .comment-thread .comment-thread {
+      margin-left: 1.5rem;
+      border-left: 4px solid var(--border);
+      padding-left: 1.5rem;
+    }
 
-    /* ── only change: added transition + hover ── */
     .comment-item {
       position: relative;
       padding: 1.5rem 0 1.5rem 1.5rem;
@@ -197,7 +198,17 @@
     .comment-item:first-child { border-top: 1px solid var(--border); }
     .comment-item:hover { background: rgba(255,255,255,0.02); border-radius: 4px; }
 
-    .comment-item::before { content: ''; position: absolute; left: 0; top: 1.5rem; bottom: 1.5rem; width: 1px; background: var(--type-color); opacity: 0.35; transition: opacity 0.2s; }
+    .comment-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 1.5rem;
+      bottom: 1.5rem;
+      width: 4px;                     /* thick border like homepage */
+      background: var(--type-color);
+      opacity: 0.35;
+      transition: opacity 0.2s;
+    }
     .comment-item:hover::before { opacity: 0.7; }
 
     .comment-item-header { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.5rem; }
@@ -207,6 +218,30 @@
 
     .comment-reply-btn { margin-top: 0.5rem; background: transparent; border: none; color: var(--muted); font-family: var(--hand); font-size: 0.8rem; cursor: pointer; transition: color 0.2s; display: inline-flex; align-items: center; gap: 0.2rem; }
     .comment-reply-btn:hover { color: var(--type-color); }
+
+    /* Show replies button */
+    .show-replies-btn {
+      margin-top: 0.5rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.2rem 0.8rem;
+      color: var(--muted);
+      font-family: var(--hand);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      margin-left: 1rem;
+    }
+    .show-replies-btn:hover { border-color: var(--type-color); color: var(--type-color); }
+
+    .replies-container {
+      display: none;  /* hidden by default */
+    }
+    .replies-container.visible { display: block; }
 
     .comments-empty { font-family: var(--hand); font-size: 1.1rem; color: var(--muted); opacity: 0.3; padding: 0.5rem 0 0.5rem 1.5rem; letter-spacing: 0.01em; }
 
@@ -228,6 +263,7 @@
       .share-dropdown { right: 0; }
       .comments-wrap { padding: 0 1rem; padding-top: 2rem; margin-top: 3rem; }
       .comment-thread .comment-thread { margin-left: 0.75rem; padding-left: 0.75rem; }
+      .show-replies-btn { margin-left: 0.5rem; font-size: 0.7rem; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -385,7 +421,7 @@
     if(!isPaid) initComments(post.id);
   }
 
-  /* ---- COMMENTS ---- */
+  /* ---- COMMENTS with show replies toggle ---- */
   let currentPostId=null, replyParentId=null, replyToName='';
   const replyIndicator=document.getElementById('replyIndicator');
   const replyToNameSpan=document.getElementById('replyToName');
@@ -405,8 +441,13 @@
     return comments.map(c=>{
       const date=relTime(c.created_at), name=escapeHtml(c.name), body=escapeHtml(c.content);
       const replyBtn=`<button class="comment-reply-btn" data-parent-id="${c.id}" data-parent-name="${c.name}"><i class="fas fa-reply"></i> reply</button>`;
-      const repliesHtml=c.replies.length?`<div class="comment-thread">${renderCommentTree(c.replies,depth+1)}</div>`:'';
-      return `<div class="comment-item" data-comment-id="${c.id}"><div class="comment-item-header"><span class="comment-item-name">${name}</span><span class="comment-item-date">${date}</span></div><div class="comment-item-body">${body}</div>${replyBtn}${repliesHtml}</div>`;
+      let showRepliesBtn = '';
+      let repliesHtml = '';
+      if(c.replies.length){
+        showRepliesBtn = `<button class="show-replies-btn" data-target="replies-${c.id}"><i class="fas fa-chevron-down"></i> show ${c.replies.length} repl${c.replies.length>1?'ies':'y'}</button>`;
+        repliesHtml = `<div class="replies-container" id="replies-${c.id}">${renderCommentTree(c.replies,depth+1)}</div>`;
+      }
+      return `<div class="comment-item" data-comment-id="${c.id}"><div class="comment-item-header"><span class="comment-item-name">${name}</span><span class="comment-item-date">${date}</span></div><div class="comment-item-body">${body}</div>${replyBtn}${showRepliesBtn}${repliesHtml}</div>`;
     }).join('');
   }
 
@@ -418,7 +459,21 @@
     const tree=buildCommentTree(data);
     if(countEl)countEl.textContent=`(${data.length})`;
     list.innerHTML=renderCommentTree(tree);
+    // Attach reply buttons
     list.querySelectorAll('.comment-reply-btn').forEach(btn=>{ btn.addEventListener('click',()=>setReply(btn.dataset.parentId,btn.dataset.parentName)); });
+    // Attach show/hide replies buttons
+    list.querySelectorAll('.show-replies-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const targetId=btn.dataset.target;
+        const container=document.getElementById(targetId);
+        if(container){
+          container.classList.toggle('visible');
+          btn.innerHTML = container.classList.contains('visible') ?
+            `<i class="fas fa-chevron-up"></i> hide repl${container.querySelectorAll('.comment-item').length>1?'ies':'y'}` :
+            `<i class="fas fa-chevron-down"></i> show ${container.querySelectorAll('.comment-item').length} repl${container.querySelectorAll('.comment-item').length>1?'ies':'y'}`;
+        }
+      });
+    });
   }
 
   function initComments(postId){
