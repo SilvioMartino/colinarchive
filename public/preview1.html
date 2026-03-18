@@ -221,234 +221,224 @@
     .loading { text-align: center; font-family: var(--mono); color: var(--muted); padding: 3rem; font-size: 1rem; }
     body.is-resizing { user-select: none; cursor: ew-resize; }
 
-    /* ── COMMENTS ── */
+    /* ── COMMENTS — margin note aesthetic ── */
     .comments-wrap {
-      margin-top: 4rem;
-      padding-top: 2.5rem;
-      border-top: 1px solid var(--border);
+      margin-top: 5rem;
+      position: relative;
+    }
+
+    .comments-divider {
+      position: relative;
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .comments-divider::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0; right: 0;
+      height: 1px;
+      background: var(--border);
+    }
+    .comments-divider-label {
+      position: relative;
+      display: inline-block;
+      background: var(--paper);
+      padding: 0 1rem;
+      font-family: var(--hand);
+      font-size: 1.1rem;
+      color: var(--muted);
+      opacity: 0.55;
+      letter-spacing: 0.02em;
     }
 
     /* Form */
-    .comment-form-section { margin-bottom: 2.5rem; }
+    .comment-form-section { margin-bottom: 3.5rem; }
+
     .comment-form-title {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 1rem;
+      font-family: var(--hand);
+      font-size: 1.3rem;
+      color: var(--fg);
+      opacity: 0.5;
+      margin-bottom: 1.25rem;
+      letter-spacing: 0.01em;
     }
-    .comment-form { display: flex; flex-direction: column; gap: 0.6rem; }
+
+    .reply-indicator {
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      font-family: var(--hand);
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .reply-indicator span { color: var(--type-color); }
+    .reply-indicator .cancel-reply {
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+      padding: 0.2rem;
+      transition: color 0.2s;
+    }
+    .reply-indicator .cancel-reply:hover { color: var(--red); }
+
+    .comment-form { display: flex; flex-direction: column; gap: 0; }
+
     .comment-form input,
     .comment-form textarea {
-      background: var(--highlight, #1f1f1f);
-      border: 1px solid var(--border);
-      border-radius: 4px;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--border);
       color: var(--fg);
       font-family: var(--serif);
-      font-size: 0.95rem;
-      padding: 0.65rem 0.85rem;
+      font-size: 1rem;
+      padding: 0.65rem 0;
       transition: border-color 0.2s;
       resize: none;
       outline: none;
       width: 100%;
     }
     .comment-form input::placeholder,
-    .comment-form textarea::placeholder { color: var(--muted); opacity: 0.5; }
+    .comment-form textarea::placeholder {
+      color: var(--muted);
+      opacity: 0.35;
+      font-style: italic;
+      font-family: var(--serif);
+    }
     .comment-form input:focus,
-    .comment-form textarea:focus { border-color: var(--type-color); }
-    .comment-form textarea { min-height: 90px; line-height: 1.65; }
+    .comment-form textarea:focus { border-bottom-color: var(--type-color); }
+    .comment-form textarea { min-height: 100px; line-height: 1.7; margin-top: 0.5rem; }
+
     .comment-form-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      margin-top: 1rem;
       gap: 1rem;
     }
     .comment-feedback {
       font-family: var(--mono);
       font-size: 0.62rem;
       color: var(--green);
+      letter-spacing: 0.04em;
       min-height: 1rem;
       flex: 1;
     }
     .comment-feedback.error { color: var(--red); }
+
     .comment-submit {
-      padding: 0.5rem 1.1rem;
+      padding: 0;
       background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 4px;
+      border: none;
       color: var(--muted);
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      font-family: var(--hand);
+      font-size: 1.1rem;
       cursor: pointer;
-      transition: border-color 0.2s, color 0.2s;
+      transition: color 0.2s;
+      line-height: 1;
       flex-shrink: 0;
+      letter-spacing: 0.01em;
     }
-    .comment-submit:hover { border-color: var(--type-color); color: var(--type-color); }
-    .comment-submit:disabled { opacity: 0.3; cursor: not-allowed; }
+    .comment-submit:hover { color: var(--type-color); }
+    .comment-submit:disabled { opacity: 0.25; cursor: not-allowed; }
 
     /* List */
     .comments-list-section {}
+
     .comments-header {
       display: flex;
       align-items: baseline;
       gap: 0.75rem;
-      margin-bottom: 1.25rem;
-      padding-top: 2rem;
-      border-top: 1px solid var(--border);
+      margin-bottom: 1.75rem;
     }
     .comments-header h3 {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
+      font-family: var(--hand);
+      font-size: 1.15rem;
       color: var(--muted);
       font-weight: 400;
+      opacity: 0.5;
+      letter-spacing: 0.01em;
     }
     .comments-count {
       font-family: var(--mono);
       font-size: 0.62rem;
       color: var(--type-color);
+      opacity: 0.7;
     }
 
-    .comment-list { display: flex; flex-direction: column; }
+    /* Thread styling */
+    .comment-thread { margin-left: 0; }
+    .comment-thread .comment-thread { margin-left: 1.5rem; border-left: 1px solid var(--border); padding-left: 1.5rem; }
 
     .comment-item {
-      padding: 1.25rem 0;
+      position: relative;
+      padding: 1.5rem 0 1.5rem 1.5rem;
       border-bottom: 1px solid var(--border);
     }
-    .comment-item:last-child { border-bottom: none; }
+    .comment-item:first-child { border-top: 1px solid var(--border); }
+
+    .comment-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 1.5rem;
+      bottom: 1.5rem;
+      width: 1px;
+      background: var(--type-color);
+      opacity: 0.35;
+      transition: opacity 0.2s;
+    }
+    .comment-item:hover::before { opacity: 0.7; }
 
     .comment-item-header {
       display: flex;
-      align-items: center;
+      align-items: baseline;
       gap: 0.6rem;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.5rem;
     }
     .comment-item-name {
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      letter-spacing: 0.05em;
-      color: var(--type-color);
+      font-family: var(--hand);
+      font-size: 1.05rem;
+      color: var(--fg);
+      letter-spacing: 0.01em;
     }
     .comment-item-date {
       font-family: var(--mono);
-      font-size: 0.6rem;
+      font-size: 0.58rem;
       color: var(--muted);
-      opacity: 0.5;
+      opacity: 0.4;
     }
     .comment-item-body {
       font-family: var(--serif);
-      font-size: 1rem;
-      line-height: 1.7;
-      color: var(--fg);
+      font-size: 0.98rem;
+      line-height: 1.75;
+      color: var(--muted);
       white-space: pre-wrap;
       word-break: break-word;
-      margin-bottom: 0.5rem;
     }
     .comment-reply-btn {
-      background: none;
-      border: none;
-      font-family: var(--mono);
-      font-size: 0.6rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-      opacity: 0.5;
-      cursor: pointer;
-      padding: 0;
-      transition: opacity 0.2s, color 0.2s;
-    }
-    .comment-reply-btn:hover { opacity: 1; color: var(--type-color); }
-
-    /* Replies */
-    .comment-replies {
-      margin-top: 0.75rem;
-      margin-left: 1.5rem;
-      border-left: 1px solid var(--border);
-      padding-left: 1rem;
-      display: flex;
-      flex-direction: column;
-    }
-    .comment-reply-item {
-      padding: 0.85rem 0;
-      border-bottom: 1px solid var(--border);
-    }
-    .comment-reply-item:last-child { border-bottom: none; }
-
-    /* Inline reply form */
-    .reply-form-wrap {
-      margin-top: 0.75rem;
-      margin-left: 1.5rem;
-      border-left: 1px solid var(--type-color);
-      padding-left: 1rem;
-      display: none;
-    }
-    .reply-form-wrap.open { display: block; }
-    .reply-form { display: flex; flex-direction: column; gap: 0.5rem; }
-    .reply-form input,
-    .reply-form textarea {
-      background: var(--highlight, #1f1f1f);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      color: var(--fg);
-      font-family: var(--serif);
-      font-size: 0.9rem;
-      padding: 0.5rem 0.75rem;
-      resize: none;
-      outline: none;
-      width: 100%;
-      transition: border-color 0.2s;
-    }
-    .reply-form input::placeholder,
-    .reply-form textarea::placeholder { color: var(--muted); opacity: 0.5; }
-    .reply-form input:focus,
-    .reply-form textarea:focus { border-color: var(--type-color); }
-    .reply-form textarea { min-height: 60px; line-height: 1.55; }
-    .reply-form-row {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 0.75rem;
-    }
-    .reply-cancel-btn {
-      background: none; border: none;
-      font-family: var(--mono); font-size: 0.62rem;
-      letter-spacing: 0.08em; text-transform: uppercase;
-      color: var(--muted); opacity: 0.5; cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    .reply-cancel-btn:hover { opacity: 1; }
-    .reply-submit-btn {
-      padding: 0.4rem 0.9rem;
+      margin-top: 0.5rem;
       background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 4px;
+      border: none;
       color: var(--muted);
-      font-family: var(--mono);
-      font-size: 0.62rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      font-family: var(--hand);
+      font-size: 0.8rem;
       cursor: pointer;
-      transition: border-color 0.2s, color 0.2s;
+      transition: color 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
     }
-    .reply-submit-btn:hover { border-color: var(--type-color); color: var(--type-color); }
-    .reply-submit-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-    .reply-feedback {
-      font-family: var(--mono); font-size: 0.6rem;
-      color: var(--green); flex: 1;
-    }
-    .reply-feedback.error { color: var(--red); }
+    .comment-reply-btn:hover { color: var(--type-color); }
 
     .comments-empty {
-      font-family: var(--mono);
-      font-size: 0.7rem;
+      font-family: var(--hand);
+      font-size: 1.1rem;
       color: var(--muted);
-      opacity: 0.4;
-      padding: 1rem 0;
-      letter-spacing: 0.04em;
+      opacity: 0.3;
+      padding: 0.5rem 0 0.5rem 1.5rem;
+      letter-spacing: 0.01em;
     }
 
     @media (max-width: 700px) {
@@ -468,6 +458,7 @@
       .terminal-dot { width: 8px; height: 8px; }
       .share-dropdown { right: 0; }
       .comments-wrap { padding: 0 1rem; padding-top: 2rem; margin-top: 3rem; }
+      .comment-thread .comment-thread { margin-left: 0.75rem; padding-left: 0.75rem; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -507,21 +498,33 @@
       <div class="loading">Loading post...</div>
     </div>
 
-    <!-- Comments -->
+    <!-- Comments live inside the page column -->
     <div class="comments-wrap" id="commentsWrap" style="display:none;">
 
+      <!-- Divider -->
+      <div class="comments-divider">
+        <span class="comments-divider-label">reader notes</span>
+      </div>
+
+      <!-- Form first -->
       <div class="comment-form-section">
-        <div class="comment-form-title">Leave a comment</div>
+        <div class="comment-form-title">add your note</div>
+        <div class="reply-indicator" id="replyIndicator">
+          <span>Replying to <span id="replyToName"></span></span>
+          <span class="cancel-reply" id="cancelReply">✕</span>
+        </div>
         <form class="comment-form" id="commentForm">
-          <input type="text" id="commentName" placeholder="Name" maxlength="60" required autocomplete="off">
-          <textarea id="commentBody" placeholder="Your comment…" maxlength="2000" required></textarea>
+          <input type="hidden" id="commentParentId" value="">
+          <input type="text" id="commentName" placeholder="Your name" maxlength="60" required autocomplete="off">
+          <textarea id="commentBody" placeholder="Write something…" maxlength="2000" required></textarea>
           <div class="comment-form-row">
             <span class="comment-feedback" id="commentFeedback"></span>
-            <button type="submit" class="comment-submit" id="commentSubmit">Post</button>
+            <button type="submit" class="comment-submit" id="commentSubmit">leave it ↓</button>
           </div>
         </form>
       </div>
 
+      <!-- List below -->
       <div class="comments-list-section">
         <div class="comments-header">
           <h3>Comments</h3>
@@ -766,12 +769,69 @@
     if (!isPaid) initComments(post.id);
   }
 
-  /* ---- COMMENTS ---- */
+  /* ---- COMMENTS (with replies) ---- */
+  let currentPostId = null;
+  let replyParentId = null;
+  let replyToName = '';
+
+  const replyIndicator = document.getElementById('replyIndicator');
+  const replyToNameSpan = document.getElementById('replyToName');
+  const cancelReplyBtn = document.getElementById('cancelReply');
+  const commentParentId = document.getElementById('commentParentId');
+
+  cancelReplyBtn.addEventListener('click', () => {
+    replyParentId = null;
+    replyToName = '';
+    commentParentId.value = '';
+    replyIndicator.style.display = 'none';
+  });
+
+  function setReply(parentId, name) {
+    replyParentId = parentId;
+    replyToName = name;
+    commentParentId.value = parentId;
+    replyToNameSpan.textContent = name;
+    replyIndicator.style.display = 'flex';
+    document.getElementById('commentBody').focus();
+  }
+
+  // Recursively build comment tree
+  function buildCommentTree(comments, parentId = null) {
+    return comments
+      .filter(c => c.parent_id === parentId)
+      .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+      .map(c => ({
+        ...c,
+        replies: buildCommentTree(comments, c.id)
+      }));
+  }
+
+  function renderCommentTree(comments, depth = 0) {
+    if (!comments.length) return '';
+    return comments.map(c => {
+      const date = relTime(c.created_at);
+      const name = escapeHtml(c.name);
+      const body = escapeHtml(c.content);
+      const replyBtn = `<button class="comment-reply-btn" data-parent-id="${c.id}" data-parent-name="${c.name}"><i class="fas fa-reply"></i> reply</button>`;
+      const repliesHtml = c.replies.length ? `<div class="comment-thread">${renderCommentTree(c.replies, depth+1)}</div>` : '';
+      return `
+        <div class="comment-item" data-comment-id="${c.id}">
+          <div class="comment-item-header">
+            <span class="comment-item-name">${name}</span>
+            <span class="comment-item-date">${date}</span>
+          </div>
+          <div class="comment-item-body">${body}</div>
+          ${replyBtn}
+          ${repliesHtml}
+        </div>
+      `;
+    }).join('');
+  }
+
   async function loadComments(postId) {
     const list    = document.getElementById('commentList');
     const countEl = document.getElementById('commentsCount');
 
-    // Fetch all approved comments for this post
     const { data, error } = await db
       .from('comments')
       .select('id, name, content, created_at, parent_id')
@@ -779,113 +839,37 @@
       .eq('approved', true)
       .order('created_at', { ascending: true });
 
-    if (error || !data || data.length === 0) {
+    if (error) {
+      console.error('Error loading comments:', error);
+      list.innerHTML = '<div class="comments-empty">Could not load comments.</div>';
+      if (countEl) countEl.textContent = '';
+      return;
+    }
+
+    if (!data || data.length === 0) {
       list.innerHTML = '<div class="comments-empty">No comments yet.</div>';
       if (countEl) countEl.textContent = '';
       return;
     }
 
-    // Separate top-level and replies
-    const topLevel = data.filter(c => !c.parent_id);
-    const replies  = data.filter(c =>  c.parent_id);
-    const total    = data.length;
+    const tree = buildCommentTree(data);
+    const totalTopLevel = tree.length;
+    if (countEl) countEl.textContent = `(${data.length})`;
 
-    if (countEl) countEl.textContent = `(${total})`;
+    list.innerHTML = renderCommentTree(tree);
 
-    list.innerHTML = topLevel.map(c => {
-      const commentReplies = replies.filter(r => r.parent_id === c.id);
-      const repliesHtml = commentReplies.length ? `
-        <div class="comment-replies">
-          ${commentReplies.map(r => `
-            <div class="comment-reply-item">
-              <div class="comment-item-header">
-                <span class="comment-item-name">${escapeHtml(r.name)}</span>
-                <span class="comment-item-date">${relTime(r.created_at)}</span>
-              </div>
-              <div class="comment-item-body">${escapeHtml(r.content)}</div>
-            </div>
-          `).join('')}
-        </div>` : '';
-
-      return `
-        <div class="comment-item" data-id="${c.id}">
-          <div class="comment-item-header">
-            <span class="comment-item-name">${escapeHtml(c.name)}</span>
-            <span class="comment-item-date">${relTime(c.created_at)}</span>
-          </div>
-          <div class="comment-item-body">${escapeHtml(c.content)}</div>
-          <button class="comment-reply-btn" data-id="${c.id}">Reply</button>
-          <div class="reply-form-wrap" id="reply-form-${c.id}">
-            <form class="reply-form" data-parent="${c.id}">
-              <input type="text" class="reply-name" placeholder="Name" maxlength="60" required autocomplete="off">
-              <textarea class="reply-body" placeholder="Your reply…" maxlength="1000" required></textarea>
-              <div class="reply-form-row">
-                <span class="reply-feedback"></span>
-                <button type="button" class="reply-cancel-btn">Cancel</button>
-                <button type="submit" class="reply-submit-btn">Post reply</button>
-              </div>
-            </form>
-          </div>
-          ${repliesHtml}
-        </div>
-      `;
-    }).join('');
-
-    // Wire up reply buttons
+    // Attach reply button listeners
     list.querySelectorAll('.comment-reply-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        const id   = btn.dataset.id;
-        const wrap = document.getElementById(`reply-form-${id}`);
-        const isOpen = wrap.classList.contains('open');
-        // Close all other open reply forms first
-        list.querySelectorAll('.reply-form-wrap.open').forEach(w => w.classList.remove('open'));
-        if (!isOpen) wrap.classList.add('open');
-      });
-    });
-
-    // Wire up cancel buttons
-    list.querySelectorAll('.reply-cancel-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        btn.closest('.reply-form-wrap').classList.remove('open');
-      });
-    });
-
-    // Wire up reply form submissions
-    list.querySelectorAll('.reply-form').forEach(form => {
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const parentId  = form.dataset.parent;
-        const name      = form.querySelector('.reply-name').value.trim();
-        const body      = form.querySelector('.reply-body').value.trim();
-        const feedback  = form.querySelector('.reply-feedback');
-        const submitBtn = form.querySelector('.reply-submit-btn');
-        if (!name || !body) return;
-
-        submitBtn.disabled = true;
-        feedback.textContent = '';
-        feedback.className = 'reply-feedback';
-
-        const { error } = await db.from('comments').insert({
-          post_id: postId, name, content: body, parent_id: parentId
-        });
-
-        if (error) {
-          feedback.textContent = 'Failed. Try again.';
-          feedback.classList.add('error');
-          submitBtn.disabled = false;
-          return;
-        }
-
-        form.querySelector('.reply-name').value = '';
-        form.querySelector('.reply-body').value = '';
-        feedback.textContent = 'Posted.';
-        submitBtn.disabled = false;
-        loadComments(postId);
+        const parentId = btn.dataset.parentId;
+        const parentName = btn.dataset.parentName;
+        setReply(parentId, parentName);
       });
     });
   }
 
   function initComments(postId) {
+    currentPostId = postId;
     document.getElementById('commentsWrap').style.display = '';
     loadComments(postId);
 
@@ -894,11 +878,13 @@
     const bodyEl   = document.getElementById('commentBody');
     const feedback = document.getElementById('commentFeedback');
     const submit   = document.getElementById('commentSubmit');
+    const parentIdInput = document.getElementById('commentParentId');
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = nameEl.value.trim();
       const body = bodyEl.value.trim();
+      const parentId = parentIdInput.value ? parseInt(parentIdInput.value) : null;
       if (!name || !body) return;
 
       submit.disabled = true;
@@ -906,7 +892,10 @@
       feedback.className = 'comment-feedback';
 
       const { error } = await db.from('comments').insert({
-        post_id: postId, name, content: body, parent_id: null
+        post_id: postId,
+        name,
+        content: body,
+        parent_id: parentId
       });
 
       if (error) {
@@ -918,6 +907,9 @@
 
       nameEl.value = '';
       bodyEl.value = '';
+      parentIdInput.value = '';
+      replyParentId = null;
+      replyIndicator.style.display = 'none';
       feedback.textContent = 'Posted.';
       submit.disabled = false;
       loadComments(postId);
