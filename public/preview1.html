@@ -221,16 +221,16 @@
     .loading { text-align: center; font-family: var(--mono); color: var(--muted); padding: 3rem; font-size: 1rem; }
     body.is-resizing { user-select: none; cursor: ew-resize; }
 
-    /* ── COMMENTS — margin note aesthetic ── */
+    /* ── COMMENTS — enhanced design ── */
     .comments-wrap {
-      margin-top: 5rem;
+      margin-top: 6rem;
       position: relative;
     }
 
     .comments-divider {
       position: relative;
       text-align: center;
-      margin-bottom: 3rem;
+      margin-bottom: 3.5rem;
     }
     .comments-divider::before {
       content: '';
@@ -244,23 +244,28 @@
       position: relative;
       display: inline-block;
       background: var(--paper);
-      padding: 0 1rem;
+      padding: 0 1.2rem;
       font-family: var(--hand);
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       color: var(--muted);
-      opacity: 0.55;
+      opacity: 0.7;
       letter-spacing: 0.02em;
     }
 
     /* Form */
-    .comment-form-section { margin-bottom: 3.5rem; }
+    .comment-form-section {
+      margin-bottom: 4rem;
+      background: rgba(255,255,255,0.02);
+      padding: 1.5rem;
+      border-radius: 12px;
+    }
 
     .comment-form-title {
       font-family: var(--hand);
       font-size: 1.3rem;
       color: var(--fg);
-      opacity: 0.5;
-      margin-bottom: 1.25rem;
+      opacity: 0.7;
+      margin-bottom: 1.5rem;
       letter-spacing: 0.01em;
     }
 
@@ -268,20 +273,24 @@
       display: none;
       align-items: center;
       gap: 0.5rem;
-      margin-bottom: 0.5rem;
+      margin-bottom: 1rem;
       font-family: var(--hand);
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       color: var(--muted);
+      background: rgba(255,255,255,0.03);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
     }
     .reply-indicator span { color: var(--type-color); }
     .reply-indicator .cancel-reply {
       cursor: pointer;
       font-size: 1.1rem;
       line-height: 1;
-      padding: 0.2rem;
+      padding: 0.2rem 0.5rem;
       transition: color 0.2s;
+      border-radius: 50%;
     }
-    .reply-indicator .cancel-reply:hover { color: var(--red); }
+    .reply-indicator .cancel-reply:hover { color: var(--red); background: rgba(255,255,255,0.05); }
 
     .comment-form { display: flex; flex-direction: column; gap: 0; }
 
@@ -293,7 +302,7 @@
       color: var(--fg);
       font-family: var(--serif);
       font-size: 1rem;
-      padding: 0.65rem 0;
+      padding: 0.75rem 0;
       transition: border-color 0.2s;
       resize: none;
       outline: none;
@@ -302,7 +311,7 @@
     .comment-form input::placeholder,
     .comment-form textarea::placeholder {
       color: var(--muted);
-      opacity: 0.35;
+      opacity: 0.4;
       font-style: italic;
       font-family: var(--serif);
     }
@@ -328,19 +337,20 @@
     .comment-feedback.error { color: var(--red); }
 
     .comment-submit {
-      padding: 0;
+      padding: 0.5rem 1rem;
       background: transparent;
-      border: none;
+      border: 1px solid var(--border);
+      border-radius: 30px;
       color: var(--muted);
       font-family: var(--hand);
-      font-size: 1.1rem;
+      font-size: 1rem;
       cursor: pointer;
-      transition: color 0.2s;
+      transition: all 0.2s;
       line-height: 1;
       flex-shrink: 0;
       letter-spacing: 0.01em;
     }
-    .comment-submit:hover { color: var(--type-color); }
+    .comment-submit:hover { border-color: var(--type-color); color: var(--type-color); }
     .comment-submit:disabled { opacity: 0.25; cursor: not-allowed; }
 
     /* List */
@@ -350,14 +360,14 @@
       display: flex;
       align-items: baseline;
       gap: 0.75rem;
-      margin-bottom: 1.75rem;
+      margin-bottom: 2rem;
     }
     .comments-header h3 {
       font-family: var(--hand);
-      font-size: 1.15rem;
+      font-size: 1.2rem;
       color: var(--muted);
       font-weight: 400;
-      opacity: 0.5;
+      opacity: 0.8;
       letter-spacing: 0.01em;
     }
     .comments-count {
@@ -367,47 +377,50 @@
       opacity: 0.7;
     }
 
-    /* Thread styling */
+    /* Thread styling – each comment gets a card */
     .comment-thread { margin-left: 0; }
-    .comment-thread .comment-thread { margin-left: 1.5rem; border-left: 1px solid var(--border); padding-left: 1.5rem; }
+    .comment-thread .comment-thread { margin-left: 1.5rem; }
 
     .comment-item {
+      background: rgba(255,255,255,0.02);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
       position: relative;
-      padding: 1.5rem 0 1.5rem 1.5rem;
-      border-bottom: 1px solid var(--border);
+      border-left: 3px solid var(--type-color);
+      transition: background 0.2s;
     }
-    .comment-item:first-child { border-top: 1px solid var(--border); }
-
-    .comment-item::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 1.5rem;
-      bottom: 1.5rem;
-      width: 1px;
-      background: var(--type-color);
-      opacity: 0.35;
-      transition: opacity 0.2s;
-    }
-    .comment-item:hover::before { opacity: 0.7; }
+    .comment-item:hover { background: rgba(255,255,255,0.04); }
 
     .comment-item-header {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       gap: 0.6rem;
       margin-bottom: 0.5rem;
     }
     .comment-item-name {
       font-family: var(--hand);
-      font-size: 1.05rem;
+      font-size: 1.1rem;
       color: var(--fg);
       letter-spacing: 0.01em;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .comment-item-name::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--type-color);
+      display: inline-block;
+      margin-right: 4px;
     }
     .comment-item-date {
       font-family: var(--mono);
       font-size: 0.58rem;
       color: var(--muted);
-      opacity: 0.4;
+      opacity: 0.5;
     }
     .comment-item-body {
       font-family: var(--serif);
@@ -418,27 +431,30 @@
       word-break: break-word;
     }
     .comment-reply-btn {
-      margin-top: 0.5rem;
+      margin-top: 0.75rem;
       background: transparent;
-      border: none;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.25rem 0.8rem;
       color: var(--muted);
       font-family: var(--hand);
       font-size: 0.8rem;
       cursor: pointer;
-      transition: color 0.2s;
+      transition: all 0.2s;
       display: inline-flex;
       align-items: center;
       gap: 0.2rem;
     }
-    .comment-reply-btn:hover { color: var(--type-color); }
+    .comment-reply-btn:hover { border-color: var(--type-color); color: var(--type-color); }
 
     .comments-empty {
       font-family: var(--hand);
       font-size: 1.1rem;
       color: var(--muted);
-      opacity: 0.3;
-      padding: 0.5rem 0 0.5rem 1.5rem;
+      opacity: 0.4;
+      padding: 1rem 0;
       letter-spacing: 0.01em;
+      text-align: center;
     }
 
     @media (max-width: 700px) {
@@ -458,7 +474,8 @@
       .terminal-dot { width: 8px; height: 8px; }
       .share-dropdown { right: 0; }
       .comments-wrap { padding: 0 1rem; padding-top: 2rem; margin-top: 3rem; }
-      .comment-thread .comment-thread { margin-left: 0.75rem; padding-left: 0.75rem; }
+      .comment-thread .comment-thread { margin-left: 0.5rem; }
+      .comment-item { padding: 1rem; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -548,7 +565,7 @@
   const typeLabel = document.getElementById('postTypeLabel');
   const container = document.getElementById('postContainer');
 
-  /* ---- RESIZABLE PAGE ---- */
+  /* ---- RESIZABLE PAGE (your working version) ---- */
   (function() {
     const page      = document.getElementById('page');
     const handle    = document.getElementById('dragHandle');
@@ -769,7 +786,7 @@
     if (!isPaid) initComments(post.id);
   }
 
-  /* ---- COMMENTS (with replies) ---- */
+  /* ---- COMMENTS (with replies, enhanced design) ---- */
   let currentPostId = null;
   let replyParentId = null;
   let replyToName = '';
