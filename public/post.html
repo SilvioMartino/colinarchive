@@ -54,7 +54,6 @@
       line-height: 1.6;
     }
 
-    /* ----- NAVBAR ----- */
     nav {
       background: var(--paper);
       border-bottom: 1px solid var(--border);
@@ -72,314 +71,160 @@
     nav.nav-type-code  { border-bottom: 2px solid var(--green);  box-shadow: 0 0 6px rgba(81,207,102,0.3); }
     nav.nav-type-notes { border-bottom: 2px solid var(--yellow); box-shadow: 0 0 6px rgba(255,230,109,0.3); }
 
-    .logo {
-      font-family: var(--mono);
-      font-size: 0.75rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      font-weight: 500;
-      text-decoration: none;
-      color: var(--fg);
-    }
-    .logo::after {
-      content: '|';
-      color: var(--red);
-      animation: blink 1s step-end infinite;
-      margin-left: 2px;
-    }
+    .logo { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 500; text-decoration: none; color: var(--fg); }
+    .logo::after { content: '|'; color: var(--red); animation: blink 1s step-end infinite; margin-left: 2px; }
     @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
 
-    .post-type-label {
-      margin-left: 1.5rem;
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
+    .post-type-label { margin-left: 1.5rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; }
     .post-type-label.essay { font-family: var(--essay-serif); color: var(--blue); }
-    .post-type-label.code  { font-family: var(--mono);        color: var(--green); }
-    .post-type-label.notes { font-family: var(--hand);        color: var(--yellow); }
+    .post-type-label.code  { font-family: var(--mono); color: var(--green); }
+    .post-type-label.notes { font-family: var(--hand); color: var(--yellow); }
 
     .share-wrap { position: relative; margin-left: auto; }
-
-    .share-btn {
-      display: flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0;
-      background: transparent;
-      border: none;
-      color: var(--muted);
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      cursor: pointer;
-      line-height: 1;
-      transition: color 0.2s;
-    }
+    .share-btn { display: flex; align-items: center; gap: 0.35rem; padding: 0; background: transparent; border: none; color: var(--muted); font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; line-height: 1; transition: color 0.2s; }
     .share-btn:hover { color: var(--type-color); }
     .share-btn i { font-size: 0.7rem; }
-
-    .share-dropdown {
-      position: absolute;
-      top: calc(100% + 10px);
-      right: 0;
-      background: #1c1c1c;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.4rem;
-      display: none;
-      flex-direction: column;
-      gap: 0.2rem;
-      min-width: 160px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-      z-index: 200;
-    }
+    .share-dropdown { position: absolute; top: calc(100% + 10px); right: 0; background: #1c1c1c; border: 1px solid var(--border); border-radius: 8px; padding: 0.4rem; display: none; flex-direction: column; gap: 0.2rem; min-width: 160px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); z-index: 200; }
     .share-dropdown.open { display: flex; animation: dropIn 0.15s ease; }
     @keyframes dropIn { from { opacity:0; transform:translateY(-6px) } to { opacity:1; transform:none } }
-
-    .share-option {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      padding: 0.55rem 0.75rem;
-      border-radius: 5px;
-      font-family: var(--mono);
-      font-size: 0.68rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--muted);
-      cursor: pointer;
-      background: transparent;
-      border: none;
-      width: 100%;
-      text-align: left;
-      transition: background 0.15s, color 0.15s;
-      text-decoration: none;
-    }
+    .share-option { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0.75rem; border-radius: 5px; font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); cursor: pointer; background: transparent; border: none; width: 100%; text-align: left; transition: background 0.15s, color 0.15s; text-decoration: none; }
     .share-option:hover { background: rgba(255,255,255,0.05); color: var(--type-color); }
     .share-option i { width: 14px; text-align: center; font-size: 0.8rem; }
     .share-option.copy-success { color: var(--green); }
 
-    /* ----- LAYOUT ----- */
-    .wrapper {
-      width: 100%;
-      padding: 50px 1rem 80px;
-      display: flex;
-      justify-content: center;
-    }
+    .wrapper { width: 100%; padding: 50px 1rem 80px; display: flex; justify-content: center; }
+    .page { background: var(--paper); width: var(--page-width); min-width: 320px; max-width: calc(100vw - 2rem); padding: 4rem 4.5rem; box-shadow: 0 2px 30px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.03); border-radius: 2px; position: relative; }
 
-    /* The resizable page column */
-    .page {
-      background: var(--paper);
-      width: var(--page-width);
-      min-width: 320px;
-      max-width: calc(100vw - 2rem);
-      padding: 4rem 4.5rem;
-      box-shadow: 0 2px 30px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.03);
-      border-radius: 2px;
-      position: relative;
-      /* no transition here so drag feels instant */
-    }
+    .drag-handle { position: absolute; top: 0; right: -6px; width: 12px; height: 100%; cursor: ew-resize; z-index: 10; display: flex; align-items: center; justify-content: center; }
+    .drag-handle::after { content: ''; display: block; width: 3px; height: 40px; border-radius: 3px; background: var(--border); transition: background 0.2s, height 0.2s; }
+    .drag-handle:hover::after, .drag-handle.dragging::after { background: var(--type-color); height: 60px; }
 
-    /* Drag handle — right edge of the page */
-    .drag-handle {
-      position: absolute;
-      top: 0;
-      right: -6px;
-      width: 12px;
-      height: 100%;
-      cursor: ew-resize;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .drag-handle::after {
-      content: '';
-      display: block;
-      width: 3px;
-      height: 40px;
-      border-radius: 3px;
-      background: var(--border);
-      transition: background 0.2s, height 0.2s;
-    }
-    .drag-handle:hover::after,
-    .drag-handle.dragging::after {
-      background: var(--type-color);
-      height: 60px;
-    }
-
-    /* Width indicator tooltip shown while dragging */
-    .width-indicator {
-      position: fixed;
-      background: #1c1c1c;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      letter-spacing: 0.08em;
-      padding: 0.3rem 0.6rem;
-      border-radius: 4px;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 0.15s;
-      z-index: 9999;
-      white-space: nowrap;
-    }
+    .width-indicator { position: fixed; background: #1c1c1c; border: 1px solid var(--border); color: var(--muted); font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.08em; padding: 0.3rem 0.6rem; border-radius: 4px; pointer-events: none; opacity: 0; transition: opacity 0.15s; z-index: 9999; white-space: nowrap; }
     .width-indicator.visible { opacity: 1; }
 
     .back-link { margin-bottom: 2.5rem; }
-    .back-link a {
-      display: inline-block;
-      padding: 0.6rem 1.5rem;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      text-decoration: none;
-      transition: border-color 0.2s, color 0.2s, transform 0.2s;
-    }
+    .back-link a { display: inline-block; padding: 0.6rem 1.5rem; border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: border-color 0.2s, color 0.2s, transform 0.2s; }
     .back-link a:hover { border-color: var(--blue); color: var(--blue); transform: translateX(-2px); }
 
     .post-container { width: 100%; }
-
-    .title {
-      font-family: var(--serif);
-      font-size: 2.5rem;
-      font-weight: 600;
-      margin-bottom: 0.75rem;
-      line-height: 1.3;
-    }
+    .title { font-family: var(--serif); font-size: 2.5rem; font-weight: 600; margin-bottom: 0.75rem; line-height: 1.3; }
     .type-essay .title { font-family: var(--essay-serif); font-weight: 700; }
     .type-code  .title { font-family: var(--mono); letter-spacing: -0.02em; }
     .type-notes .title { font-family: var(--hand); font-size: 2rem; }
-
-    .meta {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 2rem;
-    }
-
+    .meta { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2rem; }
     .tags { margin-bottom: 2rem; }
-    .tag {
-      display: inline-block;
-      border: 1px solid var(--border);
-      padding: 0.3rem 0.8rem;
-      margin: 0.2rem;
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border-radius: 4px;
-      transition: border-color 0.2s, color 0.2s;
-    }
+    .tag { display: inline-block; border: 1px solid var(--border); padding: 0.3rem 0.8rem; margin: 0.2rem; font-family: var(--mono); font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; border-radius: 4px; transition: border-color 0.2s, color 0.2s; }
     .tag:hover { border-color: var(--blue); color: var(--blue); }
+    .excerpt { font-size: 1.3rem; color: #bdbdbd; margin-bottom: 2.2rem; font-style: italic; border-left: 3px solid var(--blue); padding-left: 1rem; }
+    .content { font-size: 1.18rem; line-height: 1.85; white-space: pre-wrap; color: var(--fg); display: block; }
 
-    .excerpt {
-      font-size: 1.3rem;
-      color: #bdbdbd;
-      margin-bottom: 2.2rem;
-      font-style: italic;
-      border-left: 3px solid var(--blue);
-      padding-left: 1rem;
-    }
-
-    .content {
-      font-size: 1.18rem;
-      line-height: 1.85;
-      white-space: pre-wrap;
-      color: var(--fg);
-      display: block;
-    }
-
-    .type-code .terminal {
-      position: relative;
-      background: #0c0c0c;
-      border: 1px solid #2a2a2a;
-      border-radius: 10px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,255,0,0.05);
-      font-family: var(--mono);
-      font-size: 0.95rem;
-      line-height: 1.6;
-      color: #b0f0b0;
-      overflow: hidden;
-    }
-    .terminal-header {
-      background: #1a1a1a;
-      padding: 0.5rem 1rem;
-      border-bottom: 1px solid #2a2a2a;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
+    .type-code .terminal { position: relative; background: #0c0c0c; border: 1px solid #2a2a2a; border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,255,0,0.05); font-family: var(--mono); font-size: 0.95rem; line-height: 1.6; color: #b0f0b0; overflow: hidden; }
+    .terminal-header { background: #1a1a1a; padding: 0.5rem 1rem; border-bottom: 1px solid #2a2a2a; display: flex; align-items: center; gap: 0.5rem; }
     .terminal-dot { width: 12px; height: 12px; border-radius: 50%; background: #ff5f56; }
     .terminal-dot:nth-child(2) { background: #ffbd2e; }
     .terminal-dot:nth-child(3) { background: #27c93f; }
     .terminal-title { font-size: 0.65rem; color: #888; margin-left: 0.5rem; text-transform: uppercase; letter-spacing: 0.1em; }
     .terminal-body { display: flex; position: relative; }
-    .line-numbers {
-      padding: 1rem 0 1rem 1rem;
-      text-align: right;
-      color: #4a7a4a;
-      user-select: none;
-      border-right: 1px solid #2a2a2a;
-      background: #0a0a0a;
-      font-family: var(--mono);
-      font-size: 0.95rem;
-      line-height: 1.6;
-      white-space: nowrap;
-    }
+    .line-numbers { padding: 1rem 0 1rem 1rem; text-align: right; color: #4a7a4a; user-select: none; border-right: 1px solid #2a2a2a; background: #0a0a0a; font-family: var(--mono); font-size: 0.95rem; line-height: 1.6; white-space: nowrap; }
     .line-numbers div { padding-right: 1rem; }
     .code-lines { flex: 1; padding: 1rem; overflow-x: auto; background: #0a0a0a; }
     .code-line { display: block; white-space: pre; font-family: var(--mono); font-size: 0.95rem; line-height: 1.6; color: #b0f0b0; }
-    .copy-btn {
-      position: absolute; top: 0.75rem; right: 0.75rem;
-      background: #1f1f1f; border: 1px solid #3a3a3a; border-radius: 4px;
-      color: #b0f0b0; font-family: var(--mono); font-size: 0.7rem;
-      padding: 0.3rem 0.7rem; cursor: pointer;
-      display: flex; align-items: center; gap: 0.4rem;
-      transition: background 0.2s, border-color 0.2s, color 0.2s; z-index: 20;
-    }
+    .copy-btn { position: absolute; top: 0.75rem; right: 0.75rem; background: #1f1f1f; border: 1px solid #3a3a3a; border-radius: 4px; color: #b0f0b0; font-family: var(--mono); font-size: 0.7rem; padding: 0.3rem 0.7rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: background 0.2s, border-color 0.2s, color 0.2s; z-index: 20; }
     .copy-btn:hover { background: #2a2a2a; border-color: #b0f0b0; color: #d0f0d0; }
     .copy-btn.copied { background: #2a5a2a; border-color: #b0f0b0; color: #fff; }
     .copy-btn i { font-size: 0.8rem; }
 
-    .locked-message {
-      text-align: center; padding: 2rem;
-      border: 1px dashed var(--red); border-radius: 8px; margin-top: 2rem;
-      background: repeating-linear-gradient(
-        45deg, rgba(179,0,45,0.1) 0px, rgba(179,0,45,0.1) 10px,
-        transparent 10px, transparent 20px
-      );
-      position: relative;
-    }
+    .locked-message { text-align: center; padding: 2rem; border: 1px dashed var(--red); border-radius: 8px; margin-top: 2rem; background: repeating-linear-gradient(45deg, rgba(179,0,45,0.1) 0px, rgba(179,0,45,0.1) 10px, transparent 10px, transparent 20px); position: relative; }
     .locked-message h3 { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.1em; color: var(--red); margin-bottom: 1rem; text-transform: uppercase; }
     .locked-message p { color: var(--muted); margin-bottom: 1.5rem; }
-    .btn {
-      display: inline-block; padding: 0.7rem 1.4rem;
-      background: transparent; border: 1px solid var(--red); border-radius: 4px;
-      color: var(--red); font-family: var(--mono); font-size: 0.7rem;
-      letter-spacing: 0.1em; text-decoration: none; text-transform: uppercase;
-      transition: background 0.2s, color 0.2s;
-    }
+    .btn { display: inline-block; padding: 0.7rem 1.4rem; background: transparent; border: 1px solid var(--red); border-radius: 4px; color: var(--red); font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.1em; text-decoration: none; text-transform: uppercase; transition: background 0.2s, color 0.2s; }
     .btn:hover { background: var(--red); color: var(--bg); }
-    .locked-icon {
-      position: absolute; top: 1rem; right: 1rem; font-size: 2rem;
-      color: rgba(255,255,255,0.6); text-shadow: 0 2px 5px rgba(0,0,0,0.5); pointer-events: none;
-    }
+    .locked-icon { position: absolute; top: 1rem; right: 1rem; font-size: 2rem; color: rgba(255,255,255,0.6); text-shadow: 0 2px 5px rgba(0,0,0,0.5); pointer-events: none; }
 
     .loading { text-align: center; font-family: var(--mono); color: var(--muted); padding: 3rem; font-size: 1rem; }
-
-    /* Prevent text selection while dragging */
     body.is-resizing { user-select: none; cursor: ew-resize; }
+
+    /* ── COMMENTS ── */
+    .comments-wrap { margin-top: 5rem; position: relative; }
+
+    .comments-divider { position: relative; text-align: center; margin-bottom: 3rem; }
+    .comments-divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border); }
+    .comments-divider-label { position: relative; display: inline-block; background: var(--paper); padding: 0 1rem; font-family: var(--hand); font-size: 1.1rem; color: var(--muted); opacity: 0.55; letter-spacing: 0.02em; }
+
+    .comment-form-section {
+      margin-bottom: 3.5rem;
+      background: rgba(255,255,255,0.02);
+      padding: 1.5rem;
+      border-radius: 12px;
+    }
+    .comment-form-title { font-family: var(--hand); font-size: 1.3rem; color: var(--fg); opacity: 0.5; margin-bottom: 1.25rem; letter-spacing: 0.01em; }
+
+    .reply-indicator {
+      display: none; align-items: center; gap: 0.5rem; margin-bottom: 1rem;
+      font-family: var(--hand); font-size: 0.9rem; color: var(--muted);
+      background: rgba(255,255,255,0.03); padding: 0.5rem 1rem; border-radius: 20px;
+    }
+    .reply-indicator span { color: var(--type-color); }
+    .reply-indicator .cancel-reply { cursor: pointer; font-size: 1.1rem; line-height: 1; padding: 0.2rem 0.5rem; transition: color 0.2s; border-radius: 50%; }
+    .reply-indicator .cancel-reply:hover { color: var(--red); background: rgba(255,255,255,0.05); }
+
+    .comment-form { display: flex; flex-direction: column; gap: 0; }
+    .comment-form input, .comment-form textarea { background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--fg); font-family: var(--serif); font-size: 1rem; padding: 0.75rem 0; transition: border-color 0.2s; resize: none; outline: none; width: 100%; }
+    .comment-form input::placeholder, .comment-form textarea::placeholder { color: var(--muted); opacity: 0.4; font-style: italic; font-family: var(--serif); }
+    .comment-form input:focus, .comment-form textarea:focus { border-bottom-color: var(--type-color); }
+    .comment-form textarea { min-height: 100px; line-height: 1.7; margin-top: 0.5rem; }
+    .comment-form-row { display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; gap: 1rem; }
+    .comment-feedback { font-family: var(--mono); font-size: 0.62rem; color: var(--green); letter-spacing: 0.04em; min-height: 1rem; flex: 1; }
+    .comment-feedback.error { color: var(--red); }
+    .comment-submit { padding: 0.5rem 1rem; background: transparent; border: 1px solid var(--border); border-radius: 30px; color: var(--muted); font-family: var(--hand); font-size: 1rem; cursor: pointer; transition: all 0.2s; line-height: 1; flex-shrink: 0; letter-spacing: 0.01em; }
+    .comment-submit:hover { border-color: var(--type-color); color: var(--type-color); }
+    .comment-submit:disabled { opacity: 0.25; cursor: not-allowed; }
+
+    .comments-header { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 1.75rem; }
+    .comments-header h3 { font-family: var(--hand); font-size: 1.15rem; color: var(--muted); font-weight: 400; opacity: 0.5; letter-spacing: 0.01em; }
+    .comments-count { font-family: var(--mono); font-size: 0.62rem; color: var(--type-color); opacity: 0.7; }
+
+    .comment-thread { margin-left: 0; }
+    .comment-thread .comment-thread { margin-left: 1.5rem; }
+
+    /* No hover — comments are read-only content, not interactive list items */
+    .comment-item {
+      background: rgba(255,255,255,0.02);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border-left: 3px solid var(--type-color);
+    }
+
+    .comment-item-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+    .comment-item-name { font-family: var(--hand); font-size: 1.1rem; color: var(--fg); letter-spacing: 0.01em; display: flex; align-items: center; gap: 0.4rem; }
+    .comment-item-name::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--type-color); display: inline-block; }
+    .comment-item-date { font-family: var(--mono); font-size: 0.58rem; color: var(--muted); opacity: 0.5; }
+    .comment-item-body { font-family: var(--serif); font-size: 0.98rem; line-height: 1.75; color: var(--muted); white-space: pre-wrap; word-break: break-word; }
+
+    .comment-reply-btn, .show-replies-btn {
+      margin-top: 0.75rem;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.35rem 1rem;
+      color: var(--muted);
+      font-family: var(--hand);
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .comment-reply-btn:hover { border-color: var(--type-color); color: var(--type-color); }
+    .show-replies-btn { margin-left: 0.5rem; }
+    .show-replies-btn:hover { border-color: var(--muted); color: var(--fg); }
+
+    .replies-container { display: none; }
+    .replies-container.visible { display: block; }
+
+    .comments-empty { font-family: var(--hand); font-size: 1.1rem; color: var(--muted); opacity: 0.3; padding: 1rem 0; letter-spacing: 0.01em; text-align: center; }
 
     @media (max-width: 700px) {
       nav { padding: 1rem 1rem; }
@@ -397,6 +242,9 @@
       .terminal-header { padding: 0.3rem 0.8rem; }
       .terminal-dot { width: 8px; height: 8px; }
       .share-dropdown { right: 0; }
+      .comments-wrap { padding: 0 1rem; padding-top: 2rem; margin-top: 3rem; }
+      .comment-thread .comment-thread { margin-left: 0.5rem; }
+      .comment-item { padding: 1rem; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -422,23 +270,57 @@
   </div>
 </nav>
 
-<!-- Width indicator shown while dragging -->
 <div class="width-indicator" id="widthIndicator"></div>
 
 <div class="wrapper">
   <div class="page" id="page">
     <div class="drag-handle" id="dragHandle" title="Drag to resize"></div>
+
     <div class="back-link">
       <a href="/">← Back to Home</a>
     </div>
+
     <div class="post-container" id="postContainer">
       <div class="loading">Loading post...</div>
     </div>
+
+    <div class="comments-wrap" id="commentsWrap" style="display:none;">
+
+      <div class="comments-divider">
+        <span class="comments-divider-label">reader notes</span>
+      </div>
+
+      <div class="comment-form-section">
+        <div class="comment-form-title">add your note</div>
+        <div class="reply-indicator" id="replyIndicator">
+          <span>Replying to <span id="replyToName"></span></span>
+          <span class="cancel-reply" id="cancelReply">✕</span>
+        </div>
+        <form class="comment-form" id="commentForm">
+          <input type="hidden" id="commentParentId" value="">
+          <input type="text" id="commentName" placeholder="Your name" maxlength="60" required autocomplete="off">
+          <textarea id="commentBody" placeholder="Write something…" maxlength="2000" required></textarea>
+          <div class="comment-form-row">
+            <span class="comment-feedback" id="commentFeedback"></span>
+            <button type="submit" class="comment-submit" id="commentSubmit">leave it ↓</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="comments-list-section">
+        <div class="comments-header">
+          <h3>Comments</h3>
+          <span class="comments-count" id="commentsCount"></span>
+        </div>
+        <div class="comment-list" id="commentList"></div>
+      </div>
+
+    </div>
+
   </div>
 </div>
 
 <script>
-  // ⚠️ Anon key is public — ensure Supabase RLS policies are locked down.
   const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
 
@@ -449,271 +331,181 @@
 
   /* ---- RESIZABLE PAGE ---- */
   (function() {
-    const page        = document.getElementById('page');
-    const handle      = document.getElementById('dragHandle');
-    const indicator   = document.getElementById('widthIndicator');
-    const STORAGE_KEY = 'colin-archive-page-width';
-    const MIN_W       = 320;
-    const MAX_W       = () => window.innerWidth - 32; // 1rem each side
-
-    // Restore saved width
+    const page = document.getElementById('page'), handle = document.getElementById('dragHandle'), indicator = document.getElementById('widthIndicator');
+    const STORAGE_KEY = 'colin-archive-page-width', MIN_W = 320, MAX_W = () => window.innerWidth - 32;
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const w = Math.min(parseInt(saved), MAX_W());
-      page.style.width = w + 'px';
-      document.documentElement.style.setProperty('--page-width', w + 'px');
-    }
-
+    if (saved) { const w = Math.min(parseInt(saved), MAX_W()); page.style.width = w + 'px'; document.documentElement.style.setProperty('--page-width', w + 'px'); }
     let startX, startW;
-
-    function onMouseMove(e) {
-      const dx  = e.clientX - startX;
-      // Page is centered — dragging right edge out increases width by 2× delta
-      // because the page expands symmetrically. Actually since it's centered via
-      // flexbox, right-drag increases by dx from the right edge only, so 1× is correct.
-      const newW = Math.min(Math.max(startW + dx, MIN_W), MAX_W());
-      page.style.width = newW + 'px';
-      document.documentElement.style.setProperty('--page-width', newW + 'px');
-
-      // Position indicator near cursor
-      indicator.textContent = newW + 'px';
-      indicator.style.left  = (e.clientX + 14) + 'px';
-      indicator.style.top   = (e.clientY - 10) + 'px';
-    }
-
-    function onMouseUp(e) {
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-      document.body.classList.remove('is-resizing');
-      handle.classList.remove('dragging');
-      indicator.classList.remove('visible');
-      // Save preference
-      localStorage.setItem(STORAGE_KEY, parseInt(page.style.width));
-    }
-
-    handle.addEventListener('mousedown', function(e) {
-      e.preventDefault();
-      startX = e.clientX;
-      startW = page.offsetWidth;
-      document.body.classList.add('is-resizing');
-      handle.classList.add('dragging');
-      indicator.textContent = startW + 'px';
-      indicator.style.left  = (e.clientX + 14) + 'px';
-      indicator.style.top   = (e.clientY - 10) + 'px';
-      indicator.classList.add('visible');
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
-    });
-
-    // Touch support
-    handle.addEventListener('touchstart', function(e) {
-      const t = e.touches[0];
-      startX = t.clientX;
-      startW = page.offsetWidth;
-      handle.classList.add('dragging');
-    }, { passive: true });
-
-    handle.addEventListener('touchmove', function(e) {
-      const t = e.touches[0];
-      const dx  = t.clientX - startX;
-      const newW = Math.min(Math.max(startW + dx, MIN_W), MAX_W());
-      page.style.width = newW + 'px';
-    }, { passive: true });
-
-    handle.addEventListener('touchend', function() {
-      handle.classList.remove('dragging');
-      localStorage.setItem(STORAGE_KEY, parseInt(page.style.width));
-    });
+    function onMouseMove(e) { const newW = Math.min(Math.max(startW + (e.clientX - startX), MIN_W), MAX_W()); page.style.width = newW + 'px'; indicator.textContent = newW + 'px'; indicator.style.left = (e.clientX + 14) + 'px'; indicator.style.top = (e.clientY - 10) + 'px'; }
+    function onMouseUp() { document.removeEventListener('mousemove', onMouseMove); document.removeEventListener('mouseup', onMouseUp); document.body.classList.remove('is-resizing'); handle.classList.remove('dragging'); indicator.classList.remove('visible'); localStorage.setItem(STORAGE_KEY, parseInt(page.style.width)); }
+    handle.addEventListener('mousedown', function(e) { e.preventDefault(); startX = e.clientX; startW = page.offsetWidth; document.body.classList.add('is-resizing'); handle.classList.add('dragging'); indicator.textContent = startW + 'px'; indicator.style.left = (e.clientX + 14) + 'px'; indicator.style.top = (e.clientY - 10) + 'px'; indicator.classList.add('visible'); document.addEventListener('mousemove', onMouseMove); document.addEventListener('mouseup', onMouseUp); });
+    handle.addEventListener('touchstart', function(e) { const t = e.touches[0]; startX = t.clientX; startW = page.offsetWidth; handle.classList.add('dragging'); }, { passive: true });
+    handle.addEventListener('touchmove', function(e) { const t = e.touches[0]; const newW = Math.min(Math.max(startW + (t.clientX - startX), MIN_W), MAX_W()); page.style.width = newW + 'px'; }, { passive: true });
+    handle.addEventListener('touchend', function() { handle.classList.remove('dragging'); localStorage.setItem(STORAGE_KEY, parseInt(page.style.width)); });
   })();
 
-  /* ---- SUPABASE + RENDER ---- */
-  function getPostId() {
-    return new URLSearchParams(location.search).get("id");
+  function getPostId() { return new URLSearchParams(location.search).get("id"); }
+  function escapeHtml(s) { if (!s) return ""; return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;"); }
+  function relTime(iso) {
+    const d = new Date(iso), diff = Date.now() - d, s=diff/1e3, m=s/60, h=m/60, day=h/24;
+    if (s<60) return 'just now'; if (m<60) return Math.floor(m)+'m ago'; if (h<24) return Math.floor(h)+'h ago';
+    if (day<2) return 'yesterday'; if (day<7) return Math.floor(day)+'d ago'; return new Date(iso).toLocaleDateString();
   }
 
   function setMeta(post) {
-    const title   = post.title   || 'Colin Archive';
-    const excerpt = post.excerpt || 'A quiet archive of essays, code, and notes.';
-    const image   = post.cover_url || 'https://yourdomain.com/og-image.jpg';
+    const title = post.title||'Colin Archive', excerpt = post.excerpt||'A quiet archive.', image = post.cover_url||'https://yourdomain.com/og-image.jpg';
     document.title = `${title} — Colin Archive`;
-    document.getElementById('metaDesc').content = excerpt;
-    document.getElementById('ogTitle').content  = title;
-    document.getElementById('ogDesc').content   = excerpt;
-    document.getElementById('ogUrl').content    = location.href;
-    document.getElementById('ogImage').content  = image;
-    document.getElementById('twTitle').content  = title;
-    document.getElementById('twDesc').content   = excerpt;
+    document.getElementById('metaDesc').content=excerpt; document.getElementById('ogTitle').content=title; document.getElementById('ogDesc').content=excerpt;
+    document.getElementById('ogUrl').content=location.href; document.getElementById('ogImage').content=image;
+    document.getElementById('twTitle').content=title; document.getElementById('twDesc').content=excerpt;
   }
 
   function initShare(post, typeColor) {
-    const url   = location.href;
-    const title = post.title || 'Colin Archive';
-
+    const url=location.href, title=post.title||'Colin Archive';
     document.documentElement.style.setProperty('--type-color', typeColor);
-
-    const shareBtn      = document.getElementById('shareBtn');
-    const shareDropdown = document.getElementById('shareDropdown');
-    const copyLinkBtn   = document.getElementById('copyLinkBtn');
-
-    document.getElementById('shareTwitter').href =
-      `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
-    document.getElementById('shareReddit').href =
-      `https://reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
-    document.getElementById('shareWhatsapp').href =
-      `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`;
-
-    shareBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      if (navigator.share && window.innerWidth < 700) {
-        navigator.share({ title, url }).catch(() => {});
-        return;
-      }
-      shareDropdown.classList.toggle('open');
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!document.getElementById('shareWrap').contains(e.target)) {
-        shareDropdown.classList.remove('open');
-      }
-    });
-
-    copyLinkBtn.addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(url);
-        copyLinkBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-        copyLinkBtn.classList.add('copy-success');
-        setTimeout(() => {
-          copyLinkBtn.innerHTML = '<i class="fas fa-link"></i> Copy link';
-          copyLinkBtn.classList.remove('copy-success');
-          shareDropdown.classList.remove('open');
-        }, 1800);
-      } catch(err) { console.error(err); }
-    });
+    const shareBtn=document.getElementById('shareBtn'), shareDropdown=document.getElementById('shareDropdown'), copyLinkBtn=document.getElementById('copyLinkBtn');
+    document.getElementById('shareTwitter').href=`https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+    document.getElementById('shareReddit').href=`https://reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
+    document.getElementById('shareWhatsapp').href=`https://wa.me/?text=${encodeURIComponent(title+' '+url)}`;
+    shareBtn.addEventListener('click',(e)=>{ e.stopPropagation(); if(navigator.share&&window.innerWidth<700){navigator.share({title,url}).catch(()=>{}); return;} shareDropdown.classList.toggle('open'); });
+    document.addEventListener('click',(e)=>{ if(!document.getElementById('shareWrap').contains(e.target)) shareDropdown.classList.remove('open'); });
+    copyLinkBtn.addEventListener('click',async()=>{ try{ await navigator.clipboard.writeText(url); copyLinkBtn.innerHTML='<i class="fas fa-check"></i> Copied!'; copyLinkBtn.classList.add('copy-success'); setTimeout(()=>{ copyLinkBtn.innerHTML='<i class="fas fa-link"></i> Copy link'; copyLinkBtn.classList.remove('copy-success'); shareDropdown.classList.remove('open'); },1800); }catch(err){console.error(err);} });
   }
 
-  function escapeHtml(unsafe) {
-    if (!unsafe) return "";
-    return unsafe
-      .replace(/&/g,"&amp;").replace(/</g,"&lt;")
-      .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
-  }
-
-  function normalizeIndent(text) {
-    const lines = text.split('\n');
-    let minIndent = Infinity;
-    lines.forEach(line => {
-      if (line.trim().length > 0) {
-        minIndent = Math.min(minIndent, line.match(/^(\s*)/)[0].length);
-      }
-    });
-    if (minIndent === Infinity) minIndent = 0;
-    return lines.map(line => line.slice(minIndent)).join('\n');
-  }
-
-  function calcReadTime(text) {
-    const words = (text || '').trim().split(/\s+/).length;
-    return Math.max(1, Math.round(words / 200));
-  }
+  function normalizeIndent(text) { const lines=text.split('\n'); let min=Infinity; lines.forEach(l=>{if(l.trim())min=Math.min(min,l.match(/^(\s*)/)[0].length);}); if(!isFinite(min))min=0; return lines.map(l=>l.slice(min)).join('\n'); }
+  function calcReadTime(text) { return Math.max(1,Math.round((text||'').trim().split(/\s+/).length/200)); }
 
   function renderPost(post) {
     setMeta(post);
-
-    const type     = post.type || 'essay';
-    const isPaid   = post.access === 'paid';
-    const metaDate = new Date(post.created_at).toLocaleDateString();
-    const readTime = post.readtime || calcReadTime(post.content);
-
-    const colorMap  = { essay: '#4ecdc4', code: '#51cf66', notes: '#ffe66d' };
-    const typeColor = colorMap[type] || '#4ecdc4';
-
-    nav.className = `nav-type-${type}`;
-    typeLabel.className = `post-type-label ${type}`;
-    typeLabel.textContent = type === 'code' ? 'code' : (type === 'notes' ? 'note' : 'essay');
-
-    initShare(post, typeColor);
-
-    const tags = (post.tags || "").split(",").filter(Boolean)
-      .map(t => `<span class="tag">${escapeHtml(t.trim())}</span>`).join("");
-
-    let contentText = post.content || '';
-    if (type === 'code') contentText = normalizeIndent(contentText);
-    const escapedContent = escapeHtml(contentText);
-
+    const type=post.type||'essay', isPaid=post.access==='paid';
+    const metaDate=new Date(post.created_at).toLocaleDateString(), readTime=post.readtime||calcReadTime(post.content);
+    const colorMap={essay:'#4ecdc4',code:'#51cf66',notes:'#ffe66d'}, typeColor=colorMap[type]||'#4ecdc4';
+    nav.className=`nav-type-${type}`; typeLabel.className=`post-type-label ${type}`;
+    typeLabel.textContent=type==='code'?'code':type==='notes'?'note':'essay';
+    initShare(post,typeColor);
+    const tags=(post.tags||"").split(",").filter(Boolean).map(t=>`<span class="tag">${escapeHtml(t.trim())}</span>`).join("");
+    let contentText=post.content||''; if(type==='code')contentText=normalizeIndent(contentText);
+    const esc=escapeHtml(contentText);
     let contentHtml;
-
-    if (isPaid) {
-      contentHtml = `
-        <div style="position:relative;">
-          <i class="fas fa-lock locked-icon"></i>
-          <h1 class="title">${escapeHtml(post.title)}</h1>
-          <div class="meta">${metaDate} • ${readTime} min read</div>
-          ${tags ? `<div class="tags">${tags}</div>` : ""}
-          <div class="locked-message">
-            <h3>🔒 PAID ENTRY</h3>
-            <p>This post requires access.</p>
-            <a class="btn" href="#">Unlock</a>
-          </div>
-        </div>`;
-    } else if (type === 'code') {
-      const lines      = escapedContent.split('\n');
-      const numberHtml = lines.map((_,i) => `<div>${i+1}</div>`).join('');
-      const codeHtml   = lines.map(line => `<span class="code-line">${line||' '}</span>`).join('');
-      contentHtml = `
-        <h1 class="title">${escapeHtml(post.title)}</h1>
-        <div class="meta">${metaDate} • ${readTime} min read</div>
-        ${tags ? `<div class="tags">${tags}</div>` : ""}
-        <div class="terminal">
-          <div class="terminal-header">
-            <span class="terminal-dot"></span>
-            <span class="terminal-dot"></span>
-            <span class="terminal-dot"></span>
-            <span class="terminal-title">Terminal</span>
-          </div>
-          <div class="terminal-body">
-            <div class="line-numbers">${numberHtml}</div>
-            <div class="code-lines" id="postContentBody">${codeHtml}</div>
-          </div>
-          <button class="copy-btn" id="copyCodeBtn"><i class="far fa-copy"></i> Copy</button>
-        </div>`;
+    if(isPaid){
+      contentHtml=`<div style="position:relative;"><i class="fas fa-lock locked-icon"></i><h1 class="title">${escapeHtml(post.title)}</h1><div class="meta">${metaDate} • ${readTime} min read</div>${tags?`<div class="tags">${tags}</div>`:""}<div class="locked-message"><h3>🔒 PAID ENTRY</h3><p>This post requires access.</p><a class="btn" href="#">Unlock</a></div></div>`;
+    } else if(type==='code'){
+      const lines=esc.split('\n');
+      contentHtml=`<h1 class="title">${escapeHtml(post.title)}</h1><div class="meta">${metaDate} • ${readTime} min read</div>${tags?`<div class="tags">${tags}</div>`:""}<div class="terminal"><div class="terminal-header"><span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-title">Terminal</span></div><div class="terminal-body"><div class="line-numbers">${lines.map((_,i)=>`<div>${i+1}</div>`).join('')}</div><div class="code-lines">${lines.map(l=>`<span class="code-line">${l||' '}</span>`).join('')}</div></div><button class="copy-btn" id="copyCodeBtn"><i class="far fa-copy"></i> Copy</button></div>`;
     } else {
-      contentHtml = `
-        <h1 class="title">${escapeHtml(post.title)}</h1>
-        <div class="meta">${metaDate} • ${readTime} min read</div>
-        ${tags ? `<div class="tags">${tags}</div>` : ""}
-        <div class="content">${escapedContent}</div>`;
+      contentHtml=`<h1 class="title">${escapeHtml(post.title)}</h1><div class="meta">${metaDate} • ${readTime} min read</div>${tags?`<div class="tags">${tags}</div>`:""}<div class="content">${esc}</div>`;
     }
+    container.innerHTML=`<div class="type-${type}">${contentHtml}</div>`;
+    if(type==='code'&&!isPaid){
+      const btn=document.getElementById('copyCodeBtn');
+      if(btn)btn.addEventListener('click',async()=>{ try{ await navigator.clipboard.writeText(contentText); btn.classList.add('copied'); btn.innerHTML='<i class="fas fa-check"></i> Copied!'; setTimeout(()=>{ btn.classList.remove('copied'); btn.innerHTML='<i class="far fa-copy"></i> Copy'; },2000); }catch(e){console.error(e);} });
+    }
+    if(!isPaid) initComments(post.id);
+  }
 
-    container.innerHTML = `<div class="type-${type}">${contentHtml}</div>`;
+  /* ---- COMMENTS ---- */
+  let currentPostId=null, replyParentId=null;
+  const replyIndicator  = document.getElementById('replyIndicator');
+  const replyToNameSpan = document.getElementById('replyToName');
+  const cancelReplyBtn  = document.getElementById('cancelReply');
+  const commentParentId = document.getElementById('commentParentId');
 
-    if (type === 'code' && !isPaid) {
-      const copyBtn = document.getElementById('copyCodeBtn');
-      if (copyBtn) {
-        copyBtn.addEventListener('click', async () => {
-          try {
-            await navigator.clipboard.writeText(contentText);
-            copyBtn.classList.add('copied');
-            copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-            setTimeout(() => {
-              copyBtn.classList.remove('copied');
-              copyBtn.innerHTML = '<i class="far fa-copy"></i> Copy';
-            }, 2000);
-          } catch (err) { console.error('Copy failed:', err); }
-        });
+  cancelReplyBtn.addEventListener('click', clearReply);
+  function clearReply() { commentParentId.value=''; replyParentId=null; replyIndicator.style.display='none'; }
+  function setReply(parentId, name) {
+    commentParentId.value=parentId; replyParentId=parentId;
+    replyToNameSpan.textContent=name; replyIndicator.style.display='flex';
+    document.getElementById('commentBody').focus();
+  }
+
+  // FIX: compare null correctly — Supabase returns null for top-level, not undefined
+  function buildCommentTree(comments, parentId=null) {
+    return comments
+      .filter(c => (c.parent_id ?? null) === parentId)
+      .sort((a,b) => new Date(a.created_at) - new Date(b.created_at))
+      .map(c => ({ ...c, replies: buildCommentTree(comments, c.id) }));
+  }
+
+  function renderCommentTree(comments, depth=0) {
+    if (!comments.length) return '';
+    return comments.map(c => {
+      const date=relTime(c.created_at), name=escapeHtml(c.name), body=escapeHtml(c.content);
+      const replyBtn=`<button class="comment-reply-btn" data-parent-id="${c.id}" data-parent-name="${c.name}"><i class="fas fa-reply"></i> reply</button>`;
+
+      let showRepliesBtn='', repliesHtml='';
+      if (c.replies.length) {
+        const count = c.replies.length;
+        const label = `${count} repl${count>1?'ies':'y'}`;
+        // FIX: store count in data-count so toggle always uses the original number
+        showRepliesBtn = `<button class="show-replies-btn" data-target="replies-${c.id}" data-count="${count}"><i class="fas fa-chevron-down"></i> show ${label}</button>`;
+        repliesHtml = `<div class="replies-container" id="replies-${c.id}">${renderCommentTree(c.replies, depth+1)}</div>`;
       }
-    }
+
+      return `
+        <div class="comment-item" data-comment-id="${c.id}">
+          <div class="comment-item-header">
+            <span class="comment-item-name">${name}</span>
+            <span class="comment-item-date">${date}</span>
+          </div>
+          <div class="comment-item-body">${body}</div>
+          <div style="display:flex; align-items:center; gap:0.5rem;">${replyBtn}${showRepliesBtn}</div>
+          ${repliesHtml}
+        </div>`;
+    }).join('');
+  }
+
+  async function loadComments(postId) {
+    const list=document.getElementById('commentList'), countEl=document.getElementById('commentsCount');
+    const {data,error}=await db.from('comments').select('id,name,content,created_at,parent_id').eq('post_id',postId).eq('approved',true).order('created_at',{ascending:true});
+    if (error) { console.error(error); list.innerHTML='<div class="comments-empty">Could not load comments.</div>'; if(countEl)countEl.textContent=''; return; }
+    if (!data||!data.length) { list.innerHTML='<div class="comments-empty">No comments yet.</div>'; if(countEl)countEl.textContent=''; return; }
+    const tree = buildCommentTree(data);
+    if (countEl) countEl.textContent=`(${data.length})`;
+    list.innerHTML = renderCommentTree(tree);
+
+    list.querySelectorAll('.comment-reply-btn').forEach(btn => {
+      btn.addEventListener('click', () => setReply(btn.dataset.parentId, btn.dataset.parentName));
+    });
+
+    list.querySelectorAll('.show-replies-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetEl = document.getElementById(btn.dataset.target);
+        // FIX: use data-count stored at render time, not a DOM recount
+        const count = parseInt(btn.dataset.count);
+        if (!targetEl) return;
+        targetEl.classList.toggle('visible');
+        const open = targetEl.classList.contains('visible');
+        btn.innerHTML = open
+          ? `<i class="fas fa-chevron-up"></i> hide repl${count>1?'ies':'y'}`
+          : `<i class="fas fa-chevron-down"></i> show ${count} repl${count>1?'ies':'y'}`;
+      });
+    });
+  }
+
+  function initComments(postId) {
+    currentPostId=postId;
+    document.getElementById('commentsWrap').style.display='';
+    loadComments(postId);
+    const form=document.getElementById('commentForm'), nameEl=document.getElementById('commentName'), bodyEl=document.getElementById('commentBody');
+    const feedback=document.getElementById('commentFeedback'), submit=document.getElementById('commentSubmit');
+    form.addEventListener('submit', async(e) => {
+      e.preventDefault();
+      const name=nameEl.value.trim(), body=bodyEl.value.trim(), parentId=commentParentId.value||null;
+      if (!name||!body) return;
+      submit.disabled=true; feedback.textContent=''; feedback.className='comment-feedback';
+      const {error}=await db.from('comments').insert({post_id:postId, name, content:body, parent_id:parentId});
+      if (error) { feedback.textContent='Failed. Try again.'; feedback.classList.add('error'); submit.disabled=false; return; }
+      nameEl.value=''; bodyEl.value=''; clearReply();
+      feedback.textContent='Posted.'; submit.disabled=false;
+      loadComments(postId);
+    });
   }
 
   async function loadPost() {
-    const id = getPostId();
-    if (!id) {
-      container.innerHTML = "<div class='loading'>No post ID specified</div>";
-      return;
-    }
-    const { data, error } = await db.from("posts").select("*").eq("id", id).single();
-    if (error || !data) {
-      container.innerHTML = "<div class='loading'>Post not found</div>";
-      return;
-    }
+    const id=getPostId();
+    if (!id) { container.innerHTML="<div class='loading'>No post ID specified</div>"; return; }
+    const {data,error}=await db.from("posts").select("*").eq("id",id).single();
+    if (error||!data) { container.innerHTML="<div class='loading'>Post not found</div>"; return; }
     renderPost(data);
   }
 
