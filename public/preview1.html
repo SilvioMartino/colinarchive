@@ -54,7 +54,6 @@
       line-height: 1.6;
     }
 
-    /* NAV */
     nav {
       background: var(--paper);
       border-bottom: 1px solid var(--border);
@@ -93,7 +92,6 @@
     .share-option i { width: 14px; text-align: center; font-size: 0.8rem; }
     .share-option.copy-success { color: var(--green); }
 
-    /* LAYOUT */
     .wrapper { width: 100%; padding: 50px 1rem 80px; display: flex; justify-content: center; }
     .page { background: var(--paper); width: var(--page-width); min-width: 320px; max-width: calc(100vw - 2rem); padding: 4rem 4.5rem; box-shadow: 0 2px 30px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.03); border-radius: 2px; position: relative; }
 
@@ -120,7 +118,6 @@
     .excerpt { font-size: 1.3rem; color: #bdbdbd; margin-bottom: 2.2rem; font-style: italic; border-left: 3px solid var(--blue); padding-left: 1rem; }
     .content { font-size: 1.18rem; line-height: 1.85; white-space: pre-wrap; color: var(--fg); display: block; }
 
-    /* TERMINAL */
     .type-code .terminal { position: relative; background: #0c0c0c; border: 1px solid #2a2a2a; border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,255,0,0.05); font-family: var(--mono); font-size: 0.95rem; line-height: 1.6; color: #b0f0b0; overflow: hidden; }
     .terminal-header { background: #1a1a1a; padding: 0.5rem 1rem; border-bottom: 1px solid #2a2a2a; display: flex; align-items: center; gap: 0.5rem; }
     .terminal-dot { width: 12px; height: 12px; border-radius: 50%; background: #ff5f56; }
@@ -137,7 +134,6 @@
     .copy-btn.copied { background: #2a5a2a; border-color: #b0f0b0; color: #fff; }
     .copy-btn i { font-size: 0.8rem; }
 
-    /* LOCKED */
     .locked-message { text-align: center; padding: 2rem; border: 1px dashed var(--red); border-radius: 8px; margin-top: 2rem; background: repeating-linear-gradient(45deg, rgba(179,0,45,0.1) 0px, rgba(179,0,45,0.1) 10px, transparent 10px, transparent 20px); position: relative; }
     .locked-message h3 { font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.1em; color: var(--red); margin-bottom: 1rem; text-transform: uppercase; }
     .locked-message p { color: var(--muted); margin-bottom: 1.5rem; }
@@ -155,146 +151,77 @@
     .comments-divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border); }
     .comments-divider-label { position: relative; display: inline-block; background: var(--paper); padding: 0 1rem; font-family: var(--hand); font-size: 1.1rem; color: var(--muted); opacity: 0.55; letter-spacing: 0.02em; }
 
-    /* Form — red accent, clearly distinct */
     .comment-form-section {
       margin-bottom: 3.5rem;
-      padding: 1.5rem 1.5rem 1.25rem;
-      border-radius: 10px;
-      border: 1px solid rgba(255, 107, 107, 0.18);
-      background: rgba(255, 107, 107, 0.04);
-      position: relative;
+      background: rgba(255,255,255,0.02);
+      padding: 1.5rem;
+      border-radius: 12px;
     }
-    /* thin red top bar */
-    .comment-form-section::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--red), transparent);
-      border-radius: 10px 10px 0 0;
-    }
-
-    .comment-form-title {
-      font-family: var(--hand);
-      font-size: 1.2rem;
-      color: var(--red);
-      opacity: 0.75;
-      margin-bottom: 1.25rem;
-      letter-spacing: 0.01em;
-    }
+    .comment-form-title { font-family: var(--hand); font-size: 1.3rem; color: var(--fg); opacity: 0.5; margin-bottom: 1.25rem; letter-spacing: 0.01em; }
 
     .reply-indicator {
       display: none; align-items: center; gap: 0.5rem; margin-bottom: 1rem;
-      font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.05em;
-      color: var(--muted); text-transform: uppercase;
+      font-family: var(--hand); font-size: 0.9rem; color: var(--muted);
+      background: rgba(255,255,255,0.03); padding: 0.5rem 1rem; border-radius: 20px;
     }
-    .reply-indicator .reply-name { color: var(--red); }
-    .cancel-reply { cursor: pointer; color: var(--muted); transition: color 0.15s; margin-left: 0.25rem; }
-    .cancel-reply:hover { color: var(--red); }
+    .reply-indicator span { color: var(--type-color); }
+    .reply-indicator .cancel-reply { cursor: pointer; font-size: 1.1rem; line-height: 1; padding: 0.2rem 0.5rem; transition: color 0.2s; border-radius: 50%; }
+    .reply-indicator .cancel-reply:hover { color: var(--red); background: rgba(255,255,255,0.05); }
 
     .comment-form { display: flex; flex-direction: column; gap: 0; }
-    .comment-form input, .comment-form textarea {
-      background: transparent; border: none;
-      border-bottom: 1px solid rgba(255,107,107,0.2);
-      color: var(--fg); font-family: var(--serif); font-size: 1rem;
-      padding: 0.65rem 0; transition: border-color 0.2s; resize: none; outline: none; width: 100%;
-    }
-    .comment-form input::placeholder, .comment-form textarea::placeholder { color: var(--muted); opacity: 0.4; font-style: italic; }
-    .comment-form input:focus, .comment-form textarea:focus { border-bottom-color: var(--red); }
-    .comment-form textarea { min-height: 90px; line-height: 1.7; margin-top: 0.5rem; }
-
+    .comment-form input, .comment-form textarea { background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--fg); font-family: var(--serif); font-size: 1rem; padding: 0.75rem 0; transition: border-color 0.2s; resize: none; outline: none; width: 100%; }
+    .comment-form input::placeholder, .comment-form textarea::placeholder { color: var(--muted); opacity: 0.4; font-style: italic; font-family: var(--serif); }
+    .comment-form input:focus, .comment-form textarea:focus { border-bottom-color: var(--type-color); }
+    .comment-form textarea { min-height: 100px; line-height: 1.7; margin-top: 0.5rem; }
     .comment-form-row { display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; gap: 1rem; }
     .comment-feedback { font-family: var(--mono); font-size: 0.62rem; color: var(--green); letter-spacing: 0.04em; min-height: 1rem; flex: 1; }
     .comment-feedback.error { color: var(--red); }
+    .comment-submit { padding: 0.5rem 1rem; background: transparent; border: 1px solid var(--border); border-radius: 30px; color: var(--muted); font-family: var(--hand); font-size: 1rem; cursor: pointer; transition: all 0.2s; line-height: 1; flex-shrink: 0; letter-spacing: 0.01em; }
+    .comment-submit:hover { border-color: var(--type-color); color: var(--type-color); }
+    .comment-submit:disabled { opacity: 0.25; cursor: not-allowed; }
 
-    /* submit button — red, clearly visible */
-    .comment-submit {
-      padding: 0.45rem 1.1rem;
-      background: transparent;
-      border: 1px solid var(--red);
-      border-radius: 4px;
-      color: var(--red);
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: background 0.2s, color 0.2s;
-      flex-shrink: 0;
-    }
-    .comment-submit:hover { background: var(--red); color: #111; }
-    .comment-submit:disabled { opacity: 0.3; cursor: not-allowed; }
-
-    /* Comments list */
-    .comments-header { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 1.5rem; }
+    .comments-header { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 1.75rem; }
     .comments-header h3 { font-family: var(--hand); font-size: 1.15rem; color: var(--muted); font-weight: 400; opacity: 0.5; letter-spacing: 0.01em; }
     .comments-count { font-family: var(--mono); font-size: 0.62rem; color: var(--type-color); opacity: 0.7; }
 
     .comment-thread { margin-left: 0; }
-    .comment-thread .comment-thread { margin-left: 1.25rem; }
+    .comment-thread .comment-thread { margin-left: 1.5rem; }
 
-    /* Comment card — more contrast, easier on the eye */
+    /* No hover — comments are read-only content, not interactive list items */
     .comment-item {
-      background: #1f1f1f;          /* visibly distinct from --paper #1a1a1a */
-      border-radius: 10px;
-      padding: 1.25rem 1.25rem 1rem;
-      margin-bottom: 0.85rem;
-      border: 1px solid #2e2e2e;
+      background: rgba(255,255,255,0.02);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
       border-left: 3px solid var(--type-color);
-      transition: background 0.2s, border-color 0.2s, transform 0.15s;
-    }
-    /* hover: brighten + lift slightly — more obvious than before */
-    .comment-item:hover {
-      background: #252525;
-      border-color: #3a3a3a;
-      border-left-color: var(--type-color);
-      transform: translateX(3px);
     }
 
     .comment-item-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
-    .comment-item-name {
-      font-family: var(--hand); font-size: 1.1rem; color: var(--fg);
-      letter-spacing: 0.01em; display: flex; align-items: center; gap: 0.4rem;
-    }
-    .comment-item-name::before {
-      content: ''; width: 7px; height: 7px; border-radius: 50%;
-      background: var(--type-color); display: inline-block; flex-shrink: 0;
-    }
-    .comment-item-date { font-family: var(--mono); font-size: 0.58rem; color: var(--muted); opacity: 0.45; }
-    .comment-item-body {
-      font-family: var(--serif); font-size: 0.98rem; line-height: 1.75;
-      color: #d0d0d0;   /* slightly brighter than --muted for readability */
-      white-space: pre-wrap; word-break: break-word;
-    }
-
-    /* Reply / show-replies buttons */
-    .comment-actions { display: flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
+    .comment-item-name { font-family: var(--hand); font-size: 1.1rem; color: var(--fg); letter-spacing: 0.01em; display: flex; align-items: center; gap: 0.4rem; }
+    .comment-item-name::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--type-color); display: inline-block; }
+    .comment-item-date { font-family: var(--mono); font-size: 0.58rem; color: var(--muted); opacity: 0.5; }
+    .comment-item-body { font-family: var(--serif); font-size: 0.98rem; line-height: 1.75; color: var(--muted); white-space: pre-wrap; word-break: break-word; }
 
     .comment-reply-btn, .show-replies-btn {
+      margin-top: 0.75rem;
       background: transparent;
-      border: 1px solid #333;
-      border-radius: 4px;
-      padding: 0.28rem 0.75rem;
-      color: #888;
-      font-family: var(--mono);
-      font-size: 0.6rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.35rem 1rem;
+      color: var(--muted);
+      font-family: var(--hand);
+      font-size: 0.85rem;
       cursor: pointer;
-      transition: border-color 0.2s, color 0.2s, background 0.2s;
+      transition: border-color 0.2s, color 0.2s;
       display: inline-flex;
       align-items: center;
       gap: 0.3rem;
     }
     .comment-reply-btn:hover { border-color: var(--type-color); color: var(--type-color); }
-    .show-replies-btn:hover  { border-color: var(--muted); color: var(--fg); }
+    .show-replies-btn { margin-left: 0.5rem; }
+    .show-replies-btn:hover { border-color: var(--muted); color: var(--fg); }
 
-    /* Touch devices — always slightly visible */
-    @media (hover: none) {
-      .comment-reply-btn, .show-replies-btn { opacity: 1; }
-    }
-
-    .replies-container { display: none; margin-top: 0.75rem; }
+    .replies-container { display: none; }
     .replies-container.visible { display: block; }
 
     .comments-empty { font-family: var(--hand); font-size: 1.1rem; color: var(--muted); opacity: 0.3; padding: 1rem 0; letter-spacing: 0.01em; text-align: center; }
@@ -318,7 +245,6 @@
       .comments-wrap { padding: 0 1rem; padding-top: 2rem; margin-top: 3rem; }
       .comment-thread .comment-thread { margin-left: 0.5rem; }
       .comment-item { padding: 1rem; }
-      .comment-item:hover { transform: none; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -365,9 +291,9 @@
       </div>
 
       <div class="comment-form-section">
-        <div class="comment-form-title">Leave a comment</div>
+        <div class="comment-form-title">add your note</div>
         <div class="reply-indicator" id="replyIndicator">
-          Replying to <span class="reply-name" id="replyToName"></span>
+          <span>Replying to <span id="replyToName"></span></span>
           <span class="cancel-reply" id="cancelReply">✕</span>
         </div>
         <form class="comment-form" id="commentForm">
@@ -376,7 +302,7 @@
           <textarea id="commentBody" placeholder="Write something…" maxlength="2000" required></textarea>
           <div class="comment-form-row">
             <span class="comment-feedback" id="commentFeedback"></span>
-            <button type="submit" class="comment-submit" id="commentSubmit">Post</button>
+            <button type="submit" class="comment-submit" id="commentSubmit">leave it ↓</button>
           </div>
         </form>
       </div>
@@ -418,7 +344,6 @@
     handle.addEventListener('touchend', function() { handle.classList.remove('dragging'); localStorage.setItem(STORAGE_KEY, parseInt(page.style.width)); });
   })();
 
-  /* ---- HELPERS ---- */
   function getPostId() { return new URLSearchParams(location.search).get("id"); }
   function escapeHtml(s) { if (!s) return ""; return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;"); }
   function relTime(iso) {
@@ -427,7 +352,6 @@
     if (day<2) return 'yesterday'; if (day<7) return Math.floor(day)+'d ago'; return new Date(iso).toLocaleDateString();
   }
 
-  /* ---- META ---- */
   function setMeta(post) {
     const title = post.title||'Colin Archive', excerpt = post.excerpt||'A quiet archive.', image = post.cover_url||'https://yourdomain.com/og-image.jpg';
     document.title = `${title} — Colin Archive`;
@@ -436,7 +360,6 @@
     document.getElementById('twTitle').content=title; document.getElementById('twDesc').content=excerpt;
   }
 
-  /* ---- SHARE ---- */
   function initShare(post, typeColor) {
     const url=location.href, title=post.title||'Colin Archive';
     document.documentElement.style.setProperty('--type-color', typeColor);
@@ -449,7 +372,6 @@
     copyLinkBtn.addEventListener('click',async()=>{ try{ await navigator.clipboard.writeText(url); copyLinkBtn.innerHTML='<i class="fas fa-check"></i> Copied!'; copyLinkBtn.classList.add('copy-success'); setTimeout(()=>{ copyLinkBtn.innerHTML='<i class="fas fa-link"></i> Copy link'; copyLinkBtn.classList.remove('copy-success'); shareDropdown.classList.remove('open'); },1800); }catch(err){console.error(err);} });
   }
 
-  /* ---- RENDER POST ---- */
   function normalizeIndent(text) { const lines=text.split('\n'); let min=Infinity; lines.forEach(l=>{if(l.trim())min=Math.min(min,l.match(/^(\s*)/)[0].length);}); if(!isFinite(min))min=0; return lines.map(l=>l.slice(min)).join('\n'); }
   function calcReadTime(text) { return Math.max(1,Math.round((text||'').trim().split(/\s+/).length/200)); }
 
@@ -484,22 +406,22 @@
   /* ---- COMMENTS ---- */
   let currentPostId=null, replyParentId=null;
   const replyIndicator  = document.getElementById('replyIndicator');
-  const replyToNameEl   = document.getElementById('replyToName');
+  const replyToNameSpan = document.getElementById('replyToName');
   const cancelReplyBtn  = document.getElementById('cancelReply');
-  const parentIdInput   = document.getElementById('commentParentId');
+  const commentParentId = document.getElementById('commentParentId');
 
   cancelReplyBtn.addEventListener('click', clearReply);
-  function clearReply() { parentIdInput.value=''; replyParentId=null; replyIndicator.style.display='none'; }
+  function clearReply() { commentParentId.value=''; replyParentId=null; replyIndicator.style.display='none'; }
   function setReply(parentId, name) {
-    parentIdInput.value=parentId; replyParentId=parentId;
-    replyToNameEl.textContent=name; replyIndicator.style.display='flex';
+    commentParentId.value=parentId; replyParentId=parentId;
+    replyToNameSpan.textContent=name; replyIndicator.style.display='flex';
     document.getElementById('commentBody').focus();
-    document.getElementById('commentBody').scrollIntoView({ behavior:'smooth', block:'center' });
   }
 
+  // FIX: compare null correctly — Supabase returns null for top-level, not undefined
   function buildCommentTree(comments, parentId=null) {
     return comments
-      .filter(c => (c.parent_id||null) === parentId)
+      .filter(c => (c.parent_id ?? null) === parentId)
       .sort((a,b) => new Date(a.created_at) - new Date(b.created_at))
       .map(c => ({ ...c, replies: buildCommentTree(comments, c.id) }));
   }
@@ -508,15 +430,15 @@
     if (!comments.length) return '';
     return comments.map(c => {
       const date=relTime(c.created_at), name=escapeHtml(c.name), body=escapeHtml(c.content);
-      const replyBtn=`<button class="comment-reply-btn" data-parent-id="${c.id}" data-parent-name="${c.name}"><i class="fas fa-reply"></i> Reply</button>`;
+      const replyBtn=`<button class="comment-reply-btn" data-parent-id="${c.id}" data-parent-name="${c.name}"><i class="fas fa-reply"></i> reply</button>`;
 
       let showRepliesBtn='', repliesHtml='';
       if (c.replies.length) {
         const count = c.replies.length;
         const label = `${count} repl${count>1?'ies':'y'}`;
-        // FIX: store count in data-count so toggle doesn't recount and pick up nested replies
-        showRepliesBtn=`<button class="show-replies-btn" data-target="replies-${c.id}" data-count="${count}"><i class="fas fa-chevron-down"></i> ${label}</button>`;
-        repliesHtml=`<div class="replies-container" id="replies-${c.id}">${renderCommentTree(c.replies, depth+1)}</div>`;
+        // FIX: store count in data-count so toggle always uses the original number
+        showRepliesBtn = `<button class="show-replies-btn" data-target="replies-${c.id}" data-count="${count}"><i class="fas fa-chevron-down"></i> show ${label}</button>`;
+        repliesHtml = `<div class="replies-container" id="replies-${c.id}">${renderCommentTree(c.replies, depth+1)}</div>`;
       }
 
       return `
@@ -526,7 +448,7 @@
             <span class="comment-item-date">${date}</span>
           </div>
           <div class="comment-item-body">${body}</div>
-          <div class="comment-actions">${replyBtn}${showRepliesBtn}</div>
+          <div style="display:flex; align-items:center; gap:0.5rem;">${replyBtn}${showRepliesBtn}</div>
           ${repliesHtml}
         </div>`;
     }).join('');
@@ -537,9 +459,9 @@
     const {data,error}=await db.from('comments').select('id,name,content,created_at,parent_id').eq('post_id',postId).eq('approved',true).order('created_at',{ascending:true});
     if (error) { console.error(error); list.innerHTML='<div class="comments-empty">Could not load comments.</div>'; if(countEl)countEl.textContent=''; return; }
     if (!data||!data.length) { list.innerHTML='<div class="comments-empty">No comments yet.</div>'; if(countEl)countEl.textContent=''; return; }
-    const tree=buildCommentTree(data);
+    const tree = buildCommentTree(data);
     if (countEl) countEl.textContent=`(${data.length})`;
-    list.innerHTML=renderCommentTree(tree);
+    list.innerHTML = renderCommentTree(tree);
 
     list.querySelectorAll('.comment-reply-btn').forEach(btn => {
       btn.addEventListener('click', () => setReply(btn.dataset.parentId, btn.dataset.parentName));
@@ -548,13 +470,14 @@
     list.querySelectorAll('.show-replies-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const targetEl = document.getElementById(btn.dataset.target);
-        const count    = parseInt(btn.dataset.count); // FIX: use stored count, not DOM query
+        // FIX: use data-count stored at render time, not a DOM recount
+        const count = parseInt(btn.dataset.count);
         if (!targetEl) return;
         targetEl.classList.toggle('visible');
         const open = targetEl.classList.contains('visible');
         btn.innerHTML = open
-          ? `<i class="fas fa-chevron-up"></i> Hide repl${count>1?'ies':'y'}`
-          : `<i class="fas fa-chevron-down"></i> ${count} repl${count>1?'ies':'y'}`;
+          ? `<i class="fas fa-chevron-up"></i> hide repl${count>1?'ies':'y'}`
+          : `<i class="fas fa-chevron-down"></i> show ${count} repl${count>1?'ies':'y'}`;
       });
     });
   }
@@ -567,7 +490,7 @@
     const feedback=document.getElementById('commentFeedback'), submit=document.getElementById('commentSubmit');
     form.addEventListener('submit', async(e) => {
       e.preventDefault();
-      const name=nameEl.value.trim(), body=bodyEl.value.trim(), parentId=parentIdInput.value||null;
+      const name=nameEl.value.trim(), body=bodyEl.value.trim(), parentId=commentParentId.value||null;
       if (!name||!body) return;
       submit.disabled=true; feedback.textContent=''; feedback.className='comment-feedback';
       const {error}=await db.from('comments').insert({post_id:postId, name, content:body, parent_id:parentId});
@@ -578,7 +501,6 @@
     });
   }
 
-  /* ---- LOAD ---- */
   async function loadPost() {
     const id=getPostId();
     if (!id) { container.innerHTML="<div class='loading'>No post ID specified</div>"; return; }
