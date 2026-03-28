@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Archive — Colin Archive</title>
 
-<!-- Cache‑busting meta tags -->
+<!-- Cache-busting meta tags -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -633,250 +633,288 @@ header {
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// Public archive – paginated loading for better mobile performance
-const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
+(() => {
+  'use strict';
 
-window.db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
 
-// State
-let allPosts = [];
-let displayedPosts = [];
-let currentFilter = 'all';
-let currentSearch = '';
-let offset = 0;
-const limit = 10;
-let isLoadingMore = false;
-let hasMore = true;
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const PAGE_SIZE = 10;
 
-// DOM elements
-const entryList = document.getElementById('entryList');
-const searchBox = document.getElementById('searchBox');
-const filterTags = document.querySelectorAll('.filter-tag');
-const loadMoreContainer = document.getElementById('loadMoreContainer');
-const loadMoreBtn = document.getElementById('loadMoreBtn');
-
-// Debounce helper
-function debounce(func, wait) {
-  let timeout;
-  return function(...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(this, args), wait);
+  const state = {
+    loadedPosts: [],
+    filteredPosts: [],
+    visiblePosts: [],
+    currentFilter: 'all',
+    currentSearch: '',
+    nextOffset: 0,
+    hasMoreServerPosts: true,
+    isFetching: false
   };
-}
 
-// Helper: return optimized cover URL
-function getOptimizedCoverUrl(url) {
-  return url;
-}
+  const els = {
+    entryList: document.getElementById('entryList'),
+    searchBox: document.getElementById('searchBox'),
+    filterTags: Array.from(document.querySelectorAll('.filter-tag')),
+    loadMoreContainer: document.getElementById('loadMoreContainer'),
+    loadMoreBtn: document.getElementById('loadMoreBtn')
+  };
 
-// Relative time formatter (like YouTube)
-function getRelativeTime(dateString) {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffMs = now - date;
-  const diffSec = Math.floor(diffMs / 1000);
-  const diffMin = Math.floor(diffSec / 60);
-  const diffHour = Math.floor(diffMin / 60);
-  const diffDay = Math.floor(diffHour / 24);
-  const diffWeek = Math.floor(diffDay / 7);
-  const diffMonth = Math.floor(diffDay / 30);
-  const diffYear = Math.floor(diffDay / 365);
-
-  if (diffSec < 60) return 'just now';
-  if (diffMin < 60) return diffMin + ' minute' + (diffMin > 1 ? 's' : '') + ' ago';
-  if (diffHour < 24) return diffHour + ' hour' + (diffHour > 1 ? 's' : '') + ' ago';
-  if (diffDay === 1) return 'yesterday';
-  if (diffDay < 7) return diffDay + ' days ago';
-  if (diffWeek < 4) return diffWeek + ' week' + (diffWeek > 1 ? 's' : '') + ' ago';
-  if (diffMonth < 12) return diffMonth + ' month' + (diffMonth > 1 ? 's' : '') + ' ago';
-  return diffYear + ' year' + (diffYear > 1 ? 's' : '') + ' ago';
-}
-
-// Load initial posts
-async function loadInitialPosts() {
-  try {
-    const { data, error } = await window.db
-      .from('posts')
-      .select('id, title, excerpt, type, access, cover_url, created_at')
-      .order('created_at', { ascending: false })
-      .range(0, limit - 1);
-
-    if (error) throw error;
-
-    allPosts = data || [];
-    displayedPosts = allPosts;
-    renderPosts(displayedPosts);
-    if (allPosts.length < limit) {
-      hasMore = false;
-      loadMoreContainer.style.display = 'none';
-    } else {
-      hasMore = true;
-      loadMoreContainer.style.display = 'block';
-    }
-  } catch (err) {
-    console.error('Failed to load posts:', err);
-    entryList.innerHTML = `<div style="padding:3rem;text-align:center;color:var(--muted);">Could not load posts. Please try again later.</div>`;
+  function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
   }
-}
 
-// Load more posts
-async function loadMorePosts() {
-  if (isLoadingMore || !hasMore) return;
-  isLoadingMore = true;
-  loadMoreBtn.textContent = 'Loading...';
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
 
-  try {
-    const { data, error } = await window.db
-      .from('posts')
-      .select('id, title, excerpt, type, access, cover_url, created_at')
-      .order('created_at', { ascending: false })
-      .range(offset + limit, offset + limit * 2 - 1);
+  function normalizeType(type) {
+    const raw = String(type || 'essay').toLowerCase();
+    if (raw === 'essay' || raw === 'code' || raw === 'notes') return raw;
+    return 'essay';
+  }
 
-    if (error) throw error;
+  function mapFilterToType(filter) {
+    if (filter === 'essays') return 'essay';
+    if (filter === 'code') return 'code';
+    if (filter === 'notes') return 'notes';
+    return null;
+  }
 
-    if (data && data.length > 0) {
-      allPosts = [...allPosts, ...data];
-      const filtered = getFilteredPosts();
-      const newPosts = filtered.slice(displayedPosts.length);
-      if (newPosts.length > 0) {
-        renderPosts(newPosts, true);
-        displayedPosts = filtered;
+  function getOptimizedCoverUrl(url) {
+    return typeof url === 'string' ? url.trim() : '';
+  }
+
+  function getRelativeTime(dateString) {
+    if (!dateString) return 'unknown date';
+
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return 'unknown date';
+
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffSec = Math.max(0, Math.floor(diffMs / 1000));
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHour = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHour / 24);
+    const diffWeek = Math.floor(diffDay / 7);
+    const diffMonth = Math.floor(diffDay / 30);
+    const diffYear = Math.floor(diffDay / 365);
+
+    if (diffSec < 60) return 'just now';
+    if (diffMin < 60) return diffMin + ' minute' + (diffMin > 1 ? 's' : '') + ' ago';
+    if (diffHour < 24) return diffHour + ' hour' + (diffHour > 1 ? 's' : '') + ' ago';
+    if (diffDay === 1) return 'yesterday';
+    if (diffDay < 7) return diffDay + ' days ago';
+    if (diffWeek < 4) return diffWeek + ' week' + (diffWeek > 1 ? 's' : '') + ' ago';
+    if (diffMonth < 12) return diffMonth + ' month' + (diffMonth > 1 ? 's' : '') + ' ago';
+    return diffYear + ' year' + (diffYear > 1 ? 's' : '') + ' ago';
+  }
+
+  function getFilteredPosts() {
+    const targetType = mapFilterToType(state.currentFilter);
+    const search = state.currentSearch.trim().toLowerCase();
+
+    return state.loadedPosts.filter(post => {
+      const type = normalizeType(post.type);
+      const matchesType = !targetType || type === targetType;
+      const matchesSearch = !search || (
+        String(post.title || '').toLowerCase().includes(search) ||
+        String(post.excerpt || '').toLowerCase().includes(search)
+      );
+      return matchesType && matchesSearch;
+    });
+  }
+
+  function generateExcerpt(post) {
+    if (post.excerpt) return escapeHtml(post.excerpt);
+    return '<em style="opacity:0.6;">(no preview)</em>';
+  }
+
+  function updateDerivedState() {
+    state.filteredPosts = getFilteredPosts();
+    state.visiblePosts = state.filteredPosts.slice(0, PAGE_SIZE);
+  }
+
+  function updateLoadMoreVisibility() {
+    const canRevealMoreLoaded = state.visiblePosts.length < state.filteredPosts.length;
+    const shouldShow = canRevealMoreLoaded || state.hasMoreServerPosts;
+    els.loadMoreContainer.style.display = shouldShow ? 'flex' : 'none';
+  }
+
+  function renderEmpty(message) {
+    els.entryList.innerHTML = `<div style="padding:3rem;text-align:center;color:var(--muted);"><p style="font-family:var(--mono);font-size:0.875rem;">${escapeHtml(message)}</p></div>`;
+  }
+
+  function renderPosts(posts) {
+    if (!posts.length) {
+      if (state.currentSearch.trim() || state.currentFilter !== 'all') {
+        renderEmpty('No matching entries');
+      } else {
+        renderEmpty('No entries yet');
       }
-      offset += limit;
-      if (data.length < limit) {
-        hasMore = false;
-        loadMoreContainer.style.display = 'none';
-      }
-    } else {
-      hasMore = false;
-      loadMoreContainer.style.display = 'none';
+      return;
     }
-  } catch (err) {
-    console.error('Failed to load more posts:', err);
-  } finally {
-    isLoadingMore = false;
-    loadMoreBtn.textContent = 'Load more';
-  }
-}
 
-// Filter posts – now only title and excerpt (no content)
-function getFilteredPosts() {
-  let filtered = allPosts;
-  if (currentFilter !== 'all') {
-    const typeMap = { essays: 'essay', code: 'code', notes: 'notes' };
-    const postType = typeMap[currentFilter];
-    filtered = filtered.filter(post => (post.type || 'essay') === postType);
-  }
-  if (currentSearch) {
-    const s = currentSearch.toLowerCase();
-    filtered = filtered.filter(post =>
-      (post.title || '').toLowerCase().includes(s) ||
-      (post.excerpt || '').toLowerCase().includes(s)
-    );
-  }
-  return filtered;
-}
+    const html = posts.map(post => {
+      const isPaid = String(post.access || 'free').toLowerCase() === 'paid';
+      const type = normalizeType(post.type);
+      const title = escapeHtml(post.title || 'Untitled');
+      const excerpt = generateExcerpt(post);
+      const relativeTime = escapeHtml(getRelativeTime(post.created_at));
+      const linkTarget = `/post.html?id=${encodeURIComponent(String(post.id ?? ''))}`;
+      const coverUrl = getOptimizedCoverUrl(post.cover_url);
+      const typeLabel = type === 'code' ? 'code' : (type === 'notes' ? 'note' : 'essay');
+      const classes = `entry type-${type} ${isPaid ? 'locked' : ''} ${coverUrl ? 'has-cover' : ''}`;
+      const imgHtml = coverUrl ? `<img src="${escapeHtml(coverUrl)}" alt="" class="entry-img" loading="lazy" onerror="this.style.display='none'">` : '';
+      const lockIcon = isPaid ? '<i class="fas fa-lock locked-icon"></i>' : '';
 
-// Render posts – if append is true, add to existing list
-function renderPosts(posts, append = false) {
-  if (!posts.length && !append) {
-    entryList.innerHTML = `<div style="padding:3rem;text-align:center;color:var(--muted);">No entries yet</div>`;
-    return;
-  }
-
-  const html = posts.map(post => {
-    const isPaid = post.access === 'paid';
-    const type = post.type || 'essay';
-    const title = escapeHtml(post.title);
-    const excerpt = generateExcerpt(post);
-    const relativeTime = getRelativeTime(post.created_at);
-    const linkTarget = `/post.html?id=${post.id}`;
-    const coverUrl = getOptimizedCoverUrl(post.cover_url);
-    const typeLabel = type === 'code' ? 'code' : (type === 'notes' ? 'note' : 'essay');
-    const classes = `entry type-${type} ${isPaid ? 'locked' : ''} ${coverUrl ? 'has-cover' : ''}`;
-    const imgHtml = coverUrl ? `<img src="${coverUrl}" alt="" class="entry-img" loading="lazy" onerror="this.style.display='none'">` : '';
-    const lockIcon = isPaid ? '<i class="fas fa-lock locked-icon"></i>' : '';
-
-    return `
-      <div class="${classes}" data-id="${post.id}">
-        ${imgHtml}
-        ${lockIcon}
-        <span class="entry-type-label">${typeLabel}</span>
-        <a href="${linkTarget}" class="entry-link">
-          <div class="entry-content">
-            <div class="entry-header">
-              <h2 class="entry-title">${title}</h2>
+      return `
+        <div class="${classes}" data-id="${escapeHtml(String(post.id ?? ''))}">
+          ${imgHtml}
+          ${lockIcon}
+          <span class="entry-type-label">${escapeHtml(typeLabel)}</span>
+          <a href="${linkTarget}" class="entry-link">
+            <div class="entry-content">
+              <div class="entry-header">
+                <h2 class="entry-title">${title}</h2>
+              </div>
+              <div class="entry-meta">${relativeTime}</div>
+              <p class="entry-excerpt">${excerpt}</p>
             </div>
-            <div class="entry-meta">${relativeTime}</div>
-            <p class="entry-excerpt">${excerpt}</p>
-          </div>
-        </a>
-      </div>
-    `;
-  }).join('');
+          </a>
+        </div>
+      `;
+    }).join('');
 
-  if (append) {
-    entryList.insertAdjacentHTML('beforeend', html);
-  } else {
-    entryList.innerHTML = html;
+    els.entryList.innerHTML = html;
   }
-}
 
-function escapeHtml(unsafe) {
-  if (!unsafe) return '';
-  return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-}
-
-function generateExcerpt(post) {
-  if (post.excerpt) return escapeHtml(post.excerpt);
-  return '<em style="opacity:0.6;">(no preview)</em>';
-}
-
-// Apply filter (reset pagination)
-function applyFilter() {
-  offset = 0;
-  const filtered = getFilteredPosts();
-  displayedPosts = filtered;
-  renderPosts(filtered.slice(0, limit));
-  if (filtered.length <= limit) {
-    loadMoreContainer.style.display = 'none';
-  } else {
-    loadMoreContainer.style.display = 'block';
+  function setActiveFilter(nextFilter) {
+    els.filterTags.forEach(tag => {
+      tag.classList.toggle('active', tag.dataset.filter === nextFilter);
+    });
   }
-}
 
-// Debounced search handler
-const debouncedSearch = debounce(() => {
-  applyFilter();
-}, 200);
+  async function fetchPostsPage() {
+    if (state.isFetching || !state.hasMoreServerPosts) return;
 
-// Event listeners
-searchBox.addEventListener('input', (e) => {
-  currentSearch = e.target.value;
-  debouncedSearch();
-});
+    state.isFetching = true;
+    els.loadMoreBtn.disabled = true;
+    els.loadMoreBtn.textContent = 'Loading...';
 
-filterTags.forEach(tag => {
-  tag.addEventListener('click', () => {
-    filterTags.forEach(t => t.classList.remove('active'));
-    tag.classList.add('active');
-    currentFilter = tag.dataset.filter;
-    applyFilter();
+    try {
+      const from = state.nextOffset;
+      const to = state.nextOffset + PAGE_SIZE - 1;
+
+      const { data, error } = await db
+        .from('posts')
+        .select('id, title, excerpt, type, access, cover_url, created_at')
+        .order('created_at', { ascending: false })
+        .range(from, to);
+
+      if (error) throw error;
+
+      const rows = Array.isArray(data) ? data : [];
+
+      if (!rows.length) {
+        state.hasMoreServerPosts = false;
+        updateLoadMoreVisibility();
+        return;
+      }
+
+      state.loadedPosts = state.loadedPosts.concat(rows);
+      state.nextOffset += rows.length;
+
+      if (rows.length < PAGE_SIZE) {
+        state.hasMoreServerPosts = false;
+      }
+
+      updateDerivedState();
+      renderPosts(state.visiblePosts);
+      updateLoadMoreVisibility();
+    } catch (err) {
+      console.error('Failed to load posts:', err);
+      if (!state.loadedPosts.length) {
+        renderEmpty('Could not load posts. Please try again later.');
+      }
+    } finally {
+      state.isFetching = false;
+      els.loadMoreBtn.disabled = false;
+      els.loadMoreBtn.textContent = 'Load more';
+    }
+  }
+
+  async function handleLoadMore() {
+    const canRevealMoreLoaded = state.visiblePosts.length < state.filteredPosts.length;
+
+    if (canRevealMoreLoaded) {
+      state.visiblePosts = state.filteredPosts.slice(0, state.visiblePosts.length + PAGE_SIZE);
+      renderPosts(state.visiblePosts);
+      updateLoadMoreVisibility();
+      return;
+    }
+
+    if (state.hasMoreServerPosts) {
+      await fetchPostsPage();
+    }
+  }
+
+  function applyFilterAndSearch() {
+    updateDerivedState();
+    renderPosts(state.visiblePosts);
+    updateLoadMoreVisibility();
+  }
+
+  const debouncedSearch = debounce(() => {
+    applyFilterAndSearch();
+  }, 200);
+
+  function bindEvents() {
+    els.searchBox.addEventListener('input', (e) => {
+      state.currentSearch = e.target.value || '';
+      debouncedSearch();
+    });
+
+    els.filterTags.forEach(tag => {
+      tag.addEventListener('click', () => {
+        state.currentFilter = tag.dataset.filter || 'all';
+        setActiveFilter(state.currentFilter);
+        applyFilterAndSearch();
+      });
+    });
+
+    els.loadMoreBtn.addEventListener('click', handleLoadMore);
+
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted) {
+        renderPosts(state.visiblePosts);
+        updateLoadMoreVisibility();
+      }
+    });
+  }
+
+  async function init() {
+    bindEvents();
+    updateLoadMoreVisibility();
+    await fetchPostsPage();
+  }
+
+  init().catch(err => {
+    console.error('Archive initialization failed:', err);
+    renderEmpty('Could not load posts. Please try again later.');
   });
-});
-
-loadMoreBtn.addEventListener('click', loadMorePosts);
-
-// Refresh when returning from bfcache
-window.addEventListener('pageshow', function(event) {
-  if (event.persisted) {
-    renderPosts(displayedPosts);
-  }
-});
-
-// Initial load
-loadInitialPosts();
+})();
 </script>
 
 </body>
