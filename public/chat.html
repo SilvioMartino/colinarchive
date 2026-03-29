@@ -53,7 +53,7 @@
       font-family: var(--serif);
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
+      min-height: 100dvh;
       overflow: hidden;
       background:
         radial-gradient(circle at top, rgba(78,205,196,0.045), transparent 28%),
@@ -192,6 +192,7 @@
       display: grid;
       grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
       overflow: hidden;
+      height: calc(100dvh - var(--header-h));
     }
 
     .sidebar {
@@ -556,6 +557,9 @@
       min-height: 54px;
       max-height: 140px;
       resize: none;
+      overflow-y: hidden;
+      overflow-x: hidden;
+      scrollbar-width: none;
       border: 1px solid var(--border);
       border-radius: 16px;
       background: rgba(255,255,255,0.03);
@@ -564,6 +568,13 @@
       outline: none;
       line-height: 1.5;
       transition: border-color 0.18s, background 0.18s, box-shadow 0.18s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .message-input::-webkit-scrollbar {
+      width: 0;
+      height: 0;
     }
 
     .message-input:focus {
@@ -789,6 +800,7 @@
       .app-grid {
         grid-template-columns: 1fr;
         min-height: 0;
+        height: calc(100dvh - var(--header-h));
       }
 
       .chat-shell,
@@ -824,12 +836,17 @@
     @media (max-width: 700px) {
       body {
         min-height: 100dvh;
+        overflow: auto;
       }
 
       .app-grid,
       .chat-shell,
       .chat-main {
         min-height: 0;
+      }
+
+      .app-grid {
+        overflow: visible;
       }
 
       .chat-main {
@@ -848,7 +865,10 @@
       .composer-wrap {
         flex-shrink: 0;
         width: 100%;
-        position: relative;
+        position: sticky;
+        bottom: 0;
+        z-index: 5;
+        background: rgba(19,19,19,0.98);
         padding-bottom: calc(0.72rem + env(safe-area-inset-bottom, 0px));
       }
 
@@ -936,6 +956,8 @@
         padding: 0.76rem 0.88rem;
         border-radius: 16px;
         font-size: 16px;
+        overflow-y: hidden;
+        overflow-x: hidden;
       }
 
       .send-btn {
@@ -1071,6 +1093,7 @@
       const MESSAGE_LIMIT_PRIVATE = 300;
       const MESSAGE_COOLDOWN_MS = 900;
       const NEAR_BOTTOM_THRESHOLD = 88;
+      const MAX_TEXTAREA_HEIGHT = 140;
 
       const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -1755,9 +1778,16 @@
       }
 
       function resizeTextarea() {
-        els.messageInput.style.height = 'auto';
-        const next = Math.min(els.messageInput.scrollHeight, 140);
-        els.messageInput.style.height = next + 'px';
+        const el = els.messageInput;
+        el.style.height = 'auto';
+        el.style.overflowY = 'hidden';
+
+        const next = Math.min(el.scrollHeight, MAX_TEXTAREA_HEIGHT);
+        el.style.height = next + 'px';
+
+        if (el.scrollHeight > MAX_TEXTAREA_HEIGHT) {
+          el.style.overflowY = 'auto';
+        }
       }
 
       function updateCharCounter() {
@@ -1859,15 +1889,6 @@
           if (els.composerStatus.classList.contains('error')) setComposerStatus('');
         });
 
-        els.messageInput.addEventListener('focus', () => {
-          setTimeout(() => {
-            els.messageInput.scrollIntoView({
-              behavior: 'smooth',
-              block: 'nearest'
-            });
-          }, 250);
-        });
-
         els.sidebarSearch.addEventListener('input', () => {
           syncSearchInputs(els.sidebarSearch);
         });
@@ -1901,6 +1922,7 @@
           if (!isMobileLayout()) {
             closeMobileSidebar();
           }
+          resizeTextarea();
         });
 
         window.addEventListener('beforeunload', () => {
