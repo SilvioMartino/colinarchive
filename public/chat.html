@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Chat | Colin Archive</title>
 
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
@@ -366,6 +366,7 @@
       display: flex;
       flex-direction: column;
       flex: 1;
+      height: 100%;
     }
 
     .message-list {
@@ -514,6 +515,8 @@
 
     .composer-wrap {
       flex-shrink: 0;
+      width: 100%;
+      position: relative;
       padding: 0.8rem 0.9rem 0.9rem;
       border-top: 1px solid var(--border);
       background: rgba(19,19,19,0.95);
@@ -775,8 +778,22 @@
     }
 
     @media (max-width: 920px) {
+      html, body {
+        height: 100%;
+      }
+
+      body {
+        min-height: 100dvh;
+      }
+
       .app-grid {
         grid-template-columns: 1fr;
+        min-height: 0;
+      }
+
+      .chat-shell,
+      .chat-main {
+        min-height: 0;
       }
 
       .sidebar {
@@ -801,6 +818,42 @@
 
       .header-left {
         gap: 0.45rem;
+      }
+    }
+
+    @media (max-width: 700px) {
+      body {
+        min-height: 100dvh;
+      }
+
+      .app-grid,
+      .chat-shell,
+      .chat-main {
+        min-height: 0;
+      }
+
+      .chat-main {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      .message-list {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .composer-wrap {
+        flex-shrink: 0;
+        width: 100%;
+        position: relative;
+        padding-bottom: calc(0.72rem + env(safe-area-inset-bottom, 0px));
+      }
+
+      .message-input {
+        font-size: 16px;
       }
     }
 
@@ -882,7 +935,7 @@
         min-height: 46px;
         padding: 0.76rem 0.88rem;
         border-radius: 16px;
-        font-size: 0.96rem;
+        font-size: 16px;
       }
 
       .send-btn {
@@ -1804,6 +1857,15 @@
           resizeTextarea();
           updateCharCounter();
           if (els.composerStatus.classList.contains('error')) setComposerStatus('');
+        });
+
+        els.messageInput.addEventListener('focus', () => {
+          setTimeout(() => {
+            els.messageInput.scrollIntoView({
+              behavior: 'smooth',
+              block: 'nearest'
+            });
+          }, 250);
         });
 
         els.sidebarSearch.addEventListener('input', () => {
