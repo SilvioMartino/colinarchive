@@ -384,6 +384,18 @@
       -webkit-overflow-scrolling: touch;
     }
 
+    /*
+     * FIX: Mobile scroll not working with few messages.
+     * When content is shorter than the container, flex children don't
+     * fill height — adding min-height: 100% forces the list to be at
+     * least as tall as its scroll viewport so touch-scroll registers.
+     */
+    .message-list::after {
+      content: '';
+      display: block;
+      min-height: 1px;
+    }
+
     .day-divider {
       align-self: center;
       font-family: var(--mono);
@@ -1150,6 +1162,63 @@
         date: new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
       };
 
+      // ─────────────────────────────────────────────────────────────────────
+      // FIX: Browser back button navigation.
+      //
+      // The History API is used to create synthetic history entries so the
+      // device back gesture / button navigates within the app instead of
+      // leaving it entirely.
+      //
+      // Stack logic:
+      //   • On load we push a base state (public room) so there is always
+      //     one entry we can pop back to.
+      //   • When opening a private conversation we push a new state.
+      //   • When going back to public we call history.back() only if the
+      //     current state is 'private', otherwise we let the browser navigate
+      //     normally to index.html (the blog).
+      //   • The popstate handler decides what to render based on the popped
+      //     state without pushing again (avoids infinite loops).
+      // ─────────────────────────────────────────────────────────────────────
+      function initHistory() {
+        // Replace the very first entry with public state so we always have
+        // a clean base. If the user then presses back from public, the
+        // browser will go to whatever was before this page (index.html).
+        history.replaceState({ chat: 'public' }, '', location.href);
+      }
+
+      function pushPrivateHistory(userId, name) {
+        history.pushState({ chat: 'private', userId, name }, '', location.href);
+      }
+
+      function pushPublicHistory() {
+        // Only push if we are currently in a private state so we don't
+        // accumulate duplicate public entries.
+        if (history.state && history.state.chat === 'private') {
+          history.pushState({ chat: 'public' }, '', location.href);
+        }
+      }
+
+      window.addEventListener('popstate', (e) => {
+        const hs = e.state;
+
+        if (!hs) {
+          // No state means we've gone all the way back — let browser handle it.
+          return;
+        }
+
+        if (hs.chat === 'private' && hs.userId) {
+          // Navigated forward into a private convo (rare but possible).
+          _openPrivateConversationInternal(hs.userId, hs.name, false);
+          return;
+        }
+
+        if (hs.chat === 'public') {
+          // Back from private → public.
+          _openPublicConversationInternal(false);
+          return;
+        }
+      });
+
       function getOrCreateStableUserId() {
         let id = localStorage.getItem(STORAGE_KEYS.userId);
         if (id && /^[a-zA-Z0-9_-]{10,}$/.test(id)) return id;
@@ -1411,7 +1480,10 @@
           return;
         }
 
-        const lastMsg = currentMessages[currentMessages.length - 2];
+        // FIX: was [length - 2] which is the second-to-last message, causing
+        // duplicate day dividers. The correct comparison is the actual last
+        // message in the list before the new one arrives.
+        const lastMsg = currentMessages[currentMessages.length - 1];
         let html = '';
 
         if (!lastMsg || !areSameDay(lastMsg.created_at, msg.created_at)) {
@@ -1678,14 +1750,21 @@
           .subscribe();
       }
 
-      async function openPrivateConversation(userId, name) {
-        if (!userId || userId === state.currentUser.id) return;
+      // Internal implementations — do the actual state/render work without
+      // touching history (so popstate can call them safely).
 
+      function _openPrivateConversationInternal(userId, name, clearUnread) {
         ensureContact(userId, name);
         state.currentConversation = { type: 'private', recipientId: userId };
 
-        const contact = state.contacts.get(userId);
-        if (contact) contact.unreadCount = 0;
+        // FIX: Reset stickToBottom when switching conversations so the new
+        // conversation always scrolls to the bottom on open.
+        state.stickToBottom = true;
+
+        if (clearUnread) {
+          const contact = state.contacts.get(userId);
+          if (contact) contact.unreadCount = 0;
+        }
 
         updateConversationHeader();
         renderContactList();
@@ -1694,13 +1773,34 @@
         closeMobileSidebar();
       }
 
-      function openPublicConversation() {
+      function _openPublicConversationInternal(saveHistory) {
         state.currentConversation = { type: 'public', recipientId: null };
+
+        // FIX: Reset stickToBottom when switching conversations.
+        state.stickToBottom = true;
+
         updateConversationHeader();
         renderContactList();
         renderMessages(state.publicMessages);
         clearSavedConversation();
         closeMobileSidebar();
+      }
+
+      // Public-facing wrappers that also manage browser history.
+
+      async function openPrivateConversation(userId, name) {
+        if (!userId || userId === state.currentUser.id) return;
+        pushPrivateHistory(userId, name);
+        _openPrivateConversationInternal(userId, name, true);
+      }
+
+      function openPublicConversation() {
+        // If we're already in public, a back press should leave the site —
+        // so only push history when we're actually navigating from private.
+        if (state.currentConversation.type === 'private') {
+          pushPublicHistory();
+        }
+        _openPublicConversationInternal(false);
       }
 
       async function sendMessage() {
@@ -1718,7 +1818,8 @@
           return;
         }
 
-        state.lastSendAt = now;
+        // FIX: Only record lastSendAt after a successful send so a failed
+        // attempt doesn't burn the cooldown window.
         setComposerStatus('Sending...');
         els.sendBtn.disabled = true;
 
@@ -1768,6 +1869,9 @@
           setComposerStatus('Message failed to send. Check your database columns and RLS policies.', 'error');
           return;
         }
+
+        // Only stamp the cooldown on success.
+        state.lastSendAt = Date.now();
 
         setComposerStatus('Sent.', 'success');
         setTimeout(() => {
@@ -1960,6 +2064,9 @@
             const active = state.contacts.get(saved.recipientId);
             if (active) active.unreadCount = 0;
 
+            // Push private history so back button works from a restored session.
+            pushPrivateHistory(saved.recipientId, active?.name || '');
+
             updateConversationHeader();
             renderContactList();
             renderMessages(getCurrentPrivateMessages());
@@ -1973,6 +2080,7 @@
       }
 
       async function init() {
+        initHistory();
         bindStaticEvents();
         updateConversationHeader();
         updateCharCounter();
