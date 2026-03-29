@@ -24,12 +24,15 @@
       --red: #ff6b6b;
       --blue: #4ecdc4;
       --green: #51cf66;
+      --amber: #ffc857;
+      --violet: #c084fc;
       --shadow: 0 18px 50px rgba(0,0,0,0.25);
       --serif: 'Crimson Text', Georgia, serif;
       --mono: 'IBM Plex Mono', 'Courier New', monospace;
       --hand: 'Caveat', cursive;
       --header-h: 78px;
       --sidebar-w: 300px;
+      --enter-ease: cubic-bezier(.18,.88,.22,1);
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; background: var(--paper); }
@@ -70,34 +73,68 @@
 
     .sidebar { min-height:0; border-right:1px solid var(--border); background:rgba(20,20,20,0.9); display:flex; flex-direction:column; }
     .sidebar-top { padding:1rem 1rem 0.8rem; border-bottom:1px solid var(--border); flex-shrink:0; }
-    .sidebar-title { font-family:var(--mono); font-size:0.68rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:0.75rem; }
+    .sidebar-title-row { display:flex; align-items:center; justify-content:space-between; gap:0.75rem; margin-bottom:0.75rem; }
+    .sidebar-title { font-family:var(--mono); font-size:0.68rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); }
+    .sidebar-presence { font-family:var(--mono); font-size:0.58rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--soft); }
     .sidebar-search { width:100%; border:1px solid var(--border); background:var(--surface); color:var(--fg); padding:0.7rem 0.85rem; border-radius:999px; outline:none; font-family:var(--mono); font-size:0.75rem; transition:border-color 0.18s,background 0.18s; }
     .sidebar-search:focus { border-color:rgba(78,205,196,0.6); background:var(--surface-2); }
     .sidebar-search::placeholder { color:var(--soft); }
     .sidebar-body { min-height:0; overflow-y:auto; padding:0.8rem; }
-    .sidebar-body::-webkit-scrollbar,.message-list::-webkit-scrollbar { width:4px; }
-    .sidebar-body::-webkit-scrollbar-thumb,.message-list::-webkit-scrollbar-thumb { background:#343434; border-radius:999px; }
+    .sidebar-body::-webkit-scrollbar,.message-list::-webkit-scrollbar,.editor-textarea::-webkit-scrollbar { width:4px; }
+    .sidebar-body::-webkit-scrollbar-thumb,.message-list::-webkit-scrollbar-thumb,.editor-textarea::-webkit-scrollbar-thumb { background:#343434; border-radius:999px; }
     .sidebar-section-label { font-family:var(--mono); font-size:0.62rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--soft); margin:0.35rem 0 0.6rem; padding:0 0.35rem; }
     .user-list { display:flex; flex-direction:column; gap:0.35rem; }
-    .user-item { width:100%; border:1px solid transparent; background:transparent; border-radius:12px; padding:0.65rem 0.7rem; display:flex; align-items:center; gap:0.7rem; cursor:pointer; text-align:left; color:inherit; transition:background 0.18s,border-color 0.18s,transform 0.18s; }
+    .user-item {
+      width:100%; border:1px solid transparent; background:transparent; border-radius:14px; padding:0.72rem 0.75rem;
+      display:flex; align-items:center; gap:0.7rem; cursor:pointer; text-align:left; color:inherit;
+      transition:background 0.18s,border-color 0.18s,transform 0.18s, box-shadow 0.18s;
+    }
     .user-item:hover { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.05); transform:translateY(-1px); }
-    .user-item.active { background:rgba(78,205,196,0.09); border-color:rgba(78,205,196,0.34); }
-    .user-avatar { width:34px; height:34px; border-radius:50%; border:1px solid var(--border); flex-shrink:0; background:linear-gradient(to bottom right,rgba(255,255,255,0.05),rgba(255,255,255,0.02)); display:flex; align-items:center; justify-content:center; font-family:var(--hand); font-size:1rem; color:var(--fg); }
+    .user-item.active { background:rgba(78,205,196,0.09); border-color:rgba(78,205,196,0.34); box-shadow:0 12px 28px rgba(0,0,0,0.14); }
+    .user-avatar-wrap { position:relative; width:34px; height:34px; flex-shrink:0; }
+    .user-avatar { width:34px; height:34px; border-radius:50%; border:1px solid var(--border); background:linear-gradient(to bottom right,rgba(255,255,255,0.05),rgba(255,255,255,0.02)); display:flex; align-items:center; justify-content:center; font-family:var(--hand); font-size:1rem; color:var(--fg); }
+    .presence-dot {
+      position:absolute; right:-1px; bottom:-1px; width:10px; height:10px; border-radius:50%;
+      background:#4b4b4b; border:2px solid rgba(20,20,20,0.95); transition:background 0.18s, transform 0.18s;
+    }
+    .presence-dot.online { background:var(--green); transform:scale(1.06); }
     .sidebar-user-main { min-width:0; flex:1; }
-    .sidebar-user-name { display:block; font-family:var(--mono); font-size:0.75rem; color:var(--fg); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:0.15rem; }
+    .sidebar-user-top { display:flex; align-items:center; justify-content:space-between; gap:0.45rem; margin-bottom:0.15rem; }
+    .sidebar-user-name { display:block; font-family:var(--mono); font-size:0.74rem; color:var(--fg); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .sidebar-user-time { font-family:var(--mono); font-size:0.58rem; color:var(--soft); flex-shrink:0; }
     .sidebar-user-sub { display:block; font-family:var(--mono); font-size:0.62rem; color:var(--soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .sidebar-user-sub.unread { color:#d7f8f5; }
+    .typing-mini { color:var(--blue); }
     .unread-badge { background:var(--red); color:#fff; font-size:0.62rem; min-width:1.2rem; height:1.2rem; padding:0 0.35rem; border-radius:999px; display:inline-flex; align-items:center; justify-content:center; font-family:var(--mono); flex-shrink:0; }
 
     .chat-shell { min-width:0; min-height:0; display:flex; flex-direction:column; }
     .chat-main { min-height:0; display:flex; flex-direction:column; flex:1; height:100%; }
     .message-list { flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding:1rem clamp(0.9rem,3vw,2rem) 0.9rem; display:flex; flex-direction:column; gap:0.95rem; scroll-behavior:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
-    .message-list::after { content:''; display:block; min-height:1px; } /* fixes mobile scroll on short content */
+    .message-list::after { content:''; display:block; min-height:1px; }
     .day-divider { align-self:center; font-family:var(--mono); font-size:0.62rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--soft); background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.04); border-radius:999px; padding:0.28rem 0.65rem; margin:0.15rem 0 0.25rem; }
-    .message-row { display:flex; gap:0.8rem; align-items:flex-start; max-width:880px; width:100%; }
-    .message-row.own { align-self:flex-end; flex-direction:row-reverse; }
+    .message-row {
+      display:flex; gap:0.8rem; align-items:flex-start; max-width:880px; width:100%;
+      animation:messageIn 240ms var(--enter-ease);
+      transform-origin:left bottom;
+    }
+    .message-row.own { align-self:flex-end; flex-direction:row-reverse; transform-origin:right bottom; }
+    .message-row.pending .message-bubble { opacity:0.7; }
+    .message-row.failed .message-bubble { border-left-color:rgba(255,107,107,0.85); }
+    .message-row.flash .message-bubble { animation:sentFlash 380ms ease; }
+    @keyframes messageIn {
+      from { opacity:0; transform:translateY(8px) scale(0.988); }
+      to { opacity:1; transform:translateY(0) scale(1); }
+    }
+    @keyframes sentFlash {
+      0% { box-shadow:0 0 0 rgba(78,205,196,0); }
+      42% { box-shadow:0 0 0 6px rgba(78,205,196,0.055); }
+      100% { box-shadow:var(--shadow); }
+    }
     .message-avatar { width:38px; height:38px; border-radius:50%; border:1px solid var(--border); flex-shrink:0; background:linear-gradient(to bottom right,rgba(255,255,255,0.05),rgba(255,255,255,0.02)); display:flex; align-items:center; justify-content:center; font-family:var(--hand); font-size:1rem; color:var(--fg); box-shadow:var(--shadow); }
-    .message-bubble { min-width:0; max-width:min(100%,760px); background:rgba(255,255,255,0.035); border:1px solid rgba(255,255,255,0.045); border-left:2px solid rgba(78,205,196,0.6); border-radius:14px; padding:0.7rem 0.9rem 0.75rem; box-shadow:var(--shadow); contain:layout paint; }
+    .message-stack { min-width:0; max-width:min(100%,760px); display:flex; flex-direction:column; }
+    .message-bubble { min-width:0; max-width:min(100%,760px); background:rgba(255,255,255,0.035); border:1px solid rgba(255,255,255,0.045); border-left:2px solid rgba(78,205,196,0.6); border-radius:14px; padding:0.7rem 0.9rem 0.75rem; box-shadow:var(--shadow); contain:layout paint; transition:transform 0.18s, border-color 0.18s, background 0.18s; }
     .message-row.own .message-bubble { border-left-color:rgba(192,132,252,0.75); background:rgba(192,132,252,0.05); }
+    .message-row:hover .message-bubble { transform:translateY(-1px); }
     .message-header { display:flex; justify-content:space-between; align-items:flex-start; gap:0.8rem; margin-bottom:0.28rem; }
     .message-name { border:none; background:none; color:var(--fg); cursor:pointer; font-family:var(--hand); font-size:1rem; font-weight:600; line-height:1; padding:0; transition:color 0.18s; }
     .message-name:hover { color:var(--blue); text-decoration:underline; }
@@ -105,8 +142,62 @@
     .message-name.self:hover { color:var(--fg); text-decoration:none; }
     .message-time { font-family:var(--mono); font-size:0.62rem; color:var(--soft); white-space:nowrap; flex-shrink:0; }
     .message-text { font-size:1rem; line-height:1.55; color:#d2d2d2; white-space:pre-wrap; word-wrap:break-word; overflow-wrap:anywhere; }
-    .system-row { align-self:center; max-width:720px; width:100%; }
-    .system-card { background:transparent; border:1px dashed rgba(255,255,255,0.08); border-radius:999px; text-align:center; padding:0.7rem 1rem; color:var(--soft); font-family:var(--mono); font-size:0.68rem; letter-spacing:0.05em; }
+    .message-meta {
+      display:flex; align-items:center; justify-content:space-between; gap:0.75rem; padding:0.35rem 0.2rem 0;
+      min-height:1.1rem;
+    }
+    .message-actions { display:flex; gap:0.35rem; opacity:0; pointer-events:none; transition:opacity 0.16s; }
+    .message-row:hover .message-actions, .message-row.editing .message-actions, .message-row.failed .message-actions { opacity:1; pointer-events:auto; }
+    .msg-icon-btn {
+      width:28px; height:28px; border-radius:999px; border:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.03);
+      color:var(--soft); display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
+      transition:background 0.16s, border-color 0.16s, color 0.16s, transform 0.16s;
+    }
+    .msg-icon-btn:hover { color:var(--fg); border-color:rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); transform:translateY(-1px); }
+    .msg-icon-btn.danger:hover { color:#ffd4d4; border-color:rgba(255,107,107,0.24); background:rgba(255,107,107,0.08); }
+    .message-state { font-family:var(--mono); font-size:0.6rem; letter-spacing:0.04em; color:var(--soft); text-transform:uppercase; }
+    .message-state.seen { color:var(--blue); }
+    .message-state.failed { color:var(--red); }
+    .message-state.edited { color:var(--muted); }
+    .message-state.pending { color:var(--amber); }
+
+    .editor-wrap { padding-top:0.2rem; }
+    .editor-textarea {
+      width:100%; min-height:82px; max-height:220px; resize:vertical; overflow:auto;
+      border:1px solid rgba(78,205,196,0.32); border-radius:12px; background:rgba(255,255,255,0.03);
+      color:var(--fg); padding:0.8rem 0.9rem; line-height:1.52; outline:none;
+    }
+    .editor-actions { display:flex; justify-content:flex-end; gap:0.55rem; padding-top:0.55rem; }
+    .editor-btn {
+      border-radius:999px; padding:0.56rem 0.85rem; border:1px solid var(--border); background:transparent;
+      color:var(--muted); cursor:pointer; font-family:var(--mono); font-size:0.66rem; letter-spacing:0.08em; text-transform:uppercase;
+    }
+    .editor-btn.primary { color:var(--blue); border-color:rgba(78,205,196,0.35); background:rgba(78,205,196,0.08); }
+
+    .system-row { align-self:center; max-width:760px; width:100%; animation:messageIn 220ms var(--enter-ease); }
+    .system-card { background:transparent; border:1px dashed rgba(255,255,255,0.08); border-radius:20px; text-align:center; padding:0.85rem 1rem; color:var(--soft); font-family:var(--mono); font-size:0.68rem; letter-spacing:0.05em; }
+    .empty-state {
+      display:flex; flex-direction:column; align-items:center; gap:0.7rem; padding:1.1rem 1rem;
+    }
+    .empty-state i { font-size:1.1rem; color:var(--blue); opacity:0.9; }
+    .empty-title { font-size:0.75rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--fg); font-family:var(--mono); }
+    .empty-copy { max-width:42ch; line-height:1.6; color:var(--soft); }
+
+    .typing-row { align-self:flex-start; max-width:880px; width:100%; animation:messageIn 180ms var(--enter-ease); }
+    .typing-card {
+      display:inline-flex; align-items:center; gap:0.55rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05);
+      border-radius:999px; padding:0.55rem 0.85rem; color:var(--soft); font-family:var(--mono); font-size:0.64rem; letter-spacing:0.05em;
+    }
+    .typing-dots { display:inline-flex; gap:0.22rem; align-items:center; }
+    .typing-dots span {
+      width:5px; height:5px; border-radius:50%; background:var(--blue); opacity:0.45; animation:typingDot 1s infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay:0.15s; }
+    .typing-dots span:nth-child(3) { animation-delay:0.3s; }
+    @keyframes typingDot {
+      0%, 80%, 100% { transform:translateY(0); opacity:0.35; }
+      40% { transform:translateY(-2px); opacity:1; }
+    }
 
     .composer-wrap { flex-shrink:0; width:100%; padding:0.8rem 0.9rem 0.9rem; border-top:1px solid var(--border); background:rgba(19,19,19,0.95); backdrop-filter:blur(10px); }
     .composer-status { min-height:0; padding:0 0.15rem 0.45rem; font-family:var(--mono); font-size:0.65rem; letter-spacing:0.04em; color:var(--soft); }
@@ -213,7 +304,10 @@
 
   <aside id="mobileSidebar" class="mobile-sidebar" aria-hidden="true">
     <div class="sidebar-top">
-      <div class="sidebar-title">Private conversations</div>
+      <div class="sidebar-title-row">
+        <div class="sidebar-title">Private conversations</div>
+        <div id="mobilePresenceSummary" class="sidebar-presence">0 online</div>
+      </div>
       <input id="mobileSidebarSearch" class="sidebar-search" type="text" placeholder="Search conversations" autocomplete="off" />
     </div>
     <div class="sidebar-body">
@@ -238,7 +332,10 @@
   <div class="app-grid">
     <aside class="sidebar">
       <div class="sidebar-top">
-        <div class="sidebar-title">Private conversations</div>
+        <div class="sidebar-title-row">
+          <div class="sidebar-title">Private conversations</div>
+          <div id="desktopPresenceSummary" class="sidebar-presence">0 online</div>
+        </div>
         <input id="sidebarSearch" class="sidebar-search" type="text" placeholder="Search conversations" autocomplete="off" />
       </div>
       <div class="sidebar-body">
@@ -280,13 +377,17 @@
     const COOLDOWN_MS       = 900;
     const NEAR_BOTTOM       = 88;
     const MAX_TA_H          = 140;
+    const TYPING_MS         = 2400;
+    const PRESENCE_MS       = 30000;
+    const EDIT_LIMIT_MS     = 10 * 60 * 1000;
 
-    const sb       = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    const $        = id => document.getElementById(id);
-    const esc      = v => String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const $  = id => document.getElementById(id);
+    const esc = v => String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
     const normName = v => String(v||'').replace(/\s+/g,' ').replace(/[\u200B-\u200D\uFEFF]/g,'').trim().slice(0,30);
-    const initial  = n => { const c=normName(n); return c?c[0].toUpperCase():'?'; };
+    const initial  = n => { const c = normName(n); return c ? c[0].toUpperCase() : '?'; };
     const isMobile = () => window.innerWidth <= 920;
+    const safeNow  = () => new Date().toISOString();
 
     const timeFmt = new Intl.DateTimeFormat(undefined,{hour:'2-digit',minute:'2-digit'});
     const dateFmt = new Intl.DateTimeFormat(undefined,{month:'short',day:'numeric',year:'numeric'});
@@ -299,7 +400,8 @@
       inboxBtn:$('mobileInboxBtn'), mobSide:$('mobileSidebar'),
       chatTitle:$('chatTitle'), chatSub:$('chatSubtitle'), backBtn:$('backToPublicBtn'),
       msgList:$('messageList'), msgInput:$('messageInput'),
-      sendBtn:$('sendBtn'), status:$('composerStatus'), counter:$('charCounter')
+      sendBtn:$('sendBtn'), status:$('composerStatus'), counter:$('charCounter'),
+      deskPresence:$('desktopPresenceSummary'), mobPresence:$('mobilePresenceSummary')
     };
 
     const state = {
@@ -307,8 +409,11 @@
       convo:{ type:'public', recipientId:null },
       user:{ id:getOrCreateId(), name:normName(localStorage.getItem(SK.userName)||'') },
       pubMsgs:[], privMsgs:{}, contacts:new Map(),
-      lastSendAt:0, subs:{pub:null,priv:null},
-      stickBottom:true, searchTerm:'', sideOpen:false, raf:null
+      lastSendAt:0, subs:{pub:null,privInsert:null,privUpdate:null,presence:null,typing:null},
+      stickBottom:true, searchTerm:'', sideOpen:false, raf:null,
+      typingMap:new Map(), lastTypingSentAt:0, typingTimeout:null,
+      presenceMap:new Map(), presenceBeat:null,
+      optimisticMap:new Map(), editingId:null, capability:{ richPrivate:true }
     };
 
     function getOrCreateId() {
@@ -326,371 +431,840 @@
       return { ok:true, name };
     }
 
-    // ── History API: back button stays in-app ────────────────────────────
     function initHistory() { history.replaceState({chat:'public'},'',location.href); }
-
     window.addEventListener('popstate', e => {
       const hs = e.state;
       if (!hs) return;
-      if (hs.chat==='private' && hs.userId) { applyConvo('private',hs.userId,hs.name,false); return; }
-      if (hs.chat==='public') applyConvo('public',null,null,false);
+      if (hs.chat === 'private' && hs.userId) { applyConvo('private', hs.userId, hs.name, false); return; }
+      if (hs.chat === 'public') applyConvo('public', null, null, false);
     });
 
-    // ── Time ─────────────────────────────────────────────────────────────
     function relTime(iso) {
       if (!iso) return '';
-      const s = Math.floor((Date.now()-new Date(iso))/1000);
-      if (s<45)    return 'just now';
-      if (s<3600)  return Math.floor(s/60)+'m ago';
-      if (s<86400) return Math.floor(s/3600)+'h ago';
-      const d=Math.floor(s/86400);
-      if (d===1) return 'yesterday';
-      if (d<7)   return d+'d ago';
+      const s = Math.floor((Date.now() - new Date(iso)) / 1000);
+      if (s < 45) return 'just now';
+      if (s < 3600) return Math.floor(s / 60) + 'm ago';
+      if (s < 86400) return Math.floor(s / 3600) + 'h ago';
+      const d = Math.floor(s / 86400);
+      if (d === 1) return 'yesterday';
+      if (d < 7) return d + 'd ago';
       return dateFmt.format(new Date(iso));
     }
-    const msgTime  = iso => iso ? timeFmt.format(new Date(iso))+' · '+relTime(iso) : '';
+    const msgTime  = iso => iso ? timeFmt.format(new Date(iso)) + ' · ' + relTime(iso) : '';
     const sideTime = iso => iso ? relTime(iso) : 'No messages yet';
 
     function sameDay(a,b) {
-      if (!a||!b) return false;
-      const d1=new Date(a),d2=new Date(b);
+      if (!a || !b) return false;
+      const d1 = new Date(a), d2 = new Date(b);
       return d1.getFullYear()===d2.getFullYear() && d1.getMonth()===d2.getMonth() && d1.getDate()===d2.getDate();
     }
 
-    // ── Scroll ───────────────────────────────────────────────────────────
+    function nearBottom() {
+      return (el.msgList.scrollHeight - el.msgList.scrollTop - el.msgList.clientHeight) < NEAR_BOTTOM;
+    }
+
     function scrollBottom(force=false, smooth=false) {
       if (!force && !state.stickBottom) return;
-      if (state.raf) { cancelAnimationFrame(state.raf); state.raf=null; }
+      if (state.raf) { cancelAnimationFrame(state.raf); state.raf = null; }
       const target = el.msgList.scrollHeight;
-      if (!smooth) { el.msgList.scrollTop=target; return; }
-      const start=el.msgList.scrollTop, change=target-start;
-      if (Math.abs(change)<6) { el.msgList.scrollTop=target; return; }
-      const t0=performance.now();
+      if (!smooth) { el.msgList.scrollTop = target; return; }
+      const start = el.msgList.scrollTop, change = target - start;
+      if (Math.abs(change) < 6) { el.msgList.scrollTop = target; return; }
+      const t0 = performance.now();
       const step = now => {
-        const p=Math.min((now-t0)/180,1);
-        el.msgList.scrollTop = start+change*(1-Math.pow(1-p,3));
-        state.raf = p<1 ? requestAnimationFrame(step) : null;
+        const p = Math.min((now - t0) / 180, 1);
+        el.msgList.scrollTop = start + change * (1 - Math.pow(1 - p, 3));
+        state.raf = p < 1 ? requestAnimationFrame(step) : null;
       };
       state.raf = requestAnimationFrame(step);
     }
 
-    // ── Sidebar ──────────────────────────────────────────────────────────
-    const openSide  = () => { state.sideOpen=true;  el.mobSide.classList.add('active');    el.mobSide.setAttribute('aria-hidden','false'); };
-    const closeSide = () => { state.sideOpen=false; el.mobSide.classList.remove('active'); el.mobSide.setAttribute('aria-hidden','true');  };
+    const openSide  = () => { state.sideOpen = true;  el.mobSide.classList.add('active');    el.mobSide.setAttribute('aria-hidden','false'); };
+    const closeSide = () => { state.sideOpen = false; el.mobSide.classList.remove('active'); el.mobSide.setAttribute('aria-hidden','true');  };
 
-    const setStatus = (msg='',type='') => {
-      el.status.textContent=msg;
-      el.status.className='composer-status'+(type?' '+type:'');
+    const setStatus = (msg='', type='') => {
+      el.status.textContent = msg;
+      el.status.className = 'composer-status' + (type ? ' ' + type : '');
     };
 
     function showModal(prefill='') {
-      el.nameErr.textContent='';
-      el.guestName.value=prefill||state.user.name||'';
-      el.nameModal.classList.add('active'); el.nameModal.setAttribute('aria-hidden','false');
-      setTimeout(()=>el.guestName.focus(),20);
+      el.nameErr.textContent = '';
+      el.guestName.value = prefill || state.user.name || '';
+      el.nameModal.classList.add('active');
+      el.nameModal.setAttribute('aria-hidden','false');
+      setTimeout(() => el.guestName.focus(), 20);
     }
-    const hideModal=()=>{ el.nameModal.classList.remove('active'); el.nameModal.setAttribute('aria-hidden','true'); };
+    const hideModal = () => { el.nameModal.classList.remove('active'); el.nameModal.setAttribute('aria-hidden','true'); };
 
-    // ── Contacts ─────────────────────────────────────────────────────────
-    function ensureContact(userId,name) {
-      if (!userId||userId===state.user.id) return;
-      if (!state.contacts.has(userId))
-        state.contacts.set(userId,{userId,name:normName(name)||'Unknown',lastMessageAt:null,lastPreview:'',unreadCount:0});
-      else if (name && !state.contacts.get(userId).name)
-        state.contacts.get(userId).name=normName(name);
+    function ensureContact(userId, name) {
+      if (!userId || userId === state.user.id) return;
+      if (!state.contacts.has(userId)) {
+        state.contacts.set(userId, {
+          userId,
+          name: normName(name) || 'Unknown',
+          lastMessageAt: null,
+          lastPreview: '',
+          unreadCount: 0,
+          online: false,
+          lastSeenAt: null,
+          typing: false,
+          lastSeenMessageAt: null
+        });
+      } else if (name && !state.contacts.get(userId).name) {
+        state.contacts.get(userId).name = normName(name);
+      }
     }
 
     function hydrateContact(row) {
-      const isMe=row.sender_id===state.user.id;
-      const id  =isMe?row.recipient_id:row.sender_id;
-      const name=normName(isMe?row.recipient_name:row.sender_name)||'Unknown';
-      const ex  =state.contacts.get(id);
-      const t   =row.created_at?new Date(row.created_at).getTime():0;
-      const et  =ex?.lastMessageAt?new Date(ex.lastMessageAt).getTime():0;
-      if (!ex||t>=et) state.contacts.set(id,{userId:id,name,lastMessageAt:row.created_at,lastPreview:row.body||'',unreadCount:ex?.unreadCount||0});
-      else if (!ex.name&&name) ex.name=name;
+      const isMe = row.sender_id === state.user.id;
+      const id   = isMe ? row.recipient_id : row.sender_id;
+      const name = normName(isMe ? row.recipient_name : row.sender_name) || 'Unknown';
+      const ex   = state.contacts.get(id);
+      const t    = row.created_at ? new Date(row.created_at).getTime() : 0;
+      const et   = ex?.lastMessageAt ? new Date(ex.lastMessageAt).getTime() : 0;
+      if (!ex || t >= et) {
+        state.contacts.set(id, {
+          userId:id,
+          name,
+          lastMessageAt:row.created_at,
+          lastPreview:(row.is_deleted ? 'Message deleted' : (row.body || '')),
+          unreadCount:ex?.unreadCount || 0,
+          online:ex?.online || false,
+          lastSeenAt:ex?.lastSeenAt || null,
+          typing:ex?.typing || false,
+          lastSeenMessageAt:ex?.lastSeenMessageAt || null
+        });
+      } else if (!ex.name && name) {
+        ex.name = name;
+      }
+      if (row.seen_at && ex) ex.lastSeenMessageAt = row.seen_at;
     }
 
-    // ── Render ───────────────────────────────────────────────────────────
-    const sysMsgHtml = msg => `<div class="system-row"><div class="system-card">${esc(msg)}</div></div>`;
+    function isUserOnline(userId) {
+      const entry = state.presenceMap.get(userId);
+      if (!entry?.last_seen_at) return false;
+      return Date.now() - new Date(entry.last_seen_at).getTime() < PRESENCE_MS;
+    }
+
+    function updatePresenceSummary() {
+      let count = 0;
+      state.contacts.forEach(c => { if (c.online) count += 1; });
+      const label = count + ' online';
+      el.deskPresence.textContent = label;
+      el.mobPresence.textContent = label;
+    }
+
+    function getTypingUsersForCurrentConvo() {
+      if (state.convo.type !== 'private' || !state.convo.recipientId) return [];
+      const c = state.contacts.get(state.convo.recipientId);
+      return c?.typing ? [c.name] : [];
+    }
+
+    function messageStateLabel(msg) {
+      if (!msg || msg.sender_id !== state.user.id || state.convo.type !== 'private') return '';
+      if (msg._optimistic && msg._failed) return 'Failed';
+      if (msg._optimistic) return 'Sending';
+      if (msg.is_deleted) return '';
+      if (msg.seen_at) return 'Seen';
+      return 'Delivered';
+    }
+
+    function canEditMessage(msg) {
+      if (!msg || msg.sender_id !== state.user.id || msg.is_deleted) return false;
+      const created = new Date(msg.created_at).getTime();
+      return Date.now() - created <= EDIT_LIMIT_MS;
+    }
+
+    function canDeleteMessage(msg) {
+      return !!msg && msg.sender_id === state.user.id && !msg.is_deleted;
+    }
+
+    function previewText(contact) {
+      if (contact.typing) return 'typing...';
+      if (!contact.lastPreview && !contact.lastMessageAt) return 'No messages yet';
+      return contact.lastPreview || sideTime(contact.lastMessageAt);
+    }
+
+    function previewPrefix(contact) {
+      const msgs = state.privMsgs[contact.userId] || [];
+      const last = msgs[msgs.length - 1];
+      if (!last || last.is_deleted || contact.typing) return '';
+      return last.sender_id === state.user.id ? 'You: ' : '';
+    }
+
+    function emptyStateHtml(kind='public') {
+      if (kind === 'private') {
+        return `<div class="system-row"><div class="system-card empty-state"><i class="fas fa-comments"></i><div class="empty-title">No messages yet</div><div class="empty-copy">This private conversation is empty. Send the first message and break the silence.</div></div></div>`;
+      }
+      return `<div class="system-row"><div class="system-card empty-state"><i class="fas fa-earth-europe"></i><div class="empty-title">Public room is quiet</div><div class="empty-copy">Say something, or click a name in chat to start a private conversation.</div></div></div>`;
+    }
+
+    function typingHtml(names) {
+      if (!names.length) return '';
+      const label = names[0] + ' is typing';
+      return `<div class="typing-row" id="typingRow"><div class="typing-card"><span>${esc(label)}</span><span class="typing-dots"><span></span><span></span><span></span></span></div></div>`;
+    }
+
+    function systemPreviewHtml(msg) {
+      return `<div class="system-row"><div class="system-card">${esc(msg)}</div></div>`;
+    }
 
     function bubbleHtml(msg) {
-      const name=normName(msg.sender_name||msg.name||'Unknown');
-      const own =msg.sender_id===state.user.id||(!msg.sender_id&&name===state.user.name);
-      return `<div class="message-row${own?' own':''}">
-        <div class="message-avatar">${esc(initial(name))}</div>
-        <div class="message-bubble">
-          <div class="message-header">
-            <button class="message-name${own?' self':''}" type="button" data-uid="${esc(msg.sender_id||'')}" data-name="${esc(name)}">${esc(name)}</button>
-            <div class="message-time">${esc(msgTime(msg.created_at))}</div>
+      const name = normName(msg.sender_name || msg.name || 'Unknown');
+      const own  = msg.sender_id === state.user.id || (!msg.sender_id && name === state.user.name);
+      const stateLabel = messageStateLabel(msg);
+      const editedLabel = msg.edited_at && !msg.is_deleted ? 'Edited' : '';
+      const deleted = !!msg.is_deleted;
+      const text = deleted ? 'This message was deleted.' : (msg.body || msg.text || '');
+      const rowClass = [
+        'message-row',
+        own ? 'own' : '',
+        msg._optimistic ? 'pending' : '',
+        msg._failed ? 'failed' : '',
+        msg._flash ? 'flash' : '',
+        state.editingId === msg.id ? 'editing' : ''
+      ].filter(Boolean).join(' ');
+
+      const actions = own ? `
+        <div class="message-actions">
+          ${canEditMessage(msg) ? `<button class="msg-icon-btn" type="button" data-action="edit" data-id="${esc(msg.id || '')}" aria-label="Edit message"><i class="fas fa-pen"></i></button>` : ''}
+          ${canDeleteMessage(msg) ? `<button class="msg-icon-btn danger" type="button" data-action="delete" data-id="${esc(msg.id || '')}" aria-label="Delete message"><i class="fas fa-trash"></i></button>` : ''}
+          ${msg._failed ? `<button class="msg-icon-btn" type="button" data-action="retry" data-id="${esc(msg.id || '')}" aria-label="Retry message"><i class="fas fa-rotate-right"></i></button>` : ''}
+        </div>` : '<div class="message-actions"></div>';
+
+      const editor = state.editingId === msg.id ? `
+        <div class="editor-wrap">
+          <textarea class="editor-textarea" data-editor-id="${esc(msg.id || '')}">${esc(msg.body || '')}</textarea>
+          <div class="editor-actions">
+            <button class="editor-btn" type="button" data-action="cancel-edit" data-id="${esc(msg.id || '')}">Cancel</button>
+            <button class="editor-btn primary" type="button" data-action="save-edit" data-id="${esc(msg.id || '')}">Save</button>
           </div>
-          <div class="message-text">${esc(msg.body||msg.text||'')}</div>
-        </div></div>`;
+        </div>` : '';
+
+      return `<div class="${rowClass}" data-mid="${esc(msg.id || msg._tempId || '')}">
+        <div class="message-avatar">${esc(initial(name))}</div>
+        <div class="message-stack">
+          <div class="message-bubble">
+            <div class="message-header">
+              <button class="message-name${own?' self':''}" type="button" data-uid="${esc(msg.sender_id || '')}" data-name="${esc(name)}">${esc(name)}</button>
+              <div class="message-time">${esc(msgTime(msg.created_at))}</div>
+            </div>
+            <div class="message-text">${esc(text)}</div>
+            ${editor}
+          </div>
+          <div class="message-meta">
+            ${actions}
+            <div class="message-state ${stateLabel ? stateLabel.toLowerCase() : editedLabel ? 'edited' : ''}">${esc(stateLabel || editedLabel)}</div>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    function currentMessages() {
+      return state.convo.type === 'public' ? state.pubMsgs : (state.privMsgs[state.convo.recipientId] || []);
     }
 
     function renderMessages(msgs) {
-      if (!Array.isArray(msgs)||!msgs.length) { el.msgList.innerHTML=sysMsgHtml('No messages yet. Start the conversation.'); return; }
-      el.msgList.innerHTML = msgs.map((m,i)=>((!i||!sameDay(msgs[i-1].created_at,m.created_at))?`<div class="day-divider">${esc(dateFmt.format(new Date(m.created_at)))}</div>`:'')+bubbleHtml(m)).join('');
+      const typingUsers = getTypingUsersForCurrentConvo();
+      if (!Array.isArray(msgs) || !msgs.length) {
+        el.msgList.innerHTML = emptyStateHtml(state.convo.type === 'private' ? 'private' : 'public') + typingHtml(typingUsers);
+        bindMsgHandlers();
+        scrollBottom(true, false);
+        return;
+      }
+      let html = msgs.map((m, i) => {
+        const divider = (!i || !sameDay(msgs[i - 1].created_at, m.created_at))
+          ? `<div class="day-divider">${esc(dateFmt.format(new Date(m.created_at)))}</div>` : '';
+        return divider + bubbleHtml(m);
+      }).join('');
+      html += typingHtml(typingUsers);
+      el.msgList.innerHTML = html;
       bindMsgHandlers();
-      scrollBottom(true,false);
+      if (state.editingId) {
+        const editor = el.msgList.querySelector(`[data-editor-id="${CSS.escape(state.editingId)}"]`);
+        if (editor) {
+          editor.focus();
+          editor.selectionStart = editor.value.length;
+          editor.selectionEnd = editor.value.length;
+        }
+      }
+      scrollBottom(true, false);
     }
 
     function appendMessage(msg) {
-      const msgs=state.convo.type==='public'?state.pubMsgs:curPrivMsgs();
-      if (!msgs.length||el.msgList.querySelector('.system-row')) { renderMessages(msgs); return; }
-      const last=msgs[msgs.length-1]; // the actual last message — fixes day-divider off-by-one
-      let html=(!last||!sameDay(last.created_at,msg.created_at))?`<div class="day-divider">${esc(dateFmt.format(new Date(msg.created_at)))}</div>`:'';
-      html+=bubbleHtml(msg);
-      el.msgList.insertAdjacentHTML('beforeend',html);
+      const msgs = currentMessages();
+      if (!msgs.length || el.msgList.querySelector('.system-row')) {
+        renderMessages(msgs);
+        return;
+      }
+      const prev = msgs[msgs.length - 2];
+      let html = (!prev || !sameDay(prev.created_at, msg.created_at))
+        ? `<div class="day-divider">${esc(dateFmt.format(new Date(msg.created_at)))}</div>` : '';
+      html += bubbleHtml(msg);
+      const typingNode = $('typingRow');
+      if (typingNode) typingNode.remove();
+      el.msgList.insertAdjacentHTML('beforeend', html + typingHtml(getTypingUsersForCurrentConvo()));
       bindMsgHandlers();
-      scrollBottom(false,true);
+      scrollBottom(false, true);
     }
 
     function renderContacts() {
-      const term=state.searchTerm.toLowerCase();
-      const list=[...state.contacts.values()]
-        .filter(c=>c.userId!==state.user.id&&(!term||c.name.toLowerCase().includes(term)))
-        .sort((a,b)=>(b.lastMessageAt?new Date(b.lastMessageAt):0)-(a.lastMessageAt?new Date(a.lastMessageAt):0));
+      const term = state.searchTerm.toLowerCase();
+      const list = [...state.contacts.values()]
+        .filter(c => c.userId !== state.user.id && (!term || c.name.toLowerCase().includes(term)))
+        .sort((a,b) => (b.lastMessageAt ? new Date(b.lastMessageAt) : 0) - (a.lastMessageAt ? new Date(a.lastMessageAt) : 0));
 
-      const html=list.length
-        ? list.map(c=>{
-            const active=state.convo.type==='private'&&state.convo.recipientId===c.userId;
-            const badge=c.unreadCount>0?`<span class="unread-badge">${c.unreadCount>99?'99+':c.unreadCount}</span>`:'';
-            return `<button class="user-item${active?' active':''}" type="button" data-uid="${esc(c.userId)}" data-name="${esc(c.name)}">
-              <div class="user-avatar">${esc(initial(c.name))}</div>
+      const html = list.length
+        ? list.map(c => {
+            const active = state.convo.type === 'private' && state.convo.recipientId === c.userId;
+            const badge = c.unreadCount > 0 ? `<span class="unread-badge">${c.unreadCount > 99 ? '99+' : c.unreadCount}</span>` : '';
+            const preview = previewPrefix(c) + previewText(c);
+            return `<button class="user-item${active ? ' active' : ''}" type="button" data-uid="${esc(c.userId)}" data-name="${esc(c.name)}">
+              <div class="user-avatar-wrap">
+                <div class="user-avatar">${esc(initial(c.name))}</div>
+                <span class="presence-dot ${c.online ? 'online' : ''}"></span>
+              </div>
               <div class="sidebar-user-main">
-                <span class="sidebar-user-name">${esc(c.name)}</span>
-                <span class="sidebar-user-sub">${esc(c.lastPreview?c.lastPreview.slice(0,40):sideTime(c.lastMessageAt))}</span>
-              </div>${badge}</button>`;
+                <div class="sidebar-user-top">
+                  <span class="sidebar-user-name">${esc(c.name)}</span>
+                  <span class="sidebar-user-time">${esc(c.online ? 'online' : sideTime(c.lastMessageAt || c.lastSeenAt))}</span>
+                </div>
+                <span class="sidebar-user-sub ${c.unreadCount > 0 ? 'unread' : ''} ${c.typing ? 'typing-mini' : ''}">${esc(preview)}</span>
+              </div>
+              ${badge}
+            </button>`;
           }).join('')
         : '<div class="system-card">No private conversations yet. Click a name in the public room to start one.</div>';
 
-      el.userList.innerHTML=html;
-      el.mobileList.innerHTML=html;
+      el.userList.innerHTML = html;
+      el.mobileList.innerHTML = html;
       bindSideHandlers();
-      el.inboxBtn.classList.toggle('has-unread',[...state.contacts.values()].some(c=>c.unreadCount>0));
+      el.inboxBtn.classList.toggle('has-unread', [...state.contacts.values()].some(c => c.unreadCount > 0));
+      updatePresenceSummary();
     }
 
     function updateHeader() {
-      const priv=state.convo.type==='private';
-      el.chatTitle.textContent=priv?(state.contacts.get(state.convo.recipientId)?.name||'Private conversation'):'Public room';
-      el.chatSub.textContent=priv?'Private conversation':'Everyone can read this room';
-      el.backBtn.classList.toggle('hidden',!priv);
-    }
-
-    const curPrivMsgs=()=>state.convo.type==='private'?(state.privMsgs[state.convo.recipientId]||[]):[];
-
-    // ── Conversation switch (single function handles both directions) ─────
-    function applyConvo(type, userId, name, pushHistory) {
-      if (type==='private') {
-        if (!userId||userId===state.user.id) return;
-        ensureContact(userId,name);
-        state.convo={type:'private',recipientId:userId};
-        state.stickBottom=true;
-        const c=state.contacts.get(userId);
-        if (c) c.unreadCount=0;
-        if (pushHistory) history.pushState({chat:'private',userId,name},'',location.href);
-        localStorage.setItem(SK.convo,JSON.stringify(state.convo));
+      const priv = state.convo.type === 'private';
+      if (priv) {
+        const c = state.contacts.get(state.convo.recipientId);
+        const live = c?.typing ? 'typing...' : c?.online ? 'online now' : c?.lastSeenAt ? `last seen ${relTime(c.lastSeenAt)}` : 'private conversation';
+        el.chatTitle.textContent = c?.name || 'Private conversation';
+        el.chatSub.textContent = live;
       } else {
-        if (pushHistory&&state.convo.type==='private') history.pushState({chat:'public'},'',location.href);
-        state.convo={type:'public',recipientId:null};
-        state.stickBottom=true;
-        localStorage.removeItem(SK.convo);
+        el.chatTitle.textContent = 'Public room';
+        el.chatSub.textContent = 'Everyone can read this room';
       }
-      updateHeader(); renderContacts();
-      renderMessages(type==='private'?curPrivMsgs():state.pubMsgs);
-      closeSide();
+      el.backBtn.classList.toggle('hidden', !priv);
     }
 
-    // ── Data ─────────────────────────────────────────────────────────────
     async function loadPublic() {
-      const {data,error}=await sb.from('messages').select('*').eq('room',PUBLIC_ROOM).order('created_at',{ascending:true}).limit(100);
-      if (error) { console.error(error); if(state.convo.type==='public') el.msgList.innerHTML=sysMsgHtml('Could not load messages.'); return; }
-      state.pubMsgs=(data||[]).map(r=>({...r,sender_id:r.user_id||r.sender_id||'',sender_name:normName(r.name||r.sender_name||'Unknown')}));
-      if (state.convo.type==='public') renderMessages(state.pubMsgs);
+      const { data, error } = await sb.from('messages').select('*').eq('room', PUBLIC_ROOM).order('created_at', { ascending:true }).limit(100);
+      if (error) { console.error(error); if (state.convo.type === 'public') el.msgList.innerHTML = systemPreviewHtml('Could not load messages.'); return; }
+      state.pubMsgs = (data || []).map(r => ({
+        ...r,
+        sender_id:r.user_id || r.sender_id || '',
+        sender_name:normName(r.name || r.sender_name || 'Unknown')
+      }));
+      if (state.convo.type === 'public') renderMessages(state.pubMsgs);
     }
 
     async function loadPrivate() {
-      const {data,error}=await sb.from('private_messages').select('*')
+      const { data, error } = await sb.from('private_messages').select('*')
         .or(`sender_id.eq.${state.user.id},recipient_id.eq.${state.user.id}`)
-        .order('created_at',{ascending:true}).limit(300);
+        .order('created_at', { ascending:true }).limit(400);
       if (error) { console.error(error); return; }
-      state.privMsgs={}; state.contacts.clear();
-      (data||[]).forEach(row=>{
-        const other=row.sender_id===state.user.id?row.recipient_id:row.sender_id;
+      state.privMsgs = {};
+      state.contacts.clear();
+      (data || []).forEach(row => {
+        const other = row.sender_id === state.user.id ? row.recipient_id : row.sender_id;
         if (!other) return;
-        (state.privMsgs[other]=state.privMsgs[other]||[]).push(row);
+        (state.privMsgs[other] = state.privMsgs[other] || []).push(row);
         hydrateContact(row);
       });
-      if (state.convo.type==='private'&&state.convo.recipientId) {
-        const c=state.contacts.get(state.convo.recipientId);
-        if (c) c.unreadCount=0;
-        renderMessages(curPrivMsgs());
+      refreshPresenceFromState();
+      if (state.convo.type === 'private' && state.convo.recipientId) {
+        const c = state.contacts.get(state.convo.recipientId);
+        if (c) c.unreadCount = 0;
+        renderMessages(state.privMsgs[state.convo.recipientId] || []);
       }
       renderContacts();
+      updateHeader();
     }
 
-    // ── Real-time ────────────────────────────────────────────────────────
     function subscribePub() {
       if (state.subs.pub) sb.removeChannel(state.subs.pub);
-      state.subs.pub=sb.channel(`pub:${PUBLIC_ROOM}`)
-        .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`room=eq.${PUBLIC_ROOM}`},payload=>{
-          const row={...payload.new,sender_id:payload.new.user_id||payload.new.sender_id||'',sender_name:normName(payload.new.name||payload.new.sender_name||'Unknown')};
+      state.subs.pub = sb.channel(`pub:${PUBLIC_ROOM}`)
+        .on('postgres_changes', { event:'INSERT', schema:'public', table:'messages', filter:`room=eq.${PUBLIC_ROOM}` }, payload => {
+          const row = {
+            ...payload.new,
+            sender_id: payload.new.user_id || payload.new.sender_id || '',
+            sender_name: normName(payload.new.name || payload.new.sender_name || 'Unknown')
+          };
           state.pubMsgs.push(row);
-          if (state.convo.type==='public') appendMessage(row);
-        }).subscribe();
+          if (state.convo.type === 'public') appendMessage(row);
+        })
+        .subscribe();
+    }
+
+    function upsertPrivateRow(row, markFlash=false) {
+      const other = row.sender_id === state.user.id ? row.recipient_id : row.sender_id;
+      if (!other) return;
+      ensureContact(other, row.sender_id === state.user.id ? row.recipient_name : row.sender_name);
+      const list = state.privMsgs[other] = state.privMsgs[other] || [];
+      const idx = list.findIndex(m => m.id === row.id || (row.client_id && m.client_id === row.client_id));
+      const hydrated = { ...row, _flash: markFlash };
+      if (idx >= 0) list[idx] = { ...list[idx], ...hydrated, _optimistic:false, _failed:false };
+      else list.push(hydrated);
+      list.sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+      hydrateContact(hydrated);
     }
 
     function subscribePriv() {
-      if (state.subs.priv) sb.removeChannel(state.subs.priv);
-      state.subs.priv=sb.channel(`priv:${state.user.id}`)
-        .on('postgres_changes',{event:'INSERT',schema:'public',table:'private_messages'},payload=>{
-          const row=payload.new;
-          if (row.sender_id!==state.user.id&&row.recipient_id!==state.user.id) return;
-          const other=row.sender_id===state.user.id?row.recipient_id:row.sender_id;
-          ensureContact(other,row.sender_id===state.user.id?row.recipient_name:row.sender_name);
-          (state.privMsgs[other]=state.privMsgs[other]||[]).push(row);
-          const c=state.contacts.get(other);
-          if (c) { c.lastMessageAt=row.created_at; c.lastPreview=row.body||''; }
-          if (row.sender_id!==state.user.id&&!(state.convo.type==='private'&&state.convo.recipientId===other))
-            if (c) c.unreadCount=(c.unreadCount||0)+1;
-          if (state.convo.type==='private'&&state.convo.recipientId===other) appendMessage(row);
+      if (state.subs.privInsert) sb.removeChannel(state.subs.privInsert);
+      if (state.subs.privUpdate) sb.removeChannel(state.subs.privUpdate);
+
+      state.subs.privInsert = sb.channel(`priv_insert:${state.user.id}`)
+        .on('postgres_changes', { event:'INSERT', schema:'public', table:'private_messages' }, payload => {
+          const row = payload.new;
+          if (row.sender_id !== state.user.id && row.recipient_id !== state.user.id) return;
+          const other = row.sender_id === state.user.id ? row.recipient_id : row.sender_id;
+          upsertPrivateRow(row, true);
+          const c = state.contacts.get(other);
+          if (c) {
+            c.lastMessageAt = row.created_at;
+            c.lastPreview = row.is_deleted ? 'Message deleted' : (row.body || '');
+          }
+          if (row.sender_id !== state.user.id && !(state.convo.type === 'private' && state.convo.recipientId === other)) {
+            if (c) c.unreadCount = (c.unreadCount || 0) + 1;
+          }
+          if (state.convo.type === 'private' && state.convo.recipientId === other) {
+            renderMessages(state.privMsgs[other] || []);
+            markConversationSeen(other);
+          }
           renderContacts();
-        }).subscribe();
+          updateHeader();
+        })
+        .subscribe();
+
+      state.subs.privUpdate = sb.channel(`priv_update:${state.user.id}`)
+        .on('postgres_changes', { event:'UPDATE', schema:'public', table:'private_messages' }, payload => {
+          const row = payload.new;
+          if (row.sender_id !== state.user.id && row.recipient_id !== state.user.id) return;
+          upsertPrivateRow(row, false);
+          const other = row.sender_id === state.user.id ? row.recipient_id : row.sender_id;
+          const c = state.contacts.get(other);
+          if (c) c.lastPreview = row.is_deleted ? 'Message deleted' : (row.body || '');
+          if (state.convo.type === 'private' && state.convo.recipientId === other) renderMessages(state.privMsgs[other] || []);
+          renderContacts();
+        })
+        .subscribe();
     }
 
-    // ── Send ─────────────────────────────────────────────────────────────
+    function subscribePresence() {
+      if (state.subs.presence) sb.removeChannel(state.subs.presence);
+      state.subs.presence = sb.channel('chat_presence_feed')
+        .on('postgres_changes', { event:'INSERT', schema:'public', table:'chat_presence' }, payload => {
+          const row = payload.new;
+          state.presenceMap.set(row.user_id, row);
+          refreshPresenceFromState();
+        })
+        .on('postgres_changes', { event:'UPDATE', schema:'public', table:'chat_presence' }, payload => {
+          const row = payload.new;
+          state.presenceMap.set(row.user_id, row);
+          refreshPresenceFromState();
+        })
+        .subscribe();
+    }
+
+    function subscribeTyping() {
+      if (state.subs.typing) sb.removeChannel(state.subs.typing);
+      state.subs.typing = sb.channel('chat_typing_feed')
+        .on('postgres_changes', { event:'INSERT', schema:'public', table:'chat_typing' }, payload => handleTypingRow(payload.new))
+        .on('postgres_changes', { event:'UPDATE', schema:'public', table:'chat_typing' }, payload => handleTypingRow(payload.new))
+        .subscribe();
+    }
+
+    function handleTypingRow(row) {
+      if (!row || row.user_id === state.user.id) return;
+      const fresh = row.last_typed_at && (Date.now() - new Date(row.last_typed_at).getTime() < TYPING_MS);
+      if (row.room_type !== 'private') return;
+      const inThisConversation = row.room_key === dmRoomKey(state.user.id, row.user_id);
+      if (!inThisConversation) return;
+      ensureContact(row.user_id, row.user_name);
+      const c = state.contacts.get(row.user_id);
+      if (c) c.typing = fresh;
+      renderContacts();
+      updateHeader();
+      if (state.convo.type === 'private' && state.convo.recipientId === row.user_id) renderMessages(currentMessages());
+    }
+
+    function refreshPresenceFromState() {
+      state.contacts.forEach(c => {
+        const row = state.presenceMap.get(c.userId);
+        c.online = !!row && isUserOnline(c.userId);
+        c.lastSeenAt = row?.last_seen_at || c.lastSeenAt || null;
+      });
+      renderContacts();
+      updateHeader();
+    }
+
+    function dmRoomKey(a, b) {
+      return [a, b].sort().join('__');
+    }
+
+    async function pingPresence() {
+      const payload = { user_id:state.user.id, user_name:state.user.name, last_seen_at:safeNow() };
+      const { error } = await sb.from('chat_presence').upsert(payload, { onConflict:'user_id' });
+      if (error) console.error('Presence ping failed:', error);
+    }
+
+    async function publishTyping() {
+      if (state.convo.type !== 'private' || !state.convo.recipientId || !state.user.name) return;
+      if (Date.now() - state.lastTypingSentAt < 650) return;
+      state.lastTypingSentAt = Date.now();
+      const payload = {
+        user_id: state.user.id,
+        user_name: state.user.name,
+        room_type: 'private',
+        room_key: dmRoomKey(state.user.id, state.convo.recipientId),
+        last_typed_at: safeNow()
+      };
+      const { error } = await sb.from('chat_typing').upsert(payload, { onConflict:'user_id,room_key' });
+      if (error) console.error('Typing update failed:', error);
+    }
+
+    async function markConversationSeen(otherUserId) {
+      if (!otherUserId) return;
+      const list = state.privMsgs[otherUserId] || [];
+      const unseen = list.filter(m => m.sender_id === otherUserId && !m.seen_at && !m.is_deleted);
+      if (!unseen.length) return;
+      const ids = unseen.map(m => m.id).filter(Boolean);
+      if (!ids.length) return;
+      const now = safeNow();
+      const { error } = await sb.from('private_messages').update({ seen_at: now }).in('id', ids);
+      if (error) console.error('Seen update failed:', error);
+      unseen.forEach(m => m.seen_at = now);
+      const c = state.contacts.get(otherUserId);
+      if (c) { c.unreadCount = 0; c.lastSeenMessageAt = now; }
+      renderContacts();
+      updateHeader();
+      renderMessages(list);
+    }
+
     async function send() {
-      const body=el.msgInput.value.trim();
+      const body = el.msgInput.value.trim();
       if (!body) return;
-      if (Date.now()-state.lastSendAt<COOLDOWN_MS) { setStatus('Slow down a little.','error'); return; }
+      if (Date.now() - state.lastSendAt < COOLDOWN_MS) { setStatus('Slow down a little.', 'error'); return; }
       if (!state.user.name) { showModal(); return; }
 
-      setStatus('Sending...'); el.sendBtn.disabled=true;
-      const draft=el.msgInput.value;
-      el.msgInput.value=''; resizeTA(); updateCounter();
+      setStatus('Sending...');
+      el.sendBtn.disabled = true;
+      const draft = el.msgInput.value;
+      el.msgInput.value = '';
+      resizeTA();
+      updateCounter();
 
-      let err=null;
-      if (state.convo.type==='public') {
-        const r=await sb.from('messages').insert({room:PUBLIC_ROOM,body,name:state.user.name,user_id:state.user.id});
-        err=r.error;
+      let err = null;
+      let tempId = 'temp_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+
+      if (state.convo.type === 'public') {
+        const r = await sb.from('messages').insert({ room:PUBLIC_ROOM, body, name:state.user.name, user_id:state.user.id });
+        err = r.error;
       } else {
-        const c=state.contacts.get(state.convo.recipientId);
-        if (!c) { err=new Error('Missing recipient.'); }
-        else {
-          const r=await sb.from('private_messages').insert({sender_id:state.user.id,sender_name:state.user.name,recipient_id:c.userId,recipient_name:c.name,body});
-          err=r.error;
+        const c = state.contacts.get(state.convo.recipientId);
+        if (!c) {
+          err = new Error('Missing recipient.');
+        } else {
+          const optimistic = {
+            id: tempId,
+            _tempId: tempId,
+            _optimistic: true,
+            _flash: true,
+            sender_id: state.user.id,
+            sender_name: state.user.name,
+            recipient_id: c.userId,
+            recipient_name: c.name,
+            body,
+            created_at: safeNow(),
+            seen_at: null,
+            edited_at: null,
+            is_deleted: false
+          };
+          (state.privMsgs[c.userId] = state.privMsgs[c.userId] || []).push(optimistic);
+          c.lastMessageAt = optimistic.created_at;
+          c.lastPreview = body;
+          renderContacts();
+          if (state.convo.type === 'private' && state.convo.recipientId === c.userId) appendMessage(optimistic);
+
+          const r = await sb.from('private_messages').insert({
+            sender_id: state.user.id,
+            sender_name: state.user.name,
+            recipient_id: c.userId,
+            recipient_name: c.name,
+            body,
+            client_id: tempId
+          });
+          err = r.error;
+          if (err) {
+            const list = state.privMsgs[c.userId] || [];
+            const failed = list.find(m => m.id === tempId || m._tempId === tempId);
+            if (failed) { failed._failed = true; failed._optimistic = true; }
+            renderMessages(list);
+          }
         }
       }
 
-      el.sendBtn.disabled=false;
+      el.sendBtn.disabled = false;
       if (err) {
         console.error(err);
-        el.msgInput.value=draft; resizeTA(); updateCounter();
-        setStatus('Message failed to send.','error');
+        if (state.convo.type === 'public') {
+          el.msgInput.value = draft;
+          resizeTA();
+          updateCounter();
+        }
+        setStatus('Message failed to send.', 'error');
         return;
       }
-      state.lastSendAt=Date.now(); // stamp only on success
-      setStatus('Sent.','success');
-      setTimeout(()=>{ if(el.status.textContent==='Sent.') setStatus(''); },1400);
+      state.lastSendAt = Date.now();
+      setStatus('Sent.', 'success');
+      setTimeout(() => { if (el.status.textContent === 'Sent.') setStatus(''); }, 1400);
       el.msgInput.focus();
     }
 
-    function resizeTA() {
-      el.msgInput.style.height='auto'; el.msgInput.style.overflowY='hidden';
-      const h=Math.min(el.msgInput.scrollHeight,MAX_TA_H);
-      el.msgInput.style.height=h+'px';
-      el.msgInput.style.overflowY=el.msgInput.scrollHeight>MAX_TA_H?'auto':'hidden';
+    async function retryMessage(id) {
+      const list = currentMessages();
+      const msg = list.find(m => m.id === id || m._tempId === id);
+      if (!msg || !msg._failed) return;
+      const c = state.contacts.get(state.convo.recipientId);
+      if (!c) return;
+      msg._failed = false;
+      renderMessages(list);
+      const { error } = await sb.from('private_messages').insert({
+        sender_id: state.user.id,
+        sender_name: state.user.name,
+        recipient_id: c.userId,
+        recipient_name: c.name,
+        body: msg.body,
+        client_id: 'retry_' + Date.now() + '_' + Math.random().toString(36).slice(2,7)
+      });
+      if (error) {
+        console.error(error);
+        msg._failed = true;
+        renderMessages(list);
+      }
     }
-    const updateCounter=()=>{ el.counter.textContent=el.msgInput.value.length+' / 500'; };
 
-    // ── Event binding ────────────────────────────────────────────────────
+    async function saveEdit(id) {
+      const editor = el.msgList.querySelector(`[data-editor-id="${CSS.escape(id)}"]`);
+      if (!editor) return;
+      const value = editor.value.trim();
+      const list = currentMessages();
+      const msg = list.find(m => m.id === id);
+      if (!msg) return;
+      if (!value) { setStatus('Edited message cannot be empty.', 'error'); return; }
+      if (value === msg.body) { state.editingId = null; renderMessages(list); return; }
+      const { error } = await sb.from('private_messages').update({ body:value, edited_at:safeNow() }).eq('id', id);
+      if (error) { console.error(error); setStatus('Could not save edit.', 'error'); return; }
+      msg.body = value;
+      msg.edited_at = safeNow();
+      state.editingId = null;
+      const c = state.contacts.get(state.convo.recipientId);
+      if (c) c.lastPreview = value;
+      renderContacts();
+      renderMessages(list);
+    }
+
+    async function deleteMessage(id) {
+      const list = currentMessages();
+      const msg = list.find(m => m.id === id);
+      if (!msg) return;
+      const ok = window.confirm('Delete this message?');
+      if (!ok) return;
+      const { error } = await sb.from('private_messages').update({ is_deleted:true, body:'', edited_at:safeNow() }).eq('id', id);
+      if (error) { console.error(error); setStatus('Could not delete message.', 'error'); return; }
+      msg.is_deleted = true;
+      msg.body = '';
+      msg.edited_at = safeNow();
+      const c = state.contacts.get(state.convo.recipientId);
+      if (c) c.lastPreview = 'Message deleted';
+      renderContacts();
+      renderMessages(list);
+    }
+
+    function resizeTA() {
+      el.msgInput.style.height = 'auto';
+      el.msgInput.style.overflowY = 'hidden';
+      const h = Math.min(el.msgInput.scrollHeight, MAX_TA_H);
+      el.msgInput.style.height = h + 'px';
+      el.msgInput.style.overflowY = el.msgInput.scrollHeight > MAX_TA_H ? 'auto' : 'hidden';
+    }
+    const updateCounter = () => { el.counter.textContent = el.msgInput.value.length + ' / 500'; };
+
     function bindSideHandlers() {
-      document.querySelectorAll('#userList .user-item,#mobileUserList .user-item').forEach(btn=>{
-        btn.onclick=()=>applyConvo('private',btn.dataset.uid,btn.dataset.name,true);
+      document.querySelectorAll('#userList .user-item,#mobileUserList .user-item').forEach(btn => {
+        btn.onclick = () => applyConvo('private', btn.dataset.uid, btn.dataset.name, true);
       });
     }
 
     function bindMsgHandlers() {
-      el.msgList.querySelectorAll('.message-name').forEach(btn=>{
-        btn.onclick=()=>{
+      el.msgList.querySelectorAll('.message-name').forEach(btn => {
+        btn.onclick = () => {
           if (btn.classList.contains('self')) return;
-          const uid=btn.dataset.uid,name=btn.dataset.name;
-          if (!uid||uid===state.user.id) { if(!uid) setStatus('No user ID on this message.','error'); return; }
-          applyConvo('private',uid,name,true);
+          const uid = btn.dataset.uid, name = btn.dataset.name;
+          if (!uid || uid === state.user.id) { if (!uid) setStatus('No user ID on this message.', 'error'); return; }
+          applyConvo('private', uid, name, true);
+        };
+      });
+      el.msgList.querySelectorAll('[data-action]').forEach(btn => {
+        btn.onclick = async () => {
+          const action = btn.dataset.action;
+          const id = btn.dataset.id;
+          if (action === 'edit') {
+            state.editingId = id;
+            renderMessages(currentMessages());
+          } else if (action === 'cancel-edit') {
+            state.editingId = null;
+            renderMessages(currentMessages());
+          } else if (action === 'save-edit') {
+            await saveEdit(id);
+          } else if (action === 'delete') {
+            await deleteMessage(id);
+          } else if (action === 'retry') {
+            await retryMessage(id);
+          }
         };
       });
     }
 
+    function applyConvo(type, userId, name, pushHistory) {
+      state.editingId = null;
+      if (type === 'private') {
+        if (!userId || userId === state.user.id) return;
+        ensureContact(userId, name);
+        state.convo = { type:'private', recipientId:userId };
+        state.stickBottom = true;
+        const c = state.contacts.get(userId);
+        if (c) c.unreadCount = 0;
+        if (pushHistory) history.pushState({ chat:'private', userId, name }, '', location.href);
+        localStorage.setItem(SK.convo, JSON.stringify(state.convo));
+        markConversationSeen(userId);
+      } else {
+        if (pushHistory && state.convo.type === 'private') history.pushState({ chat:'public' }, '', location.href);
+        state.convo = { type:'public', recipientId:null };
+        state.stickBottom = true;
+        localStorage.removeItem(SK.convo);
+      }
+      updateHeader();
+      renderContacts();
+      renderMessages(type === 'private' ? (state.privMsgs[userId] || []) : state.pubMsgs);
+      closeSide();
+    }
+
+    function syncSearch(src) {
+      state.searchTerm = src.value;
+      el.sideSearch.value = src.value;
+      el.mobSearch.value = src.value;
+      renderContacts();
+    }
+
+    function setupActivityTracking() {
+      const beat = () => { if (state.user.name) pingPresence(); };
+      beat();
+      state.presenceBeat = setInterval(beat, 12000);
+      ['visibilitychange', 'focus', 'click', 'keydown'].forEach(evt => {
+        window.addEventListener(evt, () => { if (!document.hidden && state.user.name) pingPresence(); }, { passive:true });
+      });
+      setInterval(() => refreshPresenceFromState(), 10000);
+    }
+
     function bindEvents() {
       if (state.inited) return;
-      state.inited=true;
+      state.inited = true;
 
-      el.joinBtn.addEventListener('click',()=>{
-        const r=validateName(el.guestName.value);
-        if (!r.ok) { el.nameErr.textContent=r.msg; return; }
-        state.user.name=r.name; localStorage.setItem(SK.userName,r.name);
-        hideModal(); setStatus('');
+      el.joinBtn.addEventListener('click', async () => {
+        const r = validateName(el.guestName.value);
+        if (!r.ok) { el.nameErr.textContent = r.msg; return; }
+        state.user.name = r.name;
+        localStorage.setItem(SK.userName, r.name);
+        hideModal();
+        setStatus('');
+        await pingPresence();
       });
-      el.clearBtn.addEventListener('click',()=>{ [SK.userName,SK.userId,SK.convo].forEach(k=>localStorage.removeItem(k)); location.reload(); });
-      el.guestName.addEventListener('keydown',e=>{ if(e.key==='Enter'){e.preventDefault();el.joinBtn.click();} });
-      el.inboxBtn.addEventListener('click',()=>state.sideOpen?closeSide():openSide());
-      el.backBtn.addEventListener('click',()=>applyConvo('public',null,null,true));
-      el.sendBtn.addEventListener('click',send);
-      el.msgInput.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();} });
-      el.msgInput.addEventListener('input',()=>{ resizeTA(); updateCounter(); if(el.status.classList.contains('error')) setStatus(''); });
-
-      const syncSearch=src=>{ state.searchTerm=src.value; el.sideSearch.value=src.value; el.mobSearch.value=src.value; renderContacts(); };
-      el.sideSearch.addEventListener('input',()=>syncSearch(el.sideSearch));
-      el.mobSearch.addEventListener('input',()=>syncSearch(el.mobSearch));
-
-      el.msgList.addEventListener('scroll',()=>{
-        state.stickBottom=(el.msgList.scrollHeight-el.msgList.scrollTop-el.msgList.clientHeight)<NEAR_BOTTOM;
-      },{passive:true});
-
-      document.addEventListener('click',e=>{
-        if (isMobile()&&state.sideOpen&&!el.mobSide.contains(e.target)&&!el.inboxBtn.contains(e.target)) closeSide();
+      el.clearBtn.addEventListener('click', () => { [SK.userName,SK.userId,SK.convo].forEach(k => localStorage.removeItem(k)); location.reload(); });
+      el.guestName.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); el.joinBtn.click(); } });
+      el.inboxBtn.addEventListener('click', () => state.sideOpen ? closeSide() : openSide());
+      el.backBtn.addEventListener('click', () => applyConvo('public', null, null, true));
+      el.sendBtn.addEventListener('click', send);
+      el.msgInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); return; }
+        if (state.convo.type === 'private') publishTyping();
       });
-      window.addEventListener('resize',()=>{ if(!isMobile()) closeSide(); resizeTA(); });
-      window.addEventListener('beforeunload',()=>{
-        if(state.raf) cancelAnimationFrame(state.raf);
-        Object.values(state.subs).forEach(c=>c&&sb.removeChannel(c));
+      el.msgInput.addEventListener('input', () => {
+        resizeTA();
+        updateCounter();
+        if (el.status.classList.contains('error')) setStatus('');
+        if (state.convo.type === 'private' && el.msgInput.value.trim()) publishTyping();
+      });
+      el.sideSearch.addEventListener('input', () => syncSearch(el.sideSearch));
+      el.mobSearch.addEventListener('input', () => syncSearch(el.mobSearch));
+      el.msgList.addEventListener('scroll', () => {
+        state.stickBottom = nearBottom();
+        if (state.convo.type === 'private' && state.stickBottom && state.convo.recipientId) markConversationSeen(state.convo.recipientId);
+      }, { passive:true });
+      document.addEventListener('click', e => {
+        if (isMobile() && state.sideOpen && !el.mobSide.contains(e.target) && !el.inboxBtn.contains(e.target)) closeSide();
+      });
+      window.addEventListener('resize', () => { if (!isMobile()) closeSide(); resizeTA(); });
+      window.addEventListener('beforeunload', () => {
+        if (state.raf) cancelAnimationFrame(state.raf);
+        if (state.presenceBeat) clearInterval(state.presenceBeat);
+        Object.values(state.subs).forEach(c => c && sb.removeChannel(c));
       });
     }
 
-    // ── Session restore ──────────────────────────────────────────────────
     async function restoreConvo() {
-      const raw=localStorage.getItem(SK.convo);
-      if (!raw) { applyConvo('public',null,null,false); return; }
+      const raw = localStorage.getItem(SK.convo);
+      if (!raw) { applyConvo('public', null, null, false); return; }
       try {
-        const saved=JSON.parse(raw);
-        if (saved?.type==='private'&&saved.recipientId&&saved.recipientId!==state.user.id&&state.contacts.has(saved.recipientId)) {
-          const c=state.contacts.get(saved.recipientId);
-          if (c) c.unreadCount=0;
-          history.pushState({chat:'private',userId:saved.recipientId,name:c?.name||''},'',location.href);
-          state.convo=saved; state.stickBottom=true;
-          updateHeader(); renderContacts(); renderMessages(curPrivMsgs());
+        const saved = JSON.parse(raw);
+        if (saved?.type === 'private' && saved.recipientId && saved.recipientId !== state.user.id && state.contacts.has(saved.recipientId)) {
+          const c = state.contacts.get(saved.recipientId);
+          if (c) c.unreadCount = 0;
+          history.pushState({ chat:'private', userId:saved.recipientId, name:c?.name || '' }, '', location.href);
+          state.convo = saved;
+          state.stickBottom = true;
+          updateHeader();
+          renderContacts();
+          renderMessages(state.privMsgs[saved.recipientId] || []);
+          markConversationSeen(saved.recipientId);
           return;
         }
       } catch {}
-      applyConvo('public',null,null,false);
+      applyConvo('public', null, null, false);
     }
 
-    // ── Boot ─────────────────────────────────────────────────────────────
     async function init() {
-      initHistory(); bindEvents(); updateHeader(); updateCounter(); resizeTA();
+      initHistory();
+      bindEvents();
+      updateHeader();
+      updateCounter();
+      resizeTA();
       if (!state.user.name) showModal();
       await loadPublic();
       await loadPrivate();
       await restoreConvo();
       subscribePub();
       subscribePriv();
+      subscribePresence();
+      subscribeTyping();
+      setupActivityTracking();
+      if (state.user.name) pingPresence();
     }
 
-    init().catch(err=>{
-      console.error('Init failed:',err);
-      el.msgList.innerHTML=sysMsgHtml('Chat failed to initialize.');
-      setStatus('Initialization failed. Check the console.','error');
+    init().catch(err => {
+      console.error('Init failed:', err);
+      el.msgList.innerHTML = systemPreviewHtml('Chat failed to initialize.');
+      setStatus('Initialization failed. Check the console.', 'error');
     });
   })();
   </script>
