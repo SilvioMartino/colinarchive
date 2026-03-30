@@ -2,1503 +2,511 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, viewport-fit=cover"
-  />
+  <!--
+    interactive-widget=resizes-content is the key iOS/Android fix.
+    It tells the browser: when the virtual keyboard opens, shrink the
+    layout viewport instead of overlapping it. This means our flex
+    layout naturally compresses the message list — no JS needed.
+  -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
   <title>Chat | Colin Archive</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    :root{
-      --bg:#121212;
-      --bg-2:#181818;
-      --bg-3:#1d1d1d;
-      --surface:#202020;
-      --surface-2:#252525;
-      --surface-3:#2c2c2c;
-      --fg:#f1f1f1;
-      --fg-2:#dbdbdb;
-      --muted:#bbbbbb;
-      --soft:#9b9b9b;
-      --border:#313131;
-      --border-soft:#3b3b3b;
-      --blue:#61d7cf;
-      --blue-soft:rgba(97,215,207,0.12);
-      --violet:#c69dff;
-      --violet-soft:rgba(198,157,255,0.12);
-      --green:#60d978;
-      --red:#ff7575;
-      --amber:#ffc96a;
+    :root {
+      --bg:#121212; --bg-2:#181818; --bg-3:#1d1d1d;
+      --surface:#202020; --surface-2:#252525; --surface-3:#2c2c2c;
+      --fg:#f1f1f1; --fg-2:#dbdbdb; --muted:#bbbbbb; --soft:#9b9b9b;
+      --border:#313131; --border-soft:#3b3b3b;
+      --blue:#61d7cf; --blue-soft:rgba(97,215,207,0.12);
+      --violet:#c69dff; --violet-soft:rgba(198,157,255,0.12);
+      --green:#60d978; --red:#ff7575; --amber:#ffc96a;
       --shadow:0 16px 44px rgba(0,0,0,0.28);
       --shadow-soft:0 8px 22px rgba(0,0,0,0.18);
-      --serif:'Crimson Text', Georgia, serif;
-      --mono:'IBM Plex Mono', 'Courier New', monospace;
-      --hand:'Caveat', cursive;
+      --serif:'Crimson Text',Georgia,serif;
+      --mono:'IBM Plex Mono','Courier New',monospace;
+      --hand:'Caveat',cursive;
       --header-h:76px;
       --sidebar-w:320px;
-      --app-vh:100vh;
-      --safe-top:env(safe-area-inset-top, 0px);
-      --safe-right:env(safe-area-inset-right, 0px);
-      --safe-bottom:env(safe-area-inset-bottom, 0px);
-      --safe-left:env(safe-area-inset-left, 0px);
       --ease:cubic-bezier(.22,1,.36,1);
     }
 
-    @supports (height: 100dvh){
-      :root{ --app-vh:100dvh; }
-    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; background: var(--bg); }
 
-    *{ box-sizing:border-box; }
-    html,body{
-      margin:0;
-      padding:0;
-      height:100%;
-      background:var(--bg);
-      color:var(--fg);
-    }
-
-    body{
-      font-family:var(--serif);
+    body {
+      font-family: var(--serif);
+      /*
+        Use 100dvh so the layout always matches the actual visible viewport.
+        Do NOT use 100vh — on mobile it ignores the browser chrome height.
+        Do NOT set overflow:hidden on body — it breaks native scroll and
+        makes some browsers behave erratically with the keyboard.
+      */
+      height: 100dvh;
+      overflow: hidden;
       background:
         radial-gradient(circle at top right, rgba(97,215,207,0.035), transparent 28%),
         linear-gradient(to bottom, #161616, #111111);
-      overflow:hidden;
-      -webkit-text-size-adjust:100%;
-      text-rendering:optimizeLegibility;
-    }
-
-    button,input,textarea{
-      font:inherit;
-      color:inherit;
-    }
-
-    button{
-      -webkit-tap-highlight-color:transparent;
-    }
-
-    a{
-      color:inherit;
-      text-decoration:none;
-    }
-
-    .hidden{ display:none !important; }
-
-    .app{
-      height:var(--app-vh);
-      display:grid;
-      grid-template-rows:var(--header-h) minmax(0,1fr);
-      overflow:hidden;
-    }
-
-    .shell-header{
-      min-height:var(--header-h);
-      display:grid;
-      grid-template-columns:minmax(0,1fr) minmax(0,1.4fr) minmax(0,1fr);
-      align-items:center;
-      gap:0.85rem;
-      padding:
-        max(0.75rem, var(--safe-top))
-        max(0.9rem, calc(0.9rem + var(--safe-right)))
-        0.75rem
-        max(0.9rem, calc(0.9rem + var(--safe-left)));
-      border-bottom:1px solid rgba(255,255,255,0.06);
-      background:rgba(18,18,18,0.94);
-      flex-shrink:0;
-      z-index:30;
-      position:relative;
-      overflow:hidden;
-    }
-
-    .shell-header::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      pointer-events:none;
-      opacity:1;
-      transition:opacity .2s ease;
-    }
-
-    .shell-header.mode-public::before{
-      background:
-        radial-gradient(circle at 50% 0%, rgba(97,215,207,0.12), transparent 42%),
-        linear-gradient(180deg, rgba(97,215,207,0.04), transparent 70%);
-    }
-
-    .shell-header.mode-private::before{
-      background:
-        radial-gradient(circle at 50% 0%, rgba(198,157,255,0.16), transparent 44%),
-        linear-gradient(180deg, rgba(198,157,255,0.05), transparent 70%);
-    }
-
-    @supports (backdrop-filter: blur(10px)){
-      .shell-header{
-        backdrop-filter:blur(10px);
-      }
-    }
-
-    .header-left{
-      display:flex;
-      align-items:center;
-      gap:0.65rem;
-      min-width:0;
-      position:relative;
-      z-index:1;
-    }
-
-    .logo{
-      font-family:var(--mono);
-      font-size:0.79rem;
-      letter-spacing:0.12em;
-      text-transform:uppercase;
-      font-weight:500;
-      white-space:nowrap;
-    }
-
-    .mobile-inbox-btn,
-    .reply-bar-close,
-    .icon-btn{
-      width:42px;
-      height:42px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      background:var(--surface);
-      color:var(--fg-2);
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      cursor:pointer;
-      transition:background .16s ease, border-color .16s ease, color .16s ease;
-    }
-
-    .mobile-inbox-btn:focus-visible,
-    .reply-bar-close:focus-visible,
-    .icon-btn:focus-visible,
-    .sidebar-search:focus-visible,
-    .message-input:focus-visible,
-    .send-btn:focus-visible,
-    .back-btn:focus-visible,
-    .user-item:focus-visible,
-    .popover-btn:focus-visible,
-    .popover-emoji:focus-visible,
-    .modal-btn:focus-visible,
-    .modal-input:focus-visible{
-      outline:2px solid rgba(97,215,207,0.65);
-      outline-offset:2px;
-    }
-
-    .mobile-inbox-btn:hover,
-    .reply-bar-close:hover,
-    .icon-btn:hover{
-      background:var(--surface-2);
-      border-color:#464646;
-      color:var(--fg);
-    }
-
-    .mobile-inbox-btn{
-      display:none;
-      position:relative;
-      flex-shrink:0;
-    }
-
-    .mobile-inbox-dot{
-      position:absolute;
-      top:7px;
-      right:7px;
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:var(--red);
-      box-shadow:0 0 0 2px rgba(18,18,18,0.95);
-      display:none;
-    }
-
-    .mobile-inbox-btn.has-unread .mobile-inbox-dot{
-      display:block;
-    }
-
-    .header-room{
-      min-width:0;
-      text-align:center;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      align-items:center;
-      gap:0.22rem;
-      position:relative;
-      z-index:1;
-    }
-
-    .header-room-badge{
-      display:inline-flex;
-      align-items:center;
-      gap:0.4rem;
-      min-height:22px;
-      padding:0.2rem 0.55rem;
-      border-radius:999px;
-      font-family:var(--mono);
-      font-size:0.62rem;
-      letter-spacing:0.08em;
-      text-transform:uppercase;
-      border:1px solid rgba(255,255,255,0.07);
-      color:var(--soft);
-      background:rgba(255,255,255,0.035);
-      margin-bottom:0.1rem;
-    }
-
-    .shell-header.mode-public .header-room-badge{
-      border-color:rgba(97,215,207,0.2);
-      color:var(--blue);
-      background:rgba(97,215,207,0.08);
-    }
-
-    .shell-header.mode-private .header-room-badge{
-      border-color:rgba(198,157,255,0.22);
-      color:#dcc6ff;
-      background:rgba(198,157,255,0.1);
-    }
-
-    .header-room-title{
-      font-family:var(--hand);
-      font-size:1.28rem;
-      color:var(--blue);
-      line-height:1.05;
-      max-width:100%;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      transition:color .18s ease;
-    }
-
-    .shell-header.mode-private .header-room-title{
-      color:#e0ceff;
-    }
-
-    .header-room-subtitle{
-      font-family:var(--mono);
-      font-size:0.72rem;
-      letter-spacing:0.06em;
-      text-transform:uppercase;
-      color:var(--muted);
-      line-height:1.2;
-      max-width:100%;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .header-room-subtitle.typing{
-      color:var(--blue);
-    }
-
-    .shell-header.mode-private .header-room-subtitle.typing{
-      color:#dcc6ff;
-    }
-
-    .header-right{
-      display:flex;
-      justify-content:flex-end;
-      align-items:center;
-      min-width:0;
-      position:relative;
-      z-index:1;
-    }
-
-    .back-btn{
-      display:inline-flex;
-      align-items:center;
-      gap:0.5rem;
-      padding:0 1rem;
-      min-height:42px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,0.1);
-      background:rgba(255,255,255,0.045);
-      color:var(--fg-2);
-      font-family:var(--mono);
-      font-size:0.74rem;
-      letter-spacing:0.06em;
-      text-transform:uppercase;
-      cursor:pointer;
-      white-space:nowrap;
-      transition:background .16s ease, border-color .16s ease, color .16s ease;
-    }
-
-    .back-btn:hover{
-      background:rgba(255,255,255,0.08);
-      border-color:rgba(255,255,255,0.16);
-      color:var(--fg);
-    }
-
-    .app-grid{
-      min-height:0;
-      display:grid;
-      grid-template-columns:var(--sidebar-w) minmax(0,1fr);
-      overflow:hidden;
-    }
-
-    .sidebar,
-    .mobile-sidebar{
-      background:rgba(22,22,22,0.96);
-      display:flex;
-      flex-direction:column;
-      min-height:0;
-    }
-
-    .sidebar{
-      border-right:1px solid var(--border);
-    }
-
-    @supports (backdrop-filter: blur(10px)){
-      .sidebar,
-      .mobile-sidebar{
-        backdrop-filter:blur(10px);
-      }
-    }
-
-    .sidebar-top{
-      padding:1rem;
-      border-bottom:1px solid var(--border);
-      flex-shrink:0;
-    }
-
-    .sidebar-title-row{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:0.75rem;
-      margin-bottom:0.85rem;
-    }
-
-    .sidebar-title,
-    .presence-summary,
-    .sidebar-section-label{
-      font-family:var(--mono);
-      text-transform:uppercase;
-      letter-spacing:0.06em;
-    }
-
-    .sidebar-title{
-      font-size:0.76rem;
-      color:var(--fg-2);
-    }
-
-    .presence-summary{
-      font-size:0.7rem;
-      color:var(--soft);
-      white-space:nowrap;
-    }
-
-    .sidebar-search,
-    .modal-input{
-      width:100%;
-      border:1px solid var(--border);
-      background:var(--surface);
-      color:var(--fg);
-      border-radius:14px;
-      padding:0.8rem 0.95rem;
-      outline:none;
-      transition:border-color .16s ease, background .16s ease;
-    }
-
-    .sidebar-search{
-      font-family:var(--mono);
-      font-size:0.82rem;
-    }
-
-    .sidebar-search::placeholder,
-    .modal-input::placeholder{
-      color:var(--soft);
-    }
-
-    .sidebar-search:focus,
-    .modal-input:focus{
-      border-color:rgba(97,215,207,0.55);
-      background:var(--surface-2);
-    }
-
-    .sidebar-body{
-      min-height:0;
-      overflow:auto;
-      padding:0.8rem;
-    }
-
-    .sidebar-body::-webkit-scrollbar,
-    .message-list::-webkit-scrollbar{
-      width:8px;
-      height:8px;
-    }
-
-    .sidebar-body::-webkit-scrollbar-thumb,
-    .message-list::-webkit-scrollbar-thumb{
-      background:#3a3a3a;
-      border-radius:999px;
-    }
-
-    .sidebar-body::-webkit-scrollbar-track,
-    .message-list::-webkit-scrollbar-track{
-      background:transparent;
-    }
-
-    .sidebar-section-label{
-      font-size:0.69rem;
-      color:var(--soft);
-      padding:0 0.25rem;
-      margin:0.2rem 0 0.75rem;
-    }
-
-    .user-list{
-      display:flex;
-      flex-direction:column;
-      gap:0.36rem;
-    }
-
-    .user-item{
-      width:100%;
-      display:flex;
-      align-items:center;
-      gap:0.8rem;
-      text-align:left;
-      padding:0.78rem 0.82rem;
-      border-radius:16px;
-      border:1px solid transparent;
-      background:transparent;
-      cursor:pointer;
-      color:inherit;
-      transition:background .15s ease, border-color .15s ease;
-    }
-
-    .user-item:hover{
-      background:rgba(255,255,255,0.04);
-      border-color:rgba(255,255,255,0.06);
-    }
-
-    .user-item.active{
-      background:var(--blue-soft);
-      border-color:rgba(97,215,207,0.28);
-    }
-
-    .user-avatar-wrap{
-      position:relative;
-      width:40px;
-      height:40px;
-      flex-shrink:0;
-    }
-
-    .user-avatar,
-    .message-avatar{
-      width:100%;
-      height:100%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:50%;
-      border:1px solid var(--border-soft);
-      background:linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-      color:var(--fg);
-      user-select:none;
-    }
-
-    .user-avatar{
-      font-family:var(--hand);
-      font-size:1.1rem;
-    }
-
-    .presence-dot{
-      position:absolute;
-      right:-1px;
-      bottom:-1px;
-      width:11px;
-      height:11px;
-      border-radius:50%;
-      border:2px solid rgba(22,22,22,0.96);
-      background:#4a4a4a;
-    }
-
-    .presence-dot.online{
-      background:var(--green);
-    }
-
-    .sidebar-user-main{
-      min-width:0;
-      flex:1;
-    }
-
-    .sidebar-user-top{
-      display:flex;
-      align-items:baseline;
-      justify-content:space-between;
-      gap:0.5rem;
-      margin-bottom:0.18rem;
-    }
-
-    .sidebar-user-name{
-      font-family:var(--mono);
-      font-size:0.8rem;
-      color:var(--fg);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .sidebar-user-time{
-      font-family:var(--mono);
-      font-size:0.7rem;
-      color:var(--soft);
-      white-space:nowrap;
-      flex-shrink:0;
-    }
-
-    .sidebar-user-sub{
-      display:block;
-      font-family:var(--mono);
-      font-size:0.72rem;
-      color:var(--muted);
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      line-height:1.25;
-    }
-
-    .sidebar-user-sub.has-unread{
-      color:#eefdfc;
-    }
-
-    .sidebar-user-sub.is-typing{
-      color:var(--blue);
-    }
-
-    .unread-badge{
-      flex-shrink:0;
-      min-width:1.25rem;
-      height:1.25rem;
-      padding:0 0.34rem;
-      border-radius:999px;
-      background:var(--red);
-      color:white;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      font-family:var(--mono);
-      font-size:0.65rem;
-    }
-
-    .chat-shell{
-      min-width:0;
-      min-height:0;
-      display:flex;
-      flex-direction:column;
-    }
-
-    .chat-main{
-      min-width:0;
-      min-height:0;
-      display:grid;
-      grid-template-rows:minmax(0,1fr) auto;
-      background:transparent;
-      position:relative;
-    }
-
-    .chat-main.is-private{
-      background:
-        radial-gradient(ellipse at top right, rgba(198,157,255,0.05), transparent 50%),
-        transparent;
-    }
-
-    .message-list{
-      min-height:0;
-      overflow:auto;
-      padding:1rem clamp(1rem, 3vw, 2rem) 1rem;
-      display:flex;
-      flex-direction:column;
-      gap:0.9rem;
-      overscroll-behavior:contain;
-      -webkit-overflow-scrolling:touch;
-      scroll-behavior:auto;
-    }
-
-    .day-divider{
-      align-self:center;
-      padding:0.3rem 0.7rem;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,0.06);
-      background:rgba(255,255,255,0.035);
-      color:var(--muted);
-      font-family:var(--mono);
-      font-size:0.7rem;
-      letter-spacing:0.04em;
-      text-transform:uppercase;
-    }
-
-    .message-row{
-      width:100%;
-      max-width:900px;
-      display:flex;
-      align-items:flex-start;
-      gap:0.72rem;
-      position:relative;
-    }
-
-    .message-row.own{
-      align-self:flex-end;
-      flex-direction:row-reverse;
-    }
-
-    .message-avatar{
-      width:36px;
-      height:36px;
-      flex-shrink:0;
-      font-family:var(--hand);
-      font-size:0.95rem;
-    }
-
-    .message-stack{
-      min-width:0;
-      max-width:min(100%, 760px);
-      display:flex;
-      flex-direction:column;
-      gap:0.28rem;
-    }
-
-    .message-bubble{
-      position:relative;
-      background:rgba(255,255,255,0.04);
-      border:1px solid rgba(255,255,255,0.06);
-      border-left:3px solid rgba(97,215,207,0.55);
-      border-radius:16px;
-      padding:0.68rem 0.9rem 0.62rem;
-      box-shadow:var(--shadow-soft);
-      user-select:text;
-      -webkit-user-select:text;
-      transition:background .14s ease, border-color .14s ease, box-shadow .14s ease;
-    }
-
-    .message-row.own .message-bubble{
-      border-left-color:rgba(198,157,255,0.65);
-      background:rgba(198,157,255,0.055);
-    }
-
-    .chat-main.is-private .message-row{
-      max-width:100%;
-      gap:0;
-    }
-
-    .chat-main.is-private .message-avatar{
-      display:none;
-    }
-
-    .chat-main.is-private .message-stack{
-      max-width:min(100%, 72%);
-    }
-
-    .chat-main.is-private .message-bubble{
-      border-left:none;
-      border-radius:20px;
-      padding:0.72rem 0.95rem 0.68rem;
-      background:rgba(255,255,255,0.045);
-    }
-
-    .chat-main.is-private .message-row.own .message-bubble{
-      background:rgba(198,157,255,0.14);
-      border-color:rgba(198,157,255,0.16);
-    }
-
-    .chat-main.is-private .message-row:not(.own) .message-bubble{
-      background:rgba(255,255,255,0.05);
-      border-color:rgba(255,255,255,0.06);
-    }
-
-    .chat-main.is-private .message-header{
-      display:none;
-    }
-
-    .message-bubble.menu-open{
-      box-shadow:0 0 0 2px rgba(97,215,207,0.2), var(--shadow-soft);
-    }
-
-    .message-row.failed .message-bubble{
-      border-left-color:rgba(255,117,117,0.75);
-      background:rgba(255,117,117,0.05);
-    }
-
-    .chat-main.is-private .message-row.failed .message-bubble{
-      border-left-color:transparent;
-      border-color:rgba(255,117,117,0.22);
-      background:rgba(255,117,117,0.06);
-    }
-
-    .reply-stub{
-      display:flex;
-      align-items:flex-start;
-      gap:0.5rem;
-      background:rgba(255,255,255,0.03);
-      border-radius:10px;
-      padding:0.36rem 0.48rem;
-      margin-bottom:0.45rem;
-      cursor:pointer;
-    }
-
-    .reply-stub-line{
-      width:3px;
-      align-self:stretch;
-      border-radius:999px;
-      background:rgba(97,215,207,0.72);
-      flex-shrink:0;
-    }
-
-    .message-row.own .reply-stub-line{
-      background:rgba(198,157,255,0.8);
-    }
-
-    .reply-stub-main{
-      min-width:0;
-    }
-
-    .reply-stub-name{
-      font-family:var(--mono);
-      font-size:0.68rem;
-      color:var(--blue);
-      line-height:1.15;
-      text-transform:uppercase;
-      letter-spacing:0.04em;
-      margin-bottom:0.08rem;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .message-row.own .reply-stub-name{
-      color:#dfcbff;
-    }
-
-    .reply-stub-text{
-      font-size:0.84rem;
-      color:var(--muted);
-      line-height:1.25;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .message-header{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:0.75rem;
-      margin-bottom:0.18rem;
-    }
-
-    .message-name{
-      font-family:var(--hand);
-      font-size:1rem;
-      color:var(--fg);
-      font-weight:600;
-      line-height:1;
-    }
-
-    .message-time{
-      font-family:var(--mono);
-      font-size:0.72rem;
-      color:var(--soft);
-      white-space:nowrap;
-      flex-shrink:0;
-      margin-top:2px;
-    }
-
-    .message-text{
-      font-size:1rem;
-      line-height:1.55;
-      color:var(--fg-2);
-      white-space:pre-wrap;
-      word-break:break-word;
-      overflow-wrap:anywhere;
-    }
-
-    .message-text.deleted{
-      color:var(--muted);
-      font-style:italic;
-    }
-
-    .message-status{
-      min-height:0.95rem;
-      display:flex;
-      align-items:center;
-      justify-content:flex-end;
-      padding:0 0.15rem;
-      font-family:var(--mono);
-      font-size:0.64rem;
-      line-height:1.1;
-      color:rgba(255,255,255,0.45);
-      letter-spacing:0.03em;
-      text-transform:lowercase;
-    }
-
-    .message-status.hidden-status{
-      display:none;
-    }
-
-    .message-status.failed{
-      color:var(--red);
-    }
-
-    .message-status.seen{
-      color:rgba(97,215,207,0.78);
-    }
-
-    .message-status.delivered{
-      color:rgba(255,255,255,0.45);
-    }
-
-    .reactions{
-      display:flex;
-      flex-wrap:wrap;
-      gap:0.32rem;
-      min-height:0;
-    }
-
-    .reaction-chip{
-      display:inline-flex;
-      align-items:center;
-      gap:0.28rem;
-      min-height:28px;
-      padding:0.18rem 0.52rem;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,0.08);
-      background:rgba(255,255,255,0.045);
-      cursor:pointer;
-      font-size:0.82rem;
-      line-height:1;
-      transition:background .14s ease, border-color .14s ease;
-    }
-
-    .reaction-chip:hover{
-      background:rgba(255,255,255,0.08);
-      border-color:rgba(255,255,255,0.14);
-    }
-
-    .reaction-chip.mine{
-      background:var(--blue-soft);
-      border-color:rgba(97,215,207,0.28);
-    }
-
-    .reaction-chip .count{
-      font-family:var(--mono);
-      font-size:0.68rem;
-      color:var(--muted);
-    }
-
-    .system-row{
-      align-self:center;
-      width:100%;
-      max-width:760px;
-    }
-
-    .system-card{
-      border:1px dashed rgba(255,255,255,0.08);
-      border-radius:18px;
-      padding:1.35rem 1rem;
-      text-align:center;
-      background:transparent;
-      color:var(--muted);
-      box-shadow:none;
-    }
-
-    .empty-icon{
-      font-size:1.4rem;
-      margin-bottom:0.5rem;
-      opacity:0.85;
-    }
-
-    .empty-title{
-      font-family:var(--mono);
-      font-size:0.8rem;
-      letter-spacing:0.08em;
-      text-transform:uppercase;
-      color:var(--fg-2);
-      margin-bottom:0.45rem;
-    }
-
-    .empty-hint{
-      font-size:1rem;
-      line-height:1.6;
-      color:var(--muted);
-      max-width:40ch;
-      margin:0 auto;
-    }
-
-    .typing-row{
-      align-self:flex-start;
-    }
-
-    .typing-bubble{
-      display:inline-flex;
-      align-items:center;
-      gap:0.55rem;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,0.06);
-      border-left:3px solid rgba(97,215,207,0.45);
-      background:rgba(255,255,255,0.04);
-      padding:0.56rem 0.85rem;
-    }
-
-    .typing-label{
-      font-family:var(--mono);
-      font-size:0.74rem;
-      color:var(--muted);
-    }
-
-    .typing-dots{
-      display:inline-flex;
-      align-items:center;
-      gap:4px;
-    }
-
-    .typing-dots span{
-      width:6px;
-      height:6px;
-      border-radius:50%;
-      background:var(--blue);
-      opacity:0.75;
-      animation:typingPulse 1s ease-in-out infinite;
-    }
-
+      -webkit-text-size-adjust: 100%;
+      text-rendering: optimizeLegibility;
+    }
+
+    button, input, textarea { font: inherit; color: inherit; }
+    button { -webkit-tap-highlight-color: transparent; }
+    a { color: inherit; text-decoration: none; }
+    .hidden { display: none !important; }
+
+    /*
+      The entire app is a single flex column.
+      header is fixed height, body grows to fill remaining space.
+      This is what allows the keyboard to compress the message list
+      without any JS — the flex layout does it automatically.
+    */
+    .app {
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Header ── */
+    .shell-header {
+      flex-shrink: 0;
+      min-height: var(--header-h);
+      display: grid;
+      grid-template-columns: minmax(0,1fr) minmax(0,1.4fr) minmax(0,1fr);
+      align-items: center;
+      gap: 0.85rem;
+      padding: 0.75rem 0.9rem;
+      /* Use safe area insets for notch/pill handling */
+      padding-left: max(0.9rem, calc(0.9rem + env(safe-area-inset-left, 0px)));
+      padding-right: max(0.9rem, calc(0.9rem + env(safe-area-inset-right, 0px)));
+      padding-top: max(0.75rem, calc(0.75rem + env(safe-area-inset-top, 0px)));
+      border-bottom: 1px solid var(--border);
+      background: rgba(22,22,22,0.96);
+      backdrop-filter: blur(10px);
+      z-index: 30;
+    }
+
+    .header-left { display:flex; align-items:center; gap:0.65rem; min-width:0; }
+    .logo { font-family:var(--mono); font-size:0.79rem; letter-spacing:0.12em; text-transform:uppercase; font-weight:500; white-space:nowrap; }
+
+    .mobile-inbox-btn, .reply-bar-close, .icon-btn {
+      width:42px; height:42px; border-radius:999px; border:1px solid var(--border);
+      background:var(--surface); color:var(--fg-2);
+      display:inline-flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:background .16s,border-color .16s,color .16s;
+    }
+    .mobile-inbox-btn:hover, .reply-bar-close:hover, .icon-btn:hover {
+      background:var(--surface-2); border-color:#464646; color:var(--fg);
+    }
+    .mobile-inbox-btn { display:none; position:relative; flex-shrink:0; }
+    .mobile-inbox-dot {
+      position:absolute; top:7px; right:7px; width:8px; height:8px;
+      border-radius:50%; background:var(--red); box-shadow:0 0 0 2px rgba(22,22,22,0.96); display:none;
+    }
+    .mobile-inbox-btn.has-unread .mobile-inbox-dot { display:block; }
+
+    .header-room { min-width:0; text-align:center; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:0.18rem; }
+    .header-room-title {
+      font-family:var(--hand); font-size:1.28rem; color:var(--blue); line-height:1.05;
+      max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:color .18s;
+    }
+    .shell-header.mode-private .header-room-title { color:#e0ceff; }
+    .header-room-subtitle {
+      font-family:var(--mono); font-size:0.72rem; letter-spacing:0.06em; text-transform:uppercase;
+      color:var(--muted); line-height:1.2; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    }
+    .header-room-subtitle.typing { color:var(--blue); }
+    .shell-header.mode-private .header-room-subtitle.typing { color:#dcc6ff; }
+    .header-right { display:flex; justify-content:flex-end; align-items:center; min-width:0; }
+
+    .back-btn {
+      display:inline-flex; align-items:center; gap:0.5rem; padding:0 1rem; min-height:42px;
+      border-radius:999px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.045);
+      color:var(--fg-2); font-family:var(--mono); font-size:0.74rem; letter-spacing:0.06em; text-transform:uppercase;
+      cursor:pointer; white-space:nowrap; transition:background .16s,border-color .16s,color .16s;
+    }
+    .back-btn:hover { background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.16); color:var(--fg); }
+
+    /* ── App body: sidebar + chat ── */
+    .app-body {
+      flex: 1;
+      min-height: 0;      /* critical — allows flex child to shrink below content size */
+      display: grid;
+      grid-template-columns: var(--sidebar-w) minmax(0,1fr);
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar, .mobile-sidebar {
+      background: rgba(22,22,22,0.96);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      backdrop-filter: blur(10px);
+    }
+    .sidebar { border-right: 1px solid var(--border); }
+
+    .sidebar-top { padding:1rem; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .sidebar-title-row { display:flex; align-items:center; justify-content:space-between; gap:0.75rem; margin-bottom:0.85rem; }
+    .sidebar-title, .presence-summary, .sidebar-section-label { font-family:var(--mono); text-transform:uppercase; letter-spacing:0.06em; }
+    .sidebar-title { font-size:0.76rem; color:var(--fg-2); }
+    .presence-summary { font-size:0.7rem; color:var(--soft); white-space:nowrap; }
+
+    .sidebar-search {
+      width:100%; border:1px solid var(--border); background:var(--surface); color:var(--fg);
+      border-radius:14px; padding:0.8rem 0.95rem; outline:none;
+      font-family:var(--mono); font-size:0.82rem;
+      transition:border-color .16s,background .16s;
+    }
+    .sidebar-search::placeholder { color:var(--soft); }
+    .sidebar-search:focus { border-color:rgba(97,215,207,0.55); background:var(--surface-2); }
+
+    .sidebar-body { min-height:0; overflow:auto; padding:0.8rem; }
+    .sidebar-body::-webkit-scrollbar, .message-list::-webkit-scrollbar { width:8px; }
+    .sidebar-body::-webkit-scrollbar-thumb, .message-list::-webkit-scrollbar-thumb { background:#3a3a3a; border-radius:999px; }
+    .sidebar-body::-webkit-scrollbar-track, .message-list::-webkit-scrollbar-track { background:transparent; }
+
+    .sidebar-section-label { font-size:0.69rem; color:var(--soft); padding:0 0.25rem; margin:0.2rem 0 0.75rem; }
+    .user-list { display:flex; flex-direction:column; gap:0.36rem; }
+    .user-item {
+      width:100%; display:flex; align-items:center; gap:0.8rem; text-align:left;
+      padding:0.78rem 0.82rem; border-radius:16px; border:1px solid transparent;
+      background:transparent; cursor:pointer; color:inherit; transition:background .15s,border-color .15s;
+    }
+    .user-item:hover { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.06); }
+    .user-item.active { background:var(--blue-soft); border-color:rgba(97,215,207,0.28); }
+
+    .user-avatar-wrap { position:relative; width:40px; height:40px; flex-shrink:0; }
+    .user-avatar, .message-avatar {
+      width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+      border-radius:50%; border:1px solid var(--border-soft);
+      background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));
+      color:var(--fg); user-select:none;
+    }
+    .user-avatar { font-family:var(--hand); font-size:1.1rem; }
+
+    .presence-dot {
+      position:absolute; right:-1px; bottom:-1px; width:11px; height:11px;
+      border-radius:50%; border:2px solid rgba(22,22,22,0.96); background:#4a4a4a;
+    }
+    .presence-dot.online { background:var(--green); }
+
+    .sidebar-user-main { min-width:0; flex:1; }
+    .sidebar-user-top { display:flex; align-items:baseline; justify-content:space-between; gap:0.5rem; margin-bottom:0.18rem; }
+    .sidebar-user-name { font-family:var(--mono); font-size:0.8rem; color:var(--fg); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .sidebar-user-time { font-family:var(--mono); font-size:0.7rem; color:var(--soft); white-space:nowrap; flex-shrink:0; }
+    .sidebar-user-sub { display:block; font-family:var(--mono); font-size:0.72rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.25; }
+    .sidebar-user-sub.has-unread { color:#eefdfc; }
+    .sidebar-user-sub.is-typing { color:var(--blue); }
+    .unread-badge {
+      flex-shrink:0; min-width:1.25rem; height:1.25rem; padding:0 0.34rem; border-radius:999px;
+      background:var(--red); color:white; display:inline-flex; align-items:center; justify-content:center;
+      font-family:var(--mono); font-size:0.65rem;
+    }
+
+    /* ── Chat shell ── */
+    .chat-shell {
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;   /* contain the chat — scroll happens inside message-list only */
+    }
+
+    .chat-main {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: transparent;
+      position: relative;
+    }
+
+    .chat-main.is-private {
+      background: radial-gradient(ellipse at top right, rgba(198,157,255,0.05), transparent 50%);
+    }
+
+    /* ── Message list ── */
+    .message-list {
+      /*
+        flex:1 + min-height:0 is the magic combination.
+        When the keyboard opens and the viewport shrinks, this element
+        compresses naturally — no JS measurement needed at all.
+      */
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 1rem clamp(1rem, 3vw, 2rem) 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: auto;
+    }
+
+    /* Forces touch-scroll to register even when content is short */
+    .message-list::after { content:''; display:block; min-height:1px; }
+
+    .day-divider {
+      align-self:center; padding:0.3rem 0.7rem; border-radius:999px;
+      border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.035);
+      color:var(--muted); font-family:var(--mono); font-size:0.7rem; letter-spacing:0.04em; text-transform:uppercase;
+    }
+
+    /* ── Message rows ── */
+    .message-row {
+      width:100%; max-width:900px; display:flex; align-items:flex-start; gap:0.72rem; position:relative;
+      animation: msgIn 180ms var(--ease) both;
+    }
+    @keyframes msgIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+
+    .message-row.own { align-self:flex-end; flex-direction:row-reverse; }
+    .message-avatar { width:36px; height:36px; flex-shrink:0; font-family:var(--hand); font-size:0.95rem; }
+    .message-stack { min-width:0; max-width:min(100%,760px); display:flex; flex-direction:column; gap:0.28rem; }
+
+    .message-bubble {
+      position:relative; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06);
+      border-left:3px solid rgba(97,215,207,0.55); border-radius:16px;
+      padding:0.68rem 0.9rem 0.62rem; box-shadow:var(--shadow-soft); user-select:text;
+      cursor:pointer; transition:background .14s,border-color .14s,box-shadow .14s;
+    }
+    .message-bubble:hover { box-shadow:0 0 0 1px rgba(97,215,207,0.15),var(--shadow-soft); }
+    .message-row.own .message-bubble { border-left-color:rgba(198,157,255,0.65); background:rgba(198,157,255,0.055); }
+    .message-bubble.menu-open { box-shadow:0 0 0 2px rgba(97,215,207,0.2),var(--shadow-soft); }
+    .message-row.failed .message-bubble { border-left-color:rgba(255,117,117,0.75); background:rgba(255,117,117,0.05); }
+
+    /* Private mode: no avatar, rounder bubbles */
+    .chat-main.is-private .message-row { max-width:100%; gap:0; }
+    .chat-main.is-private .message-avatar { display:none; }
+    .chat-main.is-private .message-stack { max-width:min(100%,72%); }
+    .chat-main.is-private .message-bubble { border-left:none; border-radius:20px; padding:0.72rem 0.95rem 0.68rem; background:rgba(255,255,255,0.045); }
+    .chat-main.is-private .message-row.own .message-bubble { background:rgba(198,157,255,0.14); border-color:rgba(198,157,255,0.16); }
+    .chat-main.is-private .message-row:not(.own) .message-bubble { background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.06); }
+    .chat-main.is-private .message-header { display:none; }
+    .chat-main.is-private .message-row.failed .message-bubble { border-left-color:transparent; border-color:rgba(255,117,117,0.22); background:rgba(255,117,117,0.06); }
+
+    /* Reply stub */
+    .reply-stub { display:flex; align-items:flex-start; gap:0.5rem; background:rgba(255,255,255,0.03); border-radius:10px; padding:0.36rem 0.48rem; margin-bottom:0.45rem; cursor:pointer; }
+    .reply-stub-line { width:3px; align-self:stretch; border-radius:999px; background:rgba(97,215,207,0.72); flex-shrink:0; }
+    .message-row.own .reply-stub-line { background:rgba(198,157,255,0.8); }
+    .reply-stub-name { font-family:var(--mono); font-size:0.68rem; color:var(--blue); line-height:1.15; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.08rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .message-row.own .reply-stub-name { color:#dfcbff; }
+    .reply-stub-text { font-size:0.84rem; color:var(--muted); line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    .message-header { display:flex; align-items:flex-start; justify-content:space-between; gap:0.75rem; margin-bottom:0.18rem; }
+    .message-name { font-family:var(--hand); font-size:1rem; color:var(--fg); font-weight:600; line-height:1; }
+    .message-time { font-family:var(--mono); font-size:0.72rem; color:var(--soft); white-space:nowrap; flex-shrink:0; margin-top:2px; }
+    .message-text { font-size:1rem; line-height:1.55; color:var(--fg-2); white-space:pre-wrap; word-break:break-word; overflow-wrap:anywhere; }
+    .message-text.deleted { color:var(--muted); font-style:italic; }
+
+    .message-status {
+      min-height:0.95rem; display:flex; align-items:center; justify-content:flex-end;
+      padding:0 0.15rem; font-family:var(--mono); font-size:0.64rem; color:rgba(255,255,255,0.45);
+      letter-spacing:0.03em; text-transform:lowercase;
+    }
+    .message-status.hidden-status { display:none; }
+    .message-status.failed { color:var(--red); }
+    .message-status.seen { color:rgba(97,215,207,0.78); }
+    .message-status.delivered { color:rgba(255,255,255,0.45); }
+
+    /* Reactions */
+    .reactions { display:flex; flex-wrap:wrap; gap:0.32rem; min-height:0; }
+    .reaction-chip {
+      display:inline-flex; align-items:center; gap:0.28rem; min-height:28px;
+      padding:0.18rem 0.52rem; border-radius:999px; border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.045); cursor:pointer; font-size:0.82rem; line-height:1;
+      transition:background .14s,border-color .14s;
+    }
+    .reaction-chip:hover { background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.14); }
+    .reaction-chip.mine { background:var(--blue-soft); border-color:rgba(97,215,207,0.28); }
+    .reaction-chip .count { font-family:var(--mono); font-size:0.68rem; color:var(--muted); }
+
+    /* System/empty */
+    .system-row { align-self:center; width:100%; max-width:760px; }
+    .system-card { border:1px dashed rgba(255,255,255,0.08); border-radius:18px; padding:1.35rem 1rem; text-align:center; background:transparent; color:var(--muted); }
+    .empty-icon { font-size:1.4rem; margin-bottom:0.5rem; opacity:0.85; }
+    .empty-title { font-family:var(--mono); font-size:0.8rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--fg-2); margin-bottom:0.45rem; }
+    .empty-hint { font-size:1rem; line-height:1.6; color:var(--muted); max-width:40ch; margin:0 auto; }
+
+    /* Typing indicator */
+    .typing-row { align-self:flex-start; }
+    .typing-bubble {
+      display:inline-flex; align-items:center; gap:0.55rem; border-radius:14px;
+      border:1px solid rgba(255,255,255,0.06); border-left:3px solid rgba(97,215,207,0.45);
+      background:rgba(255,255,255,0.04); padding:0.56rem 0.85rem;
+    }
+    .typing-label { font-family:var(--mono); font-size:0.74rem; color:var(--muted); }
+    .typing-dots { display:inline-flex; align-items:center; gap:4px; }
+    .typing-dots span { width:6px; height:6px; border-radius:50%; background:var(--blue); opacity:0.75; animation:typingPulse 1s ease-in-out infinite; }
     .typing-dots span:nth-child(2){ animation-delay:.16s; }
     .typing-dots span:nth-child(3){ animation-delay:.32s; }
+    @keyframes typingPulse { 0%,100%{transform:translateY(0);opacity:0.35} 45%{transform:translateY(-3px);opacity:1} }
 
-    @keyframes typingPulse{
-      0%, 100%{ transform:translateY(0); opacity:0.35; }
-      45%{ transform:translateY(-3px); opacity:1; }
+    /* Jump highlight for reply scroll */
+    .jump-highlight .message-bubble { box-shadow:0 0 0 2px rgba(97,215,207,0.26),var(--shadow-soft); }
+
+    /* ── Composer ── */
+    .composer-wrap {
+      flex-shrink: 0;
+      border-top: 1px solid var(--border);
+      background: rgba(19,19,19,0.98);
+      backdrop-filter: blur(10px);
+      /*
+        padding-bottom handles the home indicator on iPhone.
+        We do NOT add extra padding here based on keyboard — the layout
+        handles keyboard avoidance at the .app level via 100dvh + flex.
+      */
+      padding-bottom: env(safe-area-inset-bottom, 0px);
     }
 
-    .composer-wrap{
-      border-top:1px solid var(--border);
-      background:rgba(19,19,19,0.98);
-      padding-bottom:var(--safe-bottom);
-      flex-shrink:0;
+    .reply-bar {
+      display:none; align-items:center; gap:0.7rem; padding:0.5rem 0.9rem;
+      border-bottom:1px solid rgba(255,255,255,0.05); background:rgba(26,26,26,0.76);
     }
+    .reply-bar.active { display:flex; }
+    .reply-bar-line { width:2px; align-self:stretch; border-radius:999px; background:rgba(97,215,207,0.42); opacity:0.65; flex-shrink:0; }
+    .reply-bar-inner { min-width:0; flex:1; }
+    .reply-bar-name { font-family:var(--mono); font-size:0.66rem; color:rgba(97,215,207,0.78); line-height:1.15; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:0.06rem; }
+    .reply-bar-text { font-size:0.86rem; color:rgba(255,255,255,0.66); line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-    @supports (backdrop-filter: blur(10px)){
-      .composer-wrap{
-        backdrop-filter:blur(10px);
-      }
+    .composer-inner { padding:0.9rem; }
+    .composer-status { min-height:1rem; margin-bottom:0.46rem; padding:0 0.1rem; font-family:var(--mono); font-size:0.72rem; color:var(--soft); }
+    .composer-status:empty { display:none; }
+    .composer-status.error { color:var(--red); }
+    .composer { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:0.65rem; align-items:end; }
+
+    .message-input {
+      width:100%; min-height:52px; max-height:160px; resize:none;
+      overflow-y:hidden; overflow-x:hidden;
+      border:1px solid var(--border); border-radius:16px; background:rgba(255,255,255,0.035);
+      color:var(--fg); padding:0.9rem 0.95rem; line-height:1.5; outline:none;
+      appearance:none; -webkit-appearance:none;
+      transition:border-color .16s,background .16s,box-shadow .16s;
     }
-
-    .reply-bar{
-      display:none;
-      align-items:center;
-      gap:0.7rem;
-      padding:0.5rem 0.9rem;
-      border-bottom:1px solid rgba(255,255,255,0.05);
-      background:rgba(26,26,26,0.76);
-    }
-
-    .reply-bar.active{
-      display:flex;
-    }
-
-    .reply-bar-line{
-      width:2px;
-      align-self:stretch;
-      border-radius:999px;
-      background:rgba(97,215,207,0.42);
-      opacity:0.65;
-      flex-shrink:0;
-    }
-
-    .reply-bar-inner{
-      min-width:0;
-      flex:1;
-    }
-
-    .reply-bar-name{
-      font-family:var(--mono);
-      font-size:0.66rem;
-      color:rgba(97,215,207,0.78);
-      line-height:1.15;
-      text-transform:uppercase;
-      letter-spacing:0.04em;
-      margin-bottom:0.06rem;
-    }
-
-    .reply-bar-text{
-      font-size:0.86rem;
-      color:rgba(255,255,255,0.66);
-      line-height:1.2;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .composer-inner{
-      padding:0.9rem;
-    }
-
-    .composer-status{
-      min-height:1rem;
-      margin-bottom:0.46rem;
-      padding:0 0.1rem;
-      font-family:var(--mono);
-      font-size:0.72rem;
-      color:var(--soft);
-    }
-
-    .composer-status:empty{
-      display:none;
-    }
-
-    .composer-status.error{
-      color:var(--red);
-    }
-
-    .composer{
-      display:grid;
-      grid-template-columns:minmax(0,1fr) auto;
-      gap:0.65rem;
-      align-items:end;
-    }
-
-    .message-input{
-      width:100%;
-      min-height:52px;
-      max-height:160px;
-      resize:none;
-      overflow-y:hidden;
-      overflow-x:hidden;
-      border:1px solid var(--border);
-      border-radius:16px;
-      background:rgba(255,255,255,0.035);
-      color:var(--fg);
-      padding:0.9rem 0.95rem;
-      line-height:1.5;
-      outline:none;
-      appearance:none;
-      -webkit-appearance:none;
-      transition:border-color .16s ease, background .16s ease, box-shadow .16s ease;
-    }
-
-    .message-input:focus{
+    .message-input:focus {
       border-color:rgba(97,215,207,0.5);
       background:rgba(255,255,255,0.045);
       box-shadow:0 0 0 3px rgba(97,215,207,0.08);
     }
+    .message-input::placeholder { color:var(--soft); }
 
-    .message-input::placeholder{
-      color:var(--soft);
+    .send-btn {
+      min-width:112px; height:52px; border-radius:999px;
+      border:1px solid rgba(97,215,207,0.34); background:var(--blue-soft); color:var(--blue);
+      cursor:pointer; display:inline-flex; align-items:center; justify-content:center;
+      gap:0.5rem; padding:0 1.15rem; font-family:var(--mono); font-size:0.76rem;
+      letter-spacing:0.08em; text-transform:uppercase;
+      transition:background .16s,border-color .16s,color .16s,opacity .16s;
+    }
+    .send-btn:hover:not(:disabled) { background:rgba(97,215,207,0.18); border-color:rgba(97,215,207,0.62); color:#a3f1eb; }
+    .send-btn:disabled { opacity:0.5; cursor:not-allowed; }
+
+    .helper-line { display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:0.5rem 0.1rem 0; color:var(--soft); font-family:var(--mono); font-size:0.72rem; }
+
+    /* ── Popover ── */
+    .message-popover {
+      position:fixed; z-index:95; min-width:220px; max-width:min(92vw,290px);
+      border-radius:16px; border:1px solid var(--border); background:rgba(28,28,28,0.98);
+      padding:0.44rem; box-shadow:var(--shadow); backdrop-filter:blur(12px);
+    }
+    .popover-reactions { display:flex; flex-wrap:wrap; gap:0.34rem; padding:0.16rem 0.14rem 0.46rem; border-bottom:1px solid rgba(255,255,255,0.05); margin-bottom:0.35rem; }
+    .popover-emoji {
+      width:38px; height:38px; border-radius:999px; border:none; background:rgba(255,255,255,0.05);
+      cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center;
+      transition:background .14s;
+    }
+    .popover-emoji:hover { background:rgba(255,255,255,0.1); }
+    .popover-actions { display:flex; flex-direction:column; gap:0.16rem; }
+    .popover-btn {
+      width:100%; display:flex; align-items:center; justify-content:space-between; gap:0.8rem;
+      text-align:left; border:none; border-radius:12px; background:transparent; color:var(--fg);
+      padding:0.72rem 0.76rem; cursor:pointer; transition:background .14s,color .14s;
+    }
+    .popover-btn:hover { background:rgba(255,255,255,0.05); }
+    .popover-btn.danger:hover { background:rgba(255,117,117,0.1); color:#ffd9d9; }
+    .popover-btn-main { display:flex; align-items:center; gap:0.65rem; min-width:0; }
+    .popover-btn-icon { width:18px; text-align:center; color:var(--soft); flex-shrink:0; }
+    .popover-btn-label { font-family:var(--mono); font-size:0.72rem; letter-spacing:0.04em; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    /* ── Mobile sidebar drawer ── */
+    .drawer-backdrop {
+      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:59;
+      opacity:0; transition:opacity .18s;
+    }
+    .drawer-backdrop.active { display:block; opacity:1; }
+
+    .mobile-sidebar {
+      display:none; position:fixed; top:var(--header-h); left:0; bottom:0;
+      width:min(90vw,360px); border-right:1px solid var(--border); z-index:60;
+      transform:translateX(-100%); transition:transform .2s ease; box-shadow:var(--shadow);
+    }
+    .mobile-sidebar.active { transform:translateX(0); }
+
+    /* ── Modal ── */
+    .modal { position:fixed; inset:0; z-index:110; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.78); padding:1rem; }
+    .modal.active { display:flex; }
+    .modal-content { width:min(440px,100%); background:linear-gradient(to bottom,#1b1b1b,#151515); border:1px solid var(--border); border-radius:20px; padding:1.4rem; box-shadow:var(--shadow); }
+    .modal-title { margin:0 0 0.55rem; font-family:var(--mono); font-size:0.84rem; color:var(--blue); text-transform:uppercase; letter-spacing:0.08em; }
+    .modal-copy { margin:0 0 1rem; color:var(--muted); line-height:1.5; font-size:1rem; }
+    .modal-input { width:100%; border:1px solid var(--border); background:var(--surface); color:var(--fg); border-radius:14px; padding:0.8rem 0.95rem; outline:none; margin-bottom:0.85rem; transition:border-color .16s,background .16s; }
+    .modal-input:focus { border-color:rgba(97,215,207,0.55); background:var(--surface-2); }
+    .modal-input::placeholder { color:var(--soft); }
+    .modal-actions { display:flex; flex-wrap:wrap; gap:0.7rem; margin-top:0.15rem; }
+    .modal-btn { border-radius:999px; min-height:44px; padding:0.74rem 1rem; border:1px solid var(--border); background:transparent; color:var(--fg-2); cursor:pointer; font-family:var(--mono); font-size:0.74rem; letter-spacing:0.06em; text-transform:uppercase; transition:background .16s,border-color .16s,color .16s; }
+    .modal-btn:hover { background:rgba(255,255,255,0.04); border-color:#474747; color:var(--fg); }
+    .modal-btn.primary { background:var(--blue-soft); border-color:rgba(97,215,207,0.32); color:var(--blue); }
+    .modal-btn.primary:hover { background:rgba(97,215,207,0.18); border-color:rgba(97,215,207,0.58); color:#a5f1ec; }
+    .modal-error { min-height:1rem; margin-top:0.8rem; color:var(--red); font-family:var(--mono); font-size:0.72rem; }
+
+    /* ── Responsive ── */
+    @media (max-width: 960px) {
+      .app-body { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .mobile-inbox-btn { display: inline-flex; }
+      .mobile-sidebar { display: flex; }
+      .shell-header { grid-template-columns: auto 1fr auto; }
+      .logo { display: none; }
     }
 
-    .send-btn{
-      min-width:112px;
-      height:52px;
-      border-radius:999px;
-      border:1px solid rgba(97,215,207,0.34);
-      background:var(--blue-soft);
-      color:var(--blue);
-      cursor:pointer;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:0.5rem;
-      padding:0 1.15rem;
-      font-family:var(--mono);
-      font-size:0.76rem;
-      letter-spacing:0.08em;
-      text-transform:uppercase;
-      transition:background .16s ease, border-color .16s ease, color .16s ease, opacity .16s ease;
+    @media (max-width: 700px) {
+      .shell-header { gap: 0.55rem; }
+      .header-room-title { font-size: 1.06rem; }
+      .header-room-subtitle { font-size: 0.68rem; max-width: 180px; }
+      .back-btn { min-width: 42px; padding: 0 0.82rem; font-size: 0.72rem; }
+      .message-list { padding: 0.85rem 0.78rem; gap: 0.78rem; }
+      .message-row { gap: 0.5rem; }
+      .message-avatar { width: 32px; height: 32px; }
+      .message-bubble { border-radius: 14px; padding: 0.58rem 0.78rem 0.54rem; }
+      .chat-main.is-private .message-stack { max-width: 84%; }
+      .chat-main.is-private .message-bubble { border-radius: 18px; }
+      .message-name { font-size: 0.92rem; }
+      .message-time { font-size: 0.68rem; }
+      .message-text { font-size: 0.97rem; line-height: 1.5; }
+      .message-status { font-size: 0.62rem; }
+      .composer-inner { padding: 0.72rem 0.75rem; }
+      .helper-line { display: none; }
+      /*
+        On mobile, font-size must be ≥16px to prevent iOS from
+        auto-zooming the page when the textarea is tapped.
+        Auto-zoom is a major cause of the "keyboard bounce" feeling.
+      */
+      .message-input { min-height: 48px; font-size: 16px; padding: 0.8rem 0.85rem; }
+      .send-btn { width: 48px; min-width: 48px; height: 48px; padding: 0; border-radius: 50%; }
+      .send-btn .send-label { display: none; }
+      .reaction-chip { min-height: 26px; font-size: 0.78rem; }
     }
 
-    .send-btn:hover:not(:disabled){
-      background:rgba(97,215,207,0.18);
-      border-color:rgba(97,215,207,0.62);
-      color:#a3f1eb;
-    }
-
-    .send-btn:disabled{
-      opacity:0.5;
-      cursor:not-allowed;
-    }
-
-    .helper-line{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:1rem;
-      padding:0.5rem 0.1rem 0;
-      color:var(--soft);
-      font-family:var(--mono);
-      font-size:0.72rem;
-    }
-
-    .drawer-backdrop{
-      display:none;
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,0.5);
-      z-index:59;
-      opacity:0;
-      transition:opacity .18s ease;
-    }
-
-    .drawer-backdrop.active{
-      display:block;
-      opacity:1;
-    }
-
-    .mobile-sidebar{
-      display:none;
-      position:fixed;
-      top:var(--header-h);
-      left:0;
-      bottom:0;
-      width:min(90vw, 360px);
-      border-right:1px solid var(--border);
-      z-index:60;
-      transform:translateX(-100%);
-      transition:transform .2s ease;
-      box-shadow:var(--shadow);
-    }
-
-    .mobile-sidebar.active{
-      transform:translateX(0);
-    }
-
-    .modal{
-      position:fixed;
-      inset:0;
-      z-index:110;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      background:rgba(0,0,0,0.78);
-      padding:1rem;
-    }
-
-    .modal.active{
-      display:flex;
-    }
-
-    .modal-content{
-      width:min(440px, 100%);
-      background:linear-gradient(to bottom, #1b1b1b, #151515);
-      border:1px solid var(--border);
-      border-radius:20px;
-      padding:1.4rem;
-      box-shadow:var(--shadow);
-    }
-
-    .modal-title{
-      margin:0 0 0.55rem;
-      font-family:var(--mono);
-      font-size:0.84rem;
-      color:var(--blue);
-      text-transform:uppercase;
-      letter-spacing:0.08em;
-    }
-
-    .modal-copy{
-      margin:0 0 1rem;
-      color:var(--muted);
-      line-height:1.5;
-      font-size:1rem;
-    }
-
-    .modal-actions{
-      display:flex;
-      flex-wrap:wrap;
-      gap:0.7rem;
-      margin-top:0.15rem;
-    }
-
-    .modal-btn{
-      border-radius:999px;
-      min-height:44px;
-      padding:0.74rem 1rem;
-      border:1px solid var(--border);
-      background:transparent;
-      color:var(--fg-2);
-      cursor:pointer;
-      font-family:var(--mono);
-      font-size:0.74rem;
-      letter-spacing:0.06em;
-      text-transform:uppercase;
-      transition:background .16s ease, border-color .16s ease, color .16s ease;
-    }
-
-    .modal-btn:hover{
-      background:rgba(255,255,255,0.04);
-      border-color:#474747;
-      color:var(--fg);
-    }
-
-    .modal-btn.primary{
-      background:var(--blue-soft);
-      border-color:rgba(97,215,207,0.32);
-      color:var(--blue);
-    }
-
-    .modal-btn.primary:hover{
-      background:rgba(97,215,207,0.18);
-      border-color:rgba(97,215,207,0.58);
-      color:#a5f1ec;
-    }
-
-    .modal-error{
-      min-height:1rem;
-      margin-top:0.8rem;
-      color:var(--red);
-      font-family:var(--mono);
-      font-size:0.72rem;
-    }
-
-    .message-popover{
-      position:fixed;
-      z-index:95;
-      min-width:220px;
-      max-width:min(92vw, 290px);
-      border-radius:16px;
-      border:1px solid var(--border);
-      background:rgba(28,28,28,0.98);
-      padding:0.44rem;
-      box-shadow:var(--shadow);
-    }
-
-    @supports (backdrop-filter: blur(12px)){
-      .message-popover{
-        backdrop-filter:blur(12px);
-      }
-    }
-
-    .popover-reactions{
-      display:flex;
-      flex-wrap:wrap;
-      gap:0.34rem;
-      padding:0.16rem 0.14rem 0.46rem;
-      border-bottom:1px solid rgba(255,255,255,0.05);
-      margin-bottom:0.35rem;
-    }
-
-    .popover-emoji{
-      width:38px;
-      height:38px;
-      border-radius:999px;
-      border:none;
-      background:rgba(255,255,255,0.05);
-      cursor:pointer;
-      font-size:1rem;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      transition:background .14s ease;
-    }
-
-    .popover-emoji:hover{
-      background:rgba(255,255,255,0.1);
-    }
-
-    .popover-actions{
-      display:flex;
-      flex-direction:column;
-      gap:0.16rem;
-    }
-
-    .popover-btn{
-      width:100%;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:0.8rem;
-      text-align:left;
-      border:none;
-      border-radius:12px;
-      background:transparent;
-      color:var(--fg);
-      padding:0.72rem 0.76rem;
-      cursor:pointer;
-      transition:background .14s ease, color .14s ease;
-    }
-
-    .popover-btn:hover{
-      background:rgba(255,255,255,0.05);
-    }
-
-    .popover-btn.danger:hover{
-      background:rgba(255,117,117,0.1);
-      color:#ffd9d9;
-    }
-
-    .popover-btn-main{
-      display:flex;
-      align-items:center;
-      gap:0.65rem;
-      min-width:0;
-    }
-
-    .popover-btn-icon{
-      width:18px;
-      text-align:center;
-      color:var(--soft);
-      flex-shrink:0;
-    }
-
-    .popover-btn-label{
-      font-family:var(--mono);
-      font-size:0.72rem;
-      letter-spacing:0.04em;
-      text-transform:uppercase;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-
-    .jump-highlight .message-bubble{
-      box-shadow:0 0 0 2px rgba(97,215,207,0.26), var(--shadow-soft);
-    }
-
-    @media (max-width: 960px){
-      .app-grid{
-        grid-template-columns:1fr;
-      }
-
-      .sidebar{
-        display:none;
-      }
-
-      .mobile-inbox-btn{
-        display:inline-flex;
-      }
-
-      .mobile-sidebar{
-        display:flex;
-      }
-
-      .shell-header{
-        grid-template-columns:auto 1fr auto;
-      }
-
-      .logo{
-        display:none;
-      }
-    }
-
-    @media (max-width: 700px){
-      .shell-header{
-        padding-left:max(0.75rem, calc(0.75rem + var(--safe-left)));
-        padding-right:max(0.75rem, calc(0.75rem + var(--safe-right)));
-        gap:0.55rem;
-      }
-
-      .header-room-title{
-        font-size:1.06rem;
-      }
-
-      .header-room-subtitle{
-        font-size:0.68rem;
-        max-width:180px;
-      }
-
-      .back-btn{
-        min-width:42px;
-        padding:0 0.82rem;
-        font-size:0.72rem;
-      }
-
-      .message-list{
-        padding:0.85rem 0.78rem;
-        gap:0.78rem;
-      }
-
-      .message-row{
-        gap:0.5rem;
-      }
-
-      .message-avatar{
-        width:32px;
-        height:32px;
-      }
-
-      .message-bubble{
-        border-radius:14px;
-        padding:0.58rem 0.78rem 0.54rem;
-      }
-
-      .chat-main.is-private .message-stack{
-        max-width:84%;
-      }
-
-      .chat-main.is-private .message-bubble{
-        border-radius:18px;
-      }
-
-      .message-name{
-        font-size:0.92rem;
-      }
-
-      .message-time{
-        font-size:0.68rem;
-      }
-
-      .message-text{
-        font-size:0.97rem;
-        line-height:1.5;
-      }
-
-      .reply-stub-name{
-        font-size:0.64rem;
-      }
-
-      .reply-stub-text{
-        font-size:0.79rem;
-      }
-
-      .message-status{
-        font-size:0.62rem;
-      }
-
-      .composer-inner{
-        padding:0.72rem 0.75rem;
-      }
-
-      .helper-line{
-        display:none;
-      }
-
-      .message-input{
-        min-height:48px;
-        font-size:16px;
-        padding:0.8rem 0.85rem;
-      }
-
-      .send-btn{
-        width:48px;
-        min-width:48px;
-        height:48px;
-        padding:0;
-        border-radius:50%;
-      }
-
-      .send-btn .send-label{
-        display:none;
-      }
-
-      .reaction-chip{
-        min-height:26px;
-        font-size:0.78rem;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce){
-      *,
-      *::before,
-      *::after{
-        animation:none !important;
-        transition:none !important;
-        scroll-behavior:auto !important;
-      }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
     }
   </style>
 </head>
@@ -1512,51 +520,34 @@
           <span class="mobile-inbox-dot"></span>
         </button>
       </div>
-
       <div class="header-room">
-        <div id="chatModeBadge" class="header-room-badge">Public</div>
         <div id="chatTitle" class="header-room-title">Public room</div>
         <div id="chatSubtitle" class="header-room-subtitle">Everyone can read this room</div>
       </div>
-
       <div class="header-right">
-        <button id="backToPublicBtn" class="back-btn hidden" type="button">
-          <span>Back</span>
-        </button>
+        <button id="backToPublicBtn" class="back-btn hidden" type="button"><span>Back</span></button>
       </div>
     </header>
 
-    <div class="app-grid">
+    <div class="app-body">
       <aside class="sidebar" aria-label="Conversations">
         <div class="sidebar-top">
           <div class="sidebar-title-row">
             <div class="sidebar-title">Conversations</div>
             <div id="deskPresenceSummary" class="presence-summary"></div>
           </div>
-          <label class="hidden" for="sidebarSearch">Search conversations</label>
-          <input
-            id="sidebarSearch"
-            class="sidebar-search"
-            type="text"
-            placeholder="Search conversations"
-            autocomplete="off"
-          />
+          <input id="sidebarSearch" class="sidebar-search" type="text" placeholder="Search conversations" autocomplete="off" />
         </div>
-
         <div class="sidebar-body">
           <div class="sidebar-section-label">Inbox</div>
-          <div id="userList" class="user-list">
-            <div class="system-card">Loading…</div>
-          </div>
+          <div id="userList" class="user-list"><div class="system-card">Loading…</div></div>
         </div>
       </aside>
 
       <main class="chat-shell">
         <div id="chatMain" class="chat-main">
           <div id="messageList" class="message-list" aria-live="polite" aria-label="Messages">
-            <div class="system-row">
-              <div class="system-card">Loading messages…</div>
-            </div>
+            <div class="system-row"><div class="system-card">Loading messages…</div></div>
           </div>
 
           <div id="composerWrap" class="composer-wrap">
@@ -1566,33 +557,16 @@
                 <div id="replyBarName" class="reply-bar-name"></div>
                 <div id="replyBarText" class="reply-bar-text"></div>
               </div>
-              <button
-                id="replyBarClose"
-                class="reply-bar-close"
-                type="button"
-                aria-label="Cancel reply"
-              >✕</button>
+              <button id="replyBarClose" class="reply-bar-close" type="button" aria-label="Cancel reply">✕</button>
             </div>
-
             <div class="composer-inner">
               <div id="composerStatus" class="composer-status"></div>
-
               <div class="composer">
-                <label class="hidden" for="messageInput">Message</label>
-                <textarea
-                  id="messageInput"
-                  class="message-input"
-                  rows="1"
-                  maxlength="500"
-                  placeholder="Type a message…"
-                ></textarea>
-
+                <textarea id="messageInput" class="message-input" rows="1" maxlength="500" placeholder="Type a message…"></textarea>
                 <button id="sendBtn" class="send-btn" type="button" aria-label="Send message">
-                  <span>➤</span>
-                  <span class="send-label">Send</span>
+                  <span>➤</span><span class="send-label">Send</span>
                 </button>
               </div>
-
               <div class="helper-line">
                 <span id="enterHint">Enter to send · Shift+Enter for new line</span>
                 <span id="charCounter">0 / 500</span>
@@ -1612,2161 +586,871 @@
         <div class="sidebar-title">Conversations</div>
         <div id="mobPresenceSummary" class="presence-summary"></div>
       </div>
-      <label class="hidden" for="mobileSidebarSearch">Search conversations</label>
-      <input
-        id="mobileSidebarSearch"
-        class="sidebar-search"
-        type="text"
-        placeholder="Search conversations"
-        autocomplete="off"
-      />
+      <input id="mobileSidebarSearch" class="sidebar-search" type="text" placeholder="Search conversations" autocomplete="off" />
     </div>
-
     <div class="sidebar-body">
       <div class="sidebar-section-label">Inbox</div>
-      <div id="mobileUserList" class="user-list">
-        <div class="system-card">Loading…</div>
-      </div>
+      <div id="mobileUserList" class="user-list"><div class="system-card">Loading…</div></div>
     </div>
   </aside>
 
-  <div
-    id="nameModal"
-    class="modal"
-    aria-hidden="true"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="nameModalTitle"
-    aria-describedby="nameModalCopy"
-  >
+  <div id="nameModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="nameModalTitle">
     <div class="modal-content">
       <h2 id="nameModalTitle" class="modal-title">Join the conversation</h2>
-      <p id="nameModalCopy" class="modal-copy">
-        Pick a display name — something people will actually recognize.
-      </p>
-
-      <label class="hidden" for="guestName">Display name</label>
-      <input
-        id="guestName"
-        class="modal-input"
-        type="text"
-        placeholder="Your display name"
-        maxlength="30"
-        autocomplete="nickname"
-      />
-
+      <p class="modal-copy">Pick a display name — something people will actually recognize.</p>
+      <input id="guestName" class="modal-input" type="text" placeholder="Your display name" maxlength="30" autocomplete="nickname" />
       <div class="modal-actions">
         <button id="joinGuestBtn" class="modal-btn primary" type="button">Join as guest</button>
         <button id="clearSessionBtn" class="modal-btn" type="button">Reset session</button>
       </div>
-
       <div id="nameError" class="modal-error" aria-live="polite"></div>
     </div>
   </div>
 
   <script>
-    (function(){
-      'use strict';
+  (function(){
+    'use strict';
 
-      const SB_URL = 'https://lbpkgvmxxcubzbzwoswd.supabase.co';
-      const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI';
-      const PUB_ROOM = 'general';
+    const SB_URL = 'https://lbpkgvmxxcubzbzwoswd.supabase.co';
+    const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI';
+    const PUB_ROOM = 'general';
+    const STORAGE_KEYS = { uid:'colinChatUserId', uname:'colinChatUserName', convo:'colinChatConversation' };
+    const COOLDOWN_MS = 850;
+    const MAX_TA_HEIGHT = 160;
+    const NEAR_BOTTOM = 96;
+    const TYPING_EXPIRE = 3000;
+    const TYPING_THROTTLE = 900;
+    const PRESENCE_EXPIRE = 35000;
+    const PRESENCE_BEAT = 12000;
+    const ACTIVITY_PING_THROTTLE = 8000;
+    const REACTIONS = ['👍','❤️','😂','😮','😢','🔥'];
 
-      const STORAGE_KEYS = {
-        uid: 'colinChatUserId',
-        uname: 'colinChatUserName',
-        convo: 'colinChatConversation'
-      };
+    const sb = window.supabase.createClient(SB_URL, SB_KEY);
+    const $ = id => document.getElementById(id);
 
-      const COOLDOWN_MS = 850;
-      const MAX_TA_HEIGHT = 160;
-      const NEAR_BOTTOM = 96;
-      const TYPING_EXPIRE = 3000;
-      const TYPING_THROTTLE = 900;
-      const PRESENCE_EXPIRE = 35000;
-      const PRESENCE_BEAT = 12000;
-      const REACTIONS = ['👍','❤️','😂','😮','😢','🔥'];
+    const cssEscape = v => window.CSS?.escape ? window.CSS.escape(String(v ?? '')) : String(v ?? '').replace(/["\\#.;,[\]()=:]/g,'\\$&');
+    const nowIso = () => new Date().toISOString();
+    const esc = v => String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+    const normName = v => String(v||'').replace(/\s+/g,' ').replace(/[\u200B-\u200D\uFEFF]/g,'').trim().slice(0,30);
+    const initial = n => { const c=normName(n); return c?c[0].toUpperCase():'?'; };
+    const isMobile = () => window.innerWidth <= 960;
+    const isTouch = () => window.matchMedia('(pointer: coarse)').matches;
+    const mobileEnterNewline = () => isMobile() || isTouch();
+    const dmKey = (a,b) => [a,b].sort().join('__');
+    const timeFmt = new Intl.DateTimeFormat(undefined,{hour:'2-digit',minute:'2-digit'});
+    const dateFmt = new Intl.DateTimeFormat(undefined,{month:'short',day:'numeric',year:'numeric'});
+    const sortByDate = (a,b) => new Date(a.created_at).getTime()-new Date(b.created_at).getTime();
 
-      const sb = window.supabase.createClient(SB_URL, SB_KEY);
-      const $ = id => document.getElementById(id);
+    const el = {
+      modal:$('nameModal'), gname:$('guestName'), joinBtn:$('joinGuestBtn'),
+      clearBtn:$('clearSessionBtn'), nameErr:$('nameError'),
+      userList:$('userList'), mobList:$('mobileUserList'),
+      sideSearch:$('sidebarSearch'), mobSearch:$('mobileSidebarSearch'),
+      inboxBtn:$('mobileInboxBtn'), mobSide:$('mobileSidebar'), backdrop:$('drawerBackdrop'),
+      header:$('shellHeader'), title:$('chatTitle'), sub:$('chatSubtitle'), backBtn:$('backToPublicBtn'),
+      msgList:$('messageList'), input:$('messageInput'), sendBtn:$('sendBtn'),
+      status:$('composerStatus'), counter:$('charCounter'), enterHint:$('enterHint'),
+      chatMain:$('chatMain'), deskPres:$('deskPresenceSummary'), mobPres:$('mobPresenceSummary'),
+      replyBar:$('replyBar'), replyName:$('replyBarName'), replyText:$('replyBarText'), replyClose:$('replyBarClose')
+    };
 
-      const supportsCssEscape = !!(window.CSS && typeof window.CSS.escape === 'function');
-      const cssEscape = (value) => {
-        const str = String(value ?? '');
-        if (supportsCssEscape) return window.CSS.escape(str);
-        return str.replace(/["\\#.;,[\]()=:]/g, '\\$&');
-      };
+    const state = {
+      inited:false, activityOn:false, modalOpen:false, sideOpen:false,
+      stickBottom:true, searchTerm:'', lastSendAt:0, lastTypingAt:0,
+      lastActivityPingAt:0, lastHeaderKey:'', lastRenderedTypingId:'', lastSeenKey:'',
+      convo:{type:'public',recipientId:null},
+      user:{id:getOrCreateId(), name:normName(localStorage.getItem(STORAGE_KEYS.uname)||'')},
+      pubOrder:[], pubMap:new Map(),
+      privOrders:new Map(), privMaps:new Map(),
+      contacts:new Map(), messageIndex:new Map(),
+      rowEls:new Map(), dividerEls:new Map(),
+      reactions:new Map(), pendingSeenDebounce:null,
+      activePopover:null, replyTo:null, presMap:new Map(),
+      subs:{pub:null,privIns:null,privUpd:null,pres:null,typing:null,react:null},
+      timers:{presBeat:null,presDecay:null}
+    };
 
-      const nowIso = () => new Date().toISOString();
+    function getOrCreateId(){
+      let id = localStorage.getItem(STORAGE_KEYS.uid);
+      if (id && /^[a-zA-Z0-9_-]{10,}$/.test(id)) return id;
+      id = 'guest_' + (window.crypto?.randomUUID?.()?.replace(/-/g,'') ?? Math.random().toString(36).slice(2)+Date.now().toString(36));
+      localStorage.setItem(STORAGE_KEYS.uid, id);
+      return id;
+    }
 
-      const esc = value => String(value ?? '')
-        .replace(/&/g,'&amp;')
-        .replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;')
-        .replace(/'/g,'&#039;');
+    function validateName(v){
+      const n = normName(v);
+      if (!n||n.length<2) return{ok:false,msg:'Use at least 2 characters.'};
+      if (!/[A-Za-zÀ-ÿ0-9]/.test(n)) return{ok:false,msg:'Use normal letters or numbers.'};
+      return{ok:true,name:n};
+    }
 
-      const normName = value => String(value || '')
-        .replace(/\s+/g, ' ')
-        .replace(/[\u200B-\u200D\uFEFF]/g, '')
-        .trim()
-        .slice(0, 30);
+    function initHistory(){ history.replaceState({chat:'public'},'',location.href); }
+    window.addEventListener('popstate',e=>{
+      const hs=e.state; if(!hs) return;
+      if(hs.chat==='private'&&hs.userId){applyConvo('private',hs.userId,hs.name||'',false);return;}
+      applyConvo('public',null,null,false);
+    });
 
-      const initial = name => {
-        const n = normName(name);
-        return n ? n[0].toUpperCase() : '?';
-      };
+    function relTime(iso){
+      if(!iso) return '';
+      const s=Math.floor((Date.now()-new Date(iso).getTime())/1000);
+      if(s<45) return 'just now';
+      if(s<3600) return Math.floor(s/60)+'m ago';
+      if(s<86400) return Math.floor(s/3600)+'h ago';
+      const d=Math.floor(s/86400);
+      if(d===1) return 'yesterday'; if(d<7) return d+'d ago';
+      return dateFmt.format(new Date(iso));
+    }
+    const msgTime = iso => iso ? timeFmt.format(new Date(iso))+' · '+relTime(iso) : '';
+    const sideTime = iso => iso ? relTime(iso) : '';
+    const dayKey = iso => { const d=new Date(iso); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+    const sameDay = (a,b) => !!a&&!!b&&dayKey(a)===dayKey(b);
+    const convoKey = (type,rid) => type==='public'?'public':'dm:'+rid;
+    const curConvoKey = () => convoKey(state.convo.type,state.convo.recipientId);
 
-      const isMobile = () => window.innerWidth <= 960;
-      const isTouchLike = () => window.matchMedia('(pointer: coarse)').matches;
-      const shouldMobileEnterNewline = () => isMobile() || isTouchLike();
-      const dmKey = (a,b) => [a,b].sort().join('__');
+    const isNearBottom = () => (el.msgList.scrollHeight-el.msgList.scrollTop-el.msgList.clientHeight)<NEAR_BOTTOM;
 
-      const timeFmt = new Intl.DateTimeFormat(undefined, { hour:'2-digit', minute:'2-digit' });
-      const dateFmt = new Intl.DateTimeFormat(undefined, { month:'short', day:'numeric', year:'numeric' });
+    function scrollBottom(force=false,smooth=false){
+      if(!force&&!state.stickBottom) return;
+      el.msgList.scrollTo({top:el.msgList.scrollHeight,behavior:smooth?'smooth':'auto'});
+    }
 
-      const sorterByDate = (a,b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    function scrollToMessage(mid){
+      const row=state.rowEls.get(mid); if(!row) return;
+      row.scrollIntoView({behavior:'smooth',block:'center'});
+      row.classList.remove('jump-highlight');
+      void row.offsetWidth;
+      row.classList.add('jump-highlight');
+      setTimeout(()=>row.classList.remove('jump-highlight'),1200);
+    }
 
-      const el = {
-        modal: $('nameModal'),
-        gname: $('guestName'),
-        joinBtn: $('joinGuestBtn'),
-        clearBtn: $('clearSessionBtn'),
-        nameErr: $('nameError'),
+    function openSidebar(){
+      state.sideOpen=true;
+      el.mobSide.classList.add('active'); el.mobSide.setAttribute('aria-hidden','false');
+      el.backdrop.hidden=false;
+      requestAnimationFrame(()=>el.backdrop.classList.add('active'));
+    }
+    function closeSidebar(){
+      state.sideOpen=false;
+      el.mobSide.classList.remove('active'); el.mobSide.setAttribute('aria-hidden','true');
+      el.backdrop.classList.remove('active');
+      setTimeout(()=>{ if(!state.sideOpen) el.backdrop.hidden=true; },180);
+    }
 
-        userList: $('userList'),
-        mobList: $('mobileUserList'),
-        sideSearch: $('sidebarSearch'),
-        mobSearch: $('mobileSidebarSearch'),
-        inboxBtn: $('mobileInboxBtn'),
-        mobSide: $('mobileSidebar'),
-        drawerBackdrop: $('drawerBackdrop'),
+    const setStatus = (msg='',type='') => { el.status.textContent=msg; el.status.className='composer-status'+(type?' '+type:''); };
 
-        header: $('shellHeader'),
-        title: $('chatTitle'),
-        sub: $('chatSubtitle'),
-        modeBadge: $('chatModeBadge'),
-        backBtn: $('backToPublicBtn'),
+    function showModal(prefill=''){
+      state.modalOpen=true; el.nameErr.textContent='';
+      el.gname.value=prefill||state.user.name||'';
+      el.modal.classList.add('active'); el.modal.setAttribute('aria-hidden','false');
+      if(!isTouch()) requestAnimationFrame(()=>{ el.gname.focus(); el.gname.select(); });
+    }
+    function hideModal(){ state.modalOpen=false; el.modal.classList.remove('active'); el.modal.setAttribute('aria-hidden','true'); }
 
-        msgList: $('messageList'),
-        input: $('messageInput'),
-        sendBtn: $('sendBtn'),
-        status: $('composerStatus'),
-        counter: $('charCounter'),
-        enterHint: $('enterHint'),
-        chatMain: $('chatMain'),
-        deskPres: $('deskPresenceSummary'),
-        mobPres: $('mobPresenceSummary'),
+    function setReply(msg){
+      if(!msg){ state.replyTo=null; el.replyBar.classList.remove('active'); el.replyName.textContent=''; el.replyText.textContent=''; return; }
+      state.replyTo={id:msg.id, senderName:normName(msg.sender_name||msg.name||'Unknown'), body:msg.is_deleted?'Message deleted':(msg.body||'')};
+      el.replyName.textContent='↩ '+state.replyTo.senderName;
+      el.replyText.textContent=state.replyTo.body.slice(0,140);
+      el.replyBar.classList.add('active');
+      el.input.focus();
+    }
 
-        replyBar: $('replyBar'),
-        replyName: $('replyBarName'),
-        replyText: $('replyBarText'),
-        replyClose: $('replyBarClose')
-      };
+    function ensureContact(uid,name){
+      if(!uid||uid===state.user.id) return null;
+      if(!state.contacts.has(uid)) state.contacts.set(uid,{userId:uid,name:normName(name)||'Unknown',lastMessageAt:null,lastPreview:'',unreadCount:0,online:false,lastSeenAt:null,typing:false,typingTimer:null});
+      else if(name){ const c=state.contacts.get(uid); if(!c.name||c.name==='Unknown') c.name=normName(name)||'Unknown'; }
+      return state.contacts.get(uid);
+    }
+    const curContact = () => state.convo.type==='private'?state.contacts.get(state.convo.recipientId)||null:null;
 
-      const state = {
-        inited: false,
-        sideOpen: false,
-        stickBottom: true,
-        searchTerm: '',
-        lastSendAt: 0,
-        lastTypingAt: 0,
-        modalOpen: false,
-        lastHeaderKey: '',
-        lastRenderedTypingId: '',
-        lastSeenKey: '',
+    function updateContactFromMsg(msg){
+      if(!msg||msg._convoType!=='private') return;
+      const oid=msg.sender_id===state.user.id?msg.recipient_id:msg.sender_id;
+      const oname=normName(msg.sender_id===state.user.id?msg.recipient_name:msg.sender_name)||'Unknown';
+      const c=ensureContact(oid,oname); if(!c) return;
+      c.lastMessageAt=msg.created_at;
+      c.lastPreview=msg.is_deleted?'Message deleted':(msg.body||'');
+    }
 
-        convo: {
-          type: 'public',
-          recipientId: null
-        },
+    const isOnline=uid=>{const e=state.presMap.get(uid);return!!e?.last_seen_at&&(Date.now()-new Date(e.last_seen_at).getTime())<PRESENCE_EXPIRE;};
 
-        user: {
-          id: getOrCreateId(),
-          name: normName(localStorage.getItem(STORAGE_KEYS.uname) || '')
-        },
-
-        pubOrder: [],
-        pubMap: new Map(),
-
-        privOrders: new Map(),
-        privMaps: new Map(),
-
-        contacts: new Map(),
-
-        messageIndex: new Map(),
-        rowEls: new Map(),
-        dividerEls: new Map(),
-        reactions: new Map(),
-        pendingSeenDebounce: null,
-
-        activePopover: null,
-        replyTo: null,
-        presMap: new Map(),
-
-        subs: {
-          pub: null,
-          privIns: null,
-          privUpd: null,
-          pres: null,
-          typing: null,
-          react: null
-        },
-
-        timers: {
-          presBeat: null,
-          presDecay: null
-        }
-      };
-
-      function getOrCreateId(){
-        let id = localStorage.getItem(STORAGE_KEYS.uid);
-        if (id && /^[a-zA-Z0-9_-]{10,}$/.test(id)) return id;
-
-        const uuid = window.crypto && typeof window.crypto.randomUUID === 'function'
-          ? window.crypto.randomUUID().replace(/-/g, '')
-          : Math.random().toString(36).slice(2) + Date.now().toString(36);
-
-        id = 'guest_' + uuid;
-        localStorage.setItem(STORAGE_KEYS.uid, id);
-        return id;
-      }
-
-      function validateName(value){
-        const name = normName(value);
-        if (!name || name.length < 2) return { ok:false, msg:'Use at least 2 characters.' };
-        if (!/[A-Za-zÀ-ÿ0-9]/.test(name)) return { ok:false, msg:'Use normal letters or numbers.' };
-        return { ok:true, name };
-      }
-
-      function initHistory(){
-        history.replaceState({ chat:'public' }, '', location.href);
-      }
-
-      window.addEventListener('popstate', (e) => {
-        const hs = e.state;
-        if (!hs) return;
-
-        if (hs.chat === 'private' && hs.userId) {
-          applyConvo('private', hs.userId, hs.name || '', false);
-          return;
-        }
-
-        applyConvo('public', null, null, false);
+    function refreshPresence(){
+      let changed=false;
+      state.contacts.forEach(c=>{
+        const online=isOnline(c.userId);
+        const e=state.presMap.get(c.userId);
+        const seenAt=e?.last_seen_at||c.lastSeenAt||null;
+        if(c.online!==online||c.lastSeenAt!==seenAt){c.online=online;c.lastSeenAt=seenAt;changed=true;}
       });
+      if(changed){renderContacts();updateHeader();}
+    }
 
-      function relTime(iso){
-        if (!iso) return '';
-        const diffSec = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
-        if (diffSec < 45) return 'just now';
-        if (diffSec < 3600) return Math.floor(diffSec / 60) + 'm ago';
-        if (diffSec < 86400) return Math.floor(diffSec / 3600) + 'h ago';
-        const days = Math.floor(diffSec / 86400);
-        if (days === 1) return 'yesterday';
-        if (days < 7) return days + 'd ago';
-        return dateFmt.format(new Date(iso));
+    async function pingPresence(){
+      if(!state.user.name) return;
+      await sb.from('chat_presence').upsert({user_id:state.user.id,user_name:state.user.name,last_seen_at:nowIso()},{onConflict:'user_id'}).catch(()=>{});
+    }
+    function maybePingPresence(force=false){
+      const n=Date.now();
+      if(!force&&n-state.lastActivityPingAt<ACTIVITY_PING_THROTTLE) return;
+      state.lastActivityPingAt=n; pingPresence();
+    }
+
+    async function publishTyping(){
+      if(state.convo.type!=='private'||!state.convo.recipientId||!state.user.name||!state.subs.typing) return;
+      if(Date.now()-state.lastTypingAt<TYPING_THROTTLE) return;
+      state.lastTypingAt=Date.now();
+      await state.subs.typing.send({type:'broadcast',event:'typing',payload:{user_id:state.user.id,user_name:state.user.name,room_key:dmKey(state.user.id,state.convo.recipientId),last_typed_at:nowIso()}}).catch(()=>{});
+    }
+
+    function updateContactTyping(uid,uname,shouldType){
+      const c=ensureContact(uid,uname); if(!c) return false;
+      const before=c.typing; c.typing=shouldType;
+      if(c.typingTimer){clearTimeout(c.typingTimer);c.typingTimer=null;}
+      if(shouldType) c.typingTimer=setTimeout(()=>{const cc=state.contacts.get(uid);if(!cc||!cc.typing)return;cc.typing=false;cc.typingTimer=null;renderContacts();updateHeader();renderTypingRow();},TYPING_EXPIRE);
+      return before!==c.typing;
+    }
+    function handleTypingEvent(row){
+      if(!row||row.user_id===state.user.id) return;
+      if(row.room_key!==dmKey(state.user.id,row.user_id)) return;
+      const changed=updateContactTyping(row.user_id,row.user_name,true);
+      if(changed){renderContacts();updateHeader();renderTypingRow();}
+    }
+
+    const getPubMsgs=()=>state.pubOrder.map(id=>state.pubMap.get(id)).filter(Boolean);
+    const getPrivMap=uid=>{if(!state.privMaps.has(uid))state.privMaps.set(uid,new Map());return state.privMaps.get(uid);};
+    const getPrivOrder=uid=>{if(!state.privOrders.has(uid))state.privOrders.set(uid,[]);return state.privOrders.get(uid);};
+    const getPrivMsgs=uid=>getPrivOrder(uid).map(id=>getPrivMap(uid).get(id)).filter(Boolean);
+    const curMsgs=()=>state.convo.type==='public'?getPubMsgs():getPrivMsgs(state.convo.recipientId);
+
+    function storeMsg(ctype,rid,msg){
+      msg.id=String(msg.id); msg._convoType=ctype; msg._recipientId=rid;
+      if(ctype==='public'){
+        if(!state.pubMap.has(msg.id)){state.pubMap.set(msg.id,msg);state.pubOrder.push(msg.id);state.pubOrder.sort((a,b)=>sortByDate(state.pubMap.get(a),state.pubMap.get(b)));}
+        else Object.assign(state.pubMap.get(msg.id),msg);
+      } else {
+        const map=getPrivMap(rid),order=getPrivOrder(rid);
+        if(!map.has(msg.id)){map.set(msg.id,msg);order.push(msg.id);order.sort((a,b)=>sortByDate(map.get(a),map.get(b)));}
+        else Object.assign(map.get(msg.id),msg);
       }
+      const stored=ctype==='public'?state.pubMap.get(msg.id):getPrivMap(rid).get(msg.id);
+      state.messageIndex.set(msg.id,{convoKey:convoKey(ctype,rid),message:stored});
+      updateContactFromMsg(stored);
+      return stored;
+    }
 
-      function msgTime(iso){
-        if (!iso) return '';
-        return timeFmt.format(new Date(iso)) + ' · ' + relTime(iso);
-      }
+    function delMsgFromStore(ctype,rid,id){
+      state.rowEls.delete(id);state.messageIndex.delete(id);state.reactions.delete(id);
+      if(ctype==='public'){state.pubMap.delete(id);state.pubOrder=state.pubOrder.filter(x=>x!==id);return;}
+      const map=getPrivMap(rid),order=getPrivOrder(rid);
+      map.delete(id);state.privOrders.set(rid,order.filter(x=>x!==id));
+    }
 
-      function sideTime(iso){
-        return iso ? relTime(iso) : '';
-      }
+    const findMsgAnywhere=id=>state.messageIndex.get(id)?.message||null;
+    const curMsgById=id=>state.convo.type==='public'?state.pubMap.get(id)||null:getPrivMap(state.convo.recipientId).get(id)||null;
 
-      function dayKey(iso){
-        const d = new Date(iso);
-        const y = d.getFullYear();
-        const m = String(d.getMonth() + 1).padStart(2, '0');
-        const dd = String(d.getDate()).padStart(2, '0');
-        return y + '-' + m + '-' + dd;
-      }
+    function replaceMsgId(ctype,rid,oldId,newMsg){
+      const map=ctype==='public'?state.pubMap:getPrivMap(rid);
+      const order=ctype==='public'?state.pubOrder:getPrivOrder(rid);
+      const idx=order.indexOf(oldId);if(idx===-1) return newMsg;
+      const row=state.rowEls.get(oldId);
+      map.delete(oldId);state.messageIndex.delete(oldId);state.rowEls.delete(oldId);
+      newMsg._convoType=ctype;newMsg._recipientId=rid;
+      map.set(newMsg.id,newMsg);order[idx]=newMsg.id;
+      state.messageIndex.set(newMsg.id,{convoKey:convoKey(ctype,rid),message:newMsg});
+      if(row){row.dataset.mid=newMsg.id;state.rowEls.set(newMsg.id,row);}
+      return newMsg;
+    }
 
-      function sameDay(a,b){
-        return !!a && !!b && dayKey(a) === dayKey(b);
-      }
+    const ensureReactBucket=mid=>{if(!state.reactions.has(mid))state.reactions.set(mid,new Map());return state.reactions.get(mid);};
+    function applyReactInsert(mid,emoji,uid){const b=ensureReactBucket(mid);if(!b.has(emoji))b.set(emoji,new Set());b.get(emoji).add(uid);}
+    function applyReactDelete(mid,emoji,uid){const b=state.reactions.get(mid);if(!b?.has(emoji))return;b.get(emoji).delete(uid);if(!b.get(emoji).size)b.delete(emoji);if(!b.size)state.reactions.delete(mid);}
 
-      function convoKeyOf(type, recipientId){
-        return type === 'public' ? 'public' : 'dm:' + recipientId;
-      }
+    function reactionHtml(mid){
+      const b=state.reactions.get(mid); if(!b||!b.size) return '';
+      return [...b.entries()].filter(([,u])=>u.size>0).map(([emoji,users])=>{
+        const mine=users.has(state.user.id);
+        return `<button class="reaction-chip${mine?' mine':''}" type="button" data-reaction-chip="1" data-mid="${esc(mid)}" data-emoji="${esc(emoji)}" aria-label="React ${esc(emoji)} ${users.size}">${esc(emoji)}<span class="count">${users.size}</span></button>`;
+      }).join('');
+    }
 
-      function currentConvoKey(){
-        return convoKeyOf(state.convo.type, state.convo.recipientId);
-      }
+    function msgStatusInfo(msg){
+      if(msg._convoType!=='private'||msg.sender_id!==state.user.id) return null;
+      if(msg._failed) return{label:'did not send',cls:'failed'};
+      if(msg.seen_at) return{label:'seen',cls:'seen'};
+      if(msg._optimistic) return null;
+      return{label:'delivered',cls:'delivered'};
+    }
 
-      function getScrollGap(){
-        return el.msgList.scrollHeight - el.msgList.scrollTop - el.msgList.clientHeight;
-      }
+    function replyStubHtml(msg){
+      if(!msg.reply_to_id) return '';
+      const orig=findMsgAnywhere(msg.reply_to_id);
+      const sname=orig?normName(orig.sender_name||orig.name||'Unknown'):'…';
+      const text=orig?(orig.is_deleted?'Message deleted':(orig.body||'')):'Original not found';
+      return `<div class="reply-stub" data-scroll-to="${esc(msg.reply_to_id)}" role="button" tabindex="0"><div class="reply-stub-line"></div><div class="reply-stub-main"><div class="reply-stub-name">${esc(sname)}</div><div class="reply-stub-text">${esc(text.slice(0,120))}</div></div></div>`;
+    }
 
-      function isNearBottom(){
-        return getScrollGap() < NEAR_BOTTOM;
-      }
+    function statusHtml(msg){
+      const st=msgStatusInfo(msg); if(!st) return '<div class="message-status hidden-status"></div>';
+      return `<div class="message-status ${esc(st.cls)}"><span>${esc(st.label)}</span></div>`;
+    }
 
-      function scrollBottom(force = false, smooth = false){
-        if (!force && !state.stickBottom) return;
-        el.msgList.scrollTo({
-          top: el.msgList.scrollHeight,
-          behavior: smooth ? 'smooth' : 'auto'
-        });
-      }
+    function buildRow(msg){
+      const own=msg.sender_id===state.user.id;
+      const name=normName(msg.sender_name||msg.name||'Unknown');
+      const row=document.createElement('div');
+      row.className='message-row'+(own?' own':'')+(msg._failed?' failed':'');
+      row.dataset.mid=msg.id; row.dataset.own=own?'1':'0';
+      row.innerHTML=`
+        <div class="message-avatar">${esc(initial(name))}</div>
+        <div class="message-stack">
+          <div class="message-bubble" data-bubble-mid="${esc(msg.id)}" data-uid="${esc(msg.sender_id||'')}" data-name="${esc(name)}" tabindex="0">
+            ${replyStubHtml(msg)}
+            <div class="message-header"><span class="message-name">${esc(name)}</span><div class="message-time">${esc(msgTime(msg.created_at))}</div></div>
+            <div class="message-body-wrap">${msg.is_deleted?'<div class="message-text deleted">This message was deleted.</div>':`<div class="message-text">${esc(msg.body||'')}</div>`}</div>
+          </div>
+          ${statusHtml(msg)}
+          <div class="reactions" data-reactions="${esc(msg.id)}">${reactionHtml(msg.id)}</div>
+        </div>`;
+      state.rowEls.set(msg.id,row);
+      return row;
+    }
 
-      function scrollToMessage(mid){
-        const row = state.rowEls.get(mid);
-        if (!row) return;
-        row.scrollIntoView({ behavior:'smooth', block:'center' });
-        row.classList.remove('jump-highlight');
-        void row.offsetWidth;
-        row.classList.add('jump-highlight');
-        setTimeout(() => row.classList.remove('jump-highlight'), 1200);
-      }
+    function patchRow(msg){
+      const row=state.rowEls.get(msg.id); if(!row) return;
+      const own=msg.sender_id===state.user.id;
+      row.classList.toggle('own',own); row.classList.toggle('failed',!!msg._failed);
+      row.dataset.own=own?'1':'0'; row.dataset.mid=msg.id;
+      const bubble=row.querySelector('.message-bubble');
+      const name=normName(msg.sender_name||msg.name||'Unknown');
+      bubble.dataset.bubbleMid=msg.id; bubble.dataset.uid=msg.sender_id||''; bubble.dataset.name=name;
+      const av=row.querySelector('.message-avatar'); if(av) av.textContent=initial(name);
+      const nm=row.querySelector('.message-name'); if(nm&&nm.textContent!==name) nm.textContent=name;
+      const tm=row.querySelector('.message-time'); const nt=msgTime(msg.created_at); if(tm&&tm.textContent!==nt) tm.textContent=nt;
+      // Reply stub
+      const oldR=bubble.querySelector('.reply-stub'); const newR=replyStubHtml(msg);
+      if(newR&&!oldR){bubble.insertAdjacentHTML('afterbegin',newR);}
+      else if(!newR&&oldR){oldR.remove();}
+      else if(newR&&oldR){const t=document.createElement('div');t.innerHTML=newR.trim();oldR.replaceWith(t.firstElementChild);}
+      // Body
+      const bw=row.querySelector('.message-body-wrap');
+      if(bw){const h=msg.is_deleted?'<div class="message-text deleted">This message was deleted.</div>':`<div class="message-text">${esc(msg.body||'')}</div>`;if(bw.innerHTML!==h)bw.innerHTML=h;}
+      // Status
+      const se=row.querySelector('.message-status');
+      if(se){const t=document.createElement('div');t.innerHTML=statusHtml(msg).trim();se.replaceWith(t.firstElementChild);}
+      patchReactRow(msg.id);
+    }
 
-      function openSidebar(){
-        state.sideOpen = true;
-        el.mobSide.classList.add('active');
-        el.mobSide.setAttribute('aria-hidden', 'false');
-        el.drawerBackdrop.hidden = false;
-        requestAnimationFrame(() => el.drawerBackdrop.classList.add('active'));
-      }
+    function patchReactRow(mid){
+      const c=el.msgList.querySelector(`[data-reactions="${cssEscape(mid)}"]`); if(!c) return;
+      c.innerHTML=reactionHtml(mid);
+    }
 
-      function closeSidebar(){
-        state.sideOpen = false;
-        el.mobSide.classList.remove('active');
-        el.mobSide.setAttribute('aria-hidden', 'true');
-        el.drawerBackdrop.classList.remove('active');
-        setTimeout(() => {
-          if (!state.sideOpen) el.drawerBackdrop.hidden = true;
-        }, 180);
-      }
+    function renderEmptyState(){
+      el.msgList.innerHTML=state.convo.type==='private'
+        ?`<div class="system-row"><div class="system-card"><div class="empty-icon">💬</div><div class="empty-title">No messages yet</div><div class="empty-hint">Start the private conversation. Only the two of you can see this.</div></div></div>`
+        :`<div class="system-row"><div class="system-card"><div class="empty-icon">🌍</div><div class="empty-title">Public room is quiet</div><div class="empty-hint">Say something — or open a message menu to react, reply, or start a private conversation.</div></div></div>`;
+    }
 
-      function setStatus(msg = '', type = ''){
-        el.status.textContent = msg;
-        el.status.className = 'composer-status' + (type ? ' ' + type : '');
-      }
-
-      function focusModalInput(){
-        requestAnimationFrame(() => {
-          el.gname.focus();
-          el.gname.select();
-        });
-      }
-
-      function showModal(prefill = ''){
-        state.modalOpen = true;
-        el.nameErr.textContent = '';
-        el.gname.value = prefill || state.user.name || '';
-        el.modal.classList.add('active');
-        el.modal.setAttribute('aria-hidden', 'false');
-        focusModalInput();
-      }
-
-      function hideModal(){
-        state.modalOpen = false;
-        el.modal.classList.remove('active');
-        el.modal.setAttribute('aria-hidden', 'true');
-      }
-
-      function setReply(msg){
-        if (!msg) {
-          state.replyTo = null;
-          el.replyBar.classList.remove('active');
-          el.replyName.textContent = '';
-          el.replyText.textContent = '';
-          return;
+    function rebuildConvo(){
+      closePopover(); state.rowEls.clear(); state.dividerEls.clear(); el.msgList.innerHTML='';
+      const msgs=curMsgs();
+      if(!msgs.length){renderEmptyState();renderTypingRow();return;}
+      const frag=document.createDocumentFragment(); let prev=null; const ck=curConvoKey();
+      msgs.forEach(msg=>{
+        if(!prev||!sameDay(prev.created_at,msg.created_at)){
+          const dk=ck+'|'+dayKey(msg.created_at);
+          const d=document.createElement('div');d.className='day-divider';d.textContent=dateFmt.format(new Date(msg.created_at));
+          state.dividerEls.set(dk,d);frag.appendChild(d);
         }
+        frag.appendChild(buildRow(msg));prev=msg;
+      });
+      el.msgList.appendChild(frag);renderTypingRow();scrollBottom(true,false);
+    }
 
-        state.replyTo = {
-          id: msg.id,
-          senderName: normName(msg.sender_name || msg.name || 'Unknown'),
-          body: msg.is_deleted ? 'Message deleted' : (msg.body || '')
-        };
+    function renderTypingRow(){
+      const existing=$('typingRow'); const c=curContact();
+      const desiredId=(state.convo.type==='private'&&c?.typing)?c.userId:'';
+      if(!desiredId){if(existing)existing.remove();state.lastRenderedTypingId='';return;}
+      if(existing&&state.lastRenderedTypingId===desiredId) return;
+      if(existing) existing.remove();
+      const row=document.createElement('div');row.className='typing-row';row.id='typingRow';
+      row.innerHTML=`<div class="typing-bubble"><span class="typing-label">${esc(c.name)}</span><span class="typing-dots" aria-hidden="true"><span></span><span></span><span></span></span></div>`;
+      el.msgList.appendChild(row);state.lastRenderedTypingId=desiredId;scrollBottom(false,true);
+    }
 
-        el.replyName.textContent = '↩ ' + state.replyTo.senderName;
-        el.replyText.textContent = state.replyTo.body.slice(0, 140);
-        el.replyBar.classList.add('active');
-        el.input.focus();
+    function maybeInsertRow(msg){
+      if(msg._convoType!==state.convo.type) return false;
+      if(msg._convoType==='private'&&msg._recipientId!==state.convo.recipientId) return false;
+      const msgs=curMsgs(); const idx=msgs.findIndex(m=>m.id===msg.id); if(idx===-1) return false;
+      const empty=el.msgList.querySelector('.system-row'); if(empty) empty.remove();
+      const beforeMsg=idx>0?msgs[idx-1]:null; const afterMsg=idx<msgs.length-1?msgs[idx+1]:null;
+      const ck=curConvoKey(); const dk=ck+'|'+dayKey(msg.created_at);
+      let divider=state.dividerEls.get(dk);
+      if((!beforeMsg||!sameDay(beforeMsg.created_at,msg.created_at))&&!divider){
+        divider=document.createElement('div');divider.className='day-divider';divider.textContent=dateFmt.format(new Date(msg.created_at));state.dividerEls.set(dk,divider);
       }
+      const row=buildRow(msg); const beforeRow=afterMsg?state.rowEls.get(afterMsg.id):null;
+      if(beforeRow){if(divider&&!divider.isConnected)el.msgList.insertBefore(divider,beforeRow);el.msgList.insertBefore(row,beforeRow);}
+      else{const tr=$('typingRow');if(divider&&!divider.isConnected){if(tr)el.msgList.insertBefore(divider,tr);else el.msgList.appendChild(divider);}if(tr)el.msgList.insertBefore(row,tr);else el.msgList.appendChild(row);}
+      return true;
+    }
 
-      function ensureContact(userId, name){
-        if (!userId || userId === state.user.id) return null;
+    function removeRow(mid){
+      const row=state.rowEls.get(mid); if(!row) return;
+      closePopover();
+      const prev=row.previousElementSibling,next=row.nextElementSibling;
+      row.remove();state.rowEls.delete(mid);
+      if(prev?.classList.contains('day-divider')&&(!next||next.classList.contains('day-divider')||next.id==='typingRow'))prev.remove();
+      if(!el.msgList.querySelector('.message-row')){renderEmptyState();renderTypingRow();}
+    }
 
-        if (!state.contacts.has(userId)) {
-          state.contacts.set(userId, {
-            userId,
-            name: normName(name) || 'Unknown',
-            lastMessageAt: null,
-            lastPreview: '',
-            unreadCount: 0,
-            online: false,
-            lastSeenAt: null,
-            typing: false,
-            typingTimer: null
-          });
-        } else if (name) {
-          const c = state.contacts.get(userId);
-          if (!c.name || c.name === 'Unknown') c.name = normName(name) || 'Unknown';
-        }
+    function renderContacts(){
+      const term=state.searchTerm.toLowerCase();
+      const list=[...state.contacts.values()]
+        .filter(c=>c.userId!==state.user.id&&(!term||c.name.toLowerCase().includes(term)))
+        .sort((a,b)=>(b.lastMessageAt?new Date(b.lastMessageAt):0)-(a.lastMessageAt?new Date(a.lastMessageAt):0));
+      const html=list.length?list.map(c=>{
+        const active=state.convo.type==='private'&&state.convo.recipientId===c.userId;
+        const badge=c.unreadCount>0?`<span class="unread-badge">${c.unreadCount>99?'99+':c.unreadCount}</span>`:'';
+        const lastMsg=getPrivMsgs(c.userId).slice(-1)[0];
+        const mine=!!lastMsg&&lastMsg.sender_id===state.user.id&&!c.typing;
+        const preview=c.typing?'typing…':(c.lastPreview||'');
+        const full=mine?'You: '+preview:preview;
+        return `<button class="user-item${active?' active':''}" type="button" data-user-item="1" data-uid="${esc(c.userId)}" data-name="${esc(c.name)}">
+          <div class="user-avatar-wrap"><div class="user-avatar">${esc(initial(c.name))}</div><span class="presence-dot${c.online?' online':''}"></span></div>
+          <div class="sidebar-user-main">
+            <div class="sidebar-user-top"><span class="sidebar-user-name">${esc(c.name)}</span><span class="sidebar-user-time">${esc(c.online?'online':sideTime(c.lastMessageAt||c.lastSeenAt))}</span></div>
+            <span class="sidebar-user-sub${c.unreadCount>0?' has-unread':''}${c.typing?' is-typing':''}">${esc(full.slice(0,52))}</span>
+          </div>${badge}
+        </button>`;
+      }).join(''):`<div class="system-card" style="border-radius:14px;font-size:0.8rem">No private conversations yet.<br/>Open a message menu to start one.</div>`;
+      el.userList.innerHTML=html; el.mobList.innerHTML=html;
+      el.inboxBtn.classList.toggle('has-unread',[...state.contacts.values()].some(c=>c.unreadCount>0));
+      const n=[...state.contacts.values()].filter(c=>c.online).length;
+      const label=n?n+' online':'';
+      el.deskPres.textContent=label; el.mobPres.textContent=label;
+    }
 
-        return state.contacts.get(userId);
+    function updateHeader(){
+      const priv=state.convo.type==='private'; const c=curContact();
+      const key=priv?'p|'+(c?.name||'')+'|'+(c?.typing?'1':'0')+'|'+(c?.online?'1':'0')+'|'+(c?.lastSeenAt||''):'public';
+      if(key===state.lastHeaderKey) return; state.lastHeaderKey=key;
+      el.backBtn.classList.toggle('hidden',!priv);
+      el.chatMain.classList.toggle('is-private',priv);
+      el.header.classList.toggle('mode-public',!priv); el.header.classList.toggle('mode-private',priv);
+      if(!priv){el.title.textContent='Public room';el.sub.textContent='Everyone can read this room';el.sub.classList.remove('typing');return;}
+      el.title.textContent=c?.name||'Private conversation';
+      if(c?.typing){el.sub.textContent=c.name+' is typing…';el.sub.classList.add('typing');return;}
+      el.sub.classList.remove('typing');
+      el.sub.textContent=c?.online?'online now':c?.lastSeenAt?'last seen '+relTime(c.lastSeenAt):'private conversation';
+    }
+
+    function closePopover(){
+      if(!state.activePopover) return;
+      const row=state.rowEls.get(state.activePopover.mid);
+      if(row){const b=row.querySelector('.message-bubble');if(b)b.classList.remove('menu-open');}
+      state.activePopover.el.remove();state.activePopover=null;
+    }
+
+    function buildPopoverActions(msg){
+      const own=msg.sender_id===state.user.id; const isPriv=msg._convoType==='private';
+      const items=[{action:'reply',icon:'↩',label:'Reply'}];
+      if(!own&&!isPriv) items.push({action:'dm',icon:'💬',label:'Message privately'});
+      if(own&&!msg.is_deleted&&!msg._optimistic) items.push({action:'delete',icon:'🗑',label:'Delete',danger:true});
+      if(msg._failed) items.push({action:'retry',icon:'⟳',label:'Retry send'});
+      return items;
+    }
+
+    function openPopover(msg,anchorEl){
+      closePopover();
+      const row=state.rowEls.get(msg.id);
+      if(row){const b=row.querySelector('.message-bubble');if(b)b.classList.add('menu-open');}
+      const pop=document.createElement('div');
+      pop.className='message-popover'; pop.dataset.mid=msg.id;
+      pop.innerHTML=`<div class="popover-reactions">${REACTIONS.map(e=>`<button class="popover-emoji" type="button" data-popover-react="${esc(e)}" aria-label="React ${esc(e)}">${esc(e)}</button>`).join('')}</div>
+        <div class="popover-actions">${buildPopoverActions(msg).map(it=>`<button class="popover-btn${it.danger?' danger':''}" type="button" data-popover-action="${esc(it.action)}" data-mid="${esc(msg.id)}"><span class="popover-btn-main"><span class="popover-btn-icon">${esc(it.icon)}</span><span class="popover-btn-label">${esc(it.label)}</span></span></button>`).join('')}</div>`;
+      document.body.appendChild(pop);
+      // Position
+      const rect=anchorEl.getBoundingClientRect(); const pr=pop.getBoundingClientRect();
+      let left=rect.left,top=rect.bottom+8;
+      if(left+pr.width>window.innerWidth-10) left=window.innerWidth-pr.width-10;
+      if(left<10) left=10;
+      if(top+pr.height>window.innerHeight-10) top=rect.top-pr.height-8;
+      if(top<10) top=10;
+      pop.style.left=left+'px'; pop.style.top=top+'px';
+      state.activePopover={mid:msg.id,el:pop};
+    }
+
+    async function loadReactions(ids){
+      if(!ids.length) return;
+      const{data,error}=await sb.from('message_reactions').select('*').in('message_id',ids);
+      if(error){console.error(error);return;}
+      ids.forEach(id=>state.reactions.delete(id));
+      (data||[]).forEach(r=>applyReactInsert(String(r.message_id),r.emoji,r.user_id));
+    }
+
+    const normPub=r=>({...r,id:String(r.id),sender_id:r.user_id||r.sender_id||'',sender_name:normName(r.name||r.sender_name||'Unknown'),_optimistic:false,_failed:false});
+    const normPriv=r=>({...r,id:String(r.id),sender_name:normName(r.sender_name||'Unknown'),recipient_name:normName(r.recipient_name||'Unknown'),_optimistic:false,_failed:false});
+
+    async function loadPublic(){
+      const{data,error}=await sb.from('messages').select('*').eq('room',PUB_ROOM).order('created_at',{ascending:true}).limit(200);
+      if(error){console.error(error);return;}
+      state.pubMap.clear();state.pubOrder=[];
+      (data||[]).forEach(r=>storeMsg('public',null,normPub(r)));
+      await loadReactions(state.pubOrder);
+    }
+
+    async function loadPrivate(){
+      const{data,error}=await sb.from('private_messages').select('*').or(`sender_id.eq.${state.user.id},recipient_id.eq.${state.user.id}`).order('created_at',{ascending:true}).limit(500);
+      if(error){console.error(error);return;}
+      state.privMaps.clear();state.privOrders.clear();state.contacts.clear();
+      (data||[]).forEach(r=>{const m=normPriv(r);const oid=m.sender_id===state.user.id?m.recipient_id:m.sender_id;storeMsg('private',oid,m);});
+      await loadReactions((data||[]).map(x=>String(x.id)));
+    }
+
+    function subscribePub(){
+      if(state.subs.pub) sb.removeChannel(state.subs.pub);
+      state.subs.pub=sb.channel('pub:'+PUB_ROOM)
+        .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:'room=eq.'+PUB_ROOM},payload=>{
+          const row=normPub(payload.new); if(state.pubMap.has(row.id)) return;
+          const wasNear=isNearBottom(); const msg=storeMsg('public',null,row);
+          maybeInsertRow(msg);
+          if(state.convo.type==='public'&&(wasNear||msg.sender_id===state.user.id)) scrollBottom(true,true);
+        })
+        .on('postgres_changes',{event:'UPDATE',schema:'public',table:'messages'},payload=>{
+          const row=normPub(payload.new);
+          if(!state.pubMap.has(row.id)){maybeInsertRow(storeMsg('public',null,row));return;}
+          Object.assign(state.pubMap.get(row.id),row);patchRow(state.pubMap.get(row.id));
+        })
+        .on('postgres_changes',{event:'DELETE',schema:'public',table:'messages'},payload=>{
+          const id=String(payload.old?.id||''); if(!id||!state.pubMap.has(id)) return;
+          delMsgFromStore('public',null,id); if(state.convo.type==='public') removeRow(id);
+        })
+        .subscribe();
+    }
+
+    function mergeIncomingPriv(row){
+      const msg=normPriv(row); const oid=msg.sender_id===state.user.id?msg.recipient_id:msg.sender_id;
+      const map=getPrivMap(oid); const order=getPrivOrder(oid);
+      let final=null;
+      if(msg.client_id){
+        const optId=[...order].find(mid=>{const x=map.get(mid);return x&&x.client_id===msg.client_id;});
+        if(optId&&map.has(optId)) final=replaceMsgId('private',oid,optId,msg);
       }
+      if(!final){final=storeMsg('private',oid,msg);}
+      else updateContactFromMsg(final);
+      return{oid,msg:final};
+    }
 
-      function currentContact(){
-        if (state.convo.type !== 'private') return null;
-        return state.contacts.get(state.convo.recipientId) || null;
-      }
-
-      function updateContactFromMessage(msg){
-        if (!msg || msg._convoType !== 'private') return;
-
-        const otherId = msg.sender_id === state.user.id ? msg.recipient_id : msg.sender_id;
-        const otherName = normName(
-          msg.sender_id === state.user.id ? msg.recipient_name : msg.sender_name
-        ) || 'Unknown';
-
-        const contact = ensureContact(otherId, otherName);
-        if (!contact) return;
-
-        contact.lastMessageAt = msg.created_at;
-        contact.lastPreview = msg.is_deleted ? 'Message deleted' : (msg.body || '');
-      }
-
-      function isOnline(uid){
-        const entry = state.presMap.get(uid);
-        return !!entry?.last_seen_at &&
-          (Date.now() - new Date(entry.last_seen_at).getTime()) < PRESENCE_EXPIRE;
-      }
-
-      function refreshPresence(){
-        let changed = false;
-
-        state.contacts.forEach(c => {
-          const online = isOnline(c.userId);
-          const entry = state.presMap.get(c.userId);
-          const seenAt = entry?.last_seen_at || c.lastSeenAt || null;
-
-          if (c.online !== online || c.lastSeenAt !== seenAt) {
-            c.online = online;
-            c.lastSeenAt = seenAt;
-            changed = true;
-          }
-        });
-
-        if (changed) {
-          renderContacts();
-          updateHeader();
-        }
-      }
-
-      async function pingPresence(){
-        if (!state.user.name) return;
-
-        await sb
-          .from('chat_presence')
-          .upsert({
-            user_id: state.user.id,
-            user_name: state.user.name,
-            last_seen_at: nowIso()
-          }, { onConflict:'user_id' })
-          .catch(() => {});
-      }
-
-      async function publishTyping(){
-        if (state.convo.type !== 'private' || !state.convo.recipientId || !state.user.name) return;
-        if (!state.subs.typing) return;
-        if (Date.now() - state.lastTypingAt < TYPING_THROTTLE) return;
-
-        state.lastTypingAt = Date.now();
-
-        await state.subs.typing.send({
-          type:'broadcast',
-          event:'typing',
-          payload:{
-            user_id: state.user.id,
-            user_name: state.user.name,
-            room_key: dmKey(state.user.id, state.convo.recipientId),
-            last_typed_at: nowIso()
-          }
-        }).catch(() => {});
-      }
-
-      function updateContactTyping(userId, userName, shouldType){
-        const c = ensureContact(userId, userName);
-        if (!c) return false;
-
-        const before = c.typing;
-        c.typing = shouldType;
-
-        if (c.typingTimer) {
-          clearTimeout(c.typingTimer);
-          c.typingTimer = null;
-        }
-
-        if (shouldType) {
-          c.typingTimer = setTimeout(() => {
-            const cc = state.contacts.get(userId);
-            if (!cc || !cc.typing) return;
-            cc.typing = false;
-            cc.typingTimer = null;
-            renderContacts();
-            updateHeader();
+    function subscribePriv(){
+      if(state.subs.privIns) sb.removeChannel(state.subs.privIns);
+      if(state.subs.privUpd) sb.removeChannel(state.subs.privUpd);
+      state.subs.privIns=sb.channel('privIns:'+state.user.id)
+        .on('postgres_changes',{event:'INSERT',schema:'public',table:'private_messages'},payload=>{
+          const row=payload.new;
+          if(row.sender_id!==state.user.id&&row.recipient_id!==state.user.id) return;
+          const wasNear=isNearBottom(); const{oid,msg}=mergeIncomingPriv(row);
+          const c=ensureContact(oid,msg.sender_id===state.user.id?msg.recipient_name:msg.sender_name);
+          if(msg.sender_id!==state.user.id&&!(state.convo.type==='private'&&state.convo.recipientId===oid)) if(c) c.unreadCount=(c.unreadCount||0)+1;
+          if(state.convo.type==='private'&&state.convo.recipientId===oid){
+            const existing=state.rowEls.get(msg.id);
+            if(existing) patchRow(msg); else maybeInsertRow(msg);
             renderTypingRow();
-          }, TYPING_EXPIRE);
-        }
-
-        return before !== c.typing;
-      }
-
-      function handleTypingEvent(row){
-        if (!row || row.user_id === state.user.id) return;
-        if (row.room_key !== dmKey(state.user.id, row.user_id)) return;
-
-        const changed = updateContactTyping(row.user_id, row.user_name, true);
-
-        if (changed) {
-          renderContacts();
-          updateHeader();
-          renderTypingRow();
-        }
-      }
-
-      function getPubMessages(){
-        return state.pubOrder.map(id => state.pubMap.get(id)).filter(Boolean);
-      }
-
-      function getPrivMap(uid){
-        if (!state.privMaps.has(uid)) state.privMaps.set(uid, new Map());
-        return state.privMaps.get(uid);
-      }
-
-      function getPrivOrder(uid){
-        if (!state.privOrders.has(uid)) state.privOrders.set(uid, []);
-        return state.privOrders.get(uid);
-      }
-
-      function getPrivMessages(uid){
-        const map = getPrivMap(uid);
-        const order = getPrivOrder(uid);
-        return order.map(id => map.get(id)).filter(Boolean);
-      }
-
-      function currentMessages(){
-        return state.convo.type === 'public'
-          ? getPubMessages()
-          : getPrivMessages(state.convo.recipientId);
-      }
-
-      function storeMessage(convoType, recipientId, msg){
-        const cKey = convoKeyOf(convoType, recipientId);
-        const id = String(msg.id);
-        msg.id = id;
-        msg._convoType = convoType;
-        msg._recipientId = recipientId;
-
-        if (convoType === 'public') {
-          if (!state.pubMap.has(id)) {
-            state.pubMap.set(id, msg);
-            state.pubOrder.push(id);
-            state.pubOrder.sort((a,b) => sorterByDate(state.pubMap.get(a), state.pubMap.get(b)));
-          } else {
-            Object.assign(state.pubMap.get(id), msg);
+            if(wasNear||msg.sender_id===state.user.id) scrollBottom(true,true);
+            scheduleMarkSeen(oid);
           }
-        } else {
-          const map = getPrivMap(recipientId);
-          const order = getPrivOrder(recipientId);
-          if (!map.has(id)) {
-            map.set(id, msg);
-            order.push(id);
-            order.sort((a,b) => sorterByDate(map.get(a), map.get(b)));
-          } else {
-            Object.assign(map.get(id), msg);
-          }
+          renderContacts();updateHeader();
+        }).subscribe();
+      state.subs.privUpd=sb.channel('privUpd:'+state.user.id)
+        .on('postgres_changes',{event:'UPDATE',schema:'public',table:'private_messages'},payload=>{
+          const row=payload.new;
+          if(row.sender_id!==state.user.id&&row.recipient_id!==state.user.id) return;
+          const msg=normPriv(row); const oid=msg.sender_id===state.user.id?msg.recipient_id:msg.sender_id;
+          const existing=getPrivMap(oid).get(msg.id);
+          if(!existing){storeMsg('private',oid,msg);if(state.convo.type==='private'&&state.convo.recipientId===oid)maybeInsertRow(msg);}
+          else{Object.assign(existing,msg);patchRow(existing);}
+          updateContactFromMsg(getPrivMap(oid).get(msg.id)||msg);
+          renderContacts();updateHeader();
+        }).subscribe();
+    }
+
+    function subscribePres(){
+      if(state.subs.pres) sb.removeChannel(state.subs.pres);
+      state.subs.pres=sb.channel('chat_presence_feed')
+        .on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_presence'},p=>{state.presMap.set(p.new.user_id,p.new);refreshPresence();})
+        .on('postgres_changes',{event:'UPDATE',schema:'public',table:'chat_presence'},p=>{state.presMap.set(p.new.user_id,p.new);refreshPresence();})
+        .subscribe();
+    }
+
+    function subscribeTyping(){
+      if(state.subs.typing) sb.removeChannel(state.subs.typing);
+      state.subs.typing=sb.channel('typing_bus')
+        .on('broadcast',{event:'typing'},payload=>handleTypingEvent(payload.payload))
+        .subscribe();
+    }
+
+    function subscribeReactions(){
+      if(state.subs.react) sb.removeChannel(state.subs.react);
+      state.subs.react=sb.channel('chat_reactions_feed')
+        .on('postgres_changes',{event:'INSERT',schema:'public',table:'message_reactions'},payload=>{applyReactInsert(String(payload.new.message_id),payload.new.emoji,payload.new.user_id);patchReactRow(String(payload.new.message_id));})
+        .on('postgres_changes',{event:'DELETE',schema:'public',table:'message_reactions'},payload=>{applyReactDelete(String(payload.old.message_id),payload.old.emoji,payload.old.user_id);patchReactRow(String(payload.old.message_id));})
+        .subscribe();
+    }
+
+    function scheduleMarkSeen(uid){
+      if(!uid) return;
+      clearTimeout(state.pendingSeenDebounce);
+      state.pendingSeenDebounce=setTimeout(()=>markSeen(uid),180);
+    }
+
+    async function markSeen(uid){
+      if(!uid||document.hidden) return;
+      if(state.convo.type!=='private'||state.convo.recipientId!==uid||!isNearBottom()) return;
+      const unseen=getPrivMsgs(uid).filter(m=>m.sender_id===uid&&!m.seen_at&&!m.is_deleted&&!m._optimistic);
+      if(!unseen.length) return;
+      const sk=uid+'|'+unseen.map(m=>m.id).join(',');
+      if(sk===state.lastSeenKey) return; state.lastSeenKey=sk;
+      const seenAt=nowIso(); const ids=unseen.map(m=>m.id);
+      const{error}=await sb.from('private_messages').update({seen_at:seenAt}).in('id',ids);
+      if(error){console.error(error);state.lastSeenKey='';return;}
+      unseen.forEach(m=>{m.seen_at=seenAt;patchRow(m);});
+      const c=state.contacts.get(uid); if(c) c.unreadCount=0;
+      renderContacts();
+    }
+
+    async function toggleReaction(mid,emoji){
+      if(!state.user.name){showModal('');return;}
+      const b=ensureReactBucket(mid); const users=b.get(emoji)||new Set(); const hasMine=users.has(state.user.id);
+      if(hasMine){applyReactDelete(mid,emoji,state.user.id);patchReactRow(mid);await sb.from('message_reactions').delete().match({message_id:mid,user_id:state.user.id,emoji}).catch(console.error);}
+      else{applyReactInsert(mid,emoji,state.user.id);patchReactRow(mid);await sb.from('message_reactions').upsert({message_id:mid,user_id:state.user.id,emoji,user_name:state.user.name},{onConflict:'message_id,user_id,emoji'}).catch(console.error);}
+    }
+
+    async function softDeletePublic(mid){
+      const msg=state.pubMap.get(mid); if(!msg) return;
+      if(!window.confirm('Delete this message?')) return;
+      const prev=msg.body,prevD=!!msg.is_deleted;
+      msg.is_deleted=true;msg.body='';patchRow(msg);
+      const{error}=await sb.from('messages').update({is_deleted:true,body:'',edited_at:nowIso()}).eq('id',mid);
+      if(error){console.error(error);msg.body=prev;msg.is_deleted=prevD;patchRow(msg);setStatus('Could not delete.','error');}
+    }
+
+    async function softDeletePrivate(mid){
+      const msg=curMsgById(mid); if(!msg) return;
+      if(!window.confirm('Delete this message?')) return;
+      const prev=msg.body,prevD=!!msg.is_deleted;
+      msg.is_deleted=true;msg.body='';patchRow(msg);
+      const{error}=await sb.from('private_messages').update({is_deleted:true,body:'',edited_at:nowIso()}).eq('id',mid);
+      if(error){console.error(error);msg.body=prev;msg.is_deleted=prevD;patchRow(msg);setStatus('Could not delete.','error');return;}
+      const c=curContact(); if(c){c.lastPreview='Message deleted';renderContacts();}
+    }
+
+    async function retryFailed(mid){
+      const msg=curMsgById(mid); if(!msg||!msg._failed||msg._convoType!=='private') return;
+      const contact=curContact(); if(!contact) return;
+      const newCid='retry_'+Date.now()+'_'+Math.random().toString(36).slice(2,6);
+      msg._failed=false;msg._optimistic=true;msg.client_id=newCid;patchRow(msg);
+      const{error}=await sb.from('private_messages').insert({sender_id:state.user.id,sender_name:state.user.name,recipient_id:contact.userId,recipient_name:contact.name,body:msg.body,client_id:newCid,reply_to_id:msg.reply_to_id||null});
+      if(error){console.error(error);msg._failed=true;msg._optimistic=false;patchRow(msg);}
+    }
+
+    async function sendMessage(){
+      const body=el.input.value.trim(); if(!body) return;
+      if(Date.now()-state.lastSendAt<COOLDOWN_MS){setStatus('Slow down a little.','error');return;}
+      if(!state.user.name){showModal('');return;}
+      const draft=el.input.value; const replyToId=state.replyTo?.id||null;
+      setStatus('');setReply(null);el.input.value='';resizeTA();updateCounter();state.lastSendAt=Date.now();
+      if(state.convo.type==='public'){
+        const{error}=await sb.from('messages').insert({room:PUB_ROOM,body,name:state.user.name,user_id:state.user.id,reply_to_id:replyToId||null});
+        if(error){console.error(error);el.input.value=draft;resizeTA();updateCounter();setStatus('Failed to send.','error');}
+        el.input.focus();return;
+      }
+      const contact=curContact();
+      if(!contact){el.input.value=draft;resizeTA();updateCounter();setStatus('Missing recipient.','error');return;}
+      const tempId='t_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+      const opt={id:tempId,client_id:tempId,sender_id:state.user.id,sender_name:state.user.name,recipient_id:contact.userId,recipient_name:contact.name,body,created_at:nowIso(),seen_at:null,is_deleted:false,reply_to_id:replyToId||null,_optimistic:true,_failed:false};
+      const wasNear=isNearBottom(); const stored=storeMsg('private',contact.userId,opt);
+      maybeInsertRow(stored);renderContacts();if(wasNear) scrollBottom(true,true);
+      const{error}=await sb.from('private_messages').insert({sender_id:state.user.id,sender_name:state.user.name,recipient_id:contact.userId,recipient_name:contact.name,body,client_id:tempId,reply_to_id:replyToId||null});
+      if(error){console.error(error);stored._optimistic=false;stored._failed=true;patchRow(stored);setStatus('Failed to send.','error');}
+      el.input.focus();
+    }
+
+    function applyConvo(type,uid,name,pushHistory){
+      closePopover();setReply(null);state.lastSeenKey='';
+      if(type==='private'){
+        if(!uid||uid===state.user.id) return;
+        ensureContact(uid,name);
+        state.convo={type:'private',recipientId:uid};state.stickBottom=true;
+        const c=curContact(); if(c) c.unreadCount=0;
+        if(pushHistory) history.pushState({chat:'private',userId:uid,name:name||c?.name||''},'',location.href);
+        localStorage.setItem(STORAGE_KEYS.convo,JSON.stringify(state.convo));
+        updateHeader();renderContacts();rebuildConvo();scheduleMarkSeen(uid);
+      } else {
+        state.convo={type:'public',recipientId:null};state.stickBottom=true;
+        if(pushHistory) history.pushState({chat:'public'},'',location.href);
+        localStorage.removeItem(STORAGE_KEYS.convo);
+        updateHeader();renderContacts();rebuildConvo();
+      }
+      closeSidebar();
+    }
+
+    async function restoreConvo(){
+      const raw=localStorage.getItem(STORAGE_KEYS.convo); if(!raw){applyConvo('public',null,null,false);return;}
+      try{
+        const saved=JSON.parse(raw);
+        if(saved?.type==='private'&&saved.recipientId&&saved.recipientId!==state.user.id&&state.contacts.has(saved.recipientId)){
+          state.convo=saved;state.stickBottom=true;
+          updateHeader();renderContacts();rebuildConvo();scheduleMarkSeen(saved.recipientId);return;
         }
-
-        const stored = getMessageById(id, convoType, recipientId);
-        state.messageIndex.set(id, { convoKey:cKey, message:stored });
-        updateContactFromMessage(stored);
-        return stored;
-      }
-
-      function deleteMessageFromStore(convoType, recipientId, id){
-        state.rowEls.delete(id);
-        state.messageIndex.delete(id);
-        state.reactions.delete(id);
-
-        if (convoType === 'public') {
-          state.pubMap.delete(id);
-          state.pubOrder = state.pubOrder.filter(x => x !== id);
-          return;
-        }
-
-        const map = getPrivMap(recipientId);
-        const order = getPrivOrder(recipientId);
-        map.delete(id);
-        state.privOrders.set(recipientId, order.filter(x => x !== id));
-      }
-
-      function getMessageById(id, convoType, recipientId){
-        if (convoType === 'public') return state.pubMap.get(id) || null;
-        return getPrivMap(recipientId).get(id) || null;
-      }
-
-      function findMessageAnywhere(id){
-        return state.messageIndex.get(id)?.message || null;
-      }
-
-      function getCurrentMessageById(id){
-        if (state.convo.type === 'public') return state.pubMap.get(id) || null;
-        return getPrivMap(state.convo.recipientId).get(id) || null;
-      }
-
-      function replaceMessageId(convoType, recipientId, oldId, newMsg){
-        const map = convoType === 'public' ? state.pubMap : getPrivMap(recipientId);
-        const order = convoType === 'public' ? state.pubOrder : getPrivOrder(recipientId);
-
-        const oldMsg = map.get(oldId);
-        if (!oldMsg) return newMsg;
-
-        const idx = order.indexOf(oldId);
-        if (idx === -1) return newMsg;
-
-        const row = state.rowEls.get(oldId);
-        map.delete(oldId);
-        state.messageIndex.delete(oldId);
-        state.rowEls.delete(oldId);
-
-        newMsg._convoType = convoType;
-        newMsg._recipientId = recipientId;
-
-        map.set(newMsg.id, newMsg);
-        order[idx] = newMsg.id;
-
-        state.messageIndex.set(newMsg.id, {
-          convoKey: convoKeyOf(convoType, recipientId),
-          message: newMsg
-        });
-
-        if (row) {
-          row.dataset.mid = newMsg.id;
-          state.rowEls.set(newMsg.id, row);
-        }
-
-        return newMsg;
-      }
-
-      function ensureReactionBucket(mid){
-        if (!state.reactions.has(mid)) state.reactions.set(mid, new Map());
-        return state.reactions.get(mid);
-      }
-
-      function applyReactionInsert(mid, emoji, userId){
-        const bucket = ensureReactionBucket(mid);
-        if (!bucket.has(emoji)) bucket.set(emoji, new Set());
-        bucket.get(emoji).add(userId);
-      }
-
-      function applyReactionDelete(mid, emoji, userId){
-        const bucket = state.reactions.get(mid);
-        if (!bucket || !bucket.has(emoji)) return;
-        bucket.get(emoji).delete(userId);
-        if (bucket.get(emoji).size === 0) bucket.delete(emoji);
-        if (bucket.size === 0) state.reactions.delete(mid);
-      }
-
-      function reactionHtml(mid){
-        const bucket = state.reactions.get(mid);
-        if (!bucket || bucket.size === 0) return '';
-
-        return [...bucket.entries()]
-          .filter(([, users]) => users.size > 0)
-          .map(([emoji, users]) => {
-            const mine = users.has(state.user.id);
-            return `
-              <button
-                class="reaction-chip${mine ? ' mine' : ''}"
-                type="button"
-                data-reaction-chip="1"
-                data-mid="${esc(mid)}"
-                data-emoji="${esc(emoji)}"
-                aria-label="Reaction ${esc(emoji)} count ${users.size}"
-              >
-                <span>${esc(emoji)}</span>
-                <span class="count">${users.size}</span>
-              </button>
-            `;
-          })
-          .join('');
-      }
-
-      function messageStatusInfo(msg){
-        if (msg._convoType !== 'private' || msg.sender_id !== state.user.id) return null;
-        if (msg._failed) return { label:'did not send', cls:'failed' };
-        if (msg.seen_at) return { label:'seen', cls:'seen' };
-        if (msg._optimistic) return null;
-        return { label:'delivered', cls:'delivered' };
-      }
-
-      function resolveReplyTarget(msg){
-        if (!msg.reply_to_id) return null;
-        return findMessageAnywhere(msg.reply_to_id);
-      }
-
-      function replyStubHtml(msg){
-        if (!msg.reply_to_id) return '';
-
-        const original = resolveReplyTarget(msg);
-        const senderName = original
-          ? normName(original.sender_name || original.name || 'Unknown')
-          : '…';
-
-        const text = original
-          ? (original.is_deleted ? 'Message deleted' : (original.body || ''))
-          : 'Original message not found';
-
-        return `
-          <div class="reply-stub" data-scroll-to="${esc(msg.reply_to_id)}" role="button" tabindex="0">
-            <div class="reply-stub-line"></div>
-            <div class="reply-stub-main">
-              <div class="reply-stub-name">${esc(senderName)}</div>
-              <div class="reply-stub-text">${esc(text.slice(0, 120))}</div>
-            </div>
-          </div>
-        `;
-      }
-
-      function statusHtml(msg){
-        const st = messageStatusInfo(msg);
-        if (!st) return '<div class="message-status hidden-status"></div>';
-
-        return `
-          <div class="message-status ${esc(st.cls)}">
-            <span>${esc(st.label)}</span>
-          </div>
-        `;
-      }
-
-      function buildMessageRow(msg){
-        const own = msg.sender_id === state.user.id;
-        const row = document.createElement('div');
-        row.className = 'message-row' + (own ? ' own' : '') + (msg._failed ? ' failed' : '');
-        row.dataset.mid = msg.id;
-        row.dataset.own = own ? '1' : '0';
-
-        const name = normName(msg.sender_name || msg.name || 'Unknown');
-
-        row.innerHTML = `
-          <div class="message-avatar">${esc(initial(name))}</div>
-          <div class="message-stack">
-            <div
-              class="message-bubble"
-              data-bubble-mid="${esc(msg.id)}"
-              data-uid="${esc(msg.sender_id || '')}"
-              data-name="${esc(name)}"
-              tabindex="0"
-            >
-              ${replyStubHtml(msg)}
-              <div class="message-header">
-                <span class="message-name">${esc(name)}</span>
-                <div class="message-time">${esc(msgTime(msg.created_at))}</div>
-              </div>
-              <div class="message-body-wrap">
-                ${
-                  msg.is_deleted
-                    ? '<div class="message-text deleted">This message was deleted.</div>'
-                    : `<div class="message-text">${esc(msg.body || '')}</div>`
-                }
-              </div>
-            </div>
-            ${statusHtml(msg)}
-            <div class="reactions" data-reactions="${esc(msg.id)}">${reactionHtml(msg.id)}</div>
-          </div>
-        `;
-
-        state.rowEls.set(msg.id, row);
-        return row;
-      }
-
-      function patchRow(msg){
-        const row = state.rowEls.get(msg.id);
-        if (!row) return;
-
-        const own = msg.sender_id === state.user.id;
-        row.classList.toggle('own', own);
-        row.classList.toggle('failed', !!msg._failed);
-        row.dataset.own = own ? '1' : '0';
-        row.dataset.mid = msg.id;
-
-        const bubble = row.querySelector('.message-bubble');
-        const name = normName(msg.sender_name || msg.name || 'Unknown');
-
-        bubble.dataset.bubbleMid = msg.id;
-        bubble.dataset.uid = msg.sender_id || '';
-        bubble.dataset.name = name;
-
-        const avatar = row.querySelector('.message-avatar');
-        if (avatar) avatar.textContent = initial(name);
-
-        const nameEl = row.querySelector('.message-name');
-        if (nameEl && nameEl.textContent !== name) nameEl.textContent = name;
-
-        const timeEl = row.querySelector('.message-time');
-        const newTime = msgTime(msg.created_at);
-        if (timeEl && timeEl.textContent !== newTime) timeEl.textContent = newTime;
-
-        const oldReply = bubble.querySelector('.reply-stub');
-        const newReply = replyStubHtml(msg);
-
-        if (newReply && !oldReply) {
-          bubble.insertAdjacentHTML('afterbegin', newReply);
-        } else if (!newReply && oldReply) {
-          oldReply.remove();
-        } else if (newReply && oldReply) {
-          const tmp = document.createElement('div');
-          tmp.innerHTML = newReply.trim();
-          oldReply.replaceWith(tmp.firstElementChild);
-        }
-
-        const bodyWrap = row.querySelector('.message-body-wrap');
-        if (bodyWrap) {
-          const html = msg.is_deleted
-            ? '<div class="message-text deleted">This message was deleted.</div>'
-            : `<div class="message-text">${esc(msg.body || '')}</div>`;
-          if (bodyWrap.innerHTML !== html) bodyWrap.innerHTML = html;
-        }
-
-        const statusEl = row.querySelector('.message-status');
-        if (statusEl) {
-          const html = statusHtml(msg).trim();
-          const tmp = document.createElement('div');
-          tmp.innerHTML = html;
-          statusEl.replaceWith(tmp.firstElementChild);
-        }
-
-        patchReactionRow(msg.id);
-      }
-
-      function patchReactionRow(mid){
-        const container = el.msgList.querySelector(`[data-reactions="${cssEscape(mid)}"]`);
-        if (!container) return;
-        container.innerHTML = reactionHtml(mid);
-      }
-
-      function renderEmptyState(){
-        el.msgList.innerHTML = state.convo.type === 'private'
-          ? `
-            <div class="system-row">
-              <div class="system-card">
-                <div class="empty-icon">💬</div>
-                <div class="empty-title">No messages yet</div>
-                <div class="empty-hint">Start the private conversation. Only the two of you can see this.</div>
-              </div>
-            </div>
-          `
-          : `
-            <div class="system-row">
-              <div class="system-card">
-                <div class="empty-icon">🌍</div>
-                <div class="empty-title">Public room is quiet</div>
-                <div class="empty-hint">Say something — or open a message menu to react, reply, or start a private conversation.</div>
-              </div>
-            </div>
-          `;
-      }
-
-      function rebuildCurrentConversation(){
-        closePopover();
-        state.rowEls.clear();
-        state.dividerEls.clear();
-        el.msgList.innerHTML = '';
-
-        const msgs = currentMessages();
-        if (!msgs.length) {
-          renderEmptyState();
-          renderTypingRow();
-          scrollBottom(true, false);
-          return;
-        }
-
-        const frag = document.createDocumentFragment();
-        let prev = null;
-        const cKey = currentConvoKey();
-
-        msgs.forEach(msg => {
-          if (!prev || !sameDay(prev.created_at, msg.created_at)) {
-            const dKey = cKey + '|' + dayKey(msg.created_at);
-            const divider = document.createElement('div');
-            divider.className = 'day-divider';
-            divider.textContent = dateFmt.format(new Date(msg.created_at));
-            state.dividerEls.set(dKey, divider);
-            frag.appendChild(divider);
-          }
-
-          frag.appendChild(buildMessageRow(msg));
-          prev = msg;
-        });
-
-        el.msgList.appendChild(frag);
-        renderTypingRow();
-        scrollBottom(true, false);
-      }
-
-      function renderTypingRow(){
-        const existing = $('typingRow');
-        const c = currentContact();
-        const desiredId = (state.convo.type === 'private' && c?.typing) ? c.userId : '';
-
-        if (!desiredId) {
-          if (existing) existing.remove();
-          state.lastRenderedTypingId = '';
-          return;
-        }
-
-        if (existing && state.lastRenderedTypingId === desiredId) return;
-
-        if (existing) existing.remove();
-
-        const row = document.createElement('div');
-        row.className = 'typing-row';
-        row.id = 'typingRow';
-        row.innerHTML = `
-          <div class="typing-bubble">
-            <span class="typing-label">${esc(c.name)}</span>
-            <span class="typing-dots" aria-hidden="true"><span></span><span></span><span></span></span>
-          </div>
-        `;
-
-        el.msgList.appendChild(row);
-        state.lastRenderedTypingId = desiredId;
-        scrollBottom(false, true);
-      }
-
-      function maybeInsertRowForCurrentMessage(msg){
-        if (msg._convoType !== state.convo.type) return false;
-        if (msg._convoType === 'private' && msg._recipientId !== state.convo.recipientId) return false;
-
-        const msgs = currentMessages();
-        const idx = msgs.findIndex(m => m.id === msg.id);
-        if (idx === -1) return false;
-
-        const empty = el.msgList.querySelector('.system-row');
-        if (empty) empty.remove();
-
-        const beforeMsg = idx > 0 ? msgs[idx - 1] : null;
-        const afterMsg = idx < msgs.length - 1 ? msgs[idx + 1] : null;
-        const cKey = currentConvoKey();
-        const dKey = cKey + '|' + dayKey(msg.created_at);
-
-        let divider = state.dividerEls.get(dKey);
-        if ((!beforeMsg || !sameDay(beforeMsg.created_at, msg.created_at)) && !divider) {
-          divider = document.createElement('div');
-          divider.className = 'day-divider';
-          divider.textContent = dateFmt.format(new Date(msg.created_at));
-          state.dividerEls.set(dKey, divider);
-        }
-
-        const row = buildMessageRow(msg);
-        const beforeRow = afterMsg ? state.rowEls.get(afterMsg.id) : null;
-
-        if (beforeRow) {
-          if (divider && !divider.isConnected) el.msgList.insertBefore(divider, beforeRow);
-          el.msgList.insertBefore(row, beforeRow);
-        } else {
-          const typingRow = $('typingRow');
-          if (divider && !divider.isConnected) {
-            if (typingRow) el.msgList.insertBefore(divider, typingRow);
-            else el.msgList.appendChild(divider);
-          }
-          if (typingRow) el.msgList.insertBefore(row, typingRow);
-          else el.msgList.appendChild(row);
-        }
-
-        return true;
-      }
-
-      function removeRow(mid){
-        const row = state.rowEls.get(mid);
-        if (!row) return;
-
-        closePopover();
-
-        const prev = row.previousElementSibling;
-        const next = row.nextElementSibling;
-
-        row.remove();
-        state.rowEls.delete(mid);
-
-        if (
-          prev &&
-          prev.classList.contains('day-divider') &&
-          (!next || next.classList.contains('day-divider') || next.id === 'typingRow')
-        ) {
-          prev.remove();
-        }
-
-        if (!el.msgList.querySelector('.message-row')) {
-          renderEmptyState();
-          renderTypingRow();
-        }
-      }
-
-      function renderContacts(){
-        const term = state.searchTerm.toLowerCase();
-
-        const list = [...state.contacts.values()]
-          .filter(c => c.userId !== state.user.id)
-          .filter(c => !term || c.name.toLowerCase().includes(term))
-          .sort((a,b) => {
-            const at = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
-            const bt = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
-            return bt - at;
-          });
-
-        const html = list.length ? list.map(c => {
-          const active = state.convo.type === 'private' && state.convo.recipientId === c.userId;
-          const badge = c.unreadCount > 0
-            ? `<span class="unread-badge">${c.unreadCount > 99 ? '99+' : c.unreadCount}</span>`
-            : '';
-
-          const lastMsg = getPrivMessages(c.userId).slice(-1)[0];
-          const mine = !!lastMsg && lastMsg.sender_id === state.user.id && !c.typing;
-          const preview = c.typing ? 'typing…' : (c.lastPreview || '');
-          const full = mine ? 'You: ' + preview : preview;
-
-          return `
-            <button
-              class="user-item${active ? ' active' : ''}"
-              type="button"
-              data-user-item="1"
-              data-uid="${esc(c.userId)}"
-              data-name="${esc(c.name)}"
-            >
-              <div class="user-avatar-wrap">
-                <div class="user-avatar">${esc(initial(c.name))}</div>
-                <span class="presence-dot${c.online ? ' online' : ''}"></span>
-              </div>
-
-              <div class="sidebar-user-main">
-                <div class="sidebar-user-top">
-                  <span class="sidebar-user-name">${esc(c.name)}</span>
-                  <span class="sidebar-user-time">${esc(c.online ? 'online' : sideTime(c.lastMessageAt || c.lastSeenAt))}</span>
-                </div>
-                <span class="sidebar-user-sub${c.unreadCount > 0 ? ' has-unread' : ''}${c.typing ? ' is-typing' : ''}">
-                  ${esc(full.slice(0, 52))}
-                </span>
-              </div>
-              ${badge}
-            </button>
-          `;
-        }).join('') : `
-          <div class="system-card" style="border-radius:14px;font-size:0.8rem">
-            No private conversations yet.<br />Open a message menu to start one.
-          </div>
-        `;
-
-        el.userList.innerHTML = html;
-        el.mobList.innerHTML = html;
-
-        const hasUnread = [...state.contacts.values()].some(c => c.unreadCount > 0);
-        el.inboxBtn.classList.toggle('has-unread', hasUnread);
-
-        const onlineCount = [...state.contacts.values()].filter(c => c.online).length;
-        const label = onlineCount ? `${onlineCount} online` : '';
-        el.deskPres.textContent = label;
-        el.mobPres.textContent = label;
-      }
-
-      function updateHeader(){
-        const priv = state.convo.type === 'private';
-        const c = currentContact();
-
-        const key = priv
-          ? 'p|' + (c?.name || '') + '|' + (c?.typing ? '1' : '0') + '|' + (c?.online ? '1' : '0') + '|' + (c?.lastSeenAt || '')
-          : 'public';
-
-        if (key === state.lastHeaderKey) return;
-        state.lastHeaderKey = key;
-
-        el.backBtn.classList.toggle('hidden', !priv);
-        el.chatMain.classList.toggle('is-private', priv);
-        el.header.classList.toggle('mode-public', !priv);
-        el.header.classList.toggle('mode-private', priv);
-
-        if (!priv) {
-          el.modeBadge.textContent = 'Public';
-          el.title.textContent = 'Public room';
-          el.sub.textContent = 'Everyone can read this room';
-          el.sub.classList.remove('typing');
-          return;
-        }
-
-        el.modeBadge.textContent = 'Private';
-        el.title.textContent = c?.name || 'Private conversation';
-
-        if (c?.typing) {
-          el.sub.textContent = c.name + ' is typing…';
-          el.sub.classList.add('typing');
-          return;
-        }
-
-        el.sub.classList.remove('typing');
-        el.sub.textContent = c?.online
-          ? 'online now'
-          : c?.lastSeenAt
-            ? 'last seen ' + relTime(c.lastSeenAt)
-            : 'private conversation';
-      }
-
-      function closePopover(){
-        if (!state.activePopover) return;
-
-        const current = state.activePopover;
-        const row = state.rowEls.get(current.mid);
-        if (row) {
-          const bubble = row.querySelector('.message-bubble');
-          if (bubble) bubble.classList.remove('menu-open');
-        }
-
-        current.el.remove();
-        state.activePopover = null;
-      }
-
-      function buildPopoverActions(msg){
-        const own = msg.sender_id === state.user.id;
-        const isPrivate = msg._convoType === 'private';
-        const items = [{ action:'reply', icon:'↩', label:'Reply' }];
-
-        if (!own && !isPrivate) {
-          items.push({ action:'dm', icon:'💬', label:'Message privately' });
-        }
-
-        if (own && !msg.is_deleted && !msg._optimistic) {
-          items.push({ action:'delete', icon:'🗑', label:'Delete', danger:true });
-        }
-
-        if (msg._failed) {
-          items.push({ action:'retry', icon:'⟳', label:'Retry send' });
-        }
-
-        return items;
-      }
-
-      function openPopoverForMessage(msg, anchorEl){
-        closePopover();
-
-        const row = state.rowEls.get(msg.id);
-        if (row) {
-          const bubble = row.querySelector('.message-bubble');
-          if (bubble) bubble.classList.add('menu-open');
-        }
-
-        const pop = document.createElement('div');
-        pop.className = 'message-popover';
-        pop.dataset.mid = msg.id;
-        pop.innerHTML = `
-          <div class="popover-reactions">
-            ${REACTIONS.map(emoji => `
-              <button class="popover-emoji" type="button" data-popover-react="${esc(emoji)}" aria-label="React with ${esc(emoji)}">${esc(emoji)}</button>
-            `).join('')}
-          </div>
-          <div class="popover-actions">
-            ${buildPopoverActions(msg).map(item => `
-              <button
-                class="popover-btn${item.danger ? ' danger' : ''}"
-                type="button"
-                data-popover-action="${esc(item.action)}"
-                data-mid="${esc(msg.id)}"
-              >
-                <span class="popover-btn-main">
-                  <span class="popover-btn-icon">${esc(item.icon)}</span>
-                  <span class="popover-btn-label">${esc(item.label)}</span>
-                </span>
-              </button>
-            `).join('')}
-          </div>
-        `;
-
-        document.body.appendChild(pop);
-
-        const rect = anchorEl.getBoundingClientRect();
-        const popRect = pop.getBoundingClientRect();
-
-        let left = rect.left;
-        let top = rect.bottom + 8;
-
-        if (left + popRect.width > window.innerWidth - 10) {
-          left = window.innerWidth - popRect.width - 10;
-        }
-        if (left < 10) left = 10;
-
-        if (top + popRect.height > window.innerHeight - 10) {
-          top = rect.top - popRect.height - 8;
-        }
-        if (top < 10) top = 10;
-
-        pop.style.left = left + 'px';
-        pop.style.top = top + 'px';
-
-        state.activePopover = { mid:msg.id, el:pop };
-      }
-
-      async function loadReactionsForIds(msgIds){
-        if (!msgIds.length) return;
-
-        const { data, error } = await sb
-          .from('message_reactions')
-          .select('*')
-          .in('message_id', msgIds);
-
-        if (error) {
-          console.error(error);
-          return;
-        }
-
-        msgIds.forEach(id => state.reactions.delete(id));
-        (data || []).forEach(row => {
-          applyReactionInsert(String(row.message_id), row.emoji, row.user_id);
-        });
-      }
-
-      function normalizePublicRow(r){
-        return {
-          ...r,
-          id: String(r.id),
-          sender_id: r.user_id || r.sender_id || '',
-          sender_name: normName(r.name || r.sender_name || 'Unknown'),
-          _optimistic: false,
-          _failed: false
-        };
-      }
-
-      function normalizePrivateRow(r){
-        return {
-          ...r,
-          id: String(r.id),
-          sender_name: normName(r.sender_name || 'Unknown'),
-          recipient_name: normName(r.recipient_name || 'Unknown'),
-          _optimistic: false,
-          _failed: false
-        };
-      }
-
-      async function loadPublic(){
-        const { data, error } = await sb
-          .from('messages')
-          .select('*')
-          .eq('room', PUB_ROOM)
-          .order('created_at', { ascending:true })
-          .limit(200);
-
-        if (error) {
-          console.error(error);
-          return;
-        }
-
-        state.pubMap.clear();
-        state.pubOrder = [];
-
-        (data || []).forEach(row => {
-          storeMessage('public', null, normalizePublicRow(row));
-        });
-
-        await loadReactionsForIds(state.pubOrder);
-      }
-
-      async function loadPrivate(){
-        const { data, error } = await sb
-          .from('private_messages')
-          .select('*')
-          .or(`sender_id.eq.${state.user.id},recipient_id.eq.${state.user.id}`)
-          .order('created_at', { ascending:true })
-          .limit(500);
-
-        if (error) {
-          console.error(error);
-          return;
-        }
-
-        state.privMaps.clear();
-        state.privOrders.clear();
-        state.contacts.clear();
-
-        (data || []).forEach(row => {
-          const msg = normalizePrivateRow(row);
-          const otherId = msg.sender_id === state.user.id ? msg.recipient_id : msg.sender_id;
-          storeMessage('private', otherId, msg);
-        });
-
-        const ids = (data || []).map(x => String(x.id));
-        await loadReactionsForIds(ids);
-      }
-
-      function subscribePublic(){
-        if (state.subs.pub) sb.removeChannel(state.subs.pub);
-
-        state.subs.pub = sb.channel('pub:' + PUB_ROOM)
-          .on('postgres_changes', {
-            event:'INSERT',
-            schema:'public',
-            table:'messages',
-            filter:'room=eq.' + PUB_ROOM
-          }, payload => {
-            const row = normalizePublicRow(payload.new);
-            if (state.pubMap.has(row.id)) return;
-
-            const wasNear = isNearBottom();
-            const msg = storeMessage('public', null, row);
-            maybeInsertRowForCurrentMessage(msg);
-
-            if (state.convo.type === 'public' && (wasNear || msg.sender_id === state.user.id)) {
-              scrollBottom(true, true);
-            }
-          })
-          .on('postgres_changes', {
-            event:'UPDATE',
-            schema:'public',
-            table:'messages'
-          }, payload => {
-            const row = normalizePublicRow(payload.new);
-            if (!state.pubMap.has(row.id)) {
-              const msg = storeMessage('public', null, row);
-              maybeInsertRowForCurrentMessage(msg);
-              return;
-            }
-            const existing = state.pubMap.get(row.id);
-            Object.assign(existing, row);
-            patchRow(existing);
-          })
-          .on('postgres_changes', {
-            event:'DELETE',
-            schema:'public',
-            table:'messages'
-          }, payload => {
-            const id = String(payload.old?.id || '');
-            if (!id || !state.pubMap.has(id)) return;
-            deleteMessageFromStore('public', null, id);
-            if (state.convo.type === 'public') removeRow(id);
-          })
-          .subscribe();
-      }
-
-      function mergeIncomingPrivate(row){
-        const msg = normalizePrivateRow(row);
-        const otherId = msg.sender_id === state.user.id ? msg.recipient_id : msg.sender_id;
-        const map = getPrivMap(otherId);
-        const order = getPrivOrder(otherId);
-
-        let finalMsg = null;
-
-        if (msg.client_id) {
-          const optimisticId = [...order].find(mid => {
-            const x = map.get(mid);
-            return x && x.client_id === msg.client_id;
-          });
-
-          if (optimisticId && map.has(optimisticId)) {
-            finalMsg = replaceMessageId('private', otherId, optimisticId, msg);
-          }
-        }
-
-        if (!finalMsg) {
-          finalMsg = storeMessage('private', otherId, msg);
-        } else {
-          updateContactFromMessage(finalMsg);
-        }
-
-        return { otherId, msg:finalMsg };
-      }
-
-      function subscribePrivate(){
-        if (state.subs.privIns) sb.removeChannel(state.subs.privIns);
-        if (state.subs.privUpd) sb.removeChannel(state.subs.privUpd);
-
-        state.subs.privIns = sb.channel('privIns:' + state.user.id)
-          .on('postgres_changes', {
-            event:'INSERT',
-            schema:'public',
-            table:'private_messages'
-          }, payload => {
-            const row = payload.new;
-            if (row.sender_id !== state.user.id && row.recipient_id !== state.user.id) return;
-
-            const wasNear = isNearBottom();
-            const { otherId, msg } = mergeIncomingPrivate(row);
-
-            const contact = ensureContact(
-              otherId,
-              msg.sender_id === state.user.id ? msg.recipient_name : msg.sender_name
-            );
-
-            if (msg.sender_id !== state.user.id && !(state.convo.type === 'private' && state.convo.recipientId === otherId)) {
-              contact.unreadCount = (contact.unreadCount || 0) + 1;
-            }
-
-            if (state.convo.type === 'private' && state.convo.recipientId === otherId) {
-              const existingRow = state.rowEls.get(msg.id);
-              if (existingRow) {
-                patchRow(msg);
-              } else {
-                maybeInsertRowForCurrentMessage(msg);
-              }
-              renderTypingRow();
-              if (wasNear || msg.sender_id === state.user.id) scrollBottom(true, true);
-              scheduleMarkSeen(otherId);
-            }
-
-            renderContacts();
-            updateHeader();
-          })
-          .subscribe();
-
-        state.subs.privUpd = sb.channel('privUpd:' + state.user.id)
-          .on('postgres_changes', {
-            event:'UPDATE',
-            schema:'public',
-            table:'private_messages'
-          }, payload => {
-            const row = payload.new;
-            if (row.sender_id !== state.user.id && row.recipient_id !== state.user.id) return;
-
-            const msg = normalizePrivateRow(row);
-            const otherId = msg.sender_id === state.user.id ? msg.recipient_id : msg.sender_id;
-            const existing = getPrivMap(otherId).get(msg.id);
-
-            if (!existing) {
-              storeMessage('private', otherId, msg);
-              if (state.convo.type === 'private' && state.convo.recipientId === otherId) {
-                maybeInsertRowForCurrentMessage(msg);
-              }
-            } else {
-              Object.assign(existing, msg);
-              patchRow(existing);
-            }
-
-            updateContactFromMessage(getPrivMap(otherId).get(msg.id));
-            renderContacts();
-            updateHeader();
-          })
-          .subscribe();
-      }
-
-      function subscribePresence(){
-        if (state.subs.pres) sb.removeChannel(state.subs.pres);
-
-        state.subs.pres = sb.channel('chat_presence_feed')
-          .on('postgres_changes', {
-            event:'INSERT',
-            schema:'public',
-            table:'chat_presence'
-          }, p => {
-            state.presMap.set(p.new.user_id, p.new);
-            refreshPresence();
-          })
-          .on('postgres_changes', {
-            event:'UPDATE',
-            schema:'public',
-            table:'chat_presence'
-          }, p => {
-            state.presMap.set(p.new.user_id, p.new);
-            refreshPresence();
-          })
-          .subscribe();
-      }
-
-      function subscribeTyping(){
-        if (state.subs.typing) sb.removeChannel(state.subs.typing);
-
-        state.subs.typing = sb.channel('typing_bus')
-          .on('broadcast', { event:'typing' }, payload => handleTypingEvent(payload.payload))
-          .subscribe();
-      }
-
-      function subscribeReactions(){
-        if (state.subs.react) sb.removeChannel(state.subs.react);
-
-        state.subs.react = sb.channel('chat_reactions_feed')
-          .on('postgres_changes', {
-            event:'INSERT',
-            schema:'public',
-            table:'message_reactions'
-          }, payload => {
-            const row = payload.new;
-            applyReactionInsert(String(row.message_id), row.emoji, row.user_id);
-            patchReactionRow(String(row.message_id));
-          })
-          .on('postgres_changes', {
-            event:'DELETE',
-            schema:'public',
-            table:'message_reactions'
-          }, payload => {
-            const row = payload.old;
-            applyReactionDelete(String(row.message_id), row.emoji, row.user_id);
-            patchReactionRow(String(row.message_id));
-          })
-          .subscribe();
-      }
-
-      function scheduleMarkSeen(uid){
-        if (!uid) return;
-        clearTimeout(state.pendingSeenDebounce);
-        state.pendingSeenDebounce = setTimeout(() => {
-          markSeen(uid);
-        }, 180);
-      }
-
-      async function markSeen(uid){
-        if (!uid) return;
-        if (document.hidden) return;
-        if (state.convo.type !== 'private' || state.convo.recipientId !== uid) return;
-        if (!isNearBottom()) return;
-
-        const unseen = getPrivMessages(uid).filter(m =>
-          m.sender_id === uid &&
-          !m.seen_at &&
-          !m.is_deleted &&
-          !m._optimistic
-        );
-
-        if (!unseen.length) return;
-
-        const seenKey = uid + '|' + unseen.map(m => m.id).join(',');
-        if (seenKey === state.lastSeenKey) return;
-        state.lastSeenKey = seenKey;
-
-        const seenAt = nowIso();
-        const ids = unseen.map(m => m.id);
-
-        const { error } = await sb
-          .from('private_messages')
-          .update({ seen_at: seenAt })
-          .in('id', ids);
-
-        if (error) {
-          console.error(error);
-          state.lastSeenKey = '';
-          return;
-        }
-
-        unseen.forEach(m => {
-          m.seen_at = seenAt;
-          patchRow(m);
-        });
-
-        const c = state.contacts.get(uid);
-        if (c) c.unreadCount = 0;
-        renderContacts();
-      }
-
-      async function toggleReaction(mid, emoji){
-        if (!state.user.name) {
-          showModal();
-          return;
-        }
-
-        const bucket = ensureReactionBucket(mid);
-        const users = bucket.get(emoji) || new Set();
-        const hasMine = users.has(state.user.id);
-
-        if (hasMine) {
-          applyReactionDelete(mid, emoji, state.user.id);
-          patchReactionRow(mid);
-          await sb.from('message_reactions')
-            .delete()
-            .match({ message_id: mid, user_id: state.user.id, emoji })
-            .catch(console.error);
-        } else {
-          applyReactionInsert(mid, emoji, state.user.id);
-          patchReactionRow(mid);
-          await sb.from('message_reactions')
-            .upsert({
-              message_id: mid,
-              user_id: state.user.id,
-              emoji,
-              user_name: state.user.name
-            }, { onConflict:'message_id,user_id,emoji' })
-            .catch(console.error);
-        }
-      }
-
-      async function softDeletePublic(mid){
-        const msg = state.pubMap.get(mid);
-        if (!msg) return;
-        if (!window.confirm('Delete this message?')) return;
-
-        const prevBody = msg.body;
-        const prevDeleted = !!msg.is_deleted;
-
-        msg.is_deleted = true;
-        msg.body = '';
-        patchRow(msg);
-
-        const { error } = await sb
-          .from('messages')
-          .update({ is_deleted:true, body:'', edited_at:nowIso() })
-          .eq('id', mid);
-
-        if (!error) return;
-
-        console.error(error);
-        msg.body = prevBody;
-        msg.is_deleted = prevDeleted;
-        patchRow(msg);
-        setStatus('Could not delete.', 'error');
-      }
-
-      async function softDeletePrivate(mid){
-        const msg = getCurrentMessageById(mid);
-        if (!msg) return;
-        if (!window.confirm('Delete this message?')) return;
-
-        const prevBody = msg.body;
-        const prevDeleted = !!msg.is_deleted;
-
-        msg.is_deleted = true;
-        msg.body = '';
-        patchRow(msg);
-
-        const { error } = await sb
-          .from('private_messages')
-          .update({ is_deleted:true, body:'', edited_at:nowIso() })
-          .eq('id', mid);
-
-        if (error) {
-          console.error(error);
-          msg.body = prevBody;
-          msg.is_deleted = prevDeleted;
-          patchRow(msg);
-          setStatus('Could not delete.', 'error');
-          return;
-        }
-
-        const c = currentContact();
-        if (c) {
-          c.lastPreview = 'Message deleted';
-          renderContacts();
-        }
-      }
-
-      async function retryFailedMessage(mid){
-        const msg = getCurrentMessageById(mid);
-        if (!msg || !msg._failed || msg._convoType !== 'private') return;
-
-        const contact = currentContact();
-        if (!contact) return;
-
-        const newClientId = 'retry_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
-
-        msg._failed = false;
-        msg._optimistic = true;
-        msg.client_id = newClientId;
-        patchRow(msg);
-
-        const { error } = await sb.from('private_messages').insert({
-          sender_id: state.user.id,
-          sender_name: state.user.name,
-          recipient_id: contact.userId,
-          recipient_name: contact.name,
-          body: msg.body,
-          client_id: newClientId,
-          reply_to_id: msg.reply_to_id || null
-        });
-
-        if (error) {
-          console.error(error);
-          msg._failed = true;
-          msg._optimistic = false;
-          patchRow(msg);
-        }
-      }
-
-      function createOptimisticPrivateMessage(body, recipientId, recipientName, replyToId){
-        const tempId = 't_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
-        return {
-          id: tempId,
-          client_id: tempId,
-          sender_id: state.user.id,
-          sender_name: state.user.name,
-          recipient_id: recipientId,
-          recipient_name: recipientName,
-          body,
-          created_at: nowIso(),
-          seen_at: null,
-          is_deleted: false,
-          reply_to_id: replyToId || null,
-          _optimistic: true,
-          _failed: false
-        };
-      }
-
-      async function sendMessage(){
-        const body = el.input.value.trim();
-        if (!body) return;
-
-        if (Date.now() - state.lastSendAt < COOLDOWN_MS) {
-          setStatus('Slow down a little.', 'error');
-          return;
-        }
-
-        if (!state.user.name) {
-          showModal();
-          return;
-        }
-
-        const draft = el.input.value;
-        const replyToId = state.replyTo?.id || null;
-
-        setStatus('');
-        setReply(null);
-
-        el.input.value = '';
-        resizeTA();
-        updateCounter();
-        state.lastSendAt = Date.now();
-
-        if (state.convo.type === 'public') {
-          const { error } = await sb.from('messages').insert({
-            room: PUB_ROOM,
-            body,
-            name: state.user.name,
-            user_id: state.user.id,
-            reply_to_id: replyToId || null
-          });
-
-          if (error) {
-            console.error(error);
-            el.input.value = draft;
-            resizeTA();
-            updateCounter();
-            setStatus('Failed to send.', 'error');
-          }
-
-          el.input.focus();
-          return;
-        }
-
-        const contact = currentContact();
-        if (!contact) {
-          el.input.value = draft;
-          resizeTA();
-          updateCounter();
-          setStatus('Missing recipient.', 'error');
-          return;
-        }
-
-        const optimistic = createOptimisticPrivateMessage(body, contact.userId, contact.name, replyToId);
-        const wasNear = isNearBottom();
-        const stored = storeMessage('private', contact.userId, optimistic);
-
-        maybeInsertRowForCurrentMessage(stored);
-        renderContacts();
-
-        if (wasNear) scrollBottom(true, true);
-
-        const { error } = await sb.from('private_messages').insert({
-          sender_id: state.user.id,
-          sender_name: state.user.name,
-          recipient_id: contact.userId,
-          recipient_name: contact.name,
-          body,
-          client_id: optimistic.client_id,
-          reply_to_id: replyToId || null
-        });
-
-        if (error) {
-          console.error(error);
-          stored._optimistic = false;
-          stored._failed = true;
-          patchRow(stored);
-          setStatus('Failed to send.', 'error');
-        }
-
-        el.input.focus();
-      }
-
-      function applyConvo(type, userId, name, pushHistory){
-        closePopover();
-        setReply(null);
-        state.lastSeenKey = '';
-
-        if (type === 'private') {
-          if (!userId || userId === state.user.id) return;
-
-          ensureContact(userId, name);
-          state.convo = { type:'private', recipientId:userId };
-          state.stickBottom = true;
-
-          const c = currentContact();
-          if (c) c.unreadCount = 0;
-
-          if (pushHistory) {
-            history.pushState({ chat:'private', userId, name:name || c?.name || '' }, '', location.href);
-          }
-
-          localStorage.setItem(STORAGE_KEYS.convo, JSON.stringify(state.convo));
-          updateHeader();
-          renderContacts();
-          rebuildCurrentConversation();
-          scheduleMarkSeen(userId);
-        } else {
-          state.convo = { type:'public', recipientId:null };
-          state.stickBottom = true;
-
-          if (pushHistory) {
-            history.pushState({ chat:'public' }, '', location.href);
-          }
-
-          localStorage.removeItem(STORAGE_KEYS.convo);
-          updateHeader();
-          renderContacts();
-          rebuildCurrentConversation();
-        }
-
-        closeSidebar();
-      }
-
-      async function restoreConversation(){
-        const raw = localStorage.getItem(STORAGE_KEYS.convo);
-        if (!raw) {
-          applyConvo('public', null, null, false);
-          return;
-        }
-
-        try {
-          const saved = JSON.parse(raw);
-          if (
-            saved?.type === 'private' &&
-            saved.recipientId &&
-            saved.recipientId !== state.user.id &&
-            state.contacts.has(saved.recipientId)
-          ) {
-            state.convo = saved;
-            state.stickBottom = true;
-            updateHeader();
-            renderContacts();
-            rebuildCurrentConversation();
-            scheduleMarkSeen(saved.recipientId);
-            return;
-          }
-        } catch {}
-
-        applyConvo('public', null, null, false);
-      }
-
-      function resizeTA(){
-        el.input.style.height = 'auto';
-        el.input.style.overflowY = 'hidden';
-        const next = Math.min(el.input.scrollHeight, MAX_TA_HEIGHT);
-        el.input.style.height = next + 'px';
-        el.input.style.overflowY = el.input.scrollHeight > MAX_TA_HEIGHT ? 'auto' : 'hidden';
-      }
-
-      function updateCounter(){
-        el.counter.textContent = el.input.value.length + ' / 500';
-      }
-
-      function updateEnterHint(){
-        el.enterHint.textContent = shouldMobileEnterNewline()
-          ? 'Enter for new line'
-          : 'Enter to send · Shift+Enter for new line';
-      }
-
-      function getBubbleFromEventTarget(target){
-        return target.closest('[data-bubble-mid]');
-      }
-
-      function onMessageListClick(e){
-        const reactionChip = e.target.closest('[data-reaction-chip]');
-        if (reactionChip) {
-          e.preventDefault();
-          toggleReaction(reactionChip.dataset.mid, reactionChip.dataset.emoji);
-          return;
-        }
-
-        const replyStub = e.target.closest('[data-scroll-to]');
-        if (replyStub) {
-          e.preventDefault();
-          scrollToMessage(replyStub.dataset.scrollTo);
-          return;
-        }
-
-        const bubble = getBubbleFromEventTarget(e.target);
-        if (!bubble) return;
-
-        const selection = window.getSelection ? window.getSelection() : null;
-        if (selection && selection.toString().trim()) return;
-
-        const mid = bubble.dataset.bubbleMid;
-        const msg = getCurrentMessageById(mid);
-        if (!msg) return;
-
-        if (state.activePopover?.mid === mid) {
-          closePopover();
-          return;
-        }
-
-        openPopoverForMessage(msg, bubble);
-      }
-
-      function onDocumentClick(e){
-        if (
-          state.activePopover &&
-          !e.target.closest('.message-popover') &&
-          !e.target.closest('[data-bubble-mid]')
-        ) {
-          closePopover();
-        }
-
-        if (
-          isMobile() &&
-          state.sideOpen &&
-          !el.mobSide.contains(e.target) &&
-          !el.inboxBtn.contains(e.target)
-        ) {
-          closeSidebar();
-        }
-      }
-
-      async function onDocumentPopoverClick(e){
-        const reactBtn = e.target.closest('[data-popover-react]');
-        if (reactBtn && state.activePopover) {
-          const mid = state.activePopover.mid;
-          const emoji = reactBtn.dataset.popoverReact;
-          closePopover();
-          await toggleReaction(mid, emoji);
-          return;
-        }
-
-        const actionBtn = e.target.closest('[data-popover-action]');
-        if (!actionBtn || !state.activePopover) return;
-
-        const action = actionBtn.dataset.popoverAction;
-        const mid = actionBtn.dataset.mid;
-        const msg = getCurrentMessageById(mid);
-        closePopover();
-
-        if (!msg) return;
-
-        if (action === 'reply') {
-          setReply(msg);
-          return;
-        }
-
-        if (action === 'dm') {
-          const targetId = msg.sender_id;
-          const targetName = normName(msg.sender_name || 'Unknown');
-          if (targetId && targetId !== state.user.id) {
-            applyConvo('private', targetId, targetName, true);
-          }
-          return;
-        }
-
-        if (action === 'delete') {
-          if (msg._convoType === 'public') await softDeletePublic(mid);
-          else await softDeletePrivate(mid);
-          return;
-        }
-
-        if (action === 'retry') {
-          await retryFailedMessage(mid);
-        }
-      }
-
-      function trapModalTab(e){
-        if (!state.modalOpen || e.key !== 'Tab') return;
-        const focusables = el.modal.querySelectorAll('button, input, textarea, [tabindex]:not([tabindex="-1"])');
-        const items = [...focusables].filter(node => !node.disabled && node.offsetParent !== null);
-        if (!items.length) return;
-
-        const first = items[0];
-        const last = items[items.length - 1];
-
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
-
-      function bindEvents(){
-        if (state.inited) return;
-        state.inited = true;
-
-        el.joinBtn.addEventListener('click', async () => {
-          const result = validateName(el.gname.value);
-          if (!result.ok) {
-            el.nameErr.textContent = result.msg;
-            return;
-          }
-
-          state.user.name = result.name;
-          localStorage.setItem(STORAGE_KEYS.uname, result.name);
-          hideModal();
-          setStatus('');
-          await pingPresence();
-          setupActivity();
-        });
-
-        el.clearBtn.addEventListener('click', () => {
-          Object.values(STORAGE_KEYS).forEach(k => localStorage.removeItem(k));
-          location.reload();
-        });
-
-        el.gname.addEventListener('keydown', e => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            el.joinBtn.click();
-          }
-        });
-
-        el.inboxBtn.addEventListener('click', () => {
-          state.sideOpen ? closeSidebar() : openSidebar();
-        });
-
-        el.drawerBackdrop.addEventListener('click', closeSidebar);
-        el.backBtn.addEventListener('click', () => applyConvo('public', null, null, true));
-        el.sendBtn.addEventListener('click', sendMessage);
-        el.replyClose.addEventListener('click', () => setReply(null));
-
-        el.input.addEventListener('keydown', e => {
-          if (e.key === 'Enter') {
-            if (!shouldMobileEnterNewline() && !e.shiftKey) {
-              e.preventDefault();
-              sendMessage();
-              return;
-            }
-          }
-          if (state.convo.type === 'private') publishTyping();
-        });
-
-        el.input.addEventListener('input', () => {
-          resizeTA();
-          updateCounter();
-          if (el.status.classList.contains('error')) setStatus('');
-          if (state.convo.type === 'private' && el.input.value.trim()) publishTyping();
-        });
-
-        const syncSearch = source => {
-          state.searchTerm = source.value;
-          el.sideSearch.value = source.value;
-          el.mobSearch.value = source.value;
-          renderContacts();
-        };
-
-        el.sideSearch.addEventListener('input', () => syncSearch(el.sideSearch));
-        el.mobSearch.addEventListener('input', () => syncSearch(el.mobSearch));
-
-        el.msgList.addEventListener('scroll', () => {
-          state.stickBottom = isNearBottom();
-          if (state.stickBottom && state.convo.type === 'private' && state.convo.recipientId) {
-            scheduleMarkSeen(state.convo.recipientId);
-          }
-        }, { passive:true });
-
-        el.msgList.addEventListener('click', onMessageListClick);
-
-        document.addEventListener('click', onDocumentClick);
-        document.addEventListener('click', onDocumentPopoverClick);
-
-        document.addEventListener('click', e => {
-          const item = e.target.closest('[data-user-item]');
-          if (!item) return;
-          applyConvo('private', item.dataset.uid, item.dataset.name, true);
-        });
-
-        document.addEventListener('keydown', e => {
-          trapModalTab(e);
-
-          if (e.key === 'Escape') {
-            if (state.activePopover) {
-              closePopover();
-              return;
-            }
-            if (state.sideOpen) {
-              closeSidebar();
-              return;
-            }
-          }
-        });
-
-        document.addEventListener('visibilitychange', () => {
-          if (!document.hidden && state.user.name) {
-            pingPresence();
-            if (state.convo.type === 'private' && state.convo.recipientId) {
-              scheduleMarkSeen(state.convo.recipientId);
-            }
-          }
-        }, { passive:true });
-
-        window.addEventListener('focus', () => {
-          if (state.user.name) pingPresence();
-        }, { passive:true });
-
-        window.addEventListener('resize', () => {
-          if (!isMobile()) closeSidebar();
-          resizeTA();
-          updateEnterHint();
-          closePopover();
-        }, { passive:true });
-
-        window.addEventListener('beforeunload', () => {
-          Object.values(state.subs).forEach(ch => ch && sb.removeChannel(ch));
-          if (state.timers.presBeat) clearInterval(state.timers.presBeat);
-          if (state.timers.presDecay) clearInterval(state.timers.presDecay);
-          if (state.pendingSeenDebounce) clearTimeout(state.pendingSeenDebounce);
-        });
-      }
-
-      let activitySet = false;
-      function setupActivity(){
-        if (activitySet) return;
-        activitySet = true;
-
-        pingPresence();
-        state.timers.presBeat = setInterval(pingPresence, PRESENCE_BEAT);
-        state.timers.presDecay = setInterval(refreshPresence, 10000);
-
-        ['click','keydown','pointerdown'].forEach(evt => {
-          window.addEventListener(evt, () => {
-            if (!document.hidden && state.user.name) pingPresence();
-          }, { passive:true });
-        });
-      }
-
-      async function init(){
-        initHistory();
-        bindEvents();
-        updateHeader();
-        updateCounter();
-        updateEnterHint();
-        resizeTA();
-
-        if (!state.user.name) showModal();
-
-        await loadPublic();
-        await loadPrivate();
-        renderContacts();
-        await restoreConversation();
-
-        subscribePublic();
-        subscribePrivate();
-        subscribePresence();
-        subscribeTyping();
-        subscribeReactions();
-
-        if (state.user.name) setupActivity();
-      }
-
-      init().catch(err => {
-        console.error('Init failed:', err);
-        el.msgList.innerHTML = `
-          <div class="system-row">
-            <div class="system-card">Chat failed to initialize.</div>
-          </div>
-        `;
-        setStatus('Initialization failed.', 'error');
+      }catch{}
+      applyConvo('public',null,null,false);
+    }
+
+    function resizeTA(){
+      el.input.style.height='auto'; el.input.style.overflowY='hidden';
+      const h=Math.min(el.input.scrollHeight,MAX_TA_HEIGHT);
+      el.input.style.height=h+'px';
+      el.input.style.overflowY=el.input.scrollHeight>MAX_TA_HEIGHT?'auto':'hidden';
+    }
+    const updateCounter=()=>{el.counter.textContent=el.input.value.length+' / 500';};
+    const updateEnterHint=()=>{el.enterHint.textContent=mobileEnterNewline()?'Enter for new line':'Enter to send · Shift+Enter for new line';};
+
+    function onMsgListClick(e){
+      const chip=e.target.closest('[data-reaction-chip]');
+      if(chip){e.preventDefault();toggleReaction(chip.dataset.mid,chip.dataset.emoji);return;}
+      const stub=e.target.closest('[data-scroll-to]');
+      if(stub){e.preventDefault();scrollToMessage(stub.dataset.scrollTo);return;}
+      const bubble=e.target.closest('[data-bubble-mid]');
+      if(!bubble) return;
+      if(window.getSelection?.()?.toString().trim()) return;
+      const mid=bubble.dataset.bubbleMid; const msg=curMsgById(mid); if(!msg) return;
+      if(state.activePopover?.mid===mid){closePopover();return;}
+      openPopover(msg,bubble);
+    }
+
+    function bindEvents(){
+      if(state.inited) return; state.inited=true;
+
+      el.joinBtn.addEventListener('click',async()=>{
+        const r=validateName(el.gname.value); if(!r.ok){el.nameErr.textContent=r.msg;return;}
+        state.user.name=r.name;localStorage.setItem(STORAGE_KEYS.uname,r.name);
+        hideModal();setStatus('');await pingPresence();setupActivity();
       });
-    })();
+      el.clearBtn.addEventListener('click',()=>{Object.values(STORAGE_KEYS).forEach(k=>localStorage.removeItem(k));location.reload();});
+      el.gname.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();el.joinBtn.click();}});
+      el.inboxBtn.addEventListener('click',()=>state.sideOpen?closeSidebar():openSidebar());
+      el.backdrop.addEventListener('click',closeSidebar);
+      el.backBtn.addEventListener('click',()=>applyConvo('public',null,null,true));
+      el.sendBtn.addEventListener('click',sendMessage);
+      el.replyClose.addEventListener('click',()=>setReply(null));
+
+      el.input.addEventListener('keydown',e=>{
+        if(e.key==='Enter'&&!mobileEnterNewline()&&!e.shiftKey){e.preventDefault();sendMessage();return;}
+        if(state.convo.type==='private') publishTyping();
+      });
+      el.input.addEventListener('input',()=>{
+        resizeTA();updateCounter();
+        if(el.status.classList.contains('error')) setStatus('');
+        if(state.convo.type==='private'&&el.input.value.trim()) publishTyping();
+      });
+
+      const syncSearch=src=>{state.searchTerm=src.value;el.sideSearch.value=src.value;el.mobSearch.value=src.value;renderContacts();};
+      el.sideSearch.addEventListener('input',()=>syncSearch(el.sideSearch));
+      el.mobSearch.addEventListener('input',()=>syncSearch(el.mobSearch));
+
+      el.msgList.addEventListener('scroll',()=>{
+        state.stickBottom=isNearBottom();
+        if(state.stickBottom&&state.convo.type==='private'&&state.convo.recipientId) scheduleMarkSeen(state.convo.recipientId);
+      },{passive:true});
+
+      el.msgList.addEventListener('click',onMsgListClick);
+
+      document.addEventListener('click',e=>{
+        // Popover reaction
+        const reactBtn=e.target.closest('[data-popover-react]');
+        if(reactBtn&&state.activePopover){const mid=state.activePopover.mid,emoji=reactBtn.dataset.popoverReact;closePopover();toggleReaction(mid,emoji);return;}
+        // Popover action
+        const actionBtn=e.target.closest('[data-popover-action]');
+        if(actionBtn&&state.activePopover){
+          const action=actionBtn.dataset.popoverAction,mid=actionBtn.dataset.mid;
+          const msg=curMsgById(mid);closePopover();
+          if(!msg) return;
+          if(action==='reply'){setReply(msg);return;}
+          if(action==='dm'){const tid=msg.sender_id,tname=normName(msg.sender_name||'Unknown');if(tid&&tid!==state.user.id)applyConvo('private',tid,tname,true);return;}
+          if(action==='delete'){if(msg._convoType==='public')softDeletePublic(mid);else softDeletePrivate(mid);return;}
+          if(action==='retry'){retryFailed(mid);return;}
+        }
+        // User item
+        const item=e.target.closest('[data-user-item]');
+        if(item){applyConvo('private',item.dataset.uid,item.dataset.name,true);return;}
+        // Close popover on outside click
+        if(state.activePopover&&!e.target.closest('.message-popover')&&!e.target.closest('[data-bubble-mid]')) closePopover();
+        // Close sidebar on outside click (mobile)
+        if(isMobile()&&state.sideOpen&&!el.mobSide.contains(e.target)&&!el.inboxBtn.contains(e.target)) closeSidebar();
+      });
+
+      document.addEventListener('keydown',e=>{
+        // Modal tab trap
+        if(state.modalOpen&&e.key==='Tab'){
+          const items=[...el.modal.querySelectorAll('button,input,textarea,[tabindex]:not([tabindex="-1"])')].filter(n=>!n.disabled&&n.offsetParent!==null);
+          if(!items.length) return;
+          const first=items[0],last=items[items.length-1];
+          if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+          else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+        }
+        if(e.key==='Escape'){
+          if(state.activePopover){closePopover();return;}
+          if(state.sideOpen){closeSidebar();}
+        }
+      });
+
+      document.addEventListener('visibilitychange',()=>{
+        if(!document.hidden&&state.user.name){maybePingPresence(true);if(state.convo.type==='private'&&state.convo.recipientId) scheduleMarkSeen(state.convo.recipientId);}
+      },{passive:true});
+
+      window.addEventListener('focus',()=>{if(state.user.name) maybePingPresence(true);},{passive:true});
+
+      // Resize: only layout adjustments, NO viewport height tracking
+      window.addEventListener('resize',()=>{
+        if(!isMobile()) closeSidebar();
+        resizeTA();
+        updateEnterHint();
+        closePopover();
+      },{passive:true});
+
+      window.addEventListener('beforeunload',()=>{
+        Object.values(state.subs).forEach(ch=>ch&&sb.removeChannel(ch));
+        if(state.timers.presBeat) clearInterval(state.timers.presBeat);
+        if(state.timers.presDecay) clearInterval(state.timers.presDecay);
+        if(state.pendingSeenDebounce) clearTimeout(state.pendingSeenDebounce);
+      });
+    }
+
+    function setupActivity(){
+      if(state.activityOn) return; state.activityOn=true;
+      maybePingPresence(true);
+      state.timers.presBeat=setInterval(pingPresence,PRESENCE_BEAT);
+      state.timers.presDecay=setInterval(refreshPresence,10000);
+      ['click','keydown','pointerdown'].forEach(evt=>{window.addEventListener(evt,()=>{if(!document.hidden&&state.user.name) maybePingPresence();},{passive:true});});
+    }
+
+    async function init(){
+      initHistory();bindEvents();updateHeader();updateCounter();updateEnterHint();resizeTA();
+      if(!state.user.name) showModal('');
+      await loadPublic();await loadPrivate();
+      renderContacts();await restoreConvo();
+      subscribePub();subscribePriv();subscribePres();subscribeTyping();subscribeReactions();
+      if(state.user.name) setupActivity();
+    }
+
+    init().catch(err=>{
+      console.error('Init failed:',err);
+      el.msgList.innerHTML='<div class="system-row"><div class="system-card">Chat failed to initialize.</div></div>';
+      setStatus('Initialization failed.','error');
+    });
+  })();
   </script>
 </body>
 </html>
