@@ -366,7 +366,7 @@
       padding:1rem clamp(0.9rem,3vw,2rem) 0.9rem;
       display:flex;
       flex-direction:column;
-      gap:0.82rem;
+      gap:0.74rem;
       scroll-behavior:auto;
       overscroll-behavior:contain;
       -webkit-overflow-scrolling:touch;
@@ -377,20 +377,20 @@
     .day-divider{
       align-self:center;
       font-family:var(--mono);
-      font-size:0.6rem;
+      font-size:0.58rem;
       letter-spacing:0.08em;
       text-transform:uppercase;
       color:var(--soft);
       background:rgba(255,255,255,0.03);
       border:1px solid rgba(255,255,255,0.04);
       border-radius:999px;
-      padding:0.26rem 0.65rem;
-      margin:0.1rem 0 0.2rem;
+      padding:0.24rem 0.62rem;
+      margin:0.06rem 0 0.16rem;
     }
 
     .message-row{
       display:flex;
-      gap:0.72rem;
+      gap:0.66rem;
       align-items:flex-start;
       max-width:880px;
       width:100%;
@@ -408,9 +408,9 @@
     }
 
     .message-avatar{
-      width:36px;
-      height:36px;
-      font-size:0.95rem;
+      width:34px;
+      height:34px;
+      font-size:0.92rem;
       flex-shrink:0;
       user-select:none;
     }
@@ -420,7 +420,7 @@
       max-width:min(100%,720px);
       display:flex;
       flex-direction:column;
-      gap:0.18rem;
+      gap:0.12rem;
       position:relative;
     }
 
@@ -428,9 +428,9 @@
       position:relative;
       background:rgba(255,255,255,0.035);
       border:1px solid rgba(255,255,255,0.045);
-      border-left:2px solid rgba(78,205,196,0.55);
+      border-left:2px solid rgba(78,205,196,0.52);
       border-radius:14px;
-      padding:0.68rem 0.88rem 0.74rem;
+      padding:0.58rem 0.8rem 0.46rem;
       box-shadow:var(--shadow-soft);
       contain:layout paint;
       cursor:pointer;
@@ -439,13 +439,10 @@
     }
 
     .message-row.own .message-bubble{
-      border-left-color:rgba(192,132,252,0.68);
-      background:rgba(192,132,252,0.045);
+      border-left-color:rgba(192,132,252,0.64);
+      background:rgba(192,132,252,0.042);
     }
 
-    .message-row.pending .message-bubble{
-      border-style:solid;
-    }
     .message-row.pending .message-bubble::after{
       content:'';
       position:absolute;
@@ -456,14 +453,14 @@
         linear-gradient(
           90deg,
           transparent 0%,
-          rgba(255,255,255,0.03) 25%,
-          rgba(255,255,255,0.055) 50%,
-          rgba(255,255,255,0.03) 75%,
+          rgba(255,255,255,0.02) 25%,
+          rgba(255,255,255,0.04) 50%,
+          rgba(255,255,255,0.02) 75%,
           transparent 100%
         );
       background-size:200% 100%;
-      animation:pendingSheen 1.55s linear infinite;
-      opacity:.7;
+      animation:pendingSheen 1.8s linear infinite;
+      opacity:.55;
     }
     @keyframes pendingSheen{
       from{background-position:200% 0}
@@ -471,56 +468,58 @@
     }
 
     .message-row.failed .message-bubble{
-      border-left-color:rgba(255,107,107,0.82);
-      background:rgba(255,107,107,0.05);
+      border-left-color:rgba(255,107,107,0.8);
+      background:rgba(255,107,107,0.045);
     }
 
     .reply-stub{
       display:flex;
-      gap:0.56rem;
+      gap:0.42rem;
       align-items:flex-start;
-      background:rgba(255,255,255,0.04);
-      border-radius:10px;
-      padding:0.45rem 0.58rem;
-      margin-bottom:0.5rem;
+      background:rgba(255,255,255,0.025);
+      border-radius:8px;
+      padding:0.28rem 0.42rem;
+      margin-bottom:0.3rem;
       cursor:pointer;
       transition:background .15s;
     }
-    .reply-stub:hover{background:rgba(255,255,255,0.06)}
+    .reply-stub:hover{background:rgba(255,255,255,0.04)}
 
     .reply-stub-line{
       width:2px;
       flex-shrink:0;
       align-self:stretch;
       border-radius:999px;
-      background:rgba(78,205,196,0.7);
+      background:rgba(78,205,196,0.68);
       margin-top:1px;
+      opacity:.85;
     }
-    .message-row.own .reply-stub-line{background:rgba(192,132,252,0.74)}
+    .message-row.own .reply-stub-line{background:rgba(192,132,252,0.72)}
 
     .reply-stub-main{
       min-width:0;
       display:flex;
       flex-direction:column;
-      gap:0.12rem;
+      gap:0.03rem;
     }
 
     .reply-stub-name{
       font-family:var(--mono);
-      font-size:0.58rem;
+      font-size:0.52rem;
       color:var(--blue);
-      letter-spacing:0.06em;
+      letter-spacing:0.05em;
       text-transform:uppercase;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
+      line-height:1.15;
     }
     .message-row.own .reply-stub-name{color:#d8b5ff}
 
     .reply-stub-text{
-      font-size:0.83rem;
-      color:var(--soft);
-      line-height:1.35;
+      font-size:0.74rem;
+      color:rgba(255,255,255,0.48);
+      line-height:1.2;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
@@ -530,29 +529,30 @@
       display:flex;
       justify-content:space-between;
       align-items:flex-start;
-      gap:0.75rem;
-      margin-bottom:0.24rem;
+      gap:0.65rem;
+      margin-bottom:0.12rem;
     }
 
     .message-name{
       color:var(--fg);
       font-family:var(--hand);
-      font-size:0.98rem;
+      font-size:0.95rem;
       font-weight:600;
       line-height:1;
     }
 
     .message-time{
       font-family:var(--mono);
-      font-size:0.6rem;
+      font-size:0.56rem;
       color:var(--soft);
       white-space:nowrap;
       flex-shrink:0;
+      margin-top:1px;
     }
 
     .message-text{
-      font-size:0.98rem;
-      line-height:1.55;
+      font-size:0.97rem;
+      line-height:1.5;
       color:#d2d2d2;
       white-space:pre-wrap;
       word-wrap:break-word;
@@ -568,62 +568,67 @@
       display:flex;
       justify-content:flex-end;
       align-items:center;
-      gap:0.4rem;
-      min-height:0.9rem;
-      margin-top:0.35rem;
+      gap:0.26rem;
+      min-height:auto;
+      margin-top:0.16rem;
       font-family:var(--mono);
-      font-size:0.57rem;
-      letter-spacing:0.05em;
+      font-size:0.5rem;
+      letter-spacing:0.04em;
       text-transform:uppercase;
-      color:var(--soft);
+      color:rgba(255,255,255,0.5);
+      opacity:.72;
+      line-height:1;
     }
-    .message-row.own .bubble-meta{color:rgba(220,220,220,0.66)}
+    .message-row.own .bubble-meta{
+      opacity:.62;
+      color:rgba(230,230,230,0.52);
+    }
     .bubble-meta .status-dot{
-      width:5px;
-      height:5px;
+      width:4px;
+      height:4px;
       border-radius:50%;
       background:currentColor;
-      opacity:.85;
+      opacity:.82;
     }
-    .bubble-meta.sending{color:var(--amber)}
-    .bubble-meta.seen{color:var(--blue)}
-    .bubble-meta.failed{color:var(--red)}
+    .bubble-meta.sending{color:rgba(255,200,87,0.78)}
+    .bubble-meta.seen{color:rgba(78,205,196,0.84)}
+    .bubble-meta.failed{color:rgba(255,107,107,0.86)}
     .bubble-meta.hidden-meta{display:none}
 
     .reactions{
       display:flex;
       flex-wrap:wrap;
-      gap:0.28rem;
-      padding:0.12rem 0 0;
+      gap:0.24rem;
+      padding:0.08rem 0 0;
       min-height:0;
     }
 
     .reaction-chip{
       display:inline-flex;
       align-items:center;
-      gap:0.22rem;
-      background:rgba(255,255,255,0.05);
-      border:1px solid rgba(255,255,255,0.08);
+      gap:0.2rem;
+      background:rgba(255,255,255,0.045);
+      border:1px solid rgba(255,255,255,0.07);
       border-radius:999px;
-      padding:0.14rem 0.45rem;
-      font-size:0.74rem;
+      padding:0.12rem 0.42rem;
+      font-size:0.72rem;
       line-height:1;
       cursor:pointer;
       transition:background .14s,border-color .14s,color .14s;
       user-select:none;
-      min-height:24px;
+      min-height:22px;
     }
     .reaction-chip:hover{
-      background:rgba(255,255,255,0.09);
-      border-color:rgba(255,255,255,0.14);
+      background:rgba(255,255,255,0.08);
+      border-color:rgba(255,255,255,0.12);
     }
     .reaction-chip.mine{
-      border-color:rgba(78,205,196,0.34);
-      background:rgba(78,205,196,0.1);
+      border-color:rgba(78,205,196,0.28);
+      background:rgba(78,205,196,0.085);
     }
     .reaction-chip .count{
       font-family:var(--mono);
-      font-size:0.58rem;
+      font-size:0.56rem;
       color:var(--muted);
     }
 
@@ -669,11 +674,11 @@
       border:1px solid rgba(255,255,255,0.05);
       border-left:2px solid rgba(78,205,196,0.4);
       border-radius:14px;
-      padding:0.55rem 0.88rem;
+      padding:0.5rem 0.82rem;
       animation:msgIn 160ms var(--ease) both;
     }
 
-    .typing-label{font-family:var(--mono);font-size:0.62rem;color:var(--soft)}
+    .typing-label{font-family:var(--mono);font-size:0.6rem;color:var(--soft)}
     .typing-dots{display:inline-flex;gap:3px;align-items:center}
     .typing-dots span{
       display:block;
@@ -703,8 +708,8 @@
     .reply-bar{
       display:none;
       align-items:center;
-      gap:0.7rem;
-      padding:0.55rem 0.9rem;
+      gap:0.62rem;
+      padding:0.46rem 0.9rem;
       border-bottom:1px solid var(--border);
       background:rgba(25,25,25,0.92);
     }
@@ -716,22 +721,25 @@
       border-radius:999px;
       background:var(--blue);
       flex-shrink:0;
+      opacity:.85;
     }
     .reply-bar-inner{min-width:0;flex:1}
     .reply-bar-name{
       font-family:var(--mono);
-      font-size:0.6rem;
+      font-size:0.56rem;
       color:var(--blue);
       text-transform:uppercase;
-      letter-spacing:0.06em;
-      margin-bottom:0.1rem;
+      letter-spacing:0.05em;
+      margin-bottom:0.04rem;
+      line-height:1.15;
     }
     .reply-bar-text{
-      font-size:0.88rem;
+      font-size:0.83rem;
       color:var(--soft);
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
+      line-height:1.2;
     }
 
     .reply-bar-close{
@@ -739,10 +747,10 @@
       border:none;
       color:var(--soft);
       cursor:pointer;
-      font-size:0.9rem;
+      font-size:0.86rem;
       flex-shrink:0;
-      width:26px;
-      height:26px;
+      width:24px;
+      height:24px;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -1110,15 +1118,21 @@
       .header-room-title{font-size:1rem}
       .header-room-subtitle{font-size:0.56rem;max-width:170px}
 
-      .message-list{padding:0.85rem 0.72rem 0.8rem;gap:0.74rem}
-      .message-row{gap:0.48rem}
+      .message-list{padding:0.82rem 0.72rem 0.78rem;gap:0.68rem}
+      .message-row{gap:0.46rem}
       .message-avatar{width:30px;height:30px;font-size:0.85rem}
-      .message-bubble{padding:0.62rem 0.76rem 0.7rem;border-radius:12px}
-      .message-name{font-size:0.9rem}
-      .message-time{font-size:0.58rem}
-      .message-text{font-size:0.94rem}
-      .reply-stub{padding:0.38rem 0.48rem;margin-bottom:0.42rem}
-      .reply-stub-text{font-size:0.78rem}
+      .message-bubble{padding:0.52rem 0.72rem 0.42rem;border-radius:12px}
+      .message-name{font-size:0.88rem}
+      .message-time{font-size:0.54rem}
+      .message-text{font-size:0.93rem;line-height:1.47}
+      .reply-stub{padding:0.24rem 0.36rem;margin-bottom:0.26rem}
+      .reply-stub-name{font-size:0.49rem}
+      .reply-stub-text{font-size:0.71rem}
+
+      .bubble-meta{
+        margin-top:0.12rem;
+        font-size:0.47rem;
+      }
 
       .composer-inner{
         padding:0.65rem 0.72rem calc(0.72rem + env(safe-area-inset-bottom,0px));
@@ -1142,8 +1156,8 @@
       .send-btn .send-label{display:none}
       .mobile-sidebar{width:min(92vw,340px)}
       .reaction-chip{
-        min-height:22px;
-        font-size:0.72rem;
+        min-height:21px;
+        font-size:0.69rem;
       }
       .popover-emoji:hover,
       .send-btn:hover:not(:disabled),
@@ -1294,7 +1308,6 @@
   (function(){
     'use strict';
 
-    // ── Config ─────────────────────────────────────────────────────────────
     const SB_URL = 'https://lbpkgvmxxcubzbzwoswd.supabase.co';
     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI';
     const PUB_ROOM = 'general';
@@ -1314,7 +1327,6 @@
     const PRESENCE_BEAT = 12000;
     const REACTIONS = ['👍','❤️','😂','😮','😢','🔥'];
 
-    // ── Utils ──────────────────────────────────────────────────────────────
     const sb = window.supabase.createClient(SB_URL, SB_KEY);
     const $ = id => document.getElementById(id);
     const nowIso = () => new Date().toISOString();
@@ -1339,7 +1351,6 @@
     const dateFmt = new Intl.DateTimeFormat(undefined,{month:'short',day:'numeric',year:'numeric'});
     const sorterByDate = (a,b) => new Date(a.created_at) - new Date(b.created_at);
 
-    // ── DOM ────────────────────────────────────────────────────────────────
     const el = {
       modal: $('nameModal'),
       gname: $('guestName'),
@@ -1374,7 +1385,6 @@
       composerWrap: $('composerWrap')
     };
 
-    // ── State ──────────────────────────────────────────────────────────────
     const state = {
       inited: false,
       activityOn: false,
@@ -1398,19 +1408,19 @@
       pubOrder: [],
       pubMap: new Map(),
 
-      privOrders: new Map(),      // uid -> [messageId,...]
-      privMaps: new Map(),        // uid -> Map(messageId, msg)
+      privOrders: new Map(),
+      privMaps: new Map(),
 
-      contacts: new Map(),        // uid -> contact
+      contacts: new Map(),
 
-      messageIndex: new Map(),    // messageId -> { convoKey, message }
-      rowEls: new Map(),          // messageId -> row element
-      dividerEls: new Map(),      // "convoKey|YYYY-MM-DD" -> divider element
-      reactions: new Map(),       // msgId -> Map(emoji, Set(userIds))
+      messageIndex: new Map(),
+      rowEls: new Map(),
+      dividerEls: new Map(),
+      reactions: new Map(),
 
-      activePopover: null,        // {mid, el}
-      replyTo: null,              // {id, senderName, body}
-      presMap: new Map(),         // uid -> presence row
+      activePopover: null,
+      replyTo: null,
+      presMap: new Map(),
 
       subs: {
         pub: null,
@@ -1427,7 +1437,6 @@
       }
     };
 
-    // ── Initialization helpers ────────────────────────────────────────────
     function getOrCreateId(){
       let id = localStorage.getItem(STORAGE_KEYS.uid);
       if (id && /^[a-zA-Z0-9_-]{10,}$/.test(id)) return id;
@@ -1476,6 +1485,11 @@
       return timeFmt.format(new Date(iso)) + ' · ' + relTime(iso);
     }
 
+    function timeOnly(iso){
+      if (!iso) return '';
+      return timeFmt.format(new Date(iso));
+    }
+
     function sideTime(iso){
       return iso ? relTime(iso) : '';
     }
@@ -1501,7 +1515,6 @@
       return convoKeyOf(state.convo.type, state.convo.recipientId);
     }
 
-    // ── Scroll & keyboard stability ───────────────────────────────────────
     function isNearBottom(){
       return (el.msgList.scrollHeight - el.msgList.scrollTop - el.msgList.clientHeight) < NEAR_BOTTOM;
     }
@@ -1548,7 +1561,6 @@
       updateViewportInset();
     }
 
-    // ── UI state helpers ──────────────────────────────────────────────────
     function openSidebar(){
       state.sideOpen = true;
       el.mobSide.classList.add('active');
@@ -1596,7 +1608,6 @@
       el.input.focus();
     }
 
-    // ── Contact model ─────────────────────────────────────────────────────
     function ensureContact(userId, name){
       if (!userId || userId === state.user.id) return null;
 
@@ -1640,7 +1651,6 @@
       contact.lastPreview = msg.is_deleted ? 'Message deleted' : (msg.body || '');
     }
 
-    // ── Presence / typing ────────────────────────────────────────────────
     function isOnline(uid){
       const e = state.presMap.get(uid);
       return !!e?.last_seen_at && (Date.now() - new Date(e.last_seen_at).getTime()) < PRESENCE_EXPIRE;
@@ -1711,7 +1721,6 @@
       renderTypingRow();
     }
 
-    // ── Conversation store ───────────────────────────────────────────────
     function getPubMessages(){
       return state.pubOrder.map(id => state.pubMap.get(id)).filter(Boolean);
     }
@@ -1827,7 +1836,6 @@
       return newMsg;
     }
 
-    // ── Reaction store ────────────────────────────────────────────────────
     function ensureReactionBucket(mid){
       if (!state.reactions.has(mid)) state.reactions.set(mid, new Map());
       return state.reactions.get(mid);
@@ -1868,7 +1876,6 @@
         .join('');
     }
 
-    // ── Render helpers ────────────────────────────────────────────────────
     function messageStatusInfo(msg){
       if (msg._convoType !== 'private' || msg.sender_id !== state.user.id) return null;
       if (msg._failed) return { label:'Failed', cls:'failed' };
@@ -1908,6 +1915,8 @@
       if (!st) return '<div class="bubble-meta hidden-meta"></div>';
       return `
         <div class="bubble-meta ${esc(st.cls)}">
+          <span>${esc(timeOnly(msg.created_at))}</span>
+          <span>·</span>
           <span>${esc(st.label)}</span>
           <span class="status-dot"></span>
         </div>
@@ -2272,7 +2281,6 @@
           : 'private conversation';
     }
 
-    // ── Popover ───────────────────────────────────────────────────────────
     function closePopover(){
       if (!state.activePopover) return;
       state.activePopover.el.remove();
@@ -2378,7 +2386,6 @@
       state.activePopover = { mid: msg.id, el: pop };
     }
 
-    // ── Loading data ──────────────────────────────────────────────────────
     async function loadReactionsForIds(msgIds){
       if (!msgIds.length) return;
       const { data, error } = await sb.from('message_reactions').select('*').in('message_id', msgIds);
@@ -2467,7 +2474,6 @@
       await loadReactionsForIds(ids);
     }
 
-    // ── Realtime subscriptions ────────────────────────────────────────────
     function subscribePublic(){
       if (state.subs.pub) sb.removeChannel(state.subs.pub);
 
@@ -2672,7 +2678,6 @@
         .subscribe();
     }
 
-    // ── Seen / delete / reaction actions ─────────────────────────────────
     async function markSeen(uid){
       if (!uid) return;
 
@@ -2837,7 +2842,6 @@
       }
     }
 
-    // ── Sending ───────────────────────────────────────────────────────────
     function createOptimisticPrivateMessage(body, recipientId, recipientName, replyToId){
       const tempId = 't_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
       return {
@@ -2947,7 +2951,6 @@
       el.input.focus();
     }
 
-    // ── Conversation switching ────────────────────────────────────────────
     function applyConvo(type, userId, name, pushHistory){
       closePopover();
       setReply(null);
@@ -3017,7 +3020,6 @@
       applyConvo('public', null, null, false);
     }
 
-    // ── Input / textarea ─────────────────────────────────────────────────
     function resizeTA(){
       el.input.style.height = 'auto';
       el.input.style.overflowY = 'hidden';
@@ -3030,7 +3032,6 @@
       el.counter.textContent = `${el.input.value.length} / 500`;
     }
 
-    // ── Event delegation ──────────────────────────────────────────────────
     function onMessageListClick(e){
       const reactionChip = e.target.closest('[data-reaction-chip]');
       if (reactionChip) {
@@ -3242,7 +3243,6 @@
       });
     }
 
-    // ── Boot ──────────────────────────────────────────────────────────────
     async function init(){
       initHistory();
       bindEvents();
