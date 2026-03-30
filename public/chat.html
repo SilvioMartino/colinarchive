@@ -13,512 +13,403 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
+    /* ========== YOUR EXACT STYLES (only status and reply border changed) ========== */
     :root {
-      --paper: #171717;
-      --surface: rgba(255,255,255,0.035);
-      --surface-2: rgba(255,255,255,0.055);
-      --fg: #ececec;
-      --muted: #aaaaaa;
-      --soft: #7f7f7f;
-      --border: #2b2b2b;
-      --red: #ff6b6b;
-      --blue: #4ecdc4;
-      --green: #51cf66;
-      --amber: #ffc857;
-      --violet: #c084fc;
-      --shadow: 0 18px 50px rgba(0,0,0,0.25);
-      --serif: 'Crimson Text', Georgia, serif;
-      --mono: 'IBM Plex Mono', 'Courier New', monospace;
-      --hand: 'Caveat', cursive;
-      --header-h: 78px;
-      --sidebar-w: 300px;
-      --ease-out: cubic-bezier(.22,1,.36,1);
+      --paper:#171717; --surface:rgba(255,255,255,0.035); --surface-2:rgba(255,255,255,0.055);
+      --fg:#ececec; --muted:#aaaaaa; --soft:#7f7f7f; --border:#2b2b2b;
+      --red:#ff6b6b; --blue:#4ecdc4; --green:#51cf66; --amber:#ffc857; --violet:#c084fc;
+      --shadow:0 18px 50px rgba(0,0,0,0.25);
+      --serif:'Crimson Text',Georgia,serif; --mono:'IBM Plex Mono','Courier New',monospace; --hand:'Caveat',cursive;
+      --header-h:78px; --sidebar-w:300px; --ease:cubic-bezier(.22,1,.36,1);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;background:var(--paper)}
+    body{
+      color:var(--fg);font-family:var(--serif);display:flex;flex-direction:column;min-height:100dvh;overflow:hidden;
+      background:radial-gradient(circle at top,rgba(78,205,196,0.045),transparent 28%),linear-gradient(to bottom,#151515,#111111)
+    }
+    button,input,textarea{font:inherit}
+    a{color:inherit;text-decoration:none}
+    .hidden{display:none!important}
+
+    /* ===== HEADER (unchanged) ===== */
+    .shell-header{
+      min-height:var(--header-h);padding:0.85rem 1rem;border-bottom:1px solid var(--border);
+      background:rgba(23,23,23,0.94);backdrop-filter:blur(10px);
+      display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) minmax(0,1fr);
+      align-items:center;gap:0.9rem;flex-shrink:0;z-index:20
+    }
+    .header-left{display:flex;align-items:center;gap:0.6rem;justify-self:start}
+    .logo{font-family:var(--mono);font-size:0.76rem;letter-spacing:0.16em;text-transform:uppercase;font-weight:500;white-space:nowrap;flex-shrink:0}
+    .logo::after{content:'|';color:var(--red);margin-left:2px;animation:blink 1s step-end infinite}
+    @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+    .back-btn{
+      display:inline-flex;align-items:center;gap:0.45rem;border:1px solid rgba(78,205,196,0.45);background:rgba(78,205,196,0.14);
+      color:var(--blue);border-radius:999px;padding:0.58rem 0.95rem;cursor:pointer;font-family:var(--mono);
+      font-size:0.66rem;letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;
+      transition:border-color .18s,color .18s,background .18s,transform .18s
+    }
+    .back-btn:hover{border-color:rgba(78,205,196,0.78);color:#88eee5;background:rgba(78,205,196,0.2);transform:translateY(-1px)}
+    .header-room{min-width:0;text-align:center;display:flex;flex-direction:column;align-items:center;gap:0.15rem;justify-self:center}
+    .header-room-title{font-family:var(--hand);font-size:1.16rem;color:var(--blue);line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+    .header-room-subtitle{
+      font-family:var(--mono);font-size:0.62rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--soft);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;transition:color .18s
+    }
+    .header-room-subtitle.typing{color:var(--blue)}
+    .header-right{display:flex;justify-content:flex-end;justify-self:end}
+
+    .app-grid{flex:1;min-height:0;display:grid;grid-template-columns:var(--sidebar-w) minmax(0,1fr);overflow:hidden;height:calc(100dvh - var(--header-h))}
+
+    /* ===== SIDEBAR (unchanged) ===== */
+    .sidebar{min-height:0;border-right:1px solid var(--border);background:rgba(20,20,20,0.9);display:flex;flex-direction:column}
+    .sidebar-top{padding:1rem 1rem 0.8rem;border-bottom:1px solid var(--border);flex-shrink:0}
+    .sidebar-title-row{display:flex;align-items:center;justify-content:space-between;gap:0.6rem;margin-bottom:0.75rem}
+    .sidebar-title,.presence-summary{font-family:var(--mono);text-transform:uppercase;letter-spacing:0.1em}
+    .sidebar-title{font-size:0.68rem;color:var(--muted)}
+    .presence-summary{font-size:0.6rem;color:var(--soft)}
+    .sidebar-search{
+      width:100%;border:1px solid var(--border);background:var(--surface);color:var(--fg);padding:0.7rem 0.85rem;
+      border-radius:999px;outline:none;font-family:var(--mono);font-size:0.75rem;transition:border-color .18s,background .18s
+    }
+    .sidebar-search:focus{border-color:rgba(78,205,196,0.6);background:var(--surface-2)}
+    .sidebar-search::placeholder{color:var(--soft)}
+    .sidebar-body{min-height:0;overflow-y:auto;padding:0.8rem}
+    .sidebar-body::-webkit-scrollbar,.message-list::-webkit-scrollbar{width:4px}
+    .sidebar-body::-webkit-scrollbar-thumb,.message-list::-webkit-scrollbar-thumb{background:#343434;border-radius:999px}
+    .sidebar-section-label{font-family:var(--mono);font-size:0.62rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--soft);margin:0.35rem 0 0.6rem;padding:0 0.35rem}
+    .user-list{display:flex;flex-direction:column;gap:0.3rem}
+    .user-item{
+      width:100%;border:1px solid transparent;background:transparent;border-radius:14px;padding:0.7rem 0.75rem;
+      display:flex;align-items:center;gap:0.7rem;cursor:pointer;text-align:left;color:inherit;
+      transition:background .16s,border-color .16s,transform .16s
+    }
+    .user-item:hover{background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.06);transform:translateY(-1px)}
+    .user-item.active{background:rgba(78,205,196,0.09);border-color:rgba(78,205,196,0.3)}
+    .user-avatar-wrap{position:relative;width:36px;height:36px;flex-shrink:0}
+    .user-avatar,.message-avatar{
+      border-radius:50%;border:1px solid var(--border);
+      background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));
+      display:flex;align-items:center;justify-content:center;font-family:var(--hand);color:var(--fg)
+    }
+    .user-avatar{width:36px;height:36px;font-size:1.05rem}
+    .presence-dot{
+      position:absolute;right:-1px;bottom:-1px;width:10px;height:10px;border-radius:50%;
+      background:#3a3a3a;border:2px solid rgba(20,20,20,0.98);transition:background .2s
+    }
+    .presence-dot.online{background:var(--green)}
+    .sidebar-user-main{min-width:0;flex:1}
+    .sidebar-user-top{display:flex;align-items:baseline;justify-content:space-between;gap:0.4rem;margin-bottom:0.18rem}
+    .sidebar-user-name,.sidebar-user-time,.sidebar-user-sub{font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .sidebar-user-name{font-size:0.74rem;color:var(--fg)}
+    .sidebar-user-time{font-size:0.58rem;color:var(--soft);flex-shrink:0}
+    .sidebar-user-sub{display:block;font-size:0.62rem;color:var(--soft)}
+    .sidebar-user-sub.has-unread{color:#d7f8f5}
+    .sidebar-user-sub.is-typing{color:var(--blue)}
+    .unread-badge{
+      background:var(--red);color:#fff;font-size:0.58rem;min-width:1.15rem;height:1.15rem;
+      padding:0 0.3rem;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;font-family:var(--mono);flex-shrink:0
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; background: var(--paper); }
-    body {
-      color: var(--fg);
-      font-family: var(--serif);
-      display: flex;
-      flex-direction: column;
-      min-height: 100dvh;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at top, rgba(78,205,196,0.045), transparent 28%),
-        linear-gradient(to bottom, #151515, #111111);
-    }
-    button, input, textarea { font: inherit; }
-    a { color: inherit; text-decoration: none; }
-    .hidden { display: none !important; }
+    .chat-shell{min-width:0;min-height:0;display:flex;flex-direction:column}
+    .chat-main{min-height:0;display:flex;flex-direction:column;flex:1;height:100%;transition:background .25s}
+    .chat-main.is-private{background:radial-gradient(ellipse at top right,rgba(192,132,252,0.055) 0%,transparent 55%),rgba(0,0,0,0.12)}
 
-    .shell-header {
-      min-height: var(--header-h);
-      padding: 0.85rem 1rem;
-      border-bottom: 1px solid var(--border);
-      background: rgba(23,23,23,0.94);
-      backdrop-filter: blur(10px);
-      display: grid;
-      grid-template-columns: minmax(0,1fr) minmax(0,1.5fr) minmax(0,1fr);
-      align-items: center;
-      gap: 0.9rem;
-      flex-shrink: 0;
-      z-index: 20;
+    /* ===== MESSAGE LIST (modified status + merged reply border) ===== */
+    .message-list{
+      flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:1rem clamp(0.9rem,3vw,2rem) 0.9rem;
+      display:flex;flex-direction:column;gap:0.82rem;scroll-behavior:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch
     }
-    .header-left { display: flex; align-items: center; gap: 0.6rem; justify-self: start; }
-    .logo {
-      font-family: var(--mono);
-      font-size: 0.76rem;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      font-weight: 500;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .logo::after { content: '|'; color: var(--red); margin-left: 2px; animation: blink 1s step-end infinite; }
-    @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
-
-    .back-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.45rem;
-      border: 1px solid rgba(78,205,196,0.45);
-      background: rgba(78,205,196,0.14);
-      color: var(--blue);
-      border-radius: 999px;
-      padding: 0.58rem 0.95rem;
-      cursor: pointer;
-      font-family: var(--mono);
-      font-size: 0.66rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      white-space: nowrap;
-      flex-shrink: 0;
-      transition: border-color 0.18s, color 0.18s, background 0.18s, transform 0.18s;
-    }
-    .back-btn:hover { border-color: rgba(78,205,196,0.78); color: #88eee5; background: rgba(78,205,196,0.2); transform: translateY(-1px); }
-
-    .header-room {
-      min-width: 0;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.15rem;
-      justify-self: center;
-    }
-    .header-room-title {
-      font-family: var(--hand);
-      font-size: 1.16rem;
-      color: var(--blue);
-      line-height: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 100%;
-    }
-    .header-room-subtitle {
-      font-family: var(--mono);
-      font-size: 0.62rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--soft);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 100%;
-      transition: color 0.18s;
-    }
-    .header-room-subtitle.typing { color: var(--blue); }
-    .header-right { display:flex; justify-content:flex-end; justify-self:end; }
-
-    .app-grid {
-      flex: 1;
-      min-height: 0;
-      display: grid;
-      grid-template-columns: var(--sidebar-w) minmax(0,1fr);
-      overflow: hidden;
-      height: calc(100dvh - var(--header-h));
+    .message-list::after{content:'';display:block;min-height:1px}
+    .day-divider{
+      align-self:center;font-family:var(--mono);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;
+      color:var(--soft);background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.04);border-radius:999px;padding:0.26rem 0.65rem;margin:0.1rem 0 0.2rem
     }
 
-    .sidebar {
-      min-height: 0;
-      border-right: 1px solid var(--border);
-      background: rgba(20,20,20,0.9);
-      display: flex;
-      flex-direction: column;
+    .message-row{display:flex;gap:0.75rem;align-items:flex-start;max-width:880px;width:100%;animation:msgIn 180ms var(--ease) both}
+    .message-row.own{align-self:flex-end;flex-direction:row-reverse}
+    .message-row.is-pending .message-bubble{opacity:0.72}
+    .message-row.is-failed .message-bubble{border-left-color:rgba(255,107,107,0.8)!important}
+    @keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes flashBorder{
+      0%,100%{border-left-color:rgba(78,205,196,0.55)}
+      50%{border-left-color:rgba(78,205,196,1);box-shadow:0 0 0 3px rgba(78,205,196,0.15)}
     }
-    .sidebar-top { padding: 1rem 1rem 0.8rem; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-    .sidebar-title-row { display:flex; align-items:center; justify-content:space-between; gap:0.6rem; margin-bottom:0.75rem; }
-    .sidebar-title, .presence-summary {
-      font-family: var(--mono);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-    }
-    .sidebar-title { font-size: 0.68rem; color: var(--muted); }
-    .presence-summary { font-size: 0.6rem; color: var(--soft); }
-    .sidebar-search {
-      width: 100%;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--fg);
-      padding: 0.7rem 0.85rem;
-      border-radius: 999px;
-      outline: none;
-      font-family: var(--mono);
-      font-size: 0.75rem;
-      transition: border-color 0.18s, background 0.18s;
-    }
-    .sidebar-search:focus { border-color: rgba(78,205,196,0.6); background: var(--surface-2); }
-    .sidebar-search::placeholder { color: var(--soft); }
-    .sidebar-body { min-height:0; overflow-y:auto; padding:0.8rem; }
-    .sidebar-body::-webkit-scrollbar, .message-list::-webkit-scrollbar { width:4px; }
-    .sidebar-body::-webkit-scrollbar-thumb, .message-list::-webkit-scrollbar-thumb { background:#343434; border-radius:999px; }
-    .sidebar-section-label {
-      font-family: var(--mono);
-      font-size: 0.62rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--soft);
-      margin: 0.35rem 0 0.6rem;
-      padding: 0 0.35rem;
-    }
+    .message-row.flash-hint .message-bubble{animation:flashBorder .55s ease 2}
+    .message-row.own.flash-hint .message-bubble{animation:none}
 
-    .user-list { display:flex; flex-direction:column; gap:0.3rem; }
-    .user-item {
-      width: 100%;
-      border: 1px solid transparent;
-      background: transparent;
-      border-radius: 14px;
-      padding: 0.7rem 0.75rem;
-      display: flex;
-      align-items: center;
-      gap: 0.7rem;
-      cursor: pointer;
-      text-align: left;
-      color: inherit;
-      transition: background 0.16s, border-color 0.16s, transform 0.16s;
-    }
-    .user-item:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.06); transform: translateY(-1px); }
-    .user-item.active { background: rgba(78,205,196,0.09); border-color: rgba(78,205,196,0.3); }
-    .user-avatar-wrap { position:relative; width:36px; height:36px; flex-shrink:0; }
-    .user-avatar, .message-avatar {
-      border-radius: 50%;
-      border: 1px solid var(--border);
-      background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--hand);
-      color: var(--fg);
-    }
-    .user-avatar { width:36px; height:36px; font-size:1.05rem; }
-    .presence-dot {
-      position:absolute; right:-1px; bottom:-1px;
-      width:10px; height:10px; border-radius:50%;
-      background:#3a3a3a; border:2px solid rgba(20,20,20,0.98);
-      transition:background 0.2s;
-    }
-    .presence-dot.online { background: var(--green); }
-    .sidebar-user-main { min-width:0; flex:1; }
-    .sidebar-user-top { display:flex; align-items:baseline; justify-content:space-between; gap:0.4rem; margin-bottom:0.18rem; }
-    .sidebar-user-name, .sidebar-user-time, .sidebar-user-sub {
-      font-family: var(--mono);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .sidebar-user-name { font-size:0.74rem; color:var(--fg); }
-    .sidebar-user-time { font-size:0.58rem; color:var(--soft); flex-shrink:0; }
-    .sidebar-user-sub { display:block; font-size:0.62rem; color:var(--soft); }
-    .sidebar-user-sub.has-unread { color: #d7f8f5; }
-    .sidebar-user-sub.is-typing { color: var(--blue); }
-    .unread-badge {
-      background: var(--red);
-      color: #fff;
-      font-size: 0.58rem;
-      min-width: 1.15rem;
-      height: 1.15rem;
-      padding: 0 0.3rem;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--mono);
-      flex-shrink: 0;
-    }
+    .message-avatar{width:36px;height:36px;font-size:0.95rem;flex-shrink:0}
+    .message-stack{min-width:0;max-width:min(100%,720px);display:flex;flex-direction:column;gap:0.3rem;position:relative}
 
-    .chat-shell { min-width:0; min-height:0; display:flex; flex-direction:column; }
-    .chat-main {
-      min-height:0;
-      display:flex;
-      flex-direction:column;
-      flex:1;
-      height:100%;
-      transition: background 0.25s;
+    /* --- Merged reply quote + bubble border (continuous) --- */
+    .reply-quote{
+      background:rgba(255,255,255,0.04);
+      border-left:2px solid rgba(78,205,196,0.5);
+      border-radius:14px 14px 0 0;
+      padding:0.42rem 0.75rem;
+      cursor:pointer;
+      transition:background .15s,transform .15s;
+      margin-bottom:-1px; /* overlap with bubble */
     }
-    .chat-main.is-private { background: radial-gradient(ellipse at top right, rgba(192,132,252,0.055) 0%, transparent 55%), rgba(0,0,0,0.12); }
+    .reply-quote:hover{background:rgba(255,255,255,0.07);transform:translateY(-1px)}
+    .reply-quote-name{
+      font-family:var(--mono);font-size:0.6rem;color:var(--blue);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.15rem
+    }
+    .reply-quote-text{font-size:0.88rem;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+    .message-row.own .reply-quote{border-left-color:rgba(192,132,252,0.6)}
 
-    .message-list {
-      flex:1;
-      min-height:0;
-      overflow-y:auto;
-      overflow-x:hidden;
-      padding:1rem clamp(0.9rem,3vw,2rem) 0.9rem;
-      display:flex;
-      flex-direction:column;
-      gap:0.82rem;
-      scroll-behavior:auto;
-      overscroll-behavior:contain;
-      -webkit-overflow-scrolling:touch;
+    .message-bubble{
+      background:rgba(255,255,255,0.035);
+      border:1px solid rgba(255,255,255,0.045);
+      border-left:2px solid rgba(78,205,196,0.55);
+      border-radius:0 14px 14px 14px;
+      padding:0.65rem 0.88rem 0.7rem;
+      box-shadow:var(--shadow);
+      contain:layout paint;
+      cursor:pointer;
+      transition:border-color .16s,background .16s,transform .16s,box-shadow .18s;
+      margin-top:-1px; /* seamless with quote */
     }
-    .message-list::after { content:''; display:block; min-height:1px; }
-    .day-divider {
-      align-self:center;
-      font-family:var(--mono);
-      font-size:0.6rem;
-      letter-spacing:0.08em;
-      text-transform:uppercase;
-      color:var(--soft);
-      background:rgba(255,255,255,0.03);
-      border:1px solid rgba(255,255,255,0.04);
-      border-radius:999px;
-      padding:0.26rem 0.65rem;
-      margin:0.1rem 0 0.2rem;
+    .has-reply .message-bubble{border-radius:0 14px 14px 14px;}
+    .message-row.own .message-bubble{
+      border-left-color:rgba(192,132,252,0.65);
+      background:rgba(192,132,252,0.045);
+      border-radius:14px 0 14px 14px;
     }
+    .message-row.own.has-reply .message-bubble{border-radius:14px 0 14px 14px;}
 
-    .message-row {
-      display:flex;
-      gap:0.75rem;
-      align-items:flex-start;
-      max-width:880px;
-      width:100%;
-      animation: msgIn 180ms var(--ease-out) both;
+    .message-bubble:hover{transform:translateY(-1px)}
+    .message-row.row-active .message-bubble{
+      background:rgba(255,255,255,0.055);
+      border-color:rgba(255,255,255,0.08);
+      box-shadow:0 20px 55px rgba(0,0,0,0.3), 0 0 0 1px rgba(78,205,196,0.07)
     }
-    .message-row.own { align-self:flex-end; flex-direction:row-reverse; }
-    .message-row.is-pending .message-bubble { opacity:0.68; }
-    .message-row.is-failed .message-bubble { border-left-color: rgba(255,107,107,0.8) !important; }
-    @keyframes msgIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+    .message-row.own.row-active .message-bubble{box-shadow:0 20px 55px rgba(0,0,0,0.3), 0 0 0 1px rgba(192,132,252,0.09)}
 
-    .message-avatar { width:36px; height:36px; font-size:0.95rem; flex-shrink:0; }
-    .message-stack { min-width:0; max-width:min(100%,720px); display:flex; flex-direction:column; gap:0.28rem; }
-    .message-bubble {
-      background: rgba(255,255,255,0.035);
-      border: 1px solid rgba(255,255,255,0.045);
-      border-left: 2px solid rgba(78,205,196,0.55);
-      border-radius: 14px;
-      padding: 0.65rem 0.88rem 0.7rem;
-      box-shadow: var(--shadow);
-      contain: layout paint;
-      cursor: pointer;
-      transition: border-color 0.16s, background 0.16s, transform 0.16s;
-    }
-    .message-bubble:hover { transform: translateY(-1px); }
-    .message-row.own .message-bubble { border-left-color: rgba(192,132,252,0.65); background: rgba(192,132,252,0.045); }
-    .message-header { display:flex; justify-content:space-between; align-items:flex-start; gap:0.75rem; margin-bottom:0.22rem; }
-    .message-name {
-      border:none;
-      background:none;
-      color:var(--fg);
-      font-family:var(--hand);
-      font-size:0.98rem;
-      font-weight:600;
-      line-height:1;
-      padding:0;
-      pointer-events:none;
-    }
-    .message-time { font-family:var(--mono); font-size:0.6rem; color:var(--soft); white-space:nowrap; flex-shrink:0; }
-    .message-text { font-size:0.98rem; line-height:1.55; color:#d2d2d2; white-space:pre-wrap; word-wrap:break-word; overflow-wrap:anywhere; }
-    .message-text.deleted { color:var(--soft); font-style:italic; }
+    .message-header{display:flex;justify-content:space-between;align-items:flex-start;gap:0.75rem;margin-bottom:0.22rem}
+    .message-name{border:none;background:none;color:var(--fg);font-family:var(--hand);font-size:0.98rem;font-weight:600;line-height:1;padding:0;pointer-events:none}
+    .message-time{font-family:var(--mono);font-size:0.6rem;color:var(--soft);white-space:nowrap;flex-shrink:0}
+    .message-text{font-size:0.98rem;line-height:1.55;color:#d2d2d2;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere}
+    .message-text.deleted{color:var(--soft);font-style:italic}
 
-    .message-status {
-      font-family: var(--mono);
-      font-size: 0.58rem;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: var(--soft);
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0 0.1rem;
-      min-height: 0.9rem;
-    }
-    .message-row.own .message-status { justify-content:flex-end; }
-    .message-status.st-sending { color: var(--amber); }
-    .message-status.st-delivered { color: var(--soft); }
-    .message-status.st-seen { color: var(--blue); }
-    .message-status.st-failed { color: var(--red); }
-
-    .message-actions {
-      display:flex;
-      gap:0.3rem;
-      flex-wrap:wrap;
-      padding:0 0.1rem;
-      max-height:0;
-      opacity:0;
-      overflow:hidden;
-      pointer-events:none;
-      transition:max-height 0.18s ease, opacity 0.15s ease;
-    }
-    .message-row.row-active .message-actions {
-      max-height:56px;
-      opacity:1;
-      pointer-events:auto;
-    }
-    .action-btn {
+    /* --- Subtle message status (icons only, no big text) --- */
+    .message-status{
       display:inline-flex;
       align-items:center;
-      gap:0.35rem;
-      border:1px solid rgba(255,255,255,0.07);
-      background:rgba(255,255,255,0.04);
-      color:var(--muted);
-      border-radius:999px;
-      padding:0.32rem 0.72rem;
+      gap:0.2rem;
       font-family:var(--mono);
-      font-size:0.62rem;
-      letter-spacing:0.06em;
-      text-transform:uppercase;
-      cursor:pointer;
-      transition:background 0.14s, border-color 0.14s, color 0.14s, transform 0.14s;
-      white-space:nowrap;
+      font-size:0.65rem;
+      margin-left:0.3rem;
+      opacity:0.75;
     }
-    .action-btn:hover { background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.12); color:var(--fg); transform:translateY(-1px); }
-    .action-btn.danger:hover { background:rgba(255,107,107,0.09); border-color:rgba(255,107,107,0.25); color:#ffd4d4; }
-    .action-btn.primary { border-color:rgba(78,205,196,0.3); color:var(--blue); background:rgba(78,205,196,0.06); }
-    .action-btn.primary:hover { background:rgba(78,205,196,0.12); border-color:rgba(78,205,196,0.5); color:#88eee5; }
+    .message-status .status-icon{
+      font-size:0.75rem;
+    }
+    .message-status.st-sending .status-icon{color:var(--soft);}
+    .message-status.st-delivered .status-icon{color:var(--green);}
+    .message-status.st-seen .status-icon{color:var(--blue);}
+    .message-status.st-failed{color:var(--red);cursor:pointer;}
+    .message-status.st-failed:hover{text-decoration:underline;}
 
-    .system-row { align-self:center; max-width:720px; width:100%; }
-    .system-card {
-      background:transparent; border:1px dashed rgba(255,255,255,0.07); border-radius:18px;
-      text-align:center; padding:1.4rem 1rem; color:var(--soft); font-family:var(--mono); font-size:0.68rem; letter-spacing:0.05em;
+    .reaction-row{display:flex;flex-wrap:wrap;gap:0.34rem;padding:0.15rem 0.1rem 0}
+    .reaction-chip{
+      display:inline-flex;align-items:center;gap:0.28rem;background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.08);border-radius:999px;padding:0.2rem 0.58rem;
+      font-size:0.82rem;cursor:pointer;transition:background .14s,border-color .14s,transform .14s;user-select:none
     }
-    .empty-icon { font-size:1.3rem; margin-bottom:0.55rem; opacity:0.7; }
-    .empty-title { font-size:0.72rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:0.5rem; }
-    .empty-hint { font-family:var(--serif); font-size:0.95rem; color:var(--soft); line-height:1.6; max-width:38ch; margin:0 auto; }
+    .reaction-chip:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.15);transform:scale(1.05)}
+    .reaction-chip.mine{border-color:rgba(78,205,196,0.45);background:rgba(78,205,196,0.1)}
+    .reaction-chip .count{font-family:var(--mono);font-size:0.62rem;color:var(--muted)}
 
-    .typing-row { align-self:flex-start; }
-    .typing-bubble {
-      display:inline-flex; align-items:center; gap:0.5rem;
-      background:rgba(255,255,255,0.035); border:1px solid rgba(255,255,255,0.05);
-      border-left:2px solid rgba(78,205,196,0.4); border-radius:14px; padding:0.55rem 0.88rem;
-      animation: msgIn 160ms var(--ease-out) both;
+    /* --- Action buttons animation (unchanged) --- */
+    .quick-reacts{
+      display:flex;flex-wrap:wrap;gap:0.36rem;
+      max-height:0;opacity:0;overflow:hidden;pointer-events:none;
+      transform:translateY(-6px);
+      transition:max-height .22s ease,opacity .18s ease,transform .18s ease;
+      margin:0
     }
-    .typing-label { font-family:var(--mono); font-size:0.62rem; color:var(--soft); }
-    .typing-dots { display:inline-flex; gap:3px; align-items:center; }
-    .typing-dots span {
-      display:block; width:5px; height:5px; border-radius:50%; background:var(--blue);
-      animation: dotBounce 1.05s ease-in-out infinite;
+    .message-row.row-active .quick-reacts{
+      max-height:60px;opacity:1;pointer-events:auto;transform:translateY(0);
+      margin:0.05rem 0 0.1rem
     }
-    .typing-dots span:nth-child(2) { animation-delay:0.16s; }
-    .typing-dots span:nth-child(3) { animation-delay:0.32s; }
-    @keyframes dotBounce { 0%,60%,100% { transform:translateY(0); opacity:0.4; } 30% { transform:translateY(-4px); opacity:1; } }
+    .message-actions{
+      display:flex;gap:0.34rem;flex-wrap:wrap;padding:0 0.1rem;
+      max-height:0;opacity:0;overflow:hidden;pointer-events:none;
+      transform:translateY(-6px);
+      transition:max-height .22s ease,opacity .18s ease,transform .18s ease;
+      margin:0
+    }
+    .message-row.row-active .message-actions{
+      max-height:80px;opacity:1;pointer-events:auto;transform:translateY(0);
+      margin:0.05rem 0 0
+    }
 
-    .composer-wrap {
-      flex-shrink:0; width:100%; padding:0.8rem 0.9rem 0.9rem;
-      border-top:1px solid var(--border); background:rgba(19,19,19,0.95); backdrop-filter:blur(10px);
+    .quick-react-btn{
+      border:none;background:rgba(28,28,28,0.96);color:var(--fg);
+      border:1px solid rgba(255,255,255,0.08);border-radius:999px;
+      min-width:34px;height:34px;padding:0 0.55rem;cursor:pointer;
+      transition:transform .14s,background .14s,border-color .14s
     }
-    .composer-status { min-height:0; padding:0 0.15rem 0.42rem; font-family:var(--mono); font-size:0.64rem; letter-spacing:0.04em; color:var(--soft); }
-    .composer-status:empty { display:none; }
-    .composer-status.error { color:var(--red); }
-    .composer-status.success { color:var(--green); }
-    .composer { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:0.65rem; align-items:end; }
-    .message-input {
-      width:100%; min-height:54px; max-height:140px; resize:none; overflow-y:hidden; overflow-x:hidden; scrollbar-width:none;
-      border:1px solid var(--border); border-radius:16px; background:rgba(255,255,255,0.03); color:var(--fg); padding:0.9rem 1rem;
-      outline:none; line-height:1.5; -webkit-appearance:none; appearance:none;
-      transition:border-color 0.18s,background 0.18s,box-shadow 0.18s;
-    }
-    .message-input::-webkit-scrollbar { width:0; height:0; }
-    .message-input:focus { border-color:rgba(78,205,196,0.5); background:rgba(255,255,255,0.04); box-shadow:0 0 0 3px rgba(78,205,196,0.07); }
-    .message-input::placeholder { color:var(--soft); font-style:italic; }
-    .send-btn {
-      min-width:110px; height:54px; border:1px solid var(--border); background:rgba(78,205,196,0.05); color:var(--blue); border-radius:999px; cursor:pointer;
-      font-family:var(--mono); font-size:0.72rem; text-transform:uppercase; letter-spacing:0.12em; display:inline-flex; align-items:center; justify-content:center; gap:0.45rem; padding:0 1.1rem; flex-shrink:0;
-      transition:border-color 0.18s,color 0.18s,background 0.18s,transform 0.18s;
-    }
-    .send-btn:hover:not(:disabled) { border-color:rgba(78,205,196,0.6); background:rgba(78,205,196,0.1); transform:translateY(-1px); }
-    .send-btn:disabled { opacity:0.45; cursor:not-allowed; transform:none; }
-    .helper-line { display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:0.5rem 0.2rem 0; color:var(--soft); font-family:var(--mono); font-size:0.62rem; }
+    .quick-react-btn:hover{transform:translateY(-1px) scale(1.06);background:rgba(255,255,255,0.08);border-color:rgba(78,205,196,0.28)}
 
-    .mobile-inbox-btn {
-      display:none; width:40px; height:40px; border:1px solid var(--border); background:rgba(255,255,255,0.03); color:var(--muted); border-radius:50%; cursor:pointer;
-      align-items:center; justify-content:center; flex-shrink:0; position:relative; transition:border-color 0.18s,color 0.18s,background 0.18s;
+    .action-btn{
+      display:inline-flex;align-items:center;gap:0.35rem;border:1px solid rgba(255,255,255,0.07);
+      background:rgba(255,255,255,0.04);color:var(--muted);border-radius:999px;padding:0.34rem 0.74rem;
+      font-family:var(--mono);font-size:0.62rem;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;
+      transition:background .14s,border-color .14s,color .14s,transform .14s;white-space:nowrap
     }
-    .mobile-inbox-btn:hover { border-color:rgba(78,205,196,0.5); color:var(--blue); background:rgba(78,205,196,0.05); }
-    .mobile-inbox-dot { position:absolute; top:6px; right:6px; width:8px; height:8px; border-radius:50%; background:var(--red); box-shadow:0 0 0 2px rgba(23,23,23,0.95); display:none; }
-    .mobile-inbox-btn.has-unread .mobile-inbox-dot { display:block; }
-    .mobile-sidebar {
-      display:none; position:fixed; top:var(--header-h); left:0; bottom:0; width:min(88vw,340px); background:rgba(23,23,23,0.98); border-right:1px solid var(--border);
-      z-index:50; transform:translateX(-100%); transition:transform 0.22s ease; flex-direction:column; backdrop-filter:blur(10px);
-    }
-    .mobile-sidebar.active { transform:translateX(0); }
-    .mobile-sidebar .sidebar-top { padding-top:0.95rem; background:transparent; }
-    .mobile-sidebar .sidebar-body { flex:1; }
+    .action-btn:hover{background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.12);color:var(--fg);transform:translateY(-1px)}
+    .action-btn.danger:hover{background:rgba(255,107,107,0.09);border-color:rgba(255,107,107,0.25);color:#ffd4d4}
+    .action-btn.primary{border-color:rgba(78,205,196,0.3);color:var(--blue);background:rgba(78,205,196,0.06)}
+    .action-btn.primary:hover{background:rgba(78,205,196,0.12);border-color:rgba(78,205,196,0.5);color:#88eee5}
 
-    .modal { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.78); z-index:100; padding:1rem; }
-    .modal.active { display:flex; }
-    .modal-content { width:min(420px,100%); background:linear-gradient(to bottom,#1a1a1a,#151515); border:1px solid var(--border); border-radius:18px; padding:1.4rem; box-shadow:var(--shadow); }
-    .modal-title { color:var(--blue); font-family:var(--mono); font-size:0.84rem; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:0.55rem; }
-    .modal-copy { color:var(--muted); line-height:1.45; margin-bottom:1rem; font-size:1rem; }
-    .modal-input { width:100%; border:1px solid var(--border); background:var(--surface); color:var(--fg); border-radius:12px; padding:0.85rem 0.95rem; margin-bottom:0.85rem; outline:none; }
-    .modal-input:focus { border-color:rgba(78,205,196,0.55); }
-    .modal-actions { display:flex; flex-wrap:wrap; gap:0.65rem; }
-    .modal-btn { border-radius:999px; padding:0.72rem 1rem; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; font-family:var(--mono); font-size:0.72rem; letter-spacing:0.08em; text-transform:uppercase; }
-    .modal-btn.primary { background:rgba(78,205,196,0.1); color:var(--blue); border-color:rgba(78,205,196,0.35); }
-    .modal-error { min-height:1rem; color:var(--red); font-family:var(--mono); font-size:0.68rem; margin-top:0.8rem; }
+    .reply-bar{
+      display:none;align-items:center;gap:0.7rem;padding:0.56rem 0.9rem;
+      border-bottom:1px solid var(--border);background:rgba(25,25,25,0.9)
+    }
+    .reply-bar.active{display:flex}
+    .reply-bar-inner{min-width:0;flex:1}
+    .reply-bar-name{font-family:var(--mono);font-size:0.6rem;color:var(--blue);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.1rem}
+    .reply-bar-text{font-size:0.88rem;color:var(--soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .reply-bar-close{
+      background:none;border:none;color:var(--soft);cursor:pointer;font-size:0.9rem;flex-shrink:0;
+      width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:50%;
+      transition:color .15s,background .15s
+    }
+    .reply-bar-close:hover{color:var(--fg);background:rgba(255,255,255,0.06)}
 
-    @media (max-width:920px) {
-      html,body { height:100%; }
-      body { min-height:100dvh; }
-      .app-grid { grid-template-columns:1fr; min-height:0; height:calc(100dvh - var(--header-h)); }
-      .chat-shell,.chat-main { min-height:0; }
-      .sidebar { display:none; }
-      .logo { display:none; }
-      .mobile-inbox-btn { display:inline-flex; }
-      .mobile-sidebar { display:flex; }
-      .shell-header { grid-template-columns:auto 1fr auto; }
-      .header-left { gap:0.45rem; }
+    .system-row{align-self:center;max-width:720px;width:100%}
+    .system-card{
+      background:transparent;border:1px dashed rgba(255,255,255,0.07);border-radius:18px;
+      text-align:center;padding:1.4rem 1rem;color:var(--soft);font-family:var(--mono);font-size:0.68rem;letter-spacing:0.05em
     }
-    @media (max-width:700px) {
-      body { min-height:100dvh; overflow:auto; }
-      .app-grid,.chat-shell,.chat-main { min-height:0; }
-      .app-grid { overflow:visible; }
-      .chat-main { display:flex; flex-direction:column; height:100%; }
-      .message-list { flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; }
-      .composer-wrap { flex-shrink:0; position:sticky; bottom:0; z-index:5; background:rgba(19,19,19,0.98); padding-bottom:calc(0.72rem + env(safe-area-inset-bottom,0px)); }
-      .message-input { font-size:16px; }
+    .empty-icon{font-size:1.3rem;margin-bottom:0.55rem;opacity:0.7}
+    .empty-title{font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:0.5rem}
+    .empty-hint{font-family:var(--serif);font-size:0.95rem;color:var(--soft);line-height:1.6;max-width:38ch;margin:0 auto}
+
+    .typing-row{align-self:flex-start}
+    .typing-bubble{
+      display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.035);
+      border:1px solid rgba(255,255,255,0.05);border-left:2px solid rgba(78,205,196,0.4);border-radius:14px;
+      padding:0.55rem 0.88rem;animation:msgIn 160ms var(--ease) both
     }
-    @media (max-width:640px) {
-      .shell-header { padding:0.7rem 0.75rem; gap:0.55rem; }
-      .back-btn { min-width:0; height:40px; padding:0 0.82rem; font-size:0.78rem; }
-      .back-btn i { display:none; }
-      .header-room-title { font-size:1rem; }
-      .header-room-subtitle { font-size:0.56rem; max-width:170px; }
-      .message-list { padding:0.85rem 0.72rem 0.8rem; gap:0.75rem; }
-      .message-row { gap:0.5rem; }
-      .message-avatar { width:30px; height:30px; font-size:0.85rem; }
-      .message-bubble { padding:0.6rem 0.75rem 0.65rem; border-radius:12px; }
-      .message-name { font-size:0.9rem; }
-      .message-time { font-size:0.58rem; }
-      .message-text { font-size:0.94rem; }
-      .composer-wrap { padding:0.65rem 0.72rem calc(0.72rem + env(safe-area-inset-bottom,0px)); }
-      .helper-line { display:none; }
-      .composer { gap:0.5rem; }
-      .message-input { min-height:46px; padding:0.76rem 0.88rem; border-radius:16px; font-size:16px; }
-      .send-btn { width:46px; height:46px; min-width:46px; padding:0; border-radius:50%; font-size:0.9rem; }
-      .send-btn .send-label { display:none; }
-      .mobile-sidebar { width:min(92vw,340px); }
+    .typing-label{font-family:var(--mono);font-size:0.62rem;color:var(--soft)}
+    .typing-dots{display:inline-flex;gap:3px;align-items:center}
+    .typing-dots span{display:block;width:5px;height:5px;border-radius:50%;background:var(--blue);animation:dotBounce 1.05s ease-in-out infinite}
+    .typing-dots span:nth-child(2){animation-delay:.16s}
+    .typing-dots span:nth-child(3){animation-delay:.32s}
+    @keyframes dotBounce{0%,60%,100%{transform:translateY(0);opacity:0.4}30%{transform:translateY(-4px);opacity:1}}
+
+    .composer-wrap{flex-shrink:0;width:100%;border-top:1px solid var(--border);background:rgba(19,19,19,0.95);backdrop-filter:blur(10px)}
+    .composer-inner{padding:0.8rem 0.9rem 0.9rem}
+    .composer-status{min-height:0;padding:0 0.15rem 0.42rem;font-family:var(--mono);font-size:0.64rem;letter-spacing:0.04em;color:var(--soft)}
+    .composer-status:empty{display:none}
+    .composer-status.error{color:var(--red)}
+    .composer{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0.65rem;align-items:end}
+    .message-input{
+      width:100%;min-height:54px;max-height:140px;resize:none;overflow-y:hidden;overflow-x:hidden;scrollbar-width:none;
+      border:1px solid var(--border);border-radius:16px;background:rgba(255,255,255,0.03);color:var(--fg);padding:0.9rem 1rem;
+      outline:none;line-height:1.5;-webkit-appearance:none;appearance:none;transition:border-color .18s,background .18s,box-shadow .18s
+    }
+    .message-input::-webkit-scrollbar{width:0;height:0}
+    .message-input:focus{border-color:rgba(78,205,196,0.5);background:rgba(255,255,255,0.04);box-shadow:0 0 0 3px rgba(78,205,196,0.07)}
+    .message-input::placeholder{color:var(--soft);font-style:italic}
+    .send-btn{
+      min-width:110px;height:54px;border:1px solid var(--border);background:rgba(78,205,196,0.05);color:var(--blue);
+      border-radius:999px;cursor:pointer;font-family:var(--mono);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.12em;
+      display:inline-flex;align-items:center;justify-content:center;gap:0.45rem;padding:0 1.1rem;flex-shrink:0;
+      transition:border-color .18s,color .18s,background .18s,transform .18s
+    }
+    .send-btn:hover:not(:disabled){border-color:rgba(78,205,196,0.6);background:rgba(78,205,196,0.1);transform:translateY(-1px)}
+    .send-btn:disabled{opacity:0.45;cursor:not-allowed;transform:none}
+    .helper-line{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:0.5rem 0.2rem 0;color:var(--soft);font-family:var(--mono);font-size:0.62rem}
+
+    .mobile-inbox-btn{
+      display:none;width:40px;height:40px;border:1px solid var(--border);background:rgba(255,255,255,0.03);
+      color:var(--muted);border-radius:50%;cursor:pointer;align-items:center;justify-content:center;flex-shrink:0;position:relative;
+      transition:border-color .18s,color .18s,background .18s
+    }
+    .mobile-inbox-btn:hover{border-color:rgba(78,205,196,0.5);color:var(--blue);background:rgba(78,205,196,0.05)}
+    .mobile-inbox-dot{
+      position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--red);
+      box-shadow:0 0 0 2px rgba(23,23,23,0.95);display:none
+    }
+    .mobile-inbox-btn.has-unread .mobile-inbox-dot{display:block}
+    .mobile-sidebar{
+      display:none;position:fixed;top:var(--header-h);left:0;bottom:0;width:min(88vw,340px);
+      background:rgba(23,23,23,0.98);border-right:1px solid var(--border);z-index:50;
+      transform:translateX(-100%);transition:transform .22s ease;flex-direction:column;backdrop-filter:blur(10px)
+    }
+    .mobile-sidebar.active{transform:translateX(0)}
+    .mobile-sidebar .sidebar-top{padding-top:0.95rem;background:transparent}
+    .mobile-sidebar .sidebar-body{flex:1}
+
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.78);z-index:100;padding:1rem}
+    .modal.active{display:flex}
+    .modal-content{width:min(420px,100%);background:linear-gradient(to bottom,#1a1a1a,#151515);border:1px solid var(--border);border-radius:18px;padding:1.4rem;box-shadow:var(--shadow)}
+    .modal-title{color:var(--blue);font-family:var(--mono);font-size:0.84rem;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.55rem}
+    .modal-copy{color:var(--muted);line-height:1.45;margin-bottom:1rem;font-size:1rem}
+    .modal-input{width:100%;border:1px solid var(--border);background:var(--surface);color:var(--fg);border-radius:12px;padding:0.85rem 0.95rem;margin-bottom:0.85rem;outline:none}
+    .modal-input:focus{border-color:rgba(78,205,196,0.55)}
+    .modal-actions{display:flex;flex-wrap:wrap;gap:0.65rem}
+    .modal-btn{border-radius:999px;padding:0.72rem 1rem;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:var(--mono);font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase}
+    .modal-btn.primary{background:rgba(78,205,196,0.1);color:var(--blue);border-color:rgba(78,205,196,0.35)}
+    .modal-error{min-height:1rem;color:var(--red);font-family:var(--mono);font-size:0.68rem;margin-top:0.8rem}
+
+    @media(max-width:920px){
+      html,body{height:100%}
+      body{min-height:100dvh}
+      .app-grid{grid-template-columns:1fr;min-height:0;height:calc(100dvh - var(--header-h))}
+      .chat-shell,.chat-main{min-height:0}
+      .sidebar{display:none}
+      .logo{display:none}
+      .mobile-inbox-btn{display:inline-flex}
+      .mobile-sidebar{display:flex}
+      .shell-header{grid-template-columns:auto 1fr auto}
+      .header-left{gap:0.45rem}
+    }
+    @media(max-width:700px){
+      body{min-height:100dvh;overflow:auto}
+      .app-grid,.chat-shell,.chat-main{min-height:0}
+      .app-grid{overflow:visible}
+      .chat-main{display:flex;flex-direction:column;height:100%}
+      .message-list{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+      .composer-wrap{flex-shrink:0;position:sticky;bottom:0;z-index:5;background:rgba(19,19,19,0.98)}
+      .composer-inner{padding-bottom:calc(0.72rem + env(safe-area-inset-bottom,0px))}
+      .message-input{font-size:16px}
+    }
+    @media(max-width:640px){
+      .shell-header{padding:0.7rem 0.75rem;gap:0.55rem}
+      .back-btn{min-width:0;height:40px;padding:0 0.82rem;font-size:0.78rem}
+      .back-btn i{display:none}
+      .header-room-title{font-size:1rem}
+      .header-room-subtitle{font-size:0.56rem;max-width:170px}
+      .message-list{padding:0.85rem 0.72rem 0.8rem;gap:0.75rem}
+      .message-row{gap:0.5rem}
+      .message-avatar{width:30px;height:30px;font-size:0.85rem}
+      .message-bubble{padding:0.6rem 0.75rem 0.65rem;border-radius:12px}
+      .message-name{font-size:0.9rem}
+      .message-time{font-size:0.58rem}
+      .message-text{font-size:0.94rem}
+      .composer-inner{padding:0.65rem 0.72rem calc(0.72rem + env(safe-area-inset-bottom,0px))}
+      .helper-line{display:none}
+      .composer{gap:0.5rem}
+      .message-input{min-height:46px;padding:0.76rem 0.88rem;border-radius:16px;font-size:16px}
+      .send-btn{width:46px;height:46px;min-width:46px;padding:0;border-radius:50%;font-size:0.9rem}
+      .send-btn .send-label{display:none}
+      .mobile-sidebar{width:min(92vw,340px)}
+      .quick-react-btn{min-width:32px;height:32px}
     }
   </style>
 </head>
 <body>
+  <!-- ========== HTML STRUCTURE (unchanged) ========== -->
   <header class="shell-header">
     <div class="header-left">
       <a href="/" class="logo">Colin Archive</a>
       <button id="mobileInboxBtn" class="mobile-inbox-btn" type="button" aria-label="Open inbox">
-        <i class="fas fa-bars"></i>
-        <span class="mobile-inbox-dot"></span>
+        <i class="fas fa-bars"></i><span class="mobile-inbox-dot"></span>
       </button>
     </div>
     <div class="header-room">
@@ -527,8 +418,7 @@
     </div>
     <div class="header-right">
       <button id="backToPublicBtn" class="back-btn hidden" type="button">
-        <i class="fas fa-arrow-left"></i>
-        <span class="back-label">Back</span>
+        <i class="fas fa-arrow-left"></i><span class="back-label">Back</span>
       </button>
     </div>
   </header>
@@ -550,7 +440,7 @@
   <div class="modal" id="nameModal" aria-hidden="true">
     <div class="modal-content">
       <div class="modal-title">Join the conversation</div>
-      <p class="modal-copy">Pick a display name. It should be something people will actually recognise.</p>
+      <p class="modal-copy">Pick a display name. Something people will actually recognise.</p>
       <input id="guestName" class="modal-input" type="text" placeholder="Your display name" maxlength="30" autocomplete="off" />
       <div class="modal-actions">
         <button id="joinGuestBtn" class="modal-btn primary">Join as guest</button>
@@ -580,18 +470,28 @@
         <div id="messageList" class="message-list" aria-live="polite">
           <div class="system-row"><div class="system-card">Loading messages...</div></div>
         </div>
+
         <div class="composer-wrap">
-          <div id="composerStatus" class="composer-status"></div>
-          <div class="composer">
-            <textarea id="messageInput" class="message-input" rows="1" maxlength="500" placeholder="Type a message..."></textarea>
-            <button id="sendBtn" class="send-btn" type="button" aria-label="Send message">
-              <i class="fas fa-paper-plane"></i>
-              <span class="send-label">Send</span>
-            </button>
+          <div id="replyBar" class="reply-bar">
+            <div class="reply-bar-inner">
+              <div id="replyBarName" class="reply-bar-name"></div>
+              <div id="replyBarText" class="reply-bar-text"></div>
+            </div>
+            <button id="replyBarClose" class="reply-bar-close" type="button" aria-label="Cancel reply">✕</button>
           </div>
-          <div class="helper-line">
-            <span>Enter to send · Shift+Enter for new line</span>
-            <span id="charCounter">0 / 500</span>
+
+          <div class="composer-inner">
+            <div id="composerStatus" class="composer-status"></div>
+            <div class="composer">
+              <textarea id="messageInput" class="message-input" rows="1" maxlength="500" placeholder="Type a message..."></textarea>
+              <button id="sendBtn" class="send-btn" type="button" aria-label="Send message">
+                <i class="fas fa-paper-plane"></i><span class="send-label">Send</span>
+              </button>
+            </div>
+            <div class="helper-line">
+              <span>Enter to send · Shift+Enter for new line</span>
+              <span id="charCounter">0 / 500</span>
+            </div>
           </div>
         </div>
       </div>
@@ -599,141 +499,194 @@
   </div>
 
   <script>
-  (function () {
+  (function(){
     'use strict';
 
-    const SUPABASE_URL = 'https://lbpkgvmxxcubzbzwoswd.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI';
-    const PUBLIC_ROOM = 'general';
-    const STORAGE = { userId:'colinChatUserId', userName:'colinChatUserName', convo:'colinChatConversation' };
-    const COOLDOWN_MS = 900;
+    const SB_URL  = 'https://lbpkgvmxxcubzbzwoswd.supabase.co';
+    const SB_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI';
+    const PUB_ROOM = 'general';
+
+    const SK = {
+      uid:'colinChatUserId',
+      uname:'colinChatUserName',
+      convo:'colinChatConversation'
+    };
+
+    const COOLDOWN = 900;
     const NEAR_BOTTOM = 88;
-    const MAX_TA_H = 140;
-    const TYPING_EXPIRE_MS = 3000;
-    const TYPING_THROTTLE_MS = 700;
-    const PRESENCE_EXPIRE_MS = 35000;
-    const PRESENCE_HEARTBEAT_MS = 12000;
+    const MAX_TA = 140;
+    const TYPING_EXPIRE = 3000;
+    const TYPING_THROTTLE = 700;
+    const PRESENCE_EXPIRE = 35000;
+    const PRESENCE_BEAT = 12000;
+    const REACTIONS = ['👍','❤️','😂','😮','😢','🔥'];
 
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const sb = window.supabase.createClient(SB_URL, SB_KEY);
+
     const $ = id => document.getElementById(id);
-    const now = () => new Date().toISOString();
-    const esc = v => String(v || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-    const normName = v => String(v || '').replace(/\s+/g, ' ').replace(/[\u200B-\u200D\uFEFF]/g, '').trim().slice(0,30);
-    const initial = n => { const c = normName(n); return c ? c[0].toUpperCase() : '?'; };
-    const isMobile = () => window.innerWidth <= 920;
-    const dmKey = (a, b) => [a, b].sort().join('__');
+    const nowIso = () => new Date().toISOString();
+    const esc = v => String(v ?? '')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#039;');
 
-    const timeFmt = new Intl.DateTimeFormat(undefined, { hour:'2-digit', minute:'2-digit' });
-    const dateFmt = new Intl.DateTimeFormat(undefined, { month:'short', day:'numeric', year:'numeric' });
+    const normName = v => String(v || '')
+      .replace(/\s+/g,' ')
+      .replace(/[\u200B-\u200D\uFEFF]/g,'')
+      .trim()
+      .slice(0,30);
+
+    const initial = n => {
+      const c = normName(n);
+      return c ? c[0].toUpperCase() : '?';
+    };
+
+    const isMob = () => window.innerWidth <= 920;
+    const dmKey = (a,b) => [a,b].sort().join('__');
+
+    const timeFmt = new Intl.DateTimeFormat(undefined,{hour:'2-digit',minute:'2-digit'});
+    const dateFmt = new Intl.DateTimeFormat(undefined,{month:'short',day:'numeric',year:'numeric'});
 
     const el = {
-      nameModal: $('nameModal'),
-      guestName: $('guestName'),
-      joinBtn: $('joinGuestBtn'),
-      clearBtn: $('clearSessionBtn'),
-      nameErr: $('nameError'),
-      userList: $('userList'),
-      mobileList: $('mobileUserList'),
-      sideSearch: $('sidebarSearch'),
-      mobSearch: $('mobileSidebarSearch'),
-      inboxBtn: $('mobileInboxBtn'),
-      mobSide: $('mobileSidebar'),
-      chatTitle: $('chatTitle'),
-      chatSub: $('chatSubtitle'),
-      backBtn: $('backToPublicBtn'),
-      msgList: $('messageList'),
-      msgInput: $('messageInput'),
-      sendBtn: $('sendBtn'),
-      status: $('composerStatus'),
-      counter: $('charCounter'),
-      deskPresence: $('deskPresenceSummary'),
-      mobPresence: $('mobPresenceSummary'),
-      chatMain: $('chatMain')
+      modal:$('nameModal'),
+      gname:$('guestName'),
+      joinBtn:$('joinGuestBtn'),
+      clearBtn:$('clearSessionBtn'),
+      nameErr:$('nameError'),
+
+      userList:$('userList'),
+      mobList:$('mobileUserList'),
+      sideSearch:$('sidebarSearch'),
+      mobSearch:$('mobileSidebarSearch'),
+      inboxBtn:$('mobileInboxBtn'),
+      mobSide:$('mobileSidebar'),
+
+      title:$('chatTitle'),
+      sub:$('chatSubtitle'),
+      backBtn:$('backToPublicBtn'),
+
+      msgList:$('messageList'),
+      input:$('messageInput'),
+      sendBtn:$('sendBtn'),
+      status:$('composerStatus'),
+      counter:$('charCounter'),
+
+      chatMain:$('chatMain'),
+      deskPres:$('deskPresenceSummary'),
+      mobPres:$('mobPresenceSummary'),
+
+      replyBar:$('replyBar'),
+      replyName:$('replyBarName'),
+      replyText:$('replyBarText'),
+      replyClose:$('replyBarClose')
     };
 
     const state = {
-      inited: false,
-      activityStarted: false,
-      convo: { type:'public', recipientId:null },
-      user: { id:getOrCreateId(), name:normName(localStorage.getItem(STORAGE.userName) || '') },
-      pubMsgs: [],
-      privMsgs: {},
-      contacts: new Map(),
-      lastSendAt: 0,
-      searchTerm: '',
-      sideOpen: false,
-      stickBottom: true,
-      raf: null,
-      activeRowId: null,
-      lastTypingSentAt: 0,
-      presenceBeat: null,
-      presenceDecayBeat: null,
-      presenceMap: new Map(),
-      subs: { pub:null, privIns:null, privUpd:null, presence:null, typing:null }
+      inited:false,
+      activityOn:false,
+      convo:{type:'public',recipientId:null},
+      user:{id:getOrCreateId(),name:normName(localStorage.getItem(SK.uname) || '')},
+
+      pubMsgs:[],
+      privMsgs:{},
+      contacts:new Map(),
+      reactions:{},
+
+      lastSendAt:0,
+      searchTerm:'',
+      sideOpen:false,
+      stickBottom:true,
+
+      raf:null,
+      activeRowId:null,
+      replyTo:null,
+      lastTypingAt:0,
+
+      presMap:new Map(),
+      restoreBackLock:false,
+      presBeat:null,
+      presDecay:null,
+
+      subs:{pub:null,privIns:null,privUpd:null,pres:null,typing:null,react:null}
     };
 
-    function getOrCreateId() {
-      let id = localStorage.getItem(STORAGE.userId);
-      if (id && /^[a-zA-Z0-9_-]{10,}$/.test(id)) return id;
-      id = 'guest_' + (crypto.randomUUID ? crypto.randomUUID().replace(/-/g, '') : Math.random().toString(36).slice(2) + Date.now());
-      localStorage.setItem(STORAGE.userId, id);
+    function getOrCreateId(){
+      let id = localStorage.getItem(SK.uid);
+      if(id && /^[a-zA-Z0-9_-]{10,}$/.test(id)) return id;
+      id = 'guest_' + (crypto.randomUUID ? crypto.randomUUID().replace(/-/g,'') : Math.random().toString(36).slice(2) + Date.now());
+      localStorage.setItem(SK.uid,id);
       return id;
     }
 
-    function validateName(v) {
-      const name = normName(v);
-      if (!name || name.length < 2) return { ok:false, msg:'Use at least 2 characters.' };
-      if (!/[A-Za-zÀ-ÿ0-9]/.test(name)) return { ok:false, msg:'Use normal letters or numbers.' };
-      return { ok:true, name };
+    function validateName(v){
+      const n = normName(v);
+      if(!n || n.length < 2) return {ok:false,msg:'Use at least 2 characters.'};
+      if(!/[A-Za-zÀ-ÿ0-9]/.test(n)) return {ok:false,msg:'Use normal letters or numbers.'};
+      return {ok:true,name:n};
     }
 
-    function initHistory() {
-      history.replaceState({ chat:'public' }, '', location.href);
+    function initHistory(){
+      history.replaceState({chat:'public'},'',location.href);
     }
-    window.addEventListener('popstate', e => {
+
+    window.addEventListener('popstate',e=>{
+      if(state.restoreBackLock) return;
       const hs = e.state;
-      if (!hs) return;
-      if (hs.chat === 'private' && hs.userId) {
-        applyConvo('private', hs.userId, hs.name, false);
+      if(!hs) return;
+      if(hs.chat === 'private' && hs.userId){
+        applyConvo('private',hs.userId,hs.name,false,false);
         return;
       }
-      applyConvo('public', null, null, false);
+      applyConvo('public',null,null,false,false);
     });
 
-    function relTime(iso) {
-      if (!iso) return '';
+    function relTime(iso){
+      if(!iso) return '';
       const s = Math.floor((Date.now() - new Date(iso)) / 1000);
-      if (s < 45) return 'just now';
-      if (s < 3600) return Math.floor(s / 60) + 'm ago';
-      if (s < 86400) return Math.floor(s / 3600) + 'h ago';
-      const d = Math.floor(s / 86400);
-      if (d === 1) return 'yesterday';
-      if (d < 7) return d + 'd ago';
+      if(s < 45) return 'just now';
+      if(s < 3600) return Math.floor(s/60) + 'm ago';
+      if(s < 86400) return Math.floor(s/3600) + 'h ago';
+      const d = Math.floor(s/86400);
+      if(d === 1) return 'yesterday';
+      if(d < 7) return d + 'd ago';
       return dateFmt.format(new Date(iso));
     }
+
     const msgTime = iso => iso ? timeFmt.format(new Date(iso)) + ' · ' + relTime(iso) : '';
     const sideTime = iso => iso ? relTime(iso) : '';
 
-    function sameDay(a, b) {
-      if (!a || !b) return false;
+    function sameDay(a,b){
+      if(!a || !b) return false;
       const d1 = new Date(a), d2 = new Date(b);
-      return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+      return d1.getFullYear() === d2.getFullYear()
+        && d1.getMonth() === d2.getMonth()
+        && d1.getDate() === d2.getDate();
     }
 
-    function scrollBottom(force = false, smooth = false) {
-      if (!force && !state.stickBottom) return;
-      if (state.raf) {
+    function currentScrollGap(){
+      return el.msgList.scrollHeight - el.msgList.scrollTop - el.msgList.clientHeight;
+    }
+
+    function isNearBottom(){
+      return currentScrollGap() < NEAR_BOTTOM;
+    }
+
+    function scrollBottom(force=false,smooth=false){
+      if(!force && !state.stickBottom) return;
+      if(state.raf){
         cancelAnimationFrame(state.raf);
         state.raf = null;
       }
       const target = el.msgList.scrollHeight;
-      if (!smooth) {
+      if(!smooth){
         el.msgList.scrollTop = target;
         return;
       }
       const start = el.msgList.scrollTop;
       const delta = target - start;
-      if (Math.abs(delta) < 6) {
+      if(Math.abs(delta) < 6){
         el.msgList.scrollTop = target;
         return;
       }
@@ -746,913 +699,1261 @@
       state.raf = requestAnimationFrame(step);
     }
 
-    const openSide = () => {
+    function scrollToMessage(mid){
+      const row = el.msgList.querySelector(`[data-mid="${CSS.escape(mid)}"]`);
+      if(!row) return;
+      row.scrollIntoView({behavior:'smooth',block:'center'});
+      row.classList.remove('flash-hint');
+      void row.offsetWidth;
+      row.classList.add('flash-hint');
+      setTimeout(()=>row.classList.remove('flash-hint'),1200);
+    }
+
+    const openSide = ()=>{
       state.sideOpen = true;
       el.mobSide.classList.add('active');
-      el.mobSide.setAttribute('aria-hidden', 'false');
-    };
-    const closeSide = () => {
-      state.sideOpen = false;
-      el.mobSide.classList.remove('active');
-      el.mobSide.setAttribute('aria-hidden', 'true');
+      el.mobSide.setAttribute('aria-hidden','false');
     };
 
-    const setStatus = (msg = '', type = '') => {
+    const closeSide = ()=>{
+      state.sideOpen = false;
+      el.mobSide.classList.remove('active');
+      el.mobSide.setAttribute('aria-hidden','true');
+    };
+
+    const setStatus = (msg='',type='')=>{
       el.status.textContent = msg;
       el.status.className = 'composer-status' + (type ? ' ' + type : '');
     };
 
-    function showModal(prefill = '') {
+    function showModal(prefill=''){
       el.nameErr.textContent = '';
-      el.guestName.value = prefill || state.user.name || '';
-      el.nameModal.classList.add('active');
-      el.nameModal.setAttribute('aria-hidden', 'false');
-      setTimeout(() => el.guestName.focus(), 20);
-    }
-    function hideModal() {
-      el.nameModal.classList.remove('active');
-      el.nameModal.setAttribute('aria-hidden', 'true');
+      el.gname.value = prefill || state.user.name || '';
+      el.modal.classList.add('active');
+      el.modal.setAttribute('aria-hidden','false');
+      setTimeout(()=>el.gname.focus(),20);
     }
 
-    function ensureContact(userId, name) {
-      if (!userId || userId === state.user.id) return;
-      if (!state.contacts.has(userId)) {
-        state.contacts.set(userId, {
+    function hideModal(){
+      el.modal.classList.remove('active');
+      el.modal.setAttribute('aria-hidden','true');
+    }
+
+    function setReply(msg){
+      if(!msg){
+        state.replyTo = null;
+        el.replyBar.classList.remove('active');
+        return;
+      }
+      const name = normName(msg.sender_name || msg.name || 'Unknown');
+      state.replyTo = {
+        id: msg.id || msg._tempId,
+        senderName: name,
+        body: msg.body || msg.text || ''
+      };
+      el.replyName.textContent = '↩ ' + name;
+      el.replyText.textContent = state.replyTo.body.slice(0,120);
+      el.replyBar.classList.add('active');
+      el.input.focus();
+    }
+
+    function ensureContact(userId,name){
+      if(!userId || userId === state.user.id) return;
+      if(!state.contacts.has(userId)){
+        state.contacts.set(userId,{
           userId,
-          name: normName(name) || 'Unknown',
-          lastMessageAt: null,
-          lastPreview: '',
-          unreadCount: 0,
-          online: false,
-          lastSeenAt: null,
-          typing: false,
-          typingTimer: null
+          name:normName(name) || 'Unknown',
+          lastMessageAt:null,
+          lastPreview:'',
+          unreadCount:0,
+          online:false,
+          lastSeenAt:null,
+          typing:false,
+          typingTimer:null
         });
-      } else if (name && !state.contacts.get(userId).name) {
+      } else if(name && !state.contacts.get(userId).name){
         state.contacts.get(userId).name = normName(name);
       }
     }
 
-    function hydrateContact(row) {
+    function hydrateContact(row){
       const isMe = row.sender_id === state.user.id;
       const uid = isMe ? row.recipient_id : row.sender_id;
       const name = normName(isMe ? row.recipient_name : row.sender_name) || 'Unknown';
-      const ex = state.contacts.get(uid);
+      const existing = state.contacts.get(uid);
       const t = row.created_at ? new Date(row.created_at).getTime() : 0;
-      const et = ex?.lastMessageAt ? new Date(ex.lastMessageAt).getTime() : 0;
-      if (!ex || t >= et) {
-        state.contacts.set(uid, {
-          userId: uid,
+      const et = existing?.lastMessageAt ? new Date(existing.lastMessageAt).getTime() : 0;
+
+      if(!existing || t >= et){
+        state.contacts.set(uid,{
+          userId:uid,
           name,
-          lastMessageAt: row.created_at,
-          lastPreview: row.is_deleted ? 'Message deleted' : (row.body || ''),
-          unreadCount: ex?.unreadCount || 0,
-          online: ex?.online || false,
-          lastSeenAt: ex?.lastSeenAt || null,
-          typing: ex?.typing || false,
-          typingTimer: ex?.typingTimer || null
+          lastMessageAt:row.created_at,
+          lastPreview:row.is_deleted ? 'Message deleted' : (row.body || ''),
+          unreadCount:existing?.unreadCount || 0,
+          online:existing?.online || false,
+          lastSeenAt:existing?.lastSeenAt || null,
+          typing:existing?.typing || false,
+          typingTimer:existing?.typingTimer || null
         });
       }
     }
 
-    function isOnline(userId) {
-      const e = state.presenceMap.get(userId);
-      return !!e?.last_seen_at && (Date.now() - new Date(e.last_seen_at).getTime()) < PRESENCE_EXPIRE_MS;
+    function isOnline(uid){
+      const entry = state.presMap.get(uid);
+      return !!entry?.last_seen_at && (Date.now() - new Date(entry.last_seen_at).getTime()) < PRESENCE_EXPIRE;
     }
 
-    function refreshPresence() {
-      state.contacts.forEach(c => {
+    function refreshPresence(){
+      state.contacts.forEach(c=>{
         c.online = isOnline(c.userId);
-        const e = state.presenceMap.get(c.userId);
-        if (e?.last_seen_at) c.lastSeenAt = e.last_seen_at;
+        const p = state.presMap.get(c.userId);
+        if(p?.last_seen_at) c.lastSeenAt = p.last_seen_at;
       });
       renderContacts();
       updateHeader();
     }
 
-    async function pingPresence() {
-      if (!state.user.name) return;
-      const { error } = await sb.from('chat_presence').upsert({
-        user_id: state.user.id,
-        user_name: state.user.name,
-        last_seen_at: now()
-      }, { onConflict:'user_id' });
-      if (error) console.error('Presence ping failed:', error);
+    async function pingPresence(){
+      if(!state.user.name) return;
+      await sb.from('chat_presence')
+        .upsert({
+          user_id:state.user.id,
+          user_name:state.user.name,
+          last_seen_at:nowIso()
+        },{onConflict:'user_id'})
+        .catch(()=>{});
     }
 
-    function currentMessages() {
-      return state.convo.type === 'public' ? state.pubMsgs : (state.privMsgs[state.convo.recipientId] || []);
-    }
+    async function publishTyping(){
+      if(state.convo.type !== 'private' || !state.convo.recipientId || !state.user.name) return;
+      if(Date.now() - state.lastTypingAt < TYPING_THROTTLE) return;
+      if(!state.subs.typing) return;
 
-    function currentContact() {
-      return state.convo.type === 'private' ? state.contacts.get(state.convo.recipientId) : null;
-    }
-
-    async function publishTyping() {
-      if (state.convo.type !== 'private' || !state.convo.recipientId || !state.user.name) return;
-      if (Date.now() - state.lastTypingSentAt < TYPING_THROTTLE_MS) return;
-      state.lastTypingSentAt = Date.now();
-      if (!state.subs.typing) return;
-      const roomKey = dmKey(state.user.id, state.convo.recipientId);
-      const result = await state.subs.typing.send({
-        type: 'broadcast',
-        event: 'typing',
-        payload: {
-          user_id: state.user.id,
-          user_name: state.user.name,
-          room_key: roomKey,
-          last_typed_at: now()
+      state.lastTypingAt = Date.now();
+      await state.subs.typing.send({
+        type:'broadcast',
+        event:'typing',
+        payload:{
+          user_id:state.user.id,
+          user_name:state.user.name,
+          room_key:dmKey(state.user.id,state.convo.recipientId),
+          last_typed_at:nowIso()
         }
-      });
-      if (result !== 'ok') console.error('Typing broadcast failed:', result);
+      }).catch(()=>{});
     }
 
-    function handleTypingEvent(row) {
-      if (!row || row.user_id === state.user.id) return;
-      const myKey = dmKey(state.user.id, row.user_id);
-      if (row.room_key !== myKey) return;
-      ensureContact(row.user_id, row.user_name);
+    function handleTypingEvent(row){
+      if(!row || row.user_id === state.user.id) return;
+      if(row.room_key !== dmKey(state.user.id,row.user_id)) return;
+
+      ensureContact(row.user_id,row.user_name);
       const c = state.contacts.get(row.user_id);
-      if (!c) return;
-      if (c.typingTimer) clearTimeout(c.typingTimer);
+      if(!c) return;
+
+      if(c.typingTimer) clearTimeout(c.typingTimer);
       c.typing = true;
-      c.typingTimer = setTimeout(() => {
+      c.typingTimer = setTimeout(()=>{
         c.typing = false;
         c.typingTimer = null;
         renderContacts();
         updateHeader();
-        renderTyping();
-      }, TYPING_EXPIRE_MS);
+        renderTypingOnly();
+      },TYPING_EXPIRE);
+
       renderContacts();
       updateHeader();
-      renderTyping();
+      renderTypingOnly();
     }
 
-    function msgStatusInfo(msg) {
-      if (state.convo.type !== 'private') return null;
-      if (msg.sender_id !== state.user.id) return null;
-      if (msg._optimistic && !msg._failed) return { label:'Sending', cls:'st-sending' };
-      if (msg._failed) return { label:'Failed · retry', cls:'st-failed' };
-      if (msg.seen_at) return { label:'Seen', cls:'st-seen' };
-      return { label:'Delivered', cls:'st-delivered' };
+    function curMsgs(){
+      return state.convo.type === 'public'
+        ? state.pubMsgs
+        : (state.privMsgs[state.convo.recipientId] || []);
     }
 
-    function canDeletePrivate(msg) {
-      return state.convo.type === 'private' && !!msg && msg.sender_id === state.user.id && !msg.is_deleted && !msg._optimistic && !!msg.id;
+    function curContact(){
+      return state.convo.type === 'private'
+        ? state.contacts.get(state.convo.recipientId)
+        : null;
     }
 
-    function canDeletePublic(msg) {
-      return state.convo.type === 'public' && !!msg && msg.sender_id === state.user.id && !!msg.id;
+    function currentMessageIds(){
+      return new Set(curMsgs().map(m=>m.id || m._tempId).filter(Boolean));
     }
 
-    function renderTyping() {
-      const old = $('typingRow');
-      if (old) old.remove();
-      if (state.convo.type !== 'private') return;
-      const c = currentContact();
-      if (!c?.typing) return;
-      const html = `<div class="typing-row" id="typingRow"><div class="typing-bubble"><span class="typing-label">${esc(c.name)}</span><span class="typing-dots"><span></span><span></span><span></span></span></div></div>`;
-      el.msgList.insertAdjacentHTML('beforeend', html);
-      scrollBottom(false, true);
+    // --- NEW: subtle status icons (no text except failed) ---
+    function msgStatusInfo(msg){
+      if(state.convo.type !== 'private' || msg.sender_id !== state.user.id) return null;
+      if(msg._optimistic && !msg._failed) return {icon:'⏳', cls:'st-sending', label:'Sending'};
+      if(msg._failed) return {icon:'⚠️', cls:'st-failed', label:'Failed'};
+      if(msg.seen_at) return {icon:'✓✓', cls:'st-seen', label:'Seen'};
+      return {icon:'✓', cls:'st-delivered', label:'Delivered'};
     }
 
-    function bubbleHtml(msg) {
+    function reactionsHtml(mid){
+      const r = state.reactions[mid];
+      if(!r) return '';
+
+      const chips = Object.entries(r)
+        .filter(([,users])=>users.length > 0)
+        .map(([emoji,users])=>{
+          const mine = users.includes(state.user.id);
+          return `<span class="reaction-chip${mine ? ' mine' : ''}" data-react-mid="${esc(mid)}" data-emoji="${esc(emoji)}">${emoji}<span class="count">${users.length}</span></span>`;
+        })
+        .join('');
+
+      return chips ? `<div class="reaction-row">${chips}</div>` : '';
+    }
+
+    function quickReactsHtml(mid){
+      return `<div class="quick-reacts">${
+        REACTIONS.map(emoji=>`<button class="quick-react-btn" type="button" data-action="quick-react" data-id="${esc(mid)}" data-emoji="${esc(emoji)}">${emoji}</button>`).join('')
+      }</div>`;
+    }
+
+    function quoteHtml(msg,lookup){
+      if(!msg.reply_to_id) return '';
+      const orig = lookup.get(msg.reply_to_id);
+      const name = orig ? normName(orig.sender_name || orig.name || '?') : '…';
+      const text = orig
+        ? (orig.is_deleted ? 'Message deleted' : (orig.body || orig.text || '')).slice(0,100)
+        : 'Original message not found';
+
+      return `<div class="reply-quote" data-scroll-to="${esc(msg.reply_to_id)}">
+        <div class="reply-quote-name">${esc(name)}</div>
+        <div class="reply-quote-text">${esc(text)}</div>
+      </div>`;
+    }
+
+    function bubbleHtml(msg,lookup){
       const name = normName(msg.sender_name || msg.name || 'Unknown');
       const own = msg.sender_id === state.user.id || (!msg.sender_id && name === state.user.name);
       const isPriv = state.convo.type === 'private';
       const mid = msg.id || msg._tempId || '';
+
       const body = msg.is_deleted
         ? '<span class="message-text deleted">This message was deleted.</span>'
         : `<div class="message-text">${esc(msg.body || msg.text || '')}</div>`;
-      const si = msgStatusInfo(msg);
-      const statusHtml = si ? `<div class="message-status ${si.cls}">${esc(si.label)}</div>` : '<div class="message-status"></div>';
 
-      let actionsHtml = '<div class="message-actions"></div>';
-      if (own && isPriv) {
-        const parts = [];
-        if (msg._askDelete) {
-          parts.push(`<button class="action-btn danger" data-action="confirm-delete" data-id="${esc(mid)}"><i class="fas fa-trash" style="font-size:0.7em"></i> Are you sure?</button>`);
-          parts.push(`<button class="action-btn" data-action="cancel-delete" data-id="${esc(mid)}">Cancel</button>`);
-        } else {
-          if (canDeletePrivate(msg)) parts.push(`<button class="action-btn danger" data-action="ask-delete" data-id="${esc(mid)}"><i class="fas fa-trash" style="font-size:0.7em"></i> Delete</button>`);
-          if (msg._failed) parts.push(`<button class="action-btn primary" data-action="retry" data-id="${esc(mid)}"><i class="fas fa-rotate-right" style="font-size:0.7em"></i> Retry</button>`);
-        }
-        actionsHtml = `<div class="message-actions">${parts.join('')}</div>`;
-      } else if (own && !isPriv) {
-        const parts = [];
-        if (msg._askDelete) {
-          parts.push(`<button class="action-btn danger" data-action="confirm-delete-public" data-id="${esc(mid)}"><i class="fas fa-trash" style="font-size:0.7em"></i> Are you sure?</button>`);
-          parts.push(`<button class="action-btn" data-action="cancel-delete" data-id="${esc(mid)}">Cancel</button>`);
-        } else if (canDeletePublic(msg)) {
-          parts.push(`<button class="action-btn danger" data-action="ask-delete-public" data-id="${esc(mid)}"><i class="fas fa-trash" style="font-size:0.7em"></i> Delete</button>`);
-        }
-        actionsHtml = `<div class="message-actions">${parts.join('')}</div>`;
-      } else if (!own && !isPriv) {
-        actionsHtml = `<div class="message-actions"><button class="action-btn primary" data-action="dm" data-uid="${esc(msg.sender_id || '')}" data-name="${esc(name)}"><i class="fas fa-comment" style="font-size:0.7em"></i> Text ${esc(name)}</button></div>`;
+      const si = msgStatusInfo(msg);
+      const statusHtml = si
+        ? `<span class="message-status ${si.cls}" data-retry="${si.cls === 'st-failed' ? 'true' : ''}"><span class="status-icon">${si.icon}</span>${si.cls === 'st-failed' ? ' ' + esc(si.label) : ''}</span>`
+        : '';
+
+      const quote = quoteHtml(msg,lookup);
+      const hasReply = !!quote;
+
+      let actions = '<div class="message-actions"></div>';
+
+      if(own && isPriv){
+        const canDel = !msg.is_deleted && !msg._optimistic && !!msg.id;
+        const canRetry = !!msg._failed;
+        actions = `<div class="message-actions">
+          <button class="action-btn primary" data-action="reply" data-id="${esc(mid)}">↩ Reply</button>
+          ${canDel ? `<button class="action-btn danger" data-action="delete" data-id="${esc(mid)}">Delete</button>` : ''}
+          ${canRetry ? `<button class="action-btn primary" data-action="retry" data-id="${esc(mid)}">Retry</button>` : ''}
+        </div>`;
+      } else if(own && !isPriv){
+        const canDel = !msg.is_deleted && !!msg.id;
+        actions = `<div class="message-actions">
+          <button class="action-btn primary" data-action="reply" data-id="${esc(mid)}">↩ Reply</button>
+          ${canDel ? `<button class="action-btn danger" data-action="delete-public" data-id="${esc(mid)}">Delete</button>` : ''}
+        </div>`;
+      } else if(!own){
+        actions = `<div class="message-actions">
+          <button class="action-btn primary" data-action="reply" data-id="${esc(mid)}">↩ Reply</button>
+          ${!isPriv && msg.sender_id && msg.sender_id !== state.user.id ? `<button class="action-btn primary" data-action="dm" data-uid="${esc(msg.sender_id)}" data-name="${esc(name)}">💬 Text ${esc(name)}</button>` : ''}
+        </div>`;
       }
 
-      const hintHtml = msg._hint ? `<div class="message-status st-delivered">${esc(msg._hint)}</div>` : '';
-
-      const rowClasses = [
+      const rowCls = [
         'message-row',
         own ? 'own' : '',
         msg._optimistic && !msg._failed ? 'is-pending' : '',
         msg._failed ? 'is-failed' : '',
-        state.activeRowId === mid ? 'row-active' : ''
+        state.activeRowId === mid ? 'row-active' : '',
+        hasReply ? 'has-reply' : ''
       ].filter(Boolean).join(' ');
 
-      return `<div class="${rowClasses}" data-mid="${esc(mid)}">
+      return `<div class="${rowCls}" data-mid="${esc(mid)}">
         <div class="message-avatar">${esc(initial(name))}</div>
         <div class="message-stack">
+          ${quote}
           <div class="message-bubble" data-bubble-mid="${esc(mid)}" data-uid="${esc(msg.sender_id || '')}" data-name="${esc(name)}" data-own="${own ? '1' : '0'}">
             <div class="message-header">
               <span class="message-name">${esc(name)}</span>
-              <div class="message-time">${esc(msgTime(msg.created_at))}</div>
+              <div class="message-time">${esc(msgTime(msg.created_at))} ${statusHtml}</div>
             </div>
             ${body}
           </div>
-          ${actionsHtml}
-          ${statusHtml}
-          ${hintHtml}
+          ${reactionsHtml(mid)}
+          ${quickReactsHtml(mid)}
+          ${actions}
         </div>
       </div>`;
     }
 
-    function renderMessages(msgs, preserveBottomDistance = null) {
-      const m = Array.isArray(msgs) ? msgs : [];
-      if (!m.length) {
+    function renderTypingOnly(){
+      const old = $('typingRow');
+      if(old) old.remove();
+
+      if(state.convo.type !== 'private') return;
+      const c = curContact();
+      if(!c?.typing) return;
+
+      el.msgList.insertAdjacentHTML('beforeend', `
+        <div class="typing-row" id="typingRow">
+          <div class="typing-bubble">
+            <span class="typing-label">${esc(c.name)}</span>
+            <span class="typing-dots"><span></span><span></span><span></span></span>
+          </div>
+        </div>
+      `);
+
+      scrollBottom(false,true);
+    }
+
+    function renderMessages(msgs,opts={}){
+      const {
+        forceBottom=false,
+        preserveGap=true
+      } = opts;
+
+      const gapBefore = preserveGap ? currentScrollGap() : null;
+      const activeMid = state.activeRowId;
+      const rows = Array.isArray(msgs) ? msgs : [];
+
+      if(!rows.length){
         el.msgList.innerHTML = state.convo.type === 'private'
           ? `<div class="system-row"><div class="system-card"><div class="empty-icon">💬</div><div class="empty-title">No messages yet</div><div class="empty-hint">Start the private conversation. Only the two of you can see this.</div></div></div>`
-          : `<div class="system-row"><div class="system-card"><div class="empty-icon">🌍</div><div class="empty-title">Public room is quiet</div><div class="empty-hint">Say something, or click any message to open actions and start a private conversation.</div></div></div>`;
-        renderTyping();
-        bindMsgHandlers();
-        scrollBottom(true, false);
+          : `<div class="system-row"><div class="system-card"><div class="empty-icon">🌍</div><div class="empty-title">Public room is quiet</div><div class="empty-hint">Say something. React. Reply. Start a private conversation from any public message.</div></div></div>`;
+        renderTypingOnly();
+        if(forceBottom) scrollBottom(true,false);
         return;
       }
 
-      const oldBottomDistance = preserveBottomDistance ?? (el.msgList.scrollHeight - el.msgList.scrollTop);
+      const lookup = new Map();
+      rows.forEach(m=>lookup.set(m.id || m._tempId,m));
 
-      el.msgList.innerHTML = m.map((msg, i) => {
-        const divider = (!i || !sameDay(m[i - 1].created_at, msg.created_at))
-          ? `<div class="day-divider">${esc(dateFmt.format(new Date(msg.created_at)))}</div>` : '';
-        return divider + bubbleHtml(msg);
+      el.msgList.innerHTML = rows.map((msg,i)=>{
+        const divider = (!i || !sameDay(rows[i-1].created_at,msg.created_at))
+          ? `<div class="day-divider">${esc(dateFmt.format(new Date(msg.created_at)))}</div>`
+          : '';
+        return divider + bubbleHtml(msg,lookup);
       }).join('');
 
-      renderTyping();
-      bindMsgHandlers();
+      renderTypingOnly();
 
-      if (preserveBottomDistance !== null) {
-        el.msgList.scrollTop = Math.max(0, el.msgList.scrollHeight - oldBottomDistance);
+      if(activeMid){
+        const row = el.msgList.querySelector(`[data-mid="${CSS.escape(activeMid)}"]`);
+        if(row) row.classList.add('row-active');
+        else state.activeRowId = null;
+      }
+
+      if(forceBottom){
+        scrollBottom(true,false);
         return;
       }
 
-      scrollBottom(true, false);
+      if(state.stickBottom){
+        scrollBottom(false,false);
+        return;
+      }
+
+      if(preserveGap && gapBefore !== null){
+        const newTop = el.msgList.scrollHeight - el.msgList.clientHeight - gapBefore;
+        el.msgList.scrollTop = Math.max(0,newTop);
+      }
     }
 
-    function renderContacts() {
+    function renderContacts(){
       const term = state.searchTerm.toLowerCase();
-      const list = [...state.contacts.values()]
-        .filter(c => c.userId !== state.user.id && (!term || c.name.toLowerCase().includes(term)))
-        .sort((a, b) => (b.lastMessageAt ? new Date(b.lastMessageAt) : 0) - (a.lastMessageAt ? new Date(a.lastMessageAt) : 0));
 
-      const html = list.length ? list.map(c => {
-        const active = state.convo.type === 'private' && state.convo.recipientId === c.userId;
-        const badge = c.unreadCount > 0 ? `<span class="unread-badge">${c.unreadCount > 99 ? '99+' : c.unreadCount}</span>` : '';
-        const lastMsg = (state.privMsgs[c.userId] || []).slice(-1)[0];
-        const isMine = !!lastMsg && lastMsg.sender_id === state.user.id && !c.typing;
-        const preview = c.typing ? 'typing...' : (c.lastPreview || '');
-        const previewFull = isMine ? 'You: ' + preview : preview;
-        const timeLabel = c.online ? 'online' : sideTime(c.lastMessageAt || c.lastSeenAt);
-        return `<button class="user-item${active ? ' active' : ''}" type="button" data-uid="${esc(c.userId)}" data-name="${esc(c.name)}">
-          <div class="user-avatar-wrap">
-            <div class="user-avatar">${esc(initial(c.name))}</div>
-            <span class="presence-dot${c.online ? ' online' : ''}"></span>
-          </div>
-          <div class="sidebar-user-main">
-            <div class="sidebar-user-top">
-              <span class="sidebar-user-name">${esc(c.name)}</span>
-              <span class="sidebar-user-time">${esc(timeLabel)}</span>
-            </div>
-            <span class="sidebar-user-sub${c.unreadCount > 0 ? ' has-unread' : ''}${c.typing ? ' is-typing' : ''}">${esc(previewFull.slice(0, 48))}</span>
-          </div>
-          ${badge}
-        </button>`;
-      }).join('') : '<div class="system-card" style="border-radius:12px;font-size:0.65rem">No private conversations yet.<br>Click any message to start one.</div>';
+      const list = [...state.contacts.values()]
+        .filter(c=>c.userId !== state.user.id && (!term || c.name.toLowerCase().includes(term)))
+        .sort((a,b)=>(b.lastMessageAt ? new Date(b.lastMessageAt) : 0) - (a.lastMessageAt ? new Date(a.lastMessageAt) : 0));
+
+      const html = list.length
+        ? list.map(c=>{
+            const active = state.convo.type === 'private' && state.convo.recipientId === c.userId;
+            const badge = c.unreadCount > 0 ? `<span class="unread-badge">${c.unreadCount > 99 ? '99+' : c.unreadCount}</span>` : '';
+            const lastMsg = (state.privMsgs[c.userId] || []).slice(-1)[0];
+            const isMine = !!lastMsg && lastMsg.sender_id === state.user.id && !c.typing;
+            const preview = c.typing ? 'typing...' : (c.lastPreview || '');
+            const full = isMine ? 'You: ' + preview : preview;
+
+            return `<button class="user-item${active ? ' active' : ''}" type="button" data-uid="${esc(c.userId)}" data-name="${esc(c.name)}">
+              <div class="user-avatar-wrap">
+                <div class="user-avatar">${esc(initial(c.name))}</div>
+                <span class="presence-dot${c.online ? ' online' : ''}"></span>
+              </div>
+              <div class="sidebar-user-main">
+                <div class="sidebar-user-top">
+                  <span class="sidebar-user-name">${esc(c.name)}</span>
+                  <span class="sidebar-user-time">${esc(c.online ? 'online' : sideTime(c.lastMessageAt || c.lastSeenAt))}</span>
+                </div>
+                <span class="sidebar-user-sub${c.unreadCount > 0 ? ' has-unread' : ''}${c.typing ? ' is-typing' : ''}">${esc(full.slice(0,48))}</span>
+              </div>
+              ${badge}
+            </button>`;
+          }).join('')
+        : `<div class="system-card" style="border-radius:12px;font-size:0.65rem">No private conversations yet.<br>Click any public message to start one.</div>`;
 
       el.userList.innerHTML = html;
-      el.mobileList.innerHTML = html;
-      bindSideHandlers();
-      el.inboxBtn.classList.toggle('has-unread', [...state.contacts.values()].some(c => c.unreadCount > 0));
-      const onlineCount = [...state.contacts.values()].filter(c => c.online).length;
+      el.mobList.innerHTML = html;
+
+      el.inboxBtn.classList.toggle('has-unread',[...state.contacts.values()].some(c=>c.unreadCount > 0));
+
+      const onlineCount = [...state.contacts.values()].filter(c=>c.online).length;
       const label = onlineCount ? onlineCount + ' online' : '';
-      el.deskPresence.textContent = label;
-      el.mobPresence.textContent = label;
+      el.deskPres.textContent = label;
+      el.mobPres.textContent = label;
     }
 
-    function updateHeader() {
+    function updateHeader(){
       const priv = state.convo.type === 'private';
-      el.backBtn.classList.toggle('hidden', !priv);
-      el.chatMain.classList.toggle('is-private', priv);
-      if (!priv) {
-        el.chatTitle.textContent = 'Public room';
-        el.chatSub.textContent = 'Everyone can read this room';
-        el.chatSub.classList.remove('typing');
+      el.backBtn.classList.toggle('hidden',!priv);
+      el.chatMain.classList.toggle('is-private',priv);
+
+      if(!priv){
+        el.title.textContent = 'Public room';
+        el.sub.textContent = 'Everyone can read this room';
+        el.sub.classList.remove('typing');
         return;
       }
-      const c = currentContact();
-      el.chatTitle.textContent = c?.name || 'Private conversation';
-      if (c?.typing) {
-        el.chatSub.textContent = c.name + ' is typing...';
-        el.chatSub.classList.add('typing');
+
+      const c = curContact();
+      el.title.textContent = c?.name || 'Private conversation';
+
+      if(c?.typing){
+        el.sub.textContent = c.name + ' is typing...';
+        el.sub.classList.add('typing');
         return;
       }
-      el.chatSub.classList.remove('typing');
-      if (c?.online) {
-        el.chatSub.textContent = 'online now';
-      } else if (c?.lastSeenAt) {
-        el.chatSub.textContent = 'last seen ' + relTime(c.lastSeenAt);
+
+      el.sub.classList.remove('typing');
+      el.sub.textContent = c?.online
+        ? 'online now'
+        : c?.lastSeenAt
+          ? 'last seen ' + relTime(c.lastSeenAt)
+          : 'private conversation';
+    }
+
+    async function loadReactions(msgIds){
+      if(!msgIds.length) return;
+
+      const {data,error} = await sb.from('message_reactions')
+        .select('*')
+        .in('message_id',msgIds);
+
+      if(error){
+        console.error(error);
+        return;
+      }
+
+      state.reactions = {};
+      (data || []).forEach(row=>{
+        if(!state.reactions[row.message_id]) state.reactions[row.message_id] = {};
+        if(!state.reactions[row.message_id][row.emoji]) state.reactions[row.message_id][row.emoji] = [];
+        state.reactions[row.message_id][row.emoji].push(row.user_id);
+      });
+    }
+
+    async function toggleReaction(msgId,emoji){
+      if(!state.user.name){
+        showModal();
+        return;
+      }
+
+      if(!state.reactions[msgId]) state.reactions[msgId] = {};
+      const r = state.reactions[msgId];
+      if(!r[emoji]) r[emoji] = [];
+
+      const idx = r[emoji].indexOf(state.user.id);
+      const removing = idx >= 0;
+
+      if(removing) r[emoji].splice(idx,1);
+      else r[emoji].push(state.user.id);
+
+      renderMessages(curMsgs(),{preserveGap:true});
+
+      if(removing){
+        await sb.from('message_reactions')
+          .delete()
+          .match({message_id:msgId,user_id:state.user.id,emoji})
+          .catch(console.error);
       } else {
-        el.chatSub.textContent = 'private conversation';
+        await sb.from('message_reactions')
+          .upsert({
+            message_id:msgId,
+            user_id:state.user.id,
+            emoji,
+            user_name:state.user.name
+          },{onConflict:'message_id,user_id,emoji'})
+          .catch(console.error);
       }
     }
 
-    async function loadPublic() {
-      const { data, error } = await sb.from('messages').select('*').eq('room', PUBLIC_ROOM).order('created_at', { ascending:true }).limit(100);
-      if (error) {
+    async function loadPublic(){
+      const {data,error} = await sb.from('messages')
+        .select('*')
+        .eq('room',PUB_ROOM)
+        .order('created_at',{ascending:true})
+        .limit(100);
+
+      if(error){
         console.error(error);
-        if (state.convo.type === 'public') el.msgList.innerHTML = '<div class="system-row"><div class="system-card">Could not load messages.</div></div>';
         return;
       }
-      state.pubMsgs = (data || []).map(r => ({ ...r, sender_id:r.user_id || r.sender_id || '', sender_name:normName(r.name || r.sender_name || 'Unknown') }));
-      if (state.convo.type === 'public') renderMessages(state.pubMsgs);
+
+      state.pubMsgs = (data || []).map(r=>({
+        ...r,
+        sender_id:r.user_id || r.sender_id || '',
+        sender_name:normName(r.name || r.sender_name || 'Unknown'),
+        is_deleted:!!r.is_deleted
+      }));
+
+      await loadReactions(state.pubMsgs.map(m=>m.id).filter(Boolean));
+
+      if(state.convo.type === 'public'){
+        renderMessages(state.pubMsgs,{forceBottom:true,preserveGap:false});
+      }
     }
 
-    async function loadPrivate() {
-      const { data, error } = await sb.from('private_messages').select('*')
+    async function loadPrivate(){
+      const {data,error} = await sb.from('private_messages')
+        .select('*')
         .or(`sender_id.eq.${state.user.id},recipient_id.eq.${state.user.id}`)
-        .order('created_at', { ascending:true })
+        .order('created_at',{ascending:true})
         .limit(400);
-      if (error) {
+
+      if(error){
         console.error(error);
         return;
       }
+
       state.privMsgs = {};
       state.contacts.clear();
-      (data || []).forEach(row => {
+
+      (data || []).forEach(row=>{
         const other = row.sender_id === state.user.id ? row.recipient_id : row.sender_id;
-        if (!other) return;
-        (state.privMsgs[other] = state.privMsgs[other] || []).push(row);
+        if(!other) return;
+        (state.privMsgs[other] = state.privMsgs[other] || []).push({
+          ...row,
+          is_deleted:!!row.is_deleted
+        });
         hydrateContact(row);
       });
-      if (state.convo.type === 'private' && state.convo.recipientId) {
-        const c = currentContact();
-        if (c) c.unreadCount = 0;
-        renderMessages(currentMessages());
+
+      await loadReactions((data || []).map(m=>m.id).filter(Boolean));
+
+      if(state.convo.type === 'private' && state.convo.recipientId){
+        const c = curContact();
+        if(c) c.unreadCount = 0;
+        renderMessages(state.privMsgs[state.convo.recipientId] || [],{forceBottom:true,preserveGap:false});
       }
+
       renderContacts();
       updateHeader();
     }
 
-    function subscribePub() {
-      if (state.subs.pub) sb.removeChannel(state.subs.pub);
-      state.subs.pub = sb.channel(`pub:${PUBLIC_ROOM}`)
-        .on('postgres_changes', { event:'INSERT', schema:'public', table:'messages', filter:`room=eq.${PUBLIC_ROOM}` }, payload => {
-          const row = { ...payload.new, sender_id:payload.new.user_id || payload.new.sender_id || '', sender_name:normName(payload.new.name || payload.new.sender_name || 'Unknown') };
+    function subscribePub(){
+      if(state.subs.pub) sb.removeChannel(state.subs.pub);
+
+      state.subs.pub = sb.channel(`pub:${PUB_ROOM}`)
+        .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`room=eq.${PUB_ROOM}`},payload=>{
+          const row = {
+            ...payload.new,
+            sender_id:payload.new.user_id || payload.new.sender_id || '',
+            sender_name:normName(payload.new.name || payload.new.sender_name || 'Unknown'),
+            is_deleted:!!payload.new.is_deleted
+          };
+
           state.pubMsgs.push(row);
-          if (state.convo.type === 'public') {
-            const msgs = state.pubMsgs;
-            const prev = msgs[msgs.length - 2];
-            let html = (!prev || !sameDay(prev.created_at, row.created_at)) ? `<div class="day-divider">${esc(dateFmt.format(new Date(row.created_at)))}</div>` : '';
-            html += bubbleHtml(row);
-            const typingNode = $('typingRow');
-            if (typingNode) typingNode.remove();
-            el.msgList.insertAdjacentHTML('beforeend', html);
-            renderTyping();
-            bindMsgHandlers();
-            scrollBottom(false, true);
+
+          if(state.convo.type === 'public'){
+            const wasNearBottom = isNearBottom() || state.stickBottom;
+            renderMessages(state.pubMsgs,{
+              forceBottom:wasNearBottom,
+              preserveGap:!wasNearBottom
+            });
           }
         })
-        .on('postgres_changes', { event:'DELETE', schema:'public', table:'messages', filter:`room=eq.${PUBLIC_ROOM}` }, payload => {
-          const id = payload.old?.id;
-          if (!id) return;
-          state.pubMsgs = state.pubMsgs.filter(m => m.id !== id);
-          if (state.convo.type === 'public') renderMessages(state.pubMsgs);
+        .on('postgres_changes',{event:'UPDATE',schema:'public',table:'messages',filter:`room=eq.${PUB_ROOM}`},payload=>{
+          const idx = state.pubMsgs.findIndex(m=>m.id === payload.new.id);
+          if(idx >= 0){
+            state.pubMsgs[idx] = {
+              ...state.pubMsgs[idx],
+              ...payload.new,
+              sender_id:payload.new.user_id || payload.new.sender_id || '',
+              sender_name:normName(payload.new.name || payload.new.sender_name || 'Unknown'),
+              is_deleted:!!payload.new.is_deleted
+            };
+            if(state.convo.type === 'public'){
+              renderMessages(state.pubMsgs,{preserveGap:true});
+            }
+          }
         })
         .subscribe();
     }
 
-    function upsertPrivRow(row) {
+    function upsertPrivRow(row){
       const other = row.sender_id === state.user.id ? row.recipient_id : row.sender_id;
-      if (!other) return;
-      ensureContact(other, row.sender_id === state.user.id ? row.recipient_name : row.sender_name);
+      if(!other) return;
+
+      ensureContact(other,row.sender_id === state.user.id ? row.recipient_name : row.sender_name);
+
       const list = state.privMsgs[other] = state.privMsgs[other] || [];
-      let idx = list.findIndex(m => m.id && m.id === row.id);
-      if (idx < 0 && row.client_id) idx = list.findIndex(m => m._tempId === row.client_id || m.client_id === row.client_id);
-      if (idx >= 0) {
-        list[idx] = { ...row, _optimistic:false, _failed:false };
-      } else {
-        list.push({ ...row, _optimistic:false, _failed:false });
-        list.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+      let idx = list.findIndex(m=>m.id && m.id === row.id);
+
+      if(idx < 0 && row.client_id){
+        idx = list.findIndex(m=>m._tempId === row.client_id || m.client_id === row.client_id);
       }
+
+      const merged = {...row,_optimistic:false,_failed:false,is_deleted:!!row.is_deleted};
+
+      if(idx >= 0){
+        list[idx] = merged;
+      } else {
+        list.push(merged);
+        list.sort((a,b)=>new Date(a.created_at) - new Date(b.created_at));
+      }
+
       hydrateContact(row);
     }
 
-    function subscribePriv() {
-      if (state.subs.privIns) sb.removeChannel(state.subs.privIns);
-      if (state.subs.privUpd) sb.removeChannel(state.subs.privUpd);
+    function subscribePriv(){
+      if(state.subs.privIns) sb.removeChannel(state.subs.privIns);
+      if(state.subs.privUpd) sb.removeChannel(state.subs.privUpd);
 
       state.subs.privIns = sb.channel(`privIns:${state.user.id}`)
-        .on('postgres_changes', { event:'INSERT', schema:'public', table:'private_messages' }, payload => {
+        .on('postgres_changes',{event:'INSERT',schema:'public',table:'private_messages'},payload=>{
           const row = payload.new;
-          if (row.sender_id !== state.user.id && row.recipient_id !== state.user.id) return;
+          if(row.sender_id !== state.user.id && row.recipient_id !== state.user.id) return;
+
           const other = row.sender_id === state.user.id ? row.recipient_id : row.sender_id;
           upsertPrivRow(row);
+
           const c = state.contacts.get(other);
-          if (c) {
+          if(c){
             c.lastMessageAt = row.created_at;
             c.lastPreview = row.is_deleted ? 'Message deleted' : (row.body || '');
           }
-          if (row.sender_id !== state.user.id && !(state.convo.type === 'private' && state.convo.recipientId === other)) {
-            if (c) c.unreadCount = (c.unreadCount || 0) + 1;
+
+          if(row.sender_id !== state.user.id && !(state.convo.type === 'private' && state.convo.recipientId === other)){
+            if(c) c.unreadCount = (c.unreadCount || 0) + 1;
           }
-          if (state.convo.type === 'private' && state.convo.recipientId === other) {
-            renderMessages(state.privMsgs[other] || []);
+
+          if(state.convo.type === 'private' && state.convo.recipientId === other){
+            renderMessages(state.privMsgs[other] || [],{
+              forceBottom:isNearBottom() || state.stickBottom,
+              preserveGap:!(isNearBottom() || state.stickBottom)
+            });
             markSeen(other);
           }
+
           renderContacts();
           updateHeader();
         })
         .subscribe();
 
       state.subs.privUpd = sb.channel(`privUpd:${state.user.id}`)
-        .on('postgres_changes', { event:'UPDATE', schema:'public', table:'private_messages' }, payload => {
+        .on('postgres_changes',{event:'UPDATE',schema:'public',table:'private_messages'},payload=>{
           const row = payload.new;
-          if (row.sender_id !== state.user.id && row.recipient_id !== state.user.id) return;
+          if(row.sender_id !== state.user.id && row.recipient_id !== state.user.id) return;
+
           upsertPrivRow(row);
+
           const other = row.sender_id === state.user.id ? row.recipient_id : row.sender_id;
           const c = state.contacts.get(other);
-          if (c) c.lastPreview = row.is_deleted ? 'Message deleted' : (row.body || '');
-          if (state.convo.type === 'private' && state.convo.recipientId === other) renderMessages(state.privMsgs[other] || []);
+          if(c) c.lastPreview = row.is_deleted ? 'Message deleted' : (row.body || '');
+
+          if(state.convo.type === 'private' && state.convo.recipientId === other){
+            renderMessages(state.privMsgs[other] || [],{preserveGap:true});
+          }
+
           renderContacts();
-          updateHeader();
         })
         .subscribe();
     }
 
-    function subscribePresence() {
-      if (state.subs.presence) sb.removeChannel(state.subs.presence);
-      state.subs.presence = sb.channel('chat_presence_feed')
-        .on('postgres_changes', { event:'INSERT', schema:'public', table:'chat_presence' }, payload => { state.presenceMap.set(payload.new.user_id, payload.new); refreshPresence(); })
-        .on('postgres_changes', { event:'UPDATE', schema:'public', table:'chat_presence' }, payload => { state.presenceMap.set(payload.new.user_id, payload.new); refreshPresence(); })
+    function subscribePresence(){
+      if(state.subs.pres) sb.removeChannel(state.subs.pres);
+
+      state.subs.pres = sb.channel('chat_presence_feed')
+        .on('postgres_changes',{event:'INSERT',schema:'public',table:'chat_presence'},p=>{
+          state.presMap.set(p.new.user_id,p.new);
+          refreshPresence();
+        })
+        .on('postgres_changes',{event:'UPDATE',schema:'public',table:'chat_presence'},p=>{
+          state.presMap.set(p.new.user_id,p.new);
+          refreshPresence();
+        })
         .subscribe();
     }
 
-    function subscribeTyping() {
-      if (state.subs.typing) sb.removeChannel(state.subs.typing);
+    function subscribeTyping(){
+      if(state.subs.typing) sb.removeChannel(state.subs.typing);
+
       state.subs.typing = sb.channel('typing_bus')
-        .on('broadcast', { event:'typing' }, payload => handleTypingEvent(payload.payload))
+        .on('broadcast',{event:'typing'},payload=>handleTypingEvent(payload.payload))
         .subscribe();
     }
 
-    async function markSeen(otherUserId) {
-      if (!otherUserId) return;
-      const list = state.privMsgs[otherUserId] || [];
-      const unseen = list.filter(m => m.sender_id === otherUserId && !m.seen_at && !m.is_deleted && m.id);
-      if (!unseen.length) return;
-      const seenAt = now();
-      const { error } = await sb.from('private_messages').update({ seen_at: seenAt }).in('id', unseen.map(m => m.id));
-      if (error) {
+    function subscribeReactions(){
+      if(state.subs.react) sb.removeChannel(state.subs.react);
+
+      state.subs.react = sb.channel('chat_reactions_feed')
+        .on('postgres_changes',{event:'INSERT',schema:'public',table:'message_reactions'},payload=>{
+          const {message_id:mid,user_id:uid,emoji} = payload.new;
+          if(!currentMessageIds().has(mid)) return;
+
+          if(!state.reactions[mid]) state.reactions[mid] = {};
+          if(!state.reactions[mid][emoji]) state.reactions[mid][emoji] = [];
+          if(!state.reactions[mid][emoji].includes(uid)) state.reactions[mid][emoji].push(uid);
+
+          renderMessages(curMsgs(),{preserveGap:true});
+        })
+        .on('postgres_changes',{event:'DELETE',schema:'public',table:'message_reactions'},payload=>{
+          const {message_id:mid,user_id:uid,emoji} = payload.old;
+          if(!currentMessageIds().has(mid)) return;
+
+          if(state.reactions[mid]?.[emoji]){
+            state.reactions[mid][emoji] = state.reactions[mid][emoji].filter(u=>u !== uid);
+          }
+
+          renderMessages(curMsgs(),{preserveGap:true});
+        })
+        .subscribe();
+    }
+
+    async function markSeen(uid){
+      if(!uid) return;
+
+      const list = state.privMsgs[uid] || [];
+      const unseen = list.filter(m=>m.sender_id === uid && !m.seen_at && !m.is_deleted && m.id);
+
+      if(!unseen.length) return;
+
+      const seenAt = nowIso();
+      const {error} = await sb.from('private_messages')
+        .update({seen_at:seenAt})
+        .in('id',unseen.map(m=>m.id));
+
+      if(error){
         console.error(error);
         return;
       }
-      unseen.forEach(m => { m.seen_at = seenAt; });
-      const c = state.contacts.get(otherUserId);
-      if (c) c.unreadCount = 0;
+
+      unseen.forEach(m=>m.seen_at = seenAt);
+      const c = state.contacts.get(uid);
+      if(c) c.unreadCount = 0;
+
       renderContacts();
-      if (state.convo.type === 'private' && state.convo.recipientId === otherUserId) renderMessages(list);
+      if(state.convo.type === 'private' && state.convo.recipientId === uid){
+        renderMessages(list,{preserveGap:true});
+      }
     }
 
-    async function send() {
-      const body = el.msgInput.value.trim();
-      if (!body) return;
-      if (Date.now() - state.lastSendAt < COOLDOWN_MS) {
-        setStatus('Slow down a little.', 'error');
+    async function send(){
+      const raw = el.input.value;
+      const body = raw.trim();
+
+      if(!body) return;
+
+      if(Date.now() - state.lastSendAt < COOLDOWN){
+        setStatus('Slow down a little.','error');
         return;
       }
-      if (!state.user.name) {
+
+      if(!state.user.name){
         showModal();
         return;
       }
 
       setStatus('');
       el.sendBtn.disabled = true;
-      const draft = el.msgInput.value;
-      el.msgInput.value = '';
+
+      const draft = raw;
+      el.input.value = '';
       resizeTA();
       updateCounter();
 
-      let err = null;
+      const replyId = state.replyTo?.id || null;
+      setReply(null);
 
-      if (state.convo.type === 'public') {
-        const r = await sb.from('messages').insert({ room:PUBLIC_ROOM, body, name:state.user.name, user_id:state.user.id });
-        err = r.error;
+      if(state.convo.type === 'public'){
+        const {error} = await sb.from('messages').insert({
+          room:PUB_ROOM,
+          body,
+          name:state.user.name,
+          user_id:state.user.id,
+          reply_to_id:replyId || undefined
+        });
+
+        if(error){
+          console.error(error);
+          el.input.value = draft;
+          resizeTA();
+          updateCounter();
+          setStatus('Failed to send.','error');
+        }
       } else {
-        const c = currentContact();
-        if (!c) {
-          err = new Error('Missing recipient.');
-        } else {
-          const tempId = 't_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
-          const optimistic = {
-            id: tempId,
-            _tempId: tempId,
-            client_id: tempId,
-            _optimistic: true,
-            _failed: false,
-            sender_id: state.user.id,
-            sender_name: state.user.name,
-            recipient_id: c.userId,
-            recipient_name: c.name,
-            body,
-            created_at: now(),
-            seen_at: null,
-            is_deleted: false,
-            _askDelete: false,
-            _hint: ''
-          };
-          (state.privMsgs[c.userId] = state.privMsgs[c.userId] || []).push(optimistic);
-          c.lastMessageAt = optimistic.created_at;
-          c.lastPreview = body;
-          renderContacts();
-          renderMessages(state.privMsgs[c.userId]);
+        const c = curContact();
+        if(!c){
+          el.input.value = draft;
+          resizeTA();
+          updateCounter();
+          setStatus('Missing recipient.','error');
+          el.sendBtn.disabled = false;
+          return;
+        }
 
-          const r = await sb.from('private_messages').insert({
-            sender_id: state.user.id,
-            sender_name: state.user.name,
-            recipient_id: c.userId,
-            recipient_name: c.name,
-            body,
-            client_id: tempId
-          });
-          err = r.error;
-          if (err) {
-            const failed = (state.privMsgs[c.userId] || []).find(m => m._tempId === tempId);
-            if (failed) {
-              failed._failed = true;
-              failed._optimistic = false;
-            }
-            renderMessages(state.privMsgs[c.userId]);
+        const tempId = 't_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+        const opt = {
+          id:tempId,
+          _tempId:tempId,
+          client_id:tempId,
+          _optimistic:true,
+          _failed:false,
+          sender_id:state.user.id,
+          sender_name:state.user.name,
+          recipient_id:c.userId,
+          recipient_name:c.name,
+          body,
+          created_at:nowIso(),
+          seen_at:null,
+          is_deleted:false,
+          reply_to_id:replyId
+        };
+
+        (state.privMsgs[c.userId] = state.privMsgs[c.userId] || []).push(opt);
+        c.lastMessageAt = opt.created_at;
+        c.lastPreview = body;
+
+        renderContacts();
+        renderMessages(state.privMsgs[c.userId],{forceBottom:true,preserveGap:false});
+
+        const {error} = await sb.from('private_messages').insert({
+          sender_id:state.user.id,
+          sender_name:state.user.name,
+          recipient_id:c.userId,
+          recipient_name:c.name,
+          body,
+          client_id:tempId,
+          reply_to_id:replyId || undefined
+        });
+
+        if(error){
+          const failed = (state.privMsgs[c.userId] || []).find(m=>m._tempId === tempId);
+          if(failed){
+            failed._failed = true;
+            failed._optimistic = false;
           }
+          renderMessages(state.privMsgs[c.userId],{preserveGap:true});
+          setStatus('Failed to send.','error');
         }
       }
 
       el.sendBtn.disabled = false;
-      if (err) {
-        console.error(err);
-        if (state.convo.type === 'public') {
-          el.msgInput.value = draft;
-          resizeTA();
-          updateCounter();
-        }
-        setStatus('Failed to send.', 'error');
-        return;
-      }
       state.lastSendAt = Date.now();
-      el.msgInput.focus();
+      el.input.focus();
     }
 
-    async function deleteMsg(id) {
-      const list = currentMessages();
-      const msg = list.find(m => (m.id || m._tempId) === id);
-      if (!msg) return;
-      const preserve = el.msgList.scrollHeight - el.msgList.scrollTop;
-      const stamp = now();
-      const { error } = await sb.from('private_messages').update({ is_deleted:true, body:'', edited_at:stamp }).eq('id', msg.id);
-      if (error) {
+    async function deletePrivMsg(id){
+      if(!window.confirm('Delete this message?')) return;
+
+      const list = curMsgs();
+      const msg = list.find(m=>(m.id || m._tempId) === id);
+      if(!msg || !msg.id) return;
+
+      const {error} = await sb.from('private_messages')
+        .update({
+          is_deleted:true,
+          body:'',
+          edited_at:nowIso()
+        })
+        .eq('id',msg.id);
+
+      if(error){
         console.error(error);
-        setStatus('Could not delete.', 'error');
+        setStatus('Could not delete.','error');
         return;
       }
+
       msg.is_deleted = true;
       msg.body = '';
-      msg._askDelete = false;
-      const c = currentContact();
-      if (c) c.lastPreview = 'Message deleted';
+
+      const c = curContact();
+      if(c) c.lastPreview = 'Message deleted';
+
       state.activeRowId = null;
       renderContacts();
-      renderMessages(list, preserve);
+      renderMessages(list,{preserveGap:true});
     }
 
-    async function deletePublicMsg(id) {
-      const preserve = el.msgList.scrollHeight - el.msgList.scrollTop;
-      const { error } = await sb.from('messages').delete().eq('id', id);
-      if (error) {
+    async function deletePubMsg(id){
+      if(!window.confirm('Delete this message?')) return;
+
+      const {error} = await sb.from('messages')
+        .update({
+          is_deleted:true,
+          body:'',
+          edited_at:nowIso()
+        })
+        .eq('id',id);
+
+      if(error){
         console.error(error);
-        setStatus('Could not delete public message.', 'error');
+        setStatus('Could not delete.','error');
         return;
       }
-      state.pubMsgs = state.pubMsgs.filter(m => m.id !== id);
+
+      const msg = state.pubMsgs.find(m=>m.id === id);
+      if(msg){
+        msg.is_deleted = true;
+        msg.body = '';
+      }
+
       state.activeRowId = null;
-      renderMessages(state.pubMsgs, preserve);
+      renderMessages(state.pubMsgs,{preserveGap:true});
     }
 
-    async function retryMsg(id) {
-      const list = currentMessages();
-      const msg = list.find(m => (m._tempId || m.id) === id);
-      if (!msg || !msg._failed) return;
-      const c = currentContact();
-      if (!c) return;
+    async function retryMsg(id){
+      const list = curMsgs();
+      const msg = list.find(m=>(m._tempId || m.id) === id);
+      if(!msg || !msg._failed) return;
+
+      const c = curContact();
+      if(!c) return;
+
+      const newId = 'retry_' + Date.now();
       msg._failed = false;
       msg._optimistic = true;
-      const newClientId = 'retry_' + Date.now();
-      msg._tempId = newClientId;
-      msg.client_id = newClientId;
+      msg._tempId = newId;
+      msg.client_id = newId;
+
       state.activeRowId = null;
-      renderMessages(list);
-      const { error } = await sb.from('private_messages').insert({
-        sender_id: state.user.id,
-        sender_name: state.user.name,
-        recipient_id: c.userId,
-        recipient_name: c.name,
-        body: msg.body,
-        client_id: newClientId
+      renderMessages(list,{preserveGap:true});
+
+      const {error} = await sb.from('private_messages').insert({
+        sender_id:state.user.id,
+        sender_name:state.user.name,
+        recipient_id:c.userId,
+        recipient_name:c.name,
+        body:msg.body,
+        client_id:newId,
+        reply_to_id:msg.reply_to_id || undefined
       });
-      if (error) {
-        console.error(error);
+
+      if(error){
         msg._failed = true;
         msg._optimistic = false;
-        renderMessages(list);
+        renderMessages(list,{preserveGap:true});
       }
     }
 
-    function resizeTA() {
-      el.msgInput.style.height = 'auto';
-      el.msgInput.style.overflowY = 'hidden';
-      const h = Math.min(el.msgInput.scrollHeight, MAX_TA_H);
-      el.msgInput.style.height = h + 'px';
-      el.msgInput.style.overflowY = el.msgInput.scrollHeight > MAX_TA_H ? 'auto' : 'hidden';
-    }
-    const updateCounter = () => { el.counter.textContent = el.msgInput.value.length + ' / 500'; };
-
-    function bindSideHandlers() {
-      document.querySelectorAll('#userList .user-item, #mobileUserList .user-item').forEach(btn => {
-        btn.onclick = () => applyConvo('private', btn.dataset.uid, btn.dataset.name, true);
-      });
+    function resizeTA(){
+      el.input.style.height = 'auto';
+      el.input.style.overflowY = 'hidden';
+      const h = Math.min(el.input.scrollHeight,MAX_TA);
+      el.input.style.height = h + 'px';
+      el.input.style.overflowY = el.input.scrollHeight > MAX_TA ? 'auto' : 'hidden';
     }
 
-    function closeActionRow() {
-      if (!state.activeRowId) return;
-      const row = el.msgList.querySelector(`[data-mid="${CSS.escape(state.activeRowId)}"]`);
-      if (row) row.classList.remove('row-active');
+    function updateCounter(){
+      el.counter.textContent = el.input.value.length + ' / 500';
+    }
+
+    function closeActionRow(){
       state.activeRowId = null;
+      renderMessages(curMsgs(),{preserveGap:true});
     }
 
-    function showPrivateHint(mid) {
-      const msg = currentMessages().find(m => (m.id || m._tempId) === mid);
-      if (!msg) return;
-      msg._hint = 'Already in this private chat';
-      renderMessages(currentMessages());
-      setTimeout(() => {
-        msg._hint = '';
-        renderMessages(currentMessages());
-      }, 1400);
+    function messageById(id){
+      return curMsgs().find(m=>(m.id || m._tempId) === id);
     }
 
-    function bindMsgHandlers() {
-      el.msgList.querySelectorAll('[data-bubble-mid]').forEach(bubble => {
-        bubble.onclick = () => {
-          const mid = bubble.dataset.bubbleMid;
-          const own = bubble.dataset.own === '1';
-          const uid = bubble.dataset.uid;
-          const row = el.msgList.querySelector(`[data-mid="${CSS.escape(mid)}"]`);
-          const wasActive = state.activeRowId === mid;
-
-          closeActionRow();
-          if (!wasActive && row) {
-            state.activeRowId = mid;
-            row.classList.add('row-active');
-          }
-
-          if (!own && state.convo.type === 'private' && uid === state.convo.recipientId) {
-            showPrivateHint(mid);
-          }
-        };
-      });
-
-      el.msgList.querySelectorAll('[data-action]').forEach(btn => {
-        btn.onclick = async e => {
-          e.stopPropagation();
-          const action = btn.dataset.action;
-          const id = btn.dataset.id;
-
-          if (action === 'ask-delete') {
-            const msg = currentMessages().find(m => (m.id || m._tempId) === id);
-            if (msg) {
-              msg._askDelete = true;
-              renderMessages(currentMessages());
-            }
-            return;
-          }
-
-          if (action === 'ask-delete-public') {
-            const msg = currentMessages().find(m => (m.id || m._tempId) === id);
-            if (msg) {
-              msg._askDelete = true;
-              renderMessages(currentMessages());
-            }
-            return;
-          }
-
-          if (action === 'cancel-delete') {
-            const msg = currentMessages().find(m => (m.id || m._tempId) === id);
-            if (msg) {
-              msg._askDelete = false;
-              renderMessages(currentMessages());
-            }
-            return;
-          }
-
-          if (action === 'confirm-delete') {
-            await deleteMsg(id);
-            return;
-          }
-
-          if (action === 'confirm-delete-public') {
-            await deletePublicMsg(id);
-            return;
-          }
-
-          if (action === 'retry') {
-            await retryMsg(id);
-            return;
-          }
-
-          if (action === 'dm') {
-            applyConvo('private', btn.dataset.uid, btn.dataset.name, true);
-          }
-        };
-      });
+    function openOrToggleMessage(mid){
+      const was = state.activeRowId === mid;
+      state.activeRowId = was ? null : mid;
+      renderMessages(curMsgs(),{preserveGap:true});
     }
 
-    function applyConvo(type, userId, name, pushHistory) {
+    function applyConvo(type,userId,name,pushHistory=true,forceBottom=true){
       state.activeRowId = null;
-      if (type === 'private') {
-        if (!userId || userId === state.user.id) return;
-        ensureContact(userId, name);
-        state.convo = { type:'private', recipientId:userId };
+      setReply(null);
+
+      if(type === 'private'){
+        if(!userId || userId === state.user.id) return;
+        ensureContact(userId,name);
+        state.convo = {type:'private',recipientId:userId};
         state.stickBottom = true;
-        const c = currentContact();
-        if (c) c.unreadCount = 0;
-        if (pushHistory) history.pushState({ chat:'private', userId, name }, '', location.href);
-        localStorage.setItem(STORAGE.convo, JSON.stringify(state.convo));
+
+        const c = curContact();
+        if(c) c.unreadCount = 0;
+
+        if(pushHistory){
+          history.pushState({chat:'private',userId,name},'',location.href);
+        }
+
+        localStorage.setItem(SK.convo,JSON.stringify(state.convo));
         markSeen(userId);
       } else {
-        if (pushHistory && state.convo.type === 'private') history.pushState({ chat:'public' }, '', location.href);
-        state.convo = { type:'public', recipientId:null };
+        state.convo = {type:'public',recipientId:null};
         state.stickBottom = true;
-        localStorage.removeItem(STORAGE.convo);
+
+        if(pushHistory){
+          history.pushState({chat:'public'},'',location.href);
+        }
+
+        localStorage.removeItem(SK.convo);
       }
+
       updateHeader();
       renderContacts();
-      renderMessages(type === 'private' ? (state.privMsgs[userId] || []) : state.pubMsgs);
+      renderMessages(type === 'private' ? (state.privMsgs[userId] || []) : state.pubMsgs,{
+        forceBottom,
+        preserveGap:!forceBottom
+      });
       closeSide();
     }
 
-    function bindEvents() {
-      if (state.inited) return;
+    function syncSearch(src){
+      state.searchTerm = src.value;
+      el.sideSearch.value = src.value;
+      el.mobSearch.value = src.value;
+      renderContacts();
+    }
+
+    function bindEvents(){
+      if(state.inited) return;
       state.inited = true;
 
-      el.joinBtn.addEventListener('click', async () => {
-        const r = validateName(el.guestName.value);
-        if (!r.ok) {
+      el.joinBtn.addEventListener('click',async ()=>{
+        const r = validateName(el.gname.value);
+        if(!r.ok){
           el.nameErr.textContent = r.msg;
           return;
         }
         state.user.name = r.name;
-        localStorage.setItem(STORAGE.userName, r.name);
+        localStorage.setItem(SK.uname,r.name);
         hideModal();
         setStatus('');
         await pingPresence();
-        if (!state.activityStarted) setupActivity();
+        if(!state.activityOn) setupActivity();
       });
 
-      el.clearBtn.addEventListener('click', () => {
-        [STORAGE.userName, STORAGE.userId, STORAGE.convo].forEach(k => localStorage.removeItem(k));
+      el.clearBtn.addEventListener('click',()=>{
+        [SK.uname,SK.uid,SK.convo].forEach(k=>localStorage.removeItem(k));
         location.reload();
       });
 
-      el.guestName.addEventListener('keydown', e => {
-        if (e.key === 'Enter') {
+      el.gname.addEventListener('keydown',e=>{
+        if(e.key === 'Enter'){
           e.preventDefault();
           el.joinBtn.click();
         }
       });
 
-      el.inboxBtn.addEventListener('click', () => state.sideOpen ? closeSide() : openSide());
-      el.backBtn.addEventListener('click', () => applyConvo('public', null, null, true));
-      el.sendBtn.addEventListener('click', send);
+      el.inboxBtn.addEventListener('click',()=>state.sideOpen ? closeSide() : openSide());
 
-      el.msgInput.addEventListener('keydown', e => {
-        if (e.key === 'Enter' && !e.shiftKey) {
+      el.backBtn.addEventListener('click',()=>{
+        if(state.convo.type === 'private'){
+          history.back();
+        }
+      });
+
+      el.sendBtn.addEventListener('click',send);
+      el.replyClose.addEventListener('click',()=>setReply(null));
+
+      el.input.addEventListener('keydown',e=>{
+        if(e.key === 'Enter' && !e.shiftKey){
           e.preventDefault();
           send();
           return;
         }
-        if (state.convo.type === 'private') publishTyping();
+        if(state.convo.type === 'private') publishTyping();
       });
 
-      el.msgInput.addEventListener('input', () => {
+      el.input.addEventListener('input',()=>{
         resizeTA();
         updateCounter();
-        if (el.status.classList.contains('error')) setStatus('');
-        if (state.convo.type === 'private' && el.msgInput.value.trim()) publishTyping();
+        if(el.status.classList.contains('error')) setStatus('');
+        if(state.convo.type === 'private' && el.input.value.trim()) publishTyping();
       });
 
-      const syncSearch = src => {
-        state.searchTerm = src.value;
-        el.sideSearch.value = src.value;
-        el.mobSearch.value = src.value;
-        renderContacts();
-      };
-      el.sideSearch.addEventListener('input', () => syncSearch(el.sideSearch));
-      el.mobSearch.addEventListener('input', () => syncSearch(el.mobSearch));
+      el.sideSearch.addEventListener('input',()=>syncSearch(el.sideSearch));
+      el.mobSearch.addEventListener('input',()=>syncSearch(el.mobSearch));
 
-      el.msgList.addEventListener('scroll', () => {
-        state.stickBottom = (el.msgList.scrollHeight - el.msgList.scrollTop - el.msgList.clientHeight) < NEAR_BOTTOM;
-        if (state.stickBottom && state.convo.type === 'private' && state.convo.recipientId) markSeen(state.convo.recipientId);
-      }, { passive:true });
+      el.msgList.addEventListener('scroll',()=>{
+        state.stickBottom = isNearBottom();
+        if(state.stickBottom && state.convo.type === 'private' && state.convo.recipientId){
+          markSeen(state.convo.recipientId);
+        }
+      },{passive:true});
 
-      document.addEventListener('click', e => {
-        if (state.activeRowId && !e.target.closest('.message-row')) closeActionRow();
-        if (isMobile() && state.sideOpen && !el.mobSide.contains(e.target) && !el.inboxBtn.contains(e.target)) closeSide();
+      document.addEventListener('click',e=>{
+        if(isMob() && state.sideOpen && !el.mobSide.contains(e.target) && !el.inboxBtn.contains(e.target)){
+          closeSide();
+        }
+
+        const sideBtn = e.target.closest('.user-item');
+        if(sideBtn){
+          applyConvo('private',sideBtn.dataset.uid,sideBtn.dataset.name,true,true);
+          return;
+        }
+
+        const quote = e.target.closest('[data-scroll-to]');
+        if(quote){
+          e.stopPropagation();
+          scrollToMessage(quote.dataset.scrollTo);
+          return;
+        }
+
+        const reactChip = e.target.closest('.reaction-chip');
+        if(reactChip){
+          e.stopPropagation();
+          toggleReaction(reactChip.dataset.reactMid,reactChip.dataset.emoji);
+          return;
+        }
+
+        const action = e.target.closest('[data-action]');
+        if(action){
+          e.stopPropagation();
+          const {action:kind,id,uid,name,emoji} = action.dataset;
+
+          if(kind === 'quick-react'){
+            toggleReaction(id,emoji);
+            return;
+          }
+          if(kind === 'reply'){
+            const msg = messageById(id);
+            if(msg) setReply(msg);
+            return;
+          }
+          if(kind === 'delete'){
+            deletePrivMsg(id);
+            return;
+          }
+          if(kind === 'delete-public'){
+            deletePubMsg(id);
+            return;
+          }
+          if(kind === 'retry'){
+            retryMsg(id);
+            return;
+          }
+          if(kind === 'dm'){
+            applyConvo('private',uid,name,true,true);
+            return;
+          }
+        }
+
+        const bubble = e.target.closest('[data-bubble-mid]');
+        if(bubble){
+          openOrToggleMessage(bubble.dataset.bubbleMid);
+          return;
+        }
+
+        // new: click on failed status to retry
+        const failedStatus = e.target.closest('.message-status.st-failed');
+        if(failedStatus){
+          const mid = failedStatus.closest('.message-row')?.dataset.mid;
+          if(mid) retryMsg(mid);
+          return;
+        }
+
+        if(state.activeRowId && !e.target.closest('.message-row')){
+          closeActionRow();
+        }
       });
 
-      window.addEventListener('resize', () => { if (!isMobile()) closeSide(); resizeTA(); });
-      window.addEventListener('beforeunload', () => {
-        if (state.raf) cancelAnimationFrame(state.raf);
-        if (state.presenceBeat) clearInterval(state.presenceBeat);
-        if (state.presenceDecayBeat) clearInterval(state.presenceDecayBeat);
-        Object.values(state.subs).forEach(c => c && sb.removeChannel(c));
+      window.addEventListener('resize',()=>{
+        if(!isMob()) closeSide();
+        resizeTA();
+      });
+
+      window.addEventListener('beforeunload',()=>{
+        if(state.raf) cancelAnimationFrame(state.raf);
+        if(state.presBeat) clearInterval(state.presBeat);
+        if(state.presDecay) clearInterval(state.presDecay);
+        Object.values(state.subs).forEach(c=>c && sb.removeChannel(c));
       });
     }
 
-    async function restoreConvo() {
-      const raw = localStorage.getItem(STORAGE.convo);
-      if (!raw) {
-        applyConvo('public', null, null, false);
+    async function restoreConvo(){
+      const raw = localStorage.getItem(SK.convo);
+      if(!raw){
+        applyConvo('public',null,null,false,true);
         return;
       }
-      try {
+
+      try{
         const saved = JSON.parse(raw);
-        if (saved?.type === 'private' && saved.recipientId && saved.recipientId !== state.user.id && state.contacts.has(saved.recipientId)) {
+        if(saved?.type === 'private' && saved.recipientId && saved.recipientId !== state.user.id && state.contacts.has(saved.recipientId)){
           const c = state.contacts.get(saved.recipientId);
-          if (c) c.unreadCount = 0;
-          history.pushState({ chat:'private', userId:saved.recipientId, name:c?.name || '' }, '', location.href);
+          if(c) c.unreadCount = 0;
+
+          state.restoreBackLock = true;
+          history.pushState({chat:'private',userId:saved.recipientId,name:c?.name || ''},'',location.href);
+          state.restoreBackLock = false;
+
           state.convo = saved;
           state.stickBottom = true;
           updateHeader();
           renderContacts();
-          renderMessages(state.privMsgs[saved.recipientId] || []);
+          renderMessages(state.privMsgs[saved.recipientId] || [],{forceBottom:true,preserveGap:false});
           markSeen(saved.recipientId);
           return;
         }
       } catch {}
-      applyConvo('public', null, null, false);
+
+      applyConvo('public',null,null,false,true);
     }
 
-    function setupActivity() {
-      if (state.activityStarted) return;
-      state.activityStarted = true;
+    function setupActivity(){
+      if(state.activityOn) return;
+      state.activityOn = true;
+
       pingPresence();
-      state.presenceBeat = setInterval(pingPresence, PRESENCE_HEARTBEAT_MS);
-      state.presenceDecayBeat = setInterval(refreshPresence, 10000);
-      ['visibilitychange','focus','click','keydown'].forEach(evt => {
-        window.addEventListener(evt, () => {
-          if (!document.hidden && state.user.name) pingPresence();
-        }, { passive:true });
+      state.presBeat = setInterval(pingPresence,PRESENCE_BEAT);
+      state.presDecay = setInterval(refreshPresence,10000);
+
+      ['visibilitychange','focus','click','keydown'].forEach(evt=>{
+        window.addEventListener(evt,()=>{
+          if(!document.hidden && state.user.name) pingPresence();
+        },{passive:true});
       });
     }
 
-    async function init() {
+    async function init(){
       initHistory();
       bindEvents();
       updateHeader();
       updateCounter();
       resizeTA();
-      if (!state.user.name) showModal();
+
+      if(!state.user.name) showModal();
+
       await loadPublic();
       await loadPrivate();
       await restoreConvo();
+
       subscribePub();
       subscribePriv();
       subscribePresence();
       subscribeTyping();
-      if (state.user.name) setupActivity();
+      subscribeReactions();
+
+      if(state.user.name) setupActivity();
     }
 
-    init().catch(err => {
-      console.error('Init failed:', err);
+    init().catch(err=>{
+      console.error('Init failed:',err);
       el.msgList.innerHTML = '<div class="system-row"><div class="system-card">Chat failed to initialize.</div></div>';
-      setStatus('Initialization failed.', 'error');
+      setStatus('Initialization failed.','error');
     });
   })();
   </script>
