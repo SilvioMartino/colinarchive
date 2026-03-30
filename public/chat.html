@@ -42,7 +42,7 @@
       --serif:'Crimson Text', Georgia, serif;
       --mono:'IBM Plex Mono', 'Courier New', monospace;
       --hand:'Caveat', cursive;
-      --header-h:72px;
+      --header-h:76px;
       --sidebar-w:320px;
       --app-vh:100vh;
       --safe-top:env(safe-area-inset-top, 0px);
@@ -109,11 +109,33 @@
         max(0.9rem, calc(0.9rem + var(--safe-right)))
         0.75rem
         max(0.9rem, calc(0.9rem + var(--safe-left)));
-      border-bottom:1px solid var(--border);
-      background:rgba(18,18,18,0.95);
+      border-bottom:1px solid rgba(255,255,255,0.06);
+      background:rgba(18,18,18,0.94);
       flex-shrink:0;
       z-index:30;
       position:relative;
+      overflow:hidden;
+    }
+
+    .shell-header::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      opacity:1;
+      transition:opacity .2s ease;
+    }
+
+    .shell-header.mode-public::before{
+      background:
+        radial-gradient(circle at 50% 0%, rgba(97,215,207,0.12), transparent 42%),
+        linear-gradient(180deg, rgba(97,215,207,0.04), transparent 70%);
+    }
+
+    .shell-header.mode-private::before{
+      background:
+        radial-gradient(circle at 50% 0%, rgba(198,157,255,0.16), transparent 44%),
+        linear-gradient(180deg, rgba(198,157,255,0.05), transparent 70%);
     }
 
     @supports (backdrop-filter: blur(10px)){
@@ -127,6 +149,8 @@
       align-items:center;
       gap:0.65rem;
       min-width:0;
+      position:relative;
+      z-index:1;
     }
 
     .logo{
@@ -207,24 +231,60 @@
       flex-direction:column;
       justify-content:center;
       align-items:center;
-      gap:0.18rem;
+      gap:0.22rem;
+      position:relative;
+      z-index:1;
+    }
+
+    .header-room-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:0.4rem;
+      min-height:22px;
+      padding:0.2rem 0.55rem;
+      border-radius:999px;
+      font-family:var(--mono);
+      font-size:0.62rem;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      border:1px solid rgba(255,255,255,0.07);
+      color:var(--soft);
+      background:rgba(255,255,255,0.035);
+      margin-bottom:0.1rem;
+    }
+
+    .shell-header.mode-public .header-room-badge{
+      border-color:rgba(97,215,207,0.2);
+      color:var(--blue);
+      background:rgba(97,215,207,0.08);
+    }
+
+    .shell-header.mode-private .header-room-badge{
+      border-color:rgba(198,157,255,0.22);
+      color:#dcc6ff;
+      background:rgba(198,157,255,0.1);
     }
 
     .header-room-title{
       font-family:var(--hand);
-      font-size:1.22rem;
+      font-size:1.28rem;
       color:var(--blue);
       line-height:1.05;
       max-width:100%;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
+      transition:color .18s ease;
+    }
+
+    .shell-header.mode-private .header-room-title{
+      color:#e0ceff;
     }
 
     .header-room-subtitle{
       font-family:var(--mono);
-      font-size:0.74rem;
-      letter-spacing:0.04em;
+      font-size:0.72rem;
+      letter-spacing:0.06em;
       text-transform:uppercase;
       color:var(--muted);
       line-height:1.2;
@@ -238,11 +298,17 @@
       color:var(--blue);
     }
 
+    .shell-header.mode-private .header-room-subtitle.typing{
+      color:#dcc6ff;
+    }
+
     .header-right{
       display:flex;
       justify-content:flex-end;
       align-items:center;
       min-width:0;
+      position:relative;
+      z-index:1;
     }
 
     .back-btn{
@@ -252,9 +318,9 @@
       padding:0 1rem;
       min-height:42px;
       border-radius:999px;
-      border:1px solid rgba(97,215,207,0.4);
-      background:var(--blue-soft);
-      color:var(--blue);
+      border:1px solid rgba(255,255,255,0.1);
+      background:rgba(255,255,255,0.045);
+      color:var(--fg-2);
       font-family:var(--mono);
       font-size:0.74rem;
       letter-spacing:0.06em;
@@ -265,9 +331,9 @@
     }
 
     .back-btn:hover{
-      background:rgba(97,215,207,0.18);
-      border-color:rgba(97,215,207,0.65);
-      color:#9af0ea;
+      background:rgba(255,255,255,0.08);
+      border-color:rgba(255,255,255,0.16);
+      color:var(--fg);
     }
 
     .app-grid{
@@ -597,7 +663,7 @@
       max-width:min(100%, 760px);
       display:flex;
       flex-direction:column;
-      gap:0.3rem;
+      gap:0.28rem;
     }
 
     .message-bubble{
@@ -618,6 +684,40 @@
       background:rgba(198,157,255,0.055);
     }
 
+    .chat-main.is-private .message-row{
+      max-width:100%;
+      gap:0;
+    }
+
+    .chat-main.is-private .message-avatar{
+      display:none;
+    }
+
+    .chat-main.is-private .message-stack{
+      max-width:min(100%, 72%);
+    }
+
+    .chat-main.is-private .message-bubble{
+      border-left:none;
+      border-radius:20px;
+      padding:0.72rem 0.95rem 0.68rem;
+      background:rgba(255,255,255,0.045);
+    }
+
+    .chat-main.is-private .message-row.own .message-bubble{
+      background:rgba(198,157,255,0.14);
+      border-color:rgba(198,157,255,0.16);
+    }
+
+    .chat-main.is-private .message-row:not(.own) .message-bubble{
+      background:rgba(255,255,255,0.05);
+      border-color:rgba(255,255,255,0.06);
+    }
+
+    .chat-main.is-private .message-header{
+      display:none;
+    }
+
     .message-bubble.menu-open{
       box-shadow:0 0 0 2px rgba(97,215,207,0.2), var(--shadow-soft);
     }
@@ -625,6 +725,12 @@
     .message-row.failed .message-bubble{
       border-left-color:rgba(255,117,117,0.75);
       background:rgba(255,117,117,0.05);
+    }
+
+    .chat-main.is-private .message-row.failed .message-bubble{
+      border-left-color:transparent;
+      border-color:rgba(255,117,117,0.22);
+      background:rgba(255,117,117,0.06);
     }
 
     .reply-stub{
@@ -719,32 +825,34 @@
       font-style:italic;
     }
 
-    .bubble-meta{
-      margin-top:0.32rem;
+    .message-status{
       min-height:0.95rem;
       display:flex;
-      justify-content:flex-end;
       align-items:center;
+      justify-content:flex-end;
+      padding:0 0.15rem;
       font-family:var(--mono);
-      font-size:0.67rem;
-      color:var(--soft);
+      font-size:0.64rem;
       line-height:1.1;
+      color:rgba(255,255,255,0.45);
+      letter-spacing:0.03em;
+      text-transform:lowercase;
     }
 
-    .bubble-meta.hidden-meta{
+    .message-status.hidden-status{
       display:none;
     }
 
-    .bubble-meta.sending{
-      color:var(--amber);
-    }
-
-    .bubble-meta.failed{
+    .message-status.failed{
       color:var(--red);
     }
 
-    .bubble-meta.seen{
-      color:var(--blue);
+    .message-status.seen{
+      color:rgba(97,215,207,0.78);
+    }
+
+    .message-status.delivered{
+      color:rgba(255,255,255,0.45);
     }
 
     .reactions{
@@ -885,9 +993,9 @@
       display:none;
       align-items:center;
       gap:0.7rem;
-      padding:0.56rem 0.9rem;
-      border-bottom:1px solid var(--border);
-      background:rgba(26,26,26,0.92);
+      padding:0.5rem 0.9rem;
+      border-bottom:1px solid rgba(255,255,255,0.05);
+      background:rgba(26,26,26,0.76);
     }
 
     .reply-bar.active{
@@ -895,11 +1003,11 @@
     }
 
     .reply-bar-line{
-      width:3px;
+      width:2px;
       align-self:stretch;
       border-radius:999px;
-      background:var(--blue);
-      opacity:0.9;
+      background:rgba(97,215,207,0.42);
+      opacity:0.65;
       flex-shrink:0;
     }
 
@@ -910,17 +1018,17 @@
 
     .reply-bar-name{
       font-family:var(--mono);
-      font-size:0.68rem;
-      color:var(--blue);
+      font-size:0.66rem;
+      color:rgba(97,215,207,0.78);
       line-height:1.15;
       text-transform:uppercase;
       letter-spacing:0.04em;
-      margin-bottom:0.08rem;
+      margin-bottom:0.06rem;
     }
 
     .reply-bar-text{
-      font-size:0.88rem;
-      color:var(--muted);
+      font-size:0.86rem;
+      color:rgba(255,255,255,0.66);
       line-height:1.2;
       white-space:nowrap;
       overflow:hidden;
@@ -1318,6 +1426,14 @@
         padding:0.58rem 0.78rem 0.54rem;
       }
 
+      .chat-main.is-private .message-stack{
+        max-width:84%;
+      }
+
+      .chat-main.is-private .message-bubble{
+        border-radius:18px;
+      }
+
       .message-name{
         font-size:0.92rem;
       }
@@ -1339,8 +1455,8 @@
         font-size:0.79rem;
       }
 
-      .bubble-meta{
-        font-size:0.64rem;
+      .message-status{
+        font-size:0.62rem;
       }
 
       .composer-inner{
@@ -1388,7 +1504,7 @@
 </head>
 <body>
   <div class="app">
-    <header class="shell-header">
+    <header id="shellHeader" class="shell-header mode-public">
       <div class="header-left">
         <a href="/" class="logo">Colin Archive</a>
         <button id="mobileInboxBtn" class="mobile-inbox-btn" type="button" aria-label="Open inbox">
@@ -1398,13 +1514,14 @@
       </div>
 
       <div class="header-room">
+        <div id="chatModeBadge" class="header-room-badge">Public</div>
         <div id="chatTitle" class="header-room-title">Public room</div>
         <div id="chatSubtitle" class="header-room-subtitle">Everyone can read this room</div>
       </div>
 
       <div class="header-right">
         <button id="backToPublicBtn" class="back-btn hidden" type="button">
-          <span>Public room</span>
+          <span>Back</span>
         </button>
       </div>
     </header>
@@ -1477,7 +1594,7 @@
               </div>
 
               <div class="helper-line">
-                <span>Enter to send · Shift+Enter for new line</span>
+                <span id="enterHint">Enter to send · Shift+Enter for new line</span>
                 <span id="charCounter">0 / 500</span>
               </div>
             </div>
@@ -1569,7 +1686,6 @@
       const PRESENCE_EXPIRE = 35000;
       const PRESENCE_BEAT = 12000;
       const REACTIONS = ['👍','❤️','😂','😮','😢','🔥'];
-      const LONG_PRESS_MS = 450;
 
       const sb = window.supabase.createClient(SB_URL, SB_KEY);
       const $ = id => document.getElementById(id);
@@ -1603,6 +1719,7 @@
 
       const isMobile = () => window.innerWidth <= 960;
       const isTouchLike = () => window.matchMedia('(pointer: coarse)').matches;
+      const shouldMobileEnterNewline = () => isMobile() || isTouchLike();
       const dmKey = (a,b) => [a,b].sort().join('__');
 
       const timeFmt = new Intl.DateTimeFormat(undefined, { hour:'2-digit', minute:'2-digit' });
@@ -1625,8 +1742,10 @@
         mobSide: $('mobileSidebar'),
         drawerBackdrop: $('drawerBackdrop'),
 
+        header: $('shellHeader'),
         title: $('chatTitle'),
         sub: $('chatSubtitle'),
+        modeBadge: $('chatModeBadge'),
         backBtn: $('backToPublicBtn'),
 
         msgList: $('messageList'),
@@ -1634,6 +1753,7 @@
         sendBtn: $('sendBtn'),
         status: $('composerStatus'),
         counter: $('charCounter'),
+        enterHint: $('enterHint'),
         chatMain: $('chatMain'),
         deskPres: $('deskPresenceSummary'),
         mobPres: $('mobPresenceSummary'),
@@ -1654,10 +1774,7 @@
         modalOpen: false,
         lastHeaderKey: '',
         lastRenderedTypingId: '',
-        longPressTimer: null,
-        longPressTarget: null,
         lastSeenKey: '',
-        composingTouchMenu: false,
 
         convo: {
           type: 'public',
@@ -1753,11 +1870,6 @@
       function msgTime(iso){
         if (!iso) return '';
         return timeFmt.format(new Date(iso)) + ' · ' + relTime(iso);
-      }
-
-      function timeOnly(iso){
-        if (!iso) return '';
-        return timeFmt.format(new Date(iso));
       }
 
       function sideTime(iso){
@@ -2118,6 +2230,7 @@
         const idx = order.indexOf(oldId);
         if (idx === -1) return newMsg;
 
+        const row = state.rowEls.get(oldId);
         map.delete(oldId);
         state.messageIndex.delete(oldId);
         state.rowEls.delete(oldId);
@@ -2132,6 +2245,11 @@
           convoKey: convoKeyOf(convoType, recipientId),
           message: newMsg
         });
+
+        if (row) {
+          row.dataset.mid = newMsg.id;
+          state.rowEls.set(newMsg.id, row);
+        }
 
         return newMsg;
       }
@@ -2182,10 +2300,10 @@
 
       function messageStatusInfo(msg){
         if (msg._convoType !== 'private' || msg.sender_id !== state.user.id) return null;
-        if (msg._failed) return { label:'failed', cls:'failed' };
-        if (msg._optimistic) return { label:'sending', cls:'sending' };
+        if (msg._failed) return { label:'did not send', cls:'failed' };
         if (msg.seen_at) return { label:'seen', cls:'seen' };
-        return null;
+        if (msg._optimistic) return null;
+        return { label:'delivered', cls:'delivered' };
       }
 
       function resolveReplyTarget(msg){
@@ -2216,12 +2334,12 @@
         `;
       }
 
-      function bubbleMetaHtml(msg){
+      function statusHtml(msg){
         const st = messageStatusInfo(msg);
-        if (!st) return '<div class="bubble-meta hidden-meta"></div>';
+        if (!st) return '<div class="message-status hidden-status"></div>';
 
         return `
-          <div class="bubble-meta ${esc(st.cls)}">
+          <div class="message-status ${esc(st.cls)}">
             <span>${esc(st.label)}</span>
           </div>
         `;
@@ -2258,8 +2376,8 @@
                     : `<div class="message-text">${esc(msg.body || '')}</div>`
                 }
               </div>
-              ${bubbleMetaHtml(msg)}
             </div>
+            ${statusHtml(msg)}
             <div class="reactions" data-reactions="${esc(msg.id)}">${reactionHtml(msg.id)}</div>
           </div>
         `;
@@ -2276,6 +2394,7 @@
         row.classList.toggle('own', own);
         row.classList.toggle('failed', !!msg._failed);
         row.dataset.own = own ? '1' : '0';
+        row.dataset.mid = msg.id;
 
         const bubble = row.querySelector('.message-bubble');
         const name = normName(msg.sender_name || msg.name || 'Unknown');
@@ -2315,12 +2434,12 @@
           if (bodyWrap.innerHTML !== html) bodyWrap.innerHTML = html;
         }
 
-        const metaEl = row.querySelector('.bubble-meta');
-        if (metaEl) {
-          const html = bubbleMetaHtml(msg).trim();
+        const statusEl = row.querySelector('.message-status');
+        if (statusEl) {
+          const html = statusHtml(msg).trim();
           const tmp = document.createElement('div');
           tmp.innerHTML = html;
-          metaEl.replaceWith(tmp.firstElementChild);
+          statusEl.replaceWith(tmp.firstElementChild);
         }
 
         patchReactionRow(msg.id);
@@ -2569,14 +2688,18 @@
 
         el.backBtn.classList.toggle('hidden', !priv);
         el.chatMain.classList.toggle('is-private', priv);
+        el.header.classList.toggle('mode-public', !priv);
+        el.header.classList.toggle('mode-private', priv);
 
         if (!priv) {
+          el.modeBadge.textContent = 'Public';
           el.title.textContent = 'Public room';
           el.sub.textContent = 'Everyone can read this room';
           el.sub.classList.remove('typing');
           return;
         }
 
+        el.modeBadge.textContent = 'Private';
         el.title.textContent = c?.name || 'Private conversation';
 
         if (c?.typing) {
@@ -2880,7 +3003,12 @@
             }
 
             if (state.convo.type === 'private' && state.convo.recipientId === otherId) {
-              maybeInsertRowForCurrentMessage(msg);
+              const existingRow = state.rowEls.get(msg.id);
+              if (existingRow) {
+                patchRow(msg);
+              } else {
+                maybeInsertRowForCurrentMessage(msg);
+              }
               renderTypingRow();
               if (wasNear || msg.sender_id === state.user.id) scrollBottom(true, true);
               scheduleMarkSeen(otherId);
@@ -3335,6 +3463,12 @@
         el.counter.textContent = el.input.value.length + ' / 500';
       }
 
+      function updateEnterHint(){
+        el.enterHint.textContent = shouldMobileEnterNewline()
+          ? 'Enter for new line'
+          : 'Enter to send · Shift+Enter for new line';
+      }
+
       function getBubbleFromEventTarget(target){
         return target.closest('[data-bubble-mid]');
       }
@@ -3360,8 +3494,6 @@
         const selection = window.getSelection ? window.getSelection() : null;
         if (selection && selection.toString().trim()) return;
 
-        if (isTouchLike()) return;
-
         const mid = bubble.dataset.bubbleMid;
         const msg = getCurrentMessageById(mid);
         if (!msg) return;
@@ -3372,31 +3504,6 @@
         }
 
         openPopoverForMessage(msg, bubble);
-      }
-
-      function startLongPress(target){
-        if (!isTouchLike()) return;
-
-        clearLongPress();
-        const bubble = getBubbleFromEventTarget(target);
-        if (!bubble) return;
-
-        state.longPressTarget = bubble;
-        state.longPressTimer = setTimeout(() => {
-          const mid = bubble.dataset.bubbleMid;
-          const msg = getCurrentMessageById(mid);
-          if (!msg) return;
-          state.composingTouchMenu = true;
-          openPopoverForMessage(msg, bubble);
-        }, LONG_PRESS_MS);
-      }
-
-      function clearLongPress(){
-        if (state.longPressTimer) {
-          clearTimeout(state.longPressTimer);
-          state.longPressTimer = null;
-        }
-        state.longPressTarget = null;
       }
 
       function onDocumentClick(e){
@@ -3522,10 +3629,12 @@
         el.replyClose.addEventListener('click', () => setReply(null));
 
         el.input.addEventListener('keydown', e => {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            sendMessage();
-            return;
+          if (e.key === 'Enter') {
+            if (!shouldMobileEnterNewline() && !e.shiftKey) {
+              e.preventDefault();
+              sendMessage();
+              return;
+            }
           }
           if (state.convo.type === 'private') publishTyping();
         });
@@ -3555,14 +3664,6 @@
         }, { passive:true });
 
         el.msgList.addEventListener('click', onMessageListClick);
-
-        el.msgList.addEventListener('touchstart', e => {
-          startLongPress(e.target);
-        }, { passive:true });
-
-        el.msgList.addEventListener('touchmove', clearLongPress, { passive:true });
-        el.msgList.addEventListener('touchend', clearLongPress, { passive:true });
-        el.msgList.addEventListener('touchcancel', clearLongPress, { passive:true });
 
         document.addEventListener('click', onDocumentClick);
         document.addEventListener('click', onDocumentPopoverClick);
@@ -3604,6 +3705,7 @@
         window.addEventListener('resize', () => {
           if (!isMobile()) closeSidebar();
           resizeTA();
+          updateEnterHint();
           closePopover();
         }, { passive:true });
 
@@ -3612,7 +3714,6 @@
           if (state.timers.presBeat) clearInterval(state.timers.presBeat);
           if (state.timers.presDecay) clearInterval(state.timers.presDecay);
           if (state.pendingSeenDebounce) clearTimeout(state.pendingSeenDebounce);
-          clearLongPress();
         });
       }
 
@@ -3637,6 +3738,7 @@
         bindEvents();
         updateHeader();
         updateCounter();
+        updateEnterHint();
         resizeTA();
 
         if (!state.user.name) showModal();
