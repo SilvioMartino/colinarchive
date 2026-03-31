@@ -30,7 +30,7 @@
       --serif:'Crimson Text',Georgia,serif;
       --mono:'IBM Plex Mono','Courier New',monospace;
       --hand:'Caveat',cursive;
-      --header-h:76px;
+      --header-h:62px;   /* was 76px — tighter, more message space */
       --sidebar-w:320px;
       --ease:cubic-bezier(.22,1,.36,1);
     }
@@ -82,11 +82,11 @@
       grid-template-columns: minmax(0,1fr) minmax(0,1.4fr) minmax(0,1fr);
       align-items: center;
       gap: 0.85rem;
-      padding: 0.75rem 0.9rem;
-      /* Use safe area insets for notch/pill handling */
+      padding: 0 0.9rem;
       padding-left: max(0.9rem, calc(0.9rem + env(safe-area-inset-left, 0px)));
       padding-right: max(0.9rem, calc(0.9rem + env(safe-area-inset-right, 0px)));
-      padding-top: max(0.75rem, calc(0.75rem + env(safe-area-inset-top, 0px)));
+      padding-top: max(0.55rem, calc(0.55rem + env(safe-area-inset-top, 0px)));
+      padding-bottom: 0.55rem;
       border-bottom: 1px solid var(--border);
       background: rgba(22,22,22,0.96);
       backdrop-filter: blur(10px);
@@ -114,13 +114,13 @@
 
     .header-room { min-width:0; text-align:center; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:0.18rem; }
     .header-room-title {
-      font-family:var(--hand); font-size:1.28rem; color:var(--blue); line-height:1.05;
+      font-family:var(--hand); font-size:1.12rem; color:var(--blue); line-height:1.05;
       max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:color .18s;
     }
     .shell-header.mode-private .header-room-title { color:#e0ceff; }
     .header-room-subtitle {
-      font-family:var(--mono); font-size:0.72rem; letter-spacing:0.06em; text-transform:uppercase;
-      color:var(--muted); line-height:1.2; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      font-family:var(--mono); font-size:0.65rem; letter-spacing:0.05em; text-transform:uppercase;
+      color:var(--soft); line-height:1.2; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
     }
     .header-room-subtitle.typing { color:var(--blue); }
     .shell-header.mode-private .header-room-subtitle.typing { color:#dcc6ff; }
@@ -145,65 +145,79 @@
 
     /* ── Sidebar ── */
     .sidebar, .mobile-sidebar {
-      background: rgba(22,22,22,0.96);
+      background: rgba(18,18,18,0.98);
       display: flex;
       flex-direction: column;
       min-height: 0;
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(12px);
     }
     .sidebar { border-right: 1px solid var(--border); }
 
-    .sidebar-top { padding:1rem; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .sidebar-top {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      background: rgba(22,22,22,0.6);
+    }
     .sidebar-title-row { display:flex; align-items:center; justify-content:space-between; gap:0.75rem; margin-bottom:0.85rem; }
     .sidebar-title, .presence-summary, .sidebar-section-label { font-family:var(--mono); text-transform:uppercase; letter-spacing:0.06em; }
-    .sidebar-title { font-size:0.76rem; color:var(--fg-2); }
-    .presence-summary { font-size:0.7rem; color:var(--soft); white-space:nowrap; }
+    .sidebar-title { font-size:0.72rem; color:rgba(255,255,255,0.5); }
+    .presence-summary { font-size:0.68rem; color:var(--green); white-space:nowrap; }
 
     .sidebar-search {
-      width:100%; border:1px solid var(--border); background:var(--surface); color:var(--fg);
-      border-radius:14px; padding:0.8rem 0.95rem; outline:none;
-      font-family:var(--mono); font-size:0.82rem;
+      width:100%; border:1px solid var(--border); background:rgba(255,255,255,0.03); color:var(--fg);
+      border-radius:12px; padding:0.72rem 0.9rem; outline:none;
+      font-family:var(--mono); font-size:0.8rem;
       transition:border-color .16s,background .16s;
     }
-    .sidebar-search::placeholder { color:var(--soft); }
-    .sidebar-search:focus { border-color:rgba(97,215,207,0.55); background:var(--surface-2); }
+    .sidebar-search::placeholder { color:rgba(255,255,255,0.22); }
+    .sidebar-search:focus { border-color:rgba(97,215,207,0.45); background:rgba(255,255,255,0.04); }
 
-    .sidebar-body { min-height:0; overflow:auto; padding:0.8rem; }
-    .sidebar-body::-webkit-scrollbar, .message-list::-webkit-scrollbar { width:8px; }
-    .sidebar-body::-webkit-scrollbar-thumb, .message-list::-webkit-scrollbar-thumb { background:#3a3a3a; border-radius:999px; }
+    .sidebar-body { min-height:0; overflow:auto; padding:0.6rem 0.7rem 0.8rem; }
+    .sidebar-body::-webkit-scrollbar, .message-list::-webkit-scrollbar { width:4px; }
+    .sidebar-body::-webkit-scrollbar-thumb, .message-list::-webkit-scrollbar-thumb { background:#333; border-radius:999px; }
     .sidebar-body::-webkit-scrollbar-track, .message-list::-webkit-scrollbar-track { background:transparent; }
 
-    .sidebar-section-label { font-size:0.69rem; color:var(--soft); padding:0 0.25rem; margin:0.2rem 0 0.75rem; }
-    .user-list { display:flex; flex-direction:column; gap:0.36rem; }
+    .sidebar-section-label { font-size:0.62rem; color:rgba(255,255,255,0.2); padding:0 0.3rem; margin:0.2rem 0 0.55rem; }
+    .user-list { display:flex; flex-direction:column; gap:0.2rem; }
     .user-item {
-      width:100%; display:flex; align-items:center; gap:0.8rem; text-align:left;
-      padding:0.78rem 0.82rem; border-radius:16px; border:1px solid transparent;
-      background:transparent; cursor:pointer; color:inherit; transition:background .15s,border-color .15s;
+      width:100%; display:flex; align-items:center; gap:0.75rem; text-align:left;
+      padding:0.7rem 0.75rem; border-radius:14px; border:1px solid transparent;
+      background:transparent; cursor:pointer; color:inherit;
+      transition:background .15s,border-color .15s,transform .12s;
     }
-    .user-item:hover { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.06); }
-    .user-item.active { background:var(--blue-soft); border-color:rgba(97,215,207,0.28); }
+    .user-item:hover { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.05); transform:translateX(2px); }
+    /* Active item: violet ring to match private room colour */
+    .user-item.active {
+      background:rgba(198,157,255,0.08);
+      border-color:rgba(198,157,255,0.25);
+    }
 
-    .user-avatar-wrap { position:relative; width:40px; height:40px; flex-shrink:0; }
+    .user-avatar-wrap { position:relative; width:38px; height:38px; flex-shrink:0; }
     .user-avatar, .message-avatar {
       width:100%; height:100%; display:flex; align-items:center; justify-content:center;
       border-radius:50%; border:1px solid var(--border-soft);
-      background:linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));
+      background:linear-gradient(135deg,rgba(255,255,255,0.07),rgba(255,255,255,0.02));
       color:var(--fg); user-select:none;
     }
-    .user-avatar { font-family:var(--hand); font-size:1.1rem; }
+    .user-avatar { font-family:var(--hand); font-size:1.05rem; }
+    /* Active avatar gets violet ring */
+    .user-item.active .user-avatar { border-color:rgba(198,157,255,0.5); }
 
     .presence-dot {
-      position:absolute; right:-1px; bottom:-1px; width:11px; height:11px;
-      border-radius:50%; border:2px solid rgba(22,22,22,0.96); background:#4a4a4a;
+      position:absolute; right:-1px; bottom:-1px; width:10px; height:10px;
+      border-radius:50%; border:2px solid rgba(18,18,18,0.98); background:#3a3a3a;
+      transition:background .2s;
     }
     .presence-dot.online { background:var(--green); }
 
     .sidebar-user-main { min-width:0; flex:1; }
     .sidebar-user-top { display:flex; align-items:baseline; justify-content:space-between; gap:0.5rem; margin-bottom:0.18rem; }
-    .sidebar-user-name { font-family:var(--mono); font-size:0.8rem; color:var(--fg); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .sidebar-user-time { font-family:var(--mono); font-size:0.7rem; color:var(--soft); white-space:nowrap; flex-shrink:0; }
-    .sidebar-user-sub { display:block; font-family:var(--mono); font-size:0.72rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.25; }
-    .sidebar-user-sub.has-unread { color:#eefdfc; }
+    /* Name is dominant, preview is secondary, time is barely there */
+    .sidebar-user-name { font-family:var(--mono); font-size:0.8rem; color:var(--fg); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-weight:500; }
+    .sidebar-user-time { font-family:var(--mono); font-size:0.64rem; color:rgba(255,255,255,0.28); white-space:nowrap; flex-shrink:0; }
+    .sidebar-user-sub { display:block; font-family:var(--mono); font-size:0.7rem; color:rgba(255,255,255,0.38); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.25; }
+    .sidebar-user-sub.has-unread { color:#eefdfc; font-weight:500; }
     .sidebar-user-sub.is-typing { color:var(--blue); }
     .unread-badge {
       flex-shrink:0; min-width:1.25rem; height:1.25rem; padding:0 0.34rem; border-radius:999px;
@@ -228,11 +242,48 @@
       overflow: hidden;
       background: transparent;
       position: relative;
+      transition: background 0.4s ease;
     }
 
-    .chat-main.is-private {
-      background: radial-gradient(ellipse at top right, rgba(198,157,255,0.05), transparent 50%);
+    /* Public room: cool dark teal-tinted atmosphere */
+    .chat-main.is-public {
+      background:
+        radial-gradient(ellipse at 20% 0%, rgba(97,215,207,0.06) 0%, transparent 48%),
+        radial-gradient(ellipse at 80% 100%, rgba(97,215,207,0.03) 0%, transparent 40%);
     }
+
+    /* Private room: warm violet cocoon */
+    .chat-main.is-private {
+      background:
+        radial-gradient(ellipse at top right, rgba(198,157,255,0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom left, rgba(198,157,255,0.05) 0%, transparent 44%);
+    }
+
+    /* Watermark: large faint word centred behind messages */
+    .chat-main::before {
+      content: attr(data-room-label);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--hand);
+      font-size: clamp(4rem, 18vw, 9rem);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: rgba(97,215,207,0.035);  /* default teal for public */
+      pointer-events: none;
+      user-select: none;
+      white-space: nowrap;
+      z-index: 0;
+      transition: color 0.4s ease, opacity 0.4s ease;
+    }
+    .chat-main.is-private::before {
+      color: rgba(198,157,255,0.04);
+    }
+
+    /* Make sure message content always sits above watermark */
+    .message-list { position: relative; z-index: 1; }
 
     /* ── Message list ── */
     .message-list {
@@ -245,10 +296,10 @@
       min-height: 0;
       overflow-y: auto;
       overflow-x: hidden;
-      padding: 1rem clamp(1rem, 3vw, 2rem) 1rem;
+      padding: 1.1rem clamp(1rem, 3vw, 2rem) 0.6rem;
       display: flex;
       flex-direction: column;
-      gap: 0.9rem;
+      gap: 0.78rem;
       overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch;
       scroll-behavior: auto;
@@ -275,13 +326,20 @@
     .message-stack { min-width:0; max-width:min(100%,760px); display:flex; flex-direction:column; gap:0.28rem; }
 
     .message-bubble {
-      position:relative; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06);
+      position:relative;
+      /* Gradient gives depth — darker top fades to lighter bottom like a physical surface */
+      background: linear-gradient(to bottom, rgba(255,255,255,0.055), rgba(255,255,255,0.032));
+      border:1px solid rgba(255,255,255,0.07);
       border-left:3px solid rgba(97,215,207,0.55); border-radius:16px;
       padding:0.68rem 0.9rem 0.62rem; box-shadow:var(--shadow-soft); user-select:text;
-      cursor:pointer; transition:background .14s,border-color .14s,box-shadow .14s;
+      cursor:pointer; transition:background .14s,border-color .14s,box-shadow .14s,transform .1s;
     }
     .message-bubble:hover { box-shadow:0 0 0 1px rgba(97,215,207,0.15),var(--shadow-soft); }
-    .message-row.own .message-bubble { border-left-color:rgba(198,157,255,0.65); background:rgba(198,157,255,0.055); }
+    .message-bubble:active { transform:scale(0.985); }
+    .message-row.own .message-bubble {
+      border-left-color:rgba(198,157,255,0.65);
+      background:linear-gradient(to bottom, rgba(198,157,255,0.09), rgba(198,157,255,0.05));
+    }
     .message-bubble.menu-open { box-shadow:0 0 0 2px rgba(97,215,207,0.2),var(--shadow-soft); }
     .message-row.failed .message-bubble { border-left-color:rgba(255,117,117,0.75); background:rgba(255,117,117,0.05); }
 
@@ -289,11 +347,33 @@
     .chat-main.is-private .message-row { max-width:100%; gap:0; }
     .chat-main.is-private .message-avatar { display:none; }
     .chat-main.is-private .message-stack { max-width:min(100%,72%); }
-    .chat-main.is-private .message-bubble { border-left:none; border-radius:20px; padding:0.72rem 0.95rem 0.68rem; background:rgba(255,255,255,0.045); }
-    .chat-main.is-private .message-row.own .message-bubble { background:rgba(198,157,255,0.14); border-color:rgba(198,157,255,0.16); }
-    .chat-main.is-private .message-row:not(.own) .message-bubble { background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.06); }
+    .chat-main.is-private .message-bubble {
+      border-left:none; border-radius:20px; padding:0.72rem 0.95rem 0.68rem;
+      background:linear-gradient(to bottom, rgba(255,255,255,0.065), rgba(255,255,255,0.04));
+    }
+    .chat-main.is-private .message-row.own .message-bubble {
+      background:linear-gradient(to bottom, rgba(198,157,255,0.18), rgba(198,157,255,0.11));
+      border-color:rgba(198,157,255,0.18);
+    }
+    .chat-main.is-private .message-row:not(.own) .message-bubble { background:linear-gradient(to bottom,rgba(255,255,255,0.065),rgba(255,255,255,0.04)); border-color:rgba(255,255,255,0.07); }
     .chat-main.is-private .message-header { display:none; }
     .chat-main.is-private .message-row.failed .message-bubble { border-left-color:transparent; border-color:rgba(255,117,117,0.22); background:rgba(255,117,117,0.06); }
+
+    /* ── Message grouping — PRIVATE ONLY ──────────────────────────────────────
+       Grouping only applies in private chat where it's visually clean.
+       In public chat names + avatars make grouping confusing, so it's disabled.
+    ──────────────────────────────────────────────────────────────────────── */
+    .chat-main.is-private .message-row.msg-group-mid,
+    .chat-main.is-private .message-row.msg-group-last { margin-top:-0.38rem; }
+
+    .chat-main.is-private .message-row.msg-group-mid .message-avatar,
+    .chat-main.is-private .message-row.msg-group-last .message-avatar { opacity:0; pointer-events:none; }
+
+    .chat-main.is-private .message-row.msg-group-mid:not(.own) .message-bubble { border-top-left-radius:7px; }
+    .chat-main.is-private .message-row.msg-group-last:not(.own) .message-bubble { border-top-left-radius:7px; }
+    .chat-main.is-private .message-row.own.msg-group-mid .message-bubble { border-top-right-radius:7px; }
+    .chat-main.is-private .message-row.own.msg-group-last .message-bubble { border-top-right-radius:7px; }
+    .chat-main.is-private .message-row.msg-group-mid .message-time { display:none; }
 
     /* Reply stub */
     .reply-stub { display:flex; align-items:flex-start; gap:0.5rem; background:rgba(255,255,255,0.03); border-radius:10px; padding:0.36rem 0.48rem; margin-bottom:0.45rem; cursor:pointer; }
@@ -331,12 +411,12 @@
     .reaction-chip.mine { background:var(--blue-soft); border-color:rgba(97,215,207,0.28); }
     .reaction-chip .count { font-family:var(--mono); font-size:0.68rem; color:var(--muted); }
 
-    /* System/empty */
+    /* System/empty — no border, text floats in space */
     .system-row { align-self:center; width:100%; max-width:760px; }
-    .system-card { border:1px dashed rgba(255,255,255,0.08); border-radius:18px; padding:1.35rem 1rem; text-align:center; background:transparent; color:var(--muted); }
-    .empty-icon { font-size:1.4rem; margin-bottom:0.5rem; opacity:0.85; }
-    .empty-title { font-family:var(--mono); font-size:0.8rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--fg-2); margin-bottom:0.45rem; }
-    .empty-hint { font-size:1rem; line-height:1.6; color:var(--muted); max-width:40ch; margin:0 auto; }
+    .system-card { padding:2.5rem 1rem; text-align:center; background:transparent; color:var(--muted); }
+    .empty-icon { font-size:1.8rem; margin-bottom:0.75rem; opacity:0.6; display:block; }
+    .empty-title { font-family:var(--mono); font-size:0.78rem; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.35); margin-bottom:0.6rem; }
+    .empty-hint { font-size:1rem; line-height:1.65; color:rgba(255,255,255,0.22); max-width:36ch; margin:0 auto; }
 
     /* Typing indicator */
     .typing-row { align-self:flex-start; }
@@ -354,6 +434,47 @@
 
     /* Jump highlight for reply scroll */
     .jump-highlight .message-bubble { box-shadow:0 0 0 2px rgba(97,215,207,0.26),var(--shadow-soft); }
+
+    /* Swipe-to-reply: the stack slides horizontally, snaps back */
+    .message-stack {
+      touch-action: pan-y;   /* allow vertical scroll; horizontal is intercepted by JS */
+      will-change: transform;
+    }
+    /* Reply arrow that appears as you swipe */
+    .swipe-arrow {
+      position:absolute; top:50%; transform:translateY(-50%) scale(0.7);
+      width:32px; height:32px; border-radius:50%;
+      background:rgba(97,215,207,0.15); border:1px solid rgba(97,215,207,0.3);
+      display:flex; align-items:center; justify-content:center;
+      font-size:0.95rem; opacity:0; transition:opacity .1s, transform .1s;
+      pointer-events:none;
+    }
+    .message-row.own .swipe-arrow { right:calc(100% + 10px); }
+    .message-row:not(.own) .swipe-arrow { left:calc(100% + 10px); }
+    .message-row.swiping .swipe-arrow { opacity:1; transform:translateY(-50%) scale(1); }
+
+    /* Own messages slide in from the right */
+    @keyframes msgInOwn {
+      from { opacity:0; transform:translateY(8px) translateX(12px); }
+      to   { opacity:1; transform:translateY(0) translateX(0); }
+    }
+    .message-row.own { animation: msgInOwn 200ms var(--ease) both; }
+
+    /* Unread scroll pill */
+    .unread-pill {
+      position:absolute; bottom:calc(100% + 0.6rem); left:50%; transform:translateX(-50%);
+      background:rgba(28,28,28,0.92); border:1px solid var(--border);
+      border-radius:999px; padding:0.36rem 0.85rem;
+      font-family:var(--mono); font-size:0.68rem; color:var(--blue);
+      cursor:pointer; white-space:nowrap; backdrop-filter:blur(8px);
+      box-shadow:var(--shadow-soft); transition:opacity .18s, transform .18s;
+      z-index:10;
+    }
+    .unread-pill:hover { background:rgba(40,40,40,0.96); }
+
+    /* Message time: subtle by default, full on tap */
+    .message-time { opacity: 0.55; transition: opacity .15s; }
+    .message-row.row-active .message-time { opacity: 1; }
 
     /* ── Composer ── */
     .composer-wrap {
@@ -402,48 +523,68 @@
 
     .send-btn {
       min-width:112px; height:52px; border-radius:999px;
-      border:1px solid rgba(97,215,207,0.34); background:var(--blue-soft); color:var(--blue);
+      border:1px solid rgba(97,215,207,0.2); background:rgba(97,215,207,0.06); color:rgba(97,215,207,0.5);
       cursor:pointer; display:inline-flex; align-items:center; justify-content:center;
       gap:0.5rem; padding:0 1.15rem; font-family:var(--mono); font-size:0.76rem;
       letter-spacing:0.08em; text-transform:uppercase;
-      transition:background .16s,border-color .16s,color .16s,opacity .16s;
+      transition:background .16s,border-color .16s,color .16s,opacity .16s,transform .1s;
     }
-    .send-btn:hover:not(:disabled) { background:rgba(97,215,207,0.18); border-color:rgba(97,215,207,0.62); color:#a3f1eb; }
-    .send-btn:disabled { opacity:0.5; cursor:not-allowed; }
+    /* Has content — button lights up */
+    .send-btn.has-content {
+      border-color:rgba(97,215,207,0.45);
+      background:var(--blue-soft);
+      color:var(--blue);
+    }
+    .send-btn.has-content:hover { background:rgba(97,215,207,0.18); border-color:rgba(97,215,207,0.62); color:#a3f1eb; }
+    .send-btn:active { transform:scale(0.94); }
+    .send-btn:disabled { opacity:0.35; cursor:not-allowed; }
 
     .helper-line { display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:0.5rem 0.1rem 0; color:var(--soft); font-family:var(--mono); font-size:0.72rem; }
 
     /* ── Popover ── */
     .message-popover {
-      position:fixed; z-index:95; min-width:220px; max-width:min(92vw,290px);
-      border-radius:16px; border:1px solid var(--border); background:rgba(28,28,28,0.98);
-      padding:0.44rem; box-shadow:var(--shadow); backdrop-filter:blur(12px);
+      position:fixed; z-index:95; min-width:200px; max-width:min(92vw,280px);
+      border-radius:20px; border:1px solid rgba(255,255,255,0.08);
+      background:rgba(26,26,26,0.97);
+      padding:0.5rem; box-shadow:var(--shadow); backdrop-filter:blur(16px);
     }
-    .popover-reactions { display:flex; flex-wrap:wrap; gap:0.34rem; padding:0.16rem 0.14rem 0.46rem; border-bottom:1px solid rgba(255,255,255,0.05); margin-bottom:0.35rem; }
+    .popover-reactions {
+      display:flex; justify-content:space-between; gap:0.2rem;
+      padding:0.2rem 0.1rem 0.55rem; border-bottom:1px solid rgba(255,255,255,0.06); margin-bottom:0.4rem;
+    }
     .popover-emoji {
-      width:38px; height:38px; border-radius:999px; border:none; background:rgba(255,255,255,0.05);
-      cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center;
-      transition:background .14s;
+      flex:1; height:40px; border-radius:12px; border:none; background:transparent;
+      cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center;
+      transition:background .12s, transform .12s;
     }
-    .popover-emoji:hover { background:rgba(255,255,255,0.1); }
-    .popover-actions { display:flex; flex-direction:column; gap:0.16rem; }
+    .popover-emoji:hover { background:rgba(255,255,255,0.08); transform:scale(1.18); }
+    /* Action pills in a wrapping row — lighter than the old list */
+    .popover-actions { display:flex; flex-wrap:wrap; gap:0.32rem; padding:0 0.1rem 0.1rem; }
     .popover-btn {
-      width:100%; display:flex; align-items:center; justify-content:space-between; gap:0.8rem;
-      text-align:left; border:none; border-radius:12px; background:transparent; color:var(--fg);
-      padding:0.72rem 0.76rem; cursor:pointer; transition:background .14s,color .14s;
+      flex:1; min-width:0;
+      display:inline-flex; align-items:center; justify-content:center; gap:0.4rem;
+      border:1px solid rgba(255,255,255,0.08); border-radius:12px;
+      background:rgba(255,255,255,0.04); color:var(--fg-2);
+      padding:0.62rem 0.6rem; cursor:pointer;
+      font-family:var(--mono); font-size:0.67rem; letter-spacing:0.04em; text-transform:uppercase;
+      transition:background .13s,border-color .13s,color .13s,transform .1s;
+      white-space:nowrap;
     }
-    .popover-btn:hover { background:rgba(255,255,255,0.05); }
-    .popover-btn.danger:hover { background:rgba(255,117,117,0.1); color:#ffd9d9; }
-    .popover-btn-main { display:flex; align-items:center; gap:0.65rem; min-width:0; }
-    .popover-btn-icon { width:18px; text-align:center; color:var(--soft); flex-shrink:0; }
-    .popover-btn-label { font-family:var(--mono); font-size:0.72rem; letter-spacing:0.04em; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .popover-btn:hover { background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.14); color:var(--fg); transform:translateY(-1px); }
+    .popover-btn.danger { border-color:rgba(255,117,117,0.18); color:rgba(255,117,117,0.8); }
+    .popover-btn.danger:hover { background:rgba(255,117,117,0.1); border-color:rgba(255,117,117,0.35); color:#ffd9d9; transform:translateY(-1px); }
+    .popover-btn-icon { font-size:0.9rem; }
+    .popover-btn-label { font-family:var(--mono); font-size:0.67rem; letter-spacing:0.04em; text-transform:uppercase; }
 
     /* ── Mobile sidebar drawer ── */
     .drawer-backdrop {
-      display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:59;
-      opacity:0; transition:opacity .18s;
+      display:none; position:fixed; inset:0;
+      /* Transparent — the sidebar slides in without darkening the rest.
+         Feels native, matches the header's dark surface colour. */
+      background: transparent;
+      z-index:59;
     }
-    .drawer-backdrop.active { display:block; opacity:1; }
+    .drawer-backdrop.active { display:block; }
 
     .mobile-sidebar {
       display:none; position:fixed; top:var(--header-h); left:0; bottom:0;
@@ -480,8 +621,8 @@
 
     @media (max-width: 700px) {
       .shell-header { gap: 0.55rem; }
-      .header-room-title { font-size: 1.06rem; }
-      .header-room-subtitle { font-size: 0.68rem; max-width: 180px; }
+      .header-room-title { font-size: 0.98rem; }
+      .header-room-subtitle { font-size: 0.6rem; max-width: 180px; }
       .back-btn { min-width: 42px; padding: 0 0.82rem; font-size: 0.72rem; }
       .message-list { padding: 0.85rem 0.78rem; gap: 0.78rem; }
       .message-row { gap: 0.5rem; }
@@ -546,12 +687,13 @@
       </aside>
 
       <main class="chat-shell">
-        <div id="chatMain" class="chat-main">
+        <div id="chatMain" class="chat-main is-public" data-room-label="Public">
           <div id="messageList" class="message-list" aria-live="polite" aria-label="Messages">
             <div class="system-row"><div class="system-card">Loading messages…</div></div>
           </div>
 
-          <div id="composerWrap" class="composer-wrap">
+          <div id="composerWrap" class="composer-wrap" style="position:relative">
+            <div id="unreadPill" class="unread-pill hidden"></div>
             <div id="replyBar" class="reply-bar">
               <div class="reply-bar-line"></div>
               <div class="reply-bar-inner">
@@ -652,7 +794,8 @@
       msgList:$('messageList'), input:$('messageInput'), sendBtn:$('sendBtn'),
       status:$('composerStatus'), counter:$('charCounter'), enterHint:$('enterHint'),
       chatMain:$('chatMain'), deskPres:$('deskPresenceSummary'), mobPres:$('mobPresenceSummary'),
-      replyBar:$('replyBar'), replyName:$('replyBarName'), replyText:$('replyBarText'), replyClose:$('replyBarClose')
+      replyBar:$('replyBar'), replyName:$('replyBarName'), replyText:$('replyBarText'), replyClose:$('replyBarClose'),
+      unreadPill:$('unreadPill')
     };
 
     const state = {
@@ -667,6 +810,9 @@
       rowEls:new Map(), dividerEls:new Map(),
       reactions:new Map(), pendingSeenDebounce:null,
       activePopover:null, replyTo:null, pendingDelete:null, presMap:new Map(),
+      firstUnreadId:null,     // id of first unread msg when convo opens
+      sidebarRefreshTimer:null,  // for live-updating sidebar timestamps
+      longPressTimer:null,    // for long-press reaction picker
       subs:{pub:null,privIns:null,privUpd:null,pres:null,typing:null,react:null},
       timers:{presBeat:null,presDecay:null}
     };
@@ -750,11 +896,13 @@
     function hideModal(){ state.modalOpen=false; el.modal.classList.remove('active'); el.modal.setAttribute('aria-hidden','true'); }
 
     function setReply(msg){
-      if(!msg){ state.replyTo=null; el.replyBar.classList.remove('active'); el.replyName.textContent=''; el.replyText.textContent=''; return; }
+      if(!msg){ state.replyTo=null; el.replyBar.classList.remove('active'); el.replyName.textContent=''; el.replyText.textContent=''; updateInputPlaceholder(); return; }
+      haptic(6);
       state.replyTo={id:msg.id, senderName:normName(msg.sender_name||msg.name||'Unknown'), body:msg.is_deleted?'Message deleted':(msg.body||'')};
       el.replyName.textContent='↩ '+state.replyTo.senderName;
       el.replyText.textContent=state.replyTo.body.slice(0,140);
       el.replyBar.classList.add('active');
+      updateInputPlaceholder();
       el.input.focus();
     }
 
@@ -776,6 +924,9 @@
     }
 
     const isOnline=uid=>{const e=state.presMap.get(uid);return!!e?.last_seen_at&&(Date.now()-new Date(e.last_seen_at).getTime())<PRESENCE_EXPIRE;};
+
+    // Short haptic pulse — silently ignored on desktop/unsupported browsers
+    const haptic=(ms=8)=>{ try{ navigator.vibrate?.(ms); }catch{} };
 
     function refreshPresence(){
       let changed=false;
@@ -897,6 +1048,44 @@
       return `<div class="message-status ${esc(st.cls)}"><span>${esc(st.label)}</span></div>`;
     }
 
+    // ── Message grouping ───────────────────────────────────────────────────────
+    // Two consecutive messages from the same sender within 2 minutes = grouped.
+    const GROUP_WINDOW = 2 * 60 * 1000;
+
+    function isSameGroup(a, b){
+      if (!a || !b) return false;
+      if (a.sender_id !== b.sender_id) return false;
+      if (!sameDay(a.created_at, b.created_at)) return false;
+      return Math.abs(new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) < GROUP_WINDOW;
+    }
+
+    function reapplyAllGroupClasses(){
+      const msgs = curMsgs();
+      msgs.forEach((msg, i) => {
+        const row = state.rowEls.get(msg.id); if (!row) return;
+        const p = i > 0 ? msgs[i-1] : null;
+        const n = i < msgs.length-1 ? msgs[i+1] : null;
+        row.classList.remove('msg-group-mid','msg-group-last');
+        if (isSameGroup(p,msg) && isSameGroup(msg,n)) row.classList.add('msg-group-mid');
+        else if (isSameGroup(p,msg))                    row.classList.add('msg-group-last');
+      });
+    }
+
+    // Targeted version — only patches the row at idx and its two neighbours.
+    // Used when inserting a single new row to avoid reflowing the whole list.
+    function patchGroupClasses(idx, msgs){
+      const targets = [idx-1, idx, idx+1].filter(i => i >= 0 && i < msgs.length);
+      targets.forEach(i => {
+        const msg = msgs[i];
+        const row = state.rowEls.get(msg.id); if (!row) return;
+        const p = i > 0 ? msgs[i-1] : null;
+        const n = i < msgs.length-1 ? msgs[i+1] : null;
+        row.classList.remove('msg-group-mid','msg-group-last');
+        if (isSameGroup(p,msg) && isSameGroup(msg,n)) row.classList.add('msg-group-mid');
+        else if (isSameGroup(p,msg))                    row.classList.add('msg-group-last');
+      });
+    }
+
     function buildRow(msg){
       const own=msg.sender_id===state.user.id;
       const name=normName(msg.sender_name||msg.name||'Unknown');
@@ -967,7 +1156,12 @@
         }
         frag.appendChild(buildRow(msg));prev=msg;
       });
-      el.msgList.appendChild(frag);renderTypingRow();scrollBottom(true,false);
+      el.msgList.appendChild(frag);
+      reapplyAllGroupClasses();
+      renderTypingRow();scrollBottom(true,false);
+      // Mark seen immediately when conversation opens (not just on scroll)
+      if(state.convo.type==='private'&&state.convo.recipientId) scheduleMarkSeen(state.convo.recipientId);
+      updateUnreadPill();
     }
 
     function renderTypingRow(){
@@ -995,6 +1189,10 @@
       const row=buildRow(msg); const beforeRow=afterMsg?state.rowEls.get(afterMsg.id):null;
       if(beforeRow){if(divider&&!divider.isConnected)el.msgList.insertBefore(divider,beforeRow);el.msgList.insertBefore(row,beforeRow);}
       else{const tr=$('typingRow');if(divider&&!divider.isConnected){if(tr)el.msgList.insertBefore(divider,tr);else el.msgList.appendChild(divider);}if(tr)el.msgList.insertBefore(row,tr);else el.msgList.appendChild(row);}
+      // Only update group classes on the new row and its immediate neighbours.
+      // Calling reapplyAllGroupClasses() would toggle margin-top on every existing
+      // row, causing the whole list to reflow and visually shift.
+      patchGroupClasses(idx, msgs);
       return true;
     }
 
@@ -1040,6 +1238,8 @@
       if(key===state.lastHeaderKey) return; state.lastHeaderKey=key;
       el.backBtn.classList.toggle('hidden',!priv);
       el.chatMain.classList.toggle('is-private',priv);
+      el.chatMain.classList.toggle('is-public',!priv);
+      el.chatMain.dataset.roomLabel = priv ? 'Private' : 'Public';
       el.header.classList.toggle('mode-public',!priv); el.header.classList.toggle('mode-private',priv);
       if(!priv){el.title.textContent='Public room';el.sub.textContent='Everyone can read this room';el.sub.classList.remove('typing');return;}
       el.title.textContent=c?.name||'Private conversation';
@@ -1074,12 +1274,13 @@
 
     function openPopover(msg,anchorEl){
       closePopover();
+      haptic(8);
       const row=state.rowEls.get(msg.id);
       if(row){const b=row.querySelector('.message-bubble');if(b)b.classList.add('menu-open');}
       const pop=document.createElement('div');
       pop.className='message-popover'; pop.dataset.mid=msg.id;
       pop.innerHTML=`<div class="popover-reactions">${REACTIONS.map(e=>`<button class="popover-emoji" type="button" data-popover-react="${esc(e)}" aria-label="React ${esc(e)}">${esc(e)}</button>`).join('')}</div>
-        <div class="popover-actions">${buildPopoverActions(msg).map(it=>`<button class="popover-btn${it.danger?' danger':''}" type="button" data-popover-action="${esc(it.action)}" data-mid="${esc(msg.id)}"><span class="popover-btn-main"><span class="popover-btn-icon">${esc(it.icon)}</span><span class="popover-btn-label">${esc(it.label)}</span></span></button>`).join('')}</div>`;
+        <div class="popover-actions">${buildPopoverActions(msg).map(it=>`<button class="popover-btn${it.danger?' danger':''}" type="button" data-popover-action="${esc(it.action)}" data-mid="${esc(msg.id)}"><span class="popover-btn-icon">${esc(it.icon)}</span><span class="popover-btn-label">${esc(it.label)}</span></button>`).join('')}</div>`;
       document.body.appendChild(pop);
       // Position
       const rect=anchorEl.getBoundingClientRect(); const pr=pop.getBoundingClientRect();
@@ -1231,6 +1432,7 @@
 
     async function toggleReaction(mid,emoji){
       if(!state.user.name){showModal('');return;}
+      haptic(6);
       const b=ensureReactBucket(mid); const users=b.get(emoji)||new Set(); const hasMine=users.has(state.user.id);
       if(hasMine){applyReactDelete(mid,emoji,state.user.id);patchReactRow(mid);await sb.from('message_reactions').delete().match({message_id:mid,user_id:state.user.id,emoji}).catch(console.error);}
       else{applyReactInsert(mid,emoji,state.user.id);patchReactRow(mid);await sb.from('message_reactions').upsert({message_id:mid,user_id:state.user.id,emoji,user_name:state.user.name},{onConflict:'message_id,user_id,emoji'}).catch(console.error);}
@@ -1268,9 +1470,12 @@
       if(!state.user.name){showModal('');return;}
       const draft=el.input.value; const replyToId=state.replyTo?.id||null;
       setStatus('');setReply(null);el.input.value='';resizeTA();updateCounter();state.lastSendAt=Date.now();
+      el.sendBtn.classList.remove('has-content');
+      updateInputPlaceholder();
       if(state.convo.type==='public'){
         const{error}=await sb.from('messages').insert({room:PUB_ROOM,body,name:state.user.name,user_id:state.user.id,reply_to_id:replyToId||null});
         if(error){console.error(error);el.input.value=draft;resizeTA();updateCounter();setStatus('Failed to send.','error');}
+        else haptic(10);
         el.input.focus();return;
       }
       const contact=curContact();
@@ -1279,6 +1484,7 @@
       const opt={id:tempId,client_id:tempId,sender_id:state.user.id,sender_name:state.user.name,recipient_id:contact.userId,recipient_name:contact.name,body,created_at:nowIso(),seen_at:null,is_deleted:false,reply_to_id:replyToId||null,_optimistic:true,_failed:false};
       const wasNear=isNearBottom(); const stored=storeMsg('private',contact.userId,opt);
       maybeInsertRow(stored);renderContacts();if(wasNear) scrollBottom(true,true);
+      haptic(10);
       const{error}=await sb.from('private_messages').insert({sender_id:state.user.id,sender_name:state.user.name,recipient_id:contact.userId,recipient_name:contact.name,body,client_id:tempId,reply_to_id:replyToId||null});
       if(error){console.error(error);stored._optimistic=false;stored._failed=true;patchRow(stored);setStatus('Failed to send.','error');}
       el.input.focus();
@@ -1337,6 +1543,113 @@
       openPopover(msg,bubble);
     }
 
+    // ── Input placeholder reacts to reply context ──────────────────────────────
+    function updateInputPlaceholder(){
+      el.input.placeholder = state.replyTo
+        ? `Reply to ${state.replyTo.senderName}…`
+        : 'Type a message…';
+    }
+
+    // ── Unread scroll pill ─────────────────────────────────────────────────────
+    // Shows "↓ N unread" when the user is scrolled up past unread messages.
+    function updateUnreadPill(){
+      const uid=state.convo.recipientId;
+      if(state.convo.type!=='private'||!uid){el.unreadPill.classList.add('hidden');return;}
+      const msgs=curMsgs();
+      const unreadCount=msgs.filter(m=>m.sender_id===uid&&!m.seen_at&&!m.is_deleted&&!m._optimistic).length;
+      if(!unreadCount||isNearBottom()){el.unreadPill.classList.add('hidden');return;}
+      el.unreadPill.textContent=`↓ ${unreadCount} unread`;
+      el.unreadPill.classList.remove('hidden');
+    }
+
+    // ── Swipe-to-reply ─────────────────────────────────────────────────────────
+    function bindSwipeToReply(){
+      let touch={id:null,startX:0,startY:0,row:null,stack:null,own:false,triggered:false};
+      const THRESHOLD=60; // px to commit reply
+      const MAX_TRANSLATE=72;
+
+      el.msgList.addEventListener('touchstart',e=>{
+        if(e.touches.length!==1) return;
+        const t=e.touches[0];
+        const row=t.target.closest('.message-row');
+        if(!row) return;
+        const mid=row.querySelector('[data-bubble-mid]')?.dataset?.bubbleMid;
+        const msg=mid?curMsgById(mid):null;
+        if(!msg||msg.is_deleted) return;
+        touch={
+          id:t.identifier,
+          startX:t.clientX, startY:t.clientY,
+          row, stack:row.querySelector('.message-stack'),
+          own:row.classList.contains('own'),
+          mid, triggered:false
+        };
+      },{passive:true});
+
+      el.msgList.addEventListener('touchmove',e=>{
+        if(!touch.stack) return;
+        const t=[...e.touches].find(x=>x.identifier===touch.id);
+        if(!t) return;
+        const dx=t.clientX-touch.startX;
+        const dy=Math.abs(t.clientY-touch.startY);
+        // Only intercept if clearly horizontal
+        if(dy>Math.abs(dx)*0.8&&Math.abs(dx)<10) return;
+        // Own messages swipe left (negative dx), others swipe right (positive dx)
+        const relevant=touch.own?(dx<0):(dx>0);
+        if(!relevant) return;
+        const travel=Math.min(Math.abs(dx),MAX_TRANSLATE);
+        const translateX=touch.own?-travel:travel;
+        touch.stack.style.transition='none';
+        touch.stack.style.transform=`translateX(${translateX}px)`;
+        touch.row.classList.toggle('swiping',travel>20);
+        // Add swipe arrow if not present
+        if(!touch.row.querySelector('.swipe-arrow')){
+          const arr=document.createElement('div');arr.className='swipe-arrow';arr.textContent='↩';
+          touch.row.style.position='relative';touch.row.appendChild(arr);
+        }
+        if(travel>=THRESHOLD&&!touch.triggered){
+          touch.triggered=true;haptic(12);
+        }
+      },{passive:true});
+
+      function endSwipe(){
+        if(!touch.stack) return;
+        touch.stack.style.transition='transform 0.28s var(--ease)';
+        touch.stack.style.transform='';
+        touch.row.classList.remove('swiping');
+        touch.row.querySelector('.swipe-arrow')?.remove();
+        if(touch.triggered){
+          const msg=curMsgById(touch.mid); if(msg) setReply(msg);
+        }
+        touch={id:null,startX:0,startY:0,row:null,stack:null,own:false,triggered:false};
+      }
+
+      el.msgList.addEventListener('touchend',endSwipe,{passive:true});
+      el.msgList.addEventListener('touchcancel',endSwipe,{passive:true});
+    }
+
+    // ── Long-press for reaction picker (skips popover) ─────────────────────────
+    function bindLongPress(){
+      el.msgList.addEventListener('pointerdown',e=>{
+        const bubble=e.target.closest('[data-bubble-mid]'); if(!bubble) return;
+        state.longPressTimer=setTimeout(()=>{
+          const mid=bubble.dataset.bubbleMid; const msg=curMsgById(mid); if(!msg) return;
+          haptic(14);
+          openPopover(msg,bubble);
+        },400);
+      });
+      el.msgList.addEventListener('pointerup',()=>{ clearTimeout(state.longPressTimer); state.longPressTimer=null; },{passive:true});
+      el.msgList.addEventListener('pointermove',()=>{ clearTimeout(state.longPressTimer); state.longPressTimer=null; },{passive:true});
+      el.msgList.addEventListener('pointercancel',()=>{ clearTimeout(state.longPressTimer); state.longPressTimer=null; },{passive:true});
+    }
+
+    // ── Sidebar timestamp refresh ──────────────────────────────────────────────
+    // Contacts show relative times ("2m ago") that go stale.
+    // Re-render contacts every 30s so times stay accurate.
+    function startSidebarRefresh(){
+      if(state.sidebarRefreshTimer) return;
+      state.sidebarRefreshTimer=setInterval(()=>renderContacts(),30000);
+    }
+
     function bindEvents(){
       if(state.inited) return; state.inited=true;
 
@@ -1353,6 +1666,14 @@
       el.sendBtn.addEventListener('click',sendMessage);
       el.replyClose.addEventListener('click',()=>setReply(null));
 
+      // Unread pill — click scrolls to first unread message
+      el.unreadPill.addEventListener('click',()=>{
+        const uid=state.convo.recipientId;
+        const first=curMsgs().find(m=>m.sender_id===uid&&!m.seen_at&&!m.is_deleted&&!m._optimistic);
+        if(first) scrollToMessage(first.id);
+        el.unreadPill.classList.add('hidden');
+      });
+
       el.input.addEventListener('keydown',e=>{
         if(e.key==='Enter'&&!mobileEnterNewline()&&!e.shiftKey){e.preventDefault();sendMessage();return;}
         if(state.convo.type==='private') publishTyping();
@@ -1361,6 +1682,7 @@
         resizeTA();updateCounter();
         if(el.status.classList.contains('error')) setStatus('');
         if(state.convo.type==='private'&&el.input.value.trim()) publishTyping();
+        el.sendBtn.classList.toggle('has-content', el.input.value.trim().length>0);
       });
 
       const syncSearch=src=>{state.searchTerm=src.value;el.sideSearch.value=src.value;el.mobSearch.value=src.value;renderContacts();};
@@ -1370,6 +1692,7 @@
       el.msgList.addEventListener('scroll',()=>{
         state.stickBottom=isNearBottom();
         if(state.stickBottom&&state.convo.type==='private'&&state.convo.recipientId) scheduleMarkSeen(state.convo.recipientId);
+        updateUnreadPill();
       },{passive:true});
 
       el.msgList.addEventListener('click',onMsgListClick);
@@ -1389,7 +1712,7 @@
             state.pendingDelete=mid;
             const actionsEl=state.activePopover.el.querySelector('.popover-actions');
             if(actionsEl&&msg){
-              actionsEl.innerHTML=buildPopoverActions(msg).map(it=>`<button class="popover-btn${it.danger?' danger':''}" type="button" data-popover-action="${esc(it.action)}" data-mid="${esc(msg.id)}"><span class="popover-btn-main"><span class="popover-btn-icon">${esc(it.icon)}</span><span class="popover-btn-label">${esc(it.label)}</span></span></button>`).join('');
+              actionsEl.innerHTML=buildPopoverActions(msg).map(it=>`<button class="popover-btn${it.danger?' danger':''}" type="button" data-popover-action="${esc(it.action)}" data-mid="${esc(msg.id)}"><span class="popover-btn-icon">${esc(it.icon)}</span><span class="popover-btn-label">${esc(it.label)}</span></button>`).join('');
             }
             return;
           }
@@ -1444,8 +1767,12 @@
         Object.values(state.subs).forEach(ch=>ch&&sb.removeChannel(ch));
         if(state.timers.presBeat) clearInterval(state.timers.presBeat);
         if(state.timers.presDecay) clearInterval(state.timers.presDecay);
+        if(state.sidebarRefreshTimer) clearInterval(state.sidebarRefreshTimer);
         if(state.pendingSeenDebounce) clearTimeout(state.pendingSeenDebounce);
       });
+
+      bindSwipeToReply();
+      bindLongPress();
     }
 
     function setupActivity(){
@@ -1463,6 +1790,7 @@
       renderContacts();await restoreConvo();
       subscribePub();subscribePriv();subscribePres();subscribeTyping();subscribeReactions();
       if(state.user.name) setupActivity();
+      startSidebarRefresh();
     }
 
     init().catch(err=>{
