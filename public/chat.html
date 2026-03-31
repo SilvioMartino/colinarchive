@@ -56,7 +56,8 @@
     }
 
     button, input, textarea { font: inherit; color: inherit; }
-    button { -webkit-tap-highlight-color: transparent; }
+    /* Suppress the blue/grey tap flash on every interactive element on mobile */
+    *, *::before, *::after { -webkit-tap-highlight-color: transparent; }
     a { color: inherit; text-decoration: none; }
     .hidden { display: none !important; }
 
@@ -93,7 +94,7 @@
     }
 
     .header-left { display:flex; align-items:center; gap:0.65rem; min-width:0; }
-    .logo { font-family:var(--mono); font-size:0.79rem; letter-spacing:0.12em; text-transform:uppercase; font-weight:500; white-space:nowrap; }
+    .logo { font-family:var(--mono); font-size:0.79rem; letter-spacing:0.12em; text-transform:uppercase; font-weight:500; white-space:nowrap; color:var(--fg); }
 
     .mobile-inbox-btn, .reply-bar-close, .icon-btn {
       width:42px; height:42px; border-radius:999px; border:1px solid var(--border);
@@ -665,7 +666,7 @@
       contacts:new Map(), messageIndex:new Map(),
       rowEls:new Map(), dividerEls:new Map(),
       reactions:new Map(), pendingSeenDebounce:null,
-      activePopover:null, replyTo:null, presMap:new Map(),
+      activePopover:null, replyTo:null, pendingDelete:null, presMap:new Map(),
       subs:{pub:null,privIns:null,privUpd:null,pres:null,typing:null,react:null},
       timers:{presBeat:null,presDecay:null}
     };
@@ -1051,14 +1052,22 @@
       if(!state.activePopover) return;
       const row=state.rowEls.get(state.activePopover.mid);
       if(row){const b=row.querySelector('.message-bubble');if(b)b.classList.remove('menu-open');}
-      state.activePopover.el.remove();state.activePopover=null;
+      state.activePopover.el.remove();state.activePopover=null;state.pendingDelete=null;
     }
 
     function buildPopoverActions(msg){
       const own=msg.sender_id===state.user.id; const isPriv=msg._convoType==='private';
       const items=[{action:'reply',icon:'↩',label:'Reply'}];
       if(!own&&!isPriv) items.push({action:'dm',icon:'💬',label:'Message privately'});
-      if(own&&!msg.is_deleted&&!msg._optimistic) items.push({action:'delete',icon:'🗑',label:'Delete',danger:true});
+      if(own&&!msg.is_deleted&&!msg._optimistic){
+        // Two-step: first press → confirm state; second press → actual delete
+        if(state.pendingDelete===msg.id){
+          items.push({action:'delete-confirm',icon:'🗑',label:'Yes, delete it',danger:true});
+          items.push({action:'delete-cancel',icon:'✕',label:'Cancel'});
+        } else {
+          items.push({action:'delete-ask',icon:'🗑',label:'Delete',danger:false});
+        }
+      }
       if(msg._failed) items.push({action:'retry',icon:'⟳',label:'Retry send'});
       return items;
     }
@@ -1229,7 +1238,6 @@
 
     async function softDeletePublic(mid){
       const msg=state.pubMap.get(mid); if(!msg) return;
-      if(!window.confirm('Delete this message?')) return;
       const prev=msg.body,prevD=!!msg.is_deleted;
       msg.is_deleted=true;msg.body='';patchRow(msg);
       const{error}=await sb.from('messages').update({is_deleted:true,body:'',edited_at:nowIso()}).eq('id',mid);
@@ -1238,7 +1246,6 @@
 
     async function softDeletePrivate(mid){
       const msg=curMsgById(mid); if(!msg) return;
-      if(!window.confirm('Delete this message?')) return;
       const prev=msg.body,prevD=!!msg.is_deleted;
       msg.is_deleted=true;msg.body='';patchRow(msg);
       const{error}=await sb.from('private_messages').update({is_deleted:true,body:'',edited_at:nowIso()}).eq('id',mid);
@@ -1375,11 +1382,24 @@
         const actionBtn=e.target.closest('[data-popover-action]');
         if(actionBtn&&state.activePopover){
           const action=actionBtn.dataset.popoverAction,mid=actionBtn.dataset.mid;
-          const msg=curMsgById(mid);closePopover();
+          const msg=curMsgById(mid);
+
+          if(action==='delete-ask'){
+            // First press: enter confirm state — rebuild popover actions in place
+            state.pendingDelete=mid;
+            const actionsEl=state.activePopover.el.querySelector('.popover-actions');
+            if(actionsEl&&msg){
+              actionsEl.innerHTML=buildPopoverActions(msg).map(it=>`<button class="popover-btn${it.danger?' danger':''}" type="button" data-popover-action="${esc(it.action)}" data-mid="${esc(msg.id)}"><span class="popover-btn-main"><span class="popover-btn-icon">${esc(it.icon)}</span><span class="popover-btn-label">${esc(it.label)}</span></span></button>`).join('');
+            }
+            return;
+          }
+
+          closePopover();
           if(!msg) return;
+          if(action==='delete-confirm'){if(msg._convoType==='public')softDeletePublic(mid);else softDeletePrivate(mid);return;}
+          if(action==='delete-cancel'){return;} // popover already closed
           if(action==='reply'){setReply(msg);return;}
           if(action==='dm'){const tid=msg.sender_id,tname=normName(msg.sender_name||'Unknown');if(tid&&tid!==state.user.id)applyConvo('private',tid,tname,true);return;}
-          if(action==='delete'){if(msg._convoType==='public')softDeletePublic(mid);else softDeletePrivate(mid);return;}
           if(action==='retry'){retryFailed(mid);return;}
         }
         // User item
