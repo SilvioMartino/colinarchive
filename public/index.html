@@ -671,12 +671,13 @@ header {
     });
   }
 
-  async function fetchPostsPage() {
+  async function fetchPostsPage(skeletonTimer) {
     if (state.isFetching || !state.hasMoreServerPosts) return;
 
     state.isFetching = true;
     els.loadMoreBtn.disabled = true;
     els.loadMoreBtn.textContent = 'Loading...';
+    if (skeletonTimer) clearTimeout(skeletonTimer);
 
     try {
       const from = state.nextOffset;
@@ -793,16 +794,11 @@ header {
     bindEvents();
     updateLoadMoreVisibility();
 
-    // Only show skeleton if the fetch takes longer than 150ms.
-    // Fast connections never see it; slow ones get a proper placeholder.
     const skeletonTimer = setTimeout(() => {
       els.entryList.innerHTML = SKELETON_HTML;
     }, 150);
 
-    await fetchPostsPage();
-    clearTimeout(skeletonTimer);
-    // fetchPostsPage already calls renderPosts, which overwrites
-    // the skeleton if it was injected.
+    await fetchPostsPage(skeletonTimer);
   }
 
   init().catch(err => {
