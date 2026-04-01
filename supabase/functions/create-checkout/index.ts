@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
       'Authorization': `Bearer ${supabaseKey}`,
       'Prefer': 'return=representation'
     },
-    body: JSON.stringify({ name, email, topic, details, amount: 2500, status: 'pending' })
+    body: JSON.stringify({ name, email, topic, details, amount: 100, status: 'pending' })
   })
   const [commission] = await res.json()
 
@@ -36,13 +36,13 @@ Deno.serve(async (req) => {
       price_data: {
         currency: 'usd',
         product_data: { name: `Post commission: ${topic}` },
-        unit_amount: 2500,
+        unit_amount: 700,
       },
       quantity: 1,
     }],
     mode: 'payment',
     success_url: `https://colinarchive.onrender.com/success.html`,
-    cancel_url: `https://colinarchive.onrender.com/archive.html`,
+    cancel_url: `https://colinarchive.onrender.com/index.html`,
     metadata: { commission_id: commission.id }
   })
 
