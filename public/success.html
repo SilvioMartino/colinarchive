@@ -3,30 +3,373 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Thank you — Colin Archive</title>
+<title>Commission confirmed — Colin Archive</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Caveat:wght@600&display=swap" rel="stylesheet">
 <style>
-  body{background:#1a1a1a;color:#e8e8e8;font-family:'Crimson Text',Georgia,serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;}
-  .wrap{text-align:center;max-width:480px;padding:2rem;}
-  h1{font-size:2.2rem;margin-bottom:1rem;}
-  p{color:#b8b8b8;font-size:1rem;line-height:1.6;margin-bottom:1.5rem;}
-  a{font-family:'IBM Plex Mono',monospace;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:#ff6b6b;text-decoration:none;border:1px solid rgba(255,107,107,0.4);padding:0.65rem 1.3rem;border-radius:6px;transition:background 0.2s;}
-  a:hover{background:rgba(255,107,107,0.08);}
+:root {
+  --paper: #111;
+  --surface: #181818;
+  --fg: #eeeeee;
+  --muted: #999;
+  --soft: #555;
+  --border: #222;
+  --border2: #2e2e2e;
+  --red: #ff6b6b;
+  --gold: #e8b84b;
+  --gold-dim: rgba(232,184,75,0.12);
+  --gold-border: rgba(232,184,75,0.22);
+  --serif: 'Crimson Text', Georgia, serif;
+  --mono: 'IBM Plex Mono', monospace;
+  --hand: 'Caveat', cursive;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{
+  background: var(--paper);
+  color: var(--fg);
+  font-family: var(--serif);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+}
+
+/* Ambient glow — purely atmospheric */
+body::after {
+  content: '';
+  position: fixed;
+  top: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(ellipse, rgba(232,184,75,0.07) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* ── Trophy medal ── */
+.medal-wrap {
+  margin-bottom: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  animation: dropIn 0.7s cubic-bezier(0.22,1,0.36,1) both;
+}
+@keyframes dropIn {
+  from { opacity:0; transform: translateY(-24px) scale(0.85); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
+}
+
+.medal {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+/* Ring */
+.medal::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px solid var(--gold-border);
+}
+/* Trophy SVG inside */
+.medal-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--gold);
+}
+
+.medal-ribbon {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-border);
+  padding: 0.22rem 0.7rem;
+  border-radius: 999px;
+}
+
+/* ── Headline ── */
+.headline {
+  text-align: center;
+  margin-bottom: 2rem;
+  animation: fadeUp 0.5s 0.2s ease both;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(14px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+.headline-hand {
+  font-family: var(--hand);
+  font-size: 1.15rem;
+  color: var(--gold);
+  display: block;
+  margin-bottom: 0.35rem;
+  letter-spacing: 0.02em;
+}
+
+.headline h1 {
+  font-family: var(--serif);
+  font-size: clamp(2.4rem, 5vw, 3.2rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.65rem;
+}
+
+.headline-sub {
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--muted);
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+
+/* ── Divider ── */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border);
+  margin: 0.25rem 0 1.75rem;
+  animation: fadeUp 0.5s 0.3s ease both;
+}
+
+/* ── Steps ── */
+.steps {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 1.75rem;
+  animation: fadeUp 0.5s 0.4s ease both;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.1rem 1.35rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  transition: background 0.15s;
+}
+.step:last-child { border-bottom: none; }
+.step:hover { background: #1d1d1d; }
+
+.step-num {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  border: 1px solid var(--gold-border);
+  background: var(--gold-dim);
+  padding: 0.18rem 0.42rem;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.step-body { flex: 1; min-width: 0; }
+.step-title {
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--fg);
+  margin-bottom: 0.15rem;
+  line-height: 1.3;
+}
+.step-desc {
+  font-family: var(--serif);
+  font-size: 0.92rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ── Timeline pill ── */
+.timeline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--gold-border);
+  background: var(--gold-dim);
+  border-radius: 999px;
+  padding: 0.48rem 1.1rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--gold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+  animation: fadeUp 0.5s 0.5s ease both;
+}
+.tl-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.35;transform:scale(0.65)} }
+
+/* ── Actions ── */
+.actions {
+  display: flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  animation: fadeUp 0.5s 0.6s ease both;
+}
+
+.btn-main {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--red);
+  text-decoration: none;
+  border: 1px solid rgba(255,107,107,0.3);
+  background: rgba(255,107,107,0.06);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  transition: background 0.18s, border-color 0.18s;
+}
+.btn-main:hover { background: rgba(255,107,107,0.13); border-color: rgba(255,107,107,0.55); }
+
+.btn-ghost {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--soft);
+  text-decoration: none;
+  border: 1px solid var(--border2);
+  background: transparent;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  transition: border-color 0.18s, color 0.18s;
+}
+.btn-ghost:hover { border-color: #3a3a3a; color: var(--muted); }
+
+/* ── Logo ── */
+.logo-link {
+  position: fixed;
+  top: 1.5rem;
+  left: 2rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--soft);
+  text-decoration: none;
+  z-index: 10;
+  transition: color 0.15s;
+}
+.logo-link:hover { color: var(--muted); }
+.logo-link::after { content: '|'; color: var(--red); animation: blink 1s step-end infinite; margin-left: 2px; }
+@keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
+
+@media (max-width: 600px) {
+  .headline h1 { font-size: 2.2rem; }
+  .medal { width: 72px; height: 72px; }
+  .medal-icon { width: 32px; height: 32px; }
+  .logo-link { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>Thank you.</h1>
-    <p>Your commission is confirmed. I'll be in touch at the email you provided once the post is ready.</p>
-    <a href="/archive.html">Back to archive</a>
+
+<a href="/index.html" class="logo-link">Colin Archive</a>
+
+<div class="page">
+
+  <div class="medal-wrap">
+    <div class="medal">
+      <svg class="medal-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 4L22.8 13.2H32.4L24.8 18.8L27.6 28L20 22.4L12.4 28L15.2 18.8L7.6 13.2H17.2L20 4Z" fill="currentColor" opacity="0.9"/>
+        <rect x="15" y="30" width="10" height="3" rx="1.5" fill="currentColor" opacity="0.6"/>
+        <rect x="13" y="33" width="14" height="3" rx="1.5" fill="currentColor" opacity="0.5"/>
+      </svg>
+    </div>
+    <span class="medal-ribbon">Commission confirmed</span>
   </div>
+
+  <div class="headline">
+    <span class="headline-hand">thank you for commissioning</span>
+    <h1>Your post<br/>is in good hands.</h1>
+    <p class="headline-sub">Here's exactly what happens from here.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">01</span>
+      <div class="step-body">
+        <div class="step-title">I start writing today</div>
+        <div class="step-desc">Your topic goes straight into my queue — no waiting, no middlemen. I research and write everything myself.</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="step-num">02</span>
+      <div class="step-body">
+        <div class="step-title">Ready in 1–2 days</div>
+        <div class="step-desc">Your post will be published to the archive within 1–2 days. You'll get an email at the address you used at checkout when it's live.</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="step-num">03</span>
+      <div class="step-body">
+        <div class="step-title">Find it in the archive</div>
+        <div class="step-desc">Your post will appear publicly on the archive. You can also check back anytime — it'll be there under your topic.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="timeline">
+    <span class="tl-dot"></span>
+    Expected delivery · 1–2 days
+  </div>
+
+  <div class="actions">
+    <a href="/index.html" class="btn-main">Back to the archive →</a>
+    <a href="mailto:colinul27@gmail.com" class="btn-ghost">Questions? Email me</a>
+  </div>
+
+</div>
+
 </body>
 </html>
-```
-
-Hit Ctrl+S, then in PowerShell:
-```
-git add .
-git commit -m "fix success page"
-git push
