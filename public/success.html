@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Thank you — Colin Archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  body{background:#1a1a1a;color:#e8e8e8;font-family:'Crimson Text',Georgia,serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;}
+  .wrap{text-align:center;max-width:480px;padding:2rem;}
+  h1{font-size:2.2rem;margin-bottom:1rem;}
+  p{color:#b8b8b8;font-size:1rem;line-height:1.6;margin-bottom:1.5rem;}
+  a{font-family:'IBM Plex Mono',monospace;font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:#ff6b6b;text-decoration:none;border:1px solid rgba(255,107,107,0.4);padding:0.65rem 1.3rem;border-radius:6px;transition:background 0.2s;}
+  a:hover{background:rgba(255,107,107,0.08);}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Thank you.</h1>
+    <p>Your commission is confirmed. I'll be in touch at the email you provided once the post is ready.</p>
+    <a href="/archive.html">Back to archive</a>
+  </div>
+</body>
+</html>
+```
+
+**2. Push everything to GitHub**
+You need to push both the updated `archive.html` and the new `success.html` to GitHub so Render picks them up. In PyCharm open the terminal and run:
+```
+git add .
+git commit -m "add commission form and success page"
+git push
