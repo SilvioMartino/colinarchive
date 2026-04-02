@@ -481,7 +481,13 @@ textarea.c-input{resize:vertical;min-height:78px;font-family:var(--serif);font-s
     updateLoadMoreVisibility();
     const skeletonTimer = setTimeout(() => { els.entryList.innerHTML = SKELETON_HTML; }, 150);
     await fetchPostsPage(skeletonTimer);
-    db.rpc('increment_stat', { stat_key: 'homepage_visits' }).catch(() => {});
+    const todayKey = 'hp_visited_' + new Date().toDateString();
+    if (!localStorage.getItem(todayKey)) {
+      localStorage.setItem(todayKey, '1');
+      db.rpc('increment_stat', { stat_key: 'homepage_visits' }).catch(() => {});
+      const ref = localStorage.getItem('ref');
+      if (ref) db.from('referral_visits').insert({ ref, page: 'homepage' }).catch(() => {});
+    }
   }
 
   init().catch(err => { console.error(err); renderEmpty('Could not load posts. Please try again later.'); });
