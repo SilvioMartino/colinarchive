@@ -12,7 +12,7 @@ const POSTS_DIR = path.join(__dirname, 'posts');
 app.use(cors());
 app.use(express.json());
 
-// Routes must come BEFORE static middleware
+// Routes before static middleware
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
@@ -22,13 +22,7 @@ app.get("/g", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "g.html"));
 });
 
-app.use(express.static('public')); // Static files after routes
-
-// Gabi's referral link
-app.get("/g", (req, res) => {
-  res.setHeader('Content-Type', 'text/html');
-  res.sendFile(path.join(__dirname, "public", "g.html"));
-});
+app.use(express.static('public'));
 
 // Ensure posts directory exists
 async function ensurePostsDir() {
@@ -51,21 +45,15 @@ function slugify(title) {
 app.post('/api/posts', async (req, res) => {
   try {
     const { title, excerpt, content, tags, access } = req.body;
-
     if (!title || !content) {
       return res.status(400).json({ error: 'Title and content required' });
     }
-
     const date = new Date();
-    const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
+    const dateStr = date.toISOString().split('T')[0];
     const slug = slugify(title);
     const filename = `${dateStr}-${slug}.md`;
-
-    // Calculate read time
     const words = content.split(/\s+/).filter(w => w.length > 0).length;
     const readTime = Math.max(1, Math.ceil(words / 200));
-
-    // Create markdown with frontmatter
     const markdown = `---
 title: ${title}
 date: ${date.toISOString()}
@@ -76,15 +64,9 @@ readTime: ${readTime}
 ---
 
 ${content}`;
-
     const filepath = path.join(POSTS_DIR, filename);
     await fs.writeFile(filepath, markdown, 'utf8');
-
-    res.json({
-      success: true,
-      filename,
-      message: 'Post published'
-    });
+    res.json({ success: true, filename, message: 'Post published' });
   } catch (error) {
     console.error('Error saving post:', error);
     res.status(500).json({ error: 'Failed to save post' });
@@ -96,24 +78,18 @@ app.get('/api/posts', async (req, res) => {
   try {
     const files = await fs.readdir(POSTS_DIR);
     const mdFiles = files.filter(f => f.endsWith('.md'));
-
     const posts = await Promise.all(
       mdFiles.map(async (file) => {
         const filepath = path.join(POSTS_DIR, file);
         const content = await fs.readFile(filepath, 'utf8');
-
-        // Parse frontmatter
         const match = content.match(/^---\n([\s\S]+?)\n---\n([\s\S]+)$/);
         if (!match) return null;
-
         const [, frontmatter, body] = match;
         const meta = {};
-
         frontmatter.split('\n').forEach(line => {
           const [key, ...values] = line.split(': ');
           meta[key] = values.join(': ');
         });
-
         return {
           id: file.replace('.md', ''),
           title: meta.title,
@@ -124,18 +100,13 @@ app.get('/api/posts', async (req, res) => {
           date: meta.date,
           readTime: meta.readTime,
           meta: new Date(meta.date).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
+            month: 'short', day: 'numeric', year: 'numeric'
           })
         };
       })
     );
-
-    // Filter out nulls and sort by date (newest first)
     const validPosts = posts.filter(p => p !== null);
     validPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-
     res.json(validPosts);
   } catch (error) {
     console.error('Error reading posts:', error);
@@ -148,20 +119,14 @@ app.get('/api/posts/:id', async (req, res) => {
   try {
     const filepath = path.join(POSTS_DIR, `${req.params.id}.md`);
     const content = await fs.readFile(filepath, 'utf8');
-
     const match = content.match(/^---\n([\s\S]+?)\n---\n([\s\S]+)$/);
-    if (!match) {
-      return res.status(404).json({ error: 'Post not found' });
-    }
-
+    if (!match) return res.status(404).json({ error: 'Post not found' });
     const [, frontmatter, body] = match;
     const meta = {};
-
     frontmatter.split('\n').forEach(line => {
       const [key, ...values] = line.split(': ');
       meta[key] = values.join(': ');
     });
-
     res.json({
       id: req.params.id,
       title: meta.title,
