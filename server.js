@@ -11,12 +11,18 @@ const POSTS_DIR = path.join(__dirname, 'posts');
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public')); // Serve static files from public/
 
-// Homepage route – now serves index.html
+// Routes must come BEFORE static middleware
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
+
+app.get("/g", (req, res) => {
+  res.setHeader('Content-Type', 'text/html');
+  res.sendFile(path.join(__dirname, "public", "g.html"));
+});
+
+app.use(express.static('public')); // Static files after routes
 
 // Gabi's referral link
 app.get("/g", (req, res) => {
