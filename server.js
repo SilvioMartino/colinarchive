@@ -18,6 +18,12 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+// Gabi's referral link
+app.get("/g", (req, res) => {
+  res.setHeader('Content-Type', 'text/html');
+  res.sendFile(path.join(__dirname, "public", "g.html"));
+});
+
 // Ensure posts directory exists
 async function ensurePostsDir() {
   try {
