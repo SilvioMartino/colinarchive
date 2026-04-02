@@ -515,7 +515,7 @@
     const viewKey = 'viewed_' + _pid;
     if (!localStorage.getItem(viewKey)) {
       localStorage.setItem(viewKey, '1');
-      db.rpc('increment_post_views', { post_id: _pid }).catch(() => {});
+      db.rpc('increment_post_views', { post_id: _pid }).then(() => {}).catch(() => {});
     }
   }
 </script>
