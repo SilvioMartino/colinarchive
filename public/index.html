@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Archive — Colin Archive</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-EGVY0MKEZE"></script>
@@ -11,14 +15,7 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'G-EGVY0MKEZE');
-</script>  
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Archive — Colin Archive</title>
-
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
@@ -80,12 +77,10 @@ header{padding:2rem 3rem;border-bottom:1px solid var(--border);background:var(--
 .filter-tag[data-filter="code"].active{border-color:var(--green);color:var(--green);background:rgba(81,207,102,0.05);}
 .filter-tag[data-filter="notes"].active{border-color:var(--yellow);color:var(--yellow);background:rgba(255,230,109,0.05);}
 
-/* Skeleton */
 .skeleton-entry{border-radius:16px;border:1px solid var(--border);padding:1.5rem;margin-bottom:1.5rem;}
 .skeleton-line{border-radius:4px;height:14px;margin-bottom:10px;background:linear-gradient(90deg,var(--border) 25%,#333 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.5s ease-in-out infinite;}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-/* Entries */
 .entry-list{display:flex;flex-direction:column;gap:1.5rem;}
 .entry{position:relative;border-bottom:1px solid var(--border);border-radius:16px;overflow:hidden;padding:0;transition:background-color 0.3s,border-bottom-color 0.3s,margin 0.3s,padding 0.3s;display:flex;flex-direction:column;min-height:100px;}
 .entry.has-cover{min-height:200px;}
@@ -117,7 +112,6 @@ header{padding:2rem 3rem;border-bottom:1px solid var(--border);background:var(--
 .entry-meta{font-family:var(--mono);font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.4rem;}
 .entry-excerpt{line-height:1.6;font-size:0.95rem;color:var(--muted);max-width:80ch;}
 
-/* Sidebar */
 .sidebar-section{margin-bottom:2.5rem;}
 .sidebar-title{font-family:var(--mono);font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border);}
 .rules-content{font-family:var(--serif);color:var(--muted);font-size:0.95rem;line-height:1.6;}
@@ -130,72 +124,33 @@ header{padding:2rem 3rem;border-bottom:1px solid var(--border);background:var(--
 }
 .social-icon{font-size:1.8rem;color:var(--muted);transition:color 0.2s;}
 
-/* Load more */
 .load-more-container{display:none;justify-content:center;padding:2rem 0;}
 .load-more-btn{padding:0.75rem 2rem;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:var(--mono);font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;transition:border-color 0.2s,color 0.2s;}
 .load-more-btn:hover{border-color:var(--fg);color:var(--fg);}
 .load-more-btn:disabled{opacity:0.4;cursor:not-allowed;}
 
-/* ── Commission form ── */
 .commission-section{border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:2.5rem;}
-
-.commission-header{
-  padding:1.1rem 1.3rem;border-bottom:1px solid transparent;
-  background:rgba(255,107,107,0.04);
-  display:flex;align-items:center;justify-content:space-between;gap:0.75rem;
-  cursor:pointer;user-select:none;
-  transition:border-bottom-color 0.25s;
-}
+.commission-header{padding:1.1rem 1.3rem;border-bottom:1px solid transparent;background:rgba(255,107,107,0.04);display:flex;align-items:center;justify-content:space-between;gap:0.75rem;cursor:pointer;user-select:none;transition:border-bottom-color 0.25s;}
 .commission-header.open{border-bottom-color:var(--border);}
-
 .commission-header-left{display:flex;align-items:center;gap:0.65rem;}
-
-.commission-dot{
-  width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0;
-  animation:pulse 2s ease-in-out infinite;
-}
+.commission-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0;animation:pulse 2s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
-
 .commission-label{font-family:var(--mono);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--fg);}
-
-.commission-price{
-  font-family:var(--mono);font-size:0.68rem;color:var(--red);letter-spacing:0.06em;
-  border:1px solid rgba(255,107,107,0.3);padding:0.22rem 0.55rem;border-radius:4px;
-  background:rgba(255,107,107,0.06);
-}
-
+.commission-price{font-family:var(--mono);font-size:0.68rem;color:var(--red);letter-spacing:0.06em;border:1px solid rgba(255,107,107,0.3);padding:0.22rem 0.55rem;border-radius:4px;background:rgba(255,107,107,0.06);}
 .commission-arrow{font-size:0.65rem;color:var(--muted);transition:transform 0.25s;flex-shrink:0;}
 .commission-arrow.open{transform:rotate(180deg);}
-
 .commission-body{max-height:0;overflow:hidden;transition:max-height 0.38s cubic-bezier(0.4,0,0.2,1);}
 .commission-body.open{max-height:700px;}
-
 .commission-inner{padding:1.3rem;display:flex;flex-direction:column;gap:0.65rem;}
-
 .commission-tagline{font-family:var(--serif);font-style:italic;color:var(--muted);font-size:0.9rem;line-height:1.5;margin-bottom:0.2rem;}
-
-.c-input{
-  width:100%;padding:0.7rem 0.85rem;
-  background:rgba(255,255,255,0.03);border:1px solid var(--border);
-  color:var(--fg);font-family:var(--mono);font-size:0.78rem;
-  border-radius:8px;outline:none;
-  transition:border-color 0.2s,background 0.2s;
-}
+.c-input{width:100%;padding:0.7rem 0.85rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);color:var(--fg);font-family:var(--mono);font-size:0.78rem;border-radius:8px;outline:none;transition:border-color 0.2s,background 0.2s;}
 .c-input::placeholder{color:rgba(255,255,255,0.2);}
 .c-input:focus{border-color:rgba(255,107,107,0.45);background:rgba(255,107,107,0.03);}
 textarea.c-input{resize:vertical;min-height:78px;font-family:var(--serif);font-size:0.9rem;line-height:1.5;}
-
-.c-submit{
-  width:100%;padding:0.8rem 1rem;
-  background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.35);
-  color:var(--red);font-family:var(--mono);font-size:0.72rem;letter-spacing:0.1em;
-  text-transform:uppercase;cursor:pointer;border-radius:8px;margin-top:0.2rem;
-  transition:background 0.2s,border-color 0.2s,color 0.2s,transform 0.1s;
-}
+.c-submit{width:100%;padding:0.8rem 1rem;background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.35);color:var(--red);font-family:var(--mono);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:8px;margin-top:0.2rem;transition:background 0.2s,border-color 0.2s,color 0.2s,transform 0.1s;}
 .c-submit:hover{background:rgba(255,107,107,0.15);border-color:rgba(255,107,107,0.6);color:#ffaaaa;}
 .c-submit:active{transform:scale(0.98);}
 .c-submit:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
-
 .c-status{font-family:var(--mono);font-size:0.7rem;color:var(--red);min-height:1rem;text-align:center;line-height:1.4;}
 .c-status.ok{color:var(--green);}
 
@@ -253,7 +208,6 @@ textarea.c-input{resize:vertical;min-height:78px;font-family:var(--serif);font-s
 
     <aside class="updates-sidebar">
 
-      <!-- Commission form — accordion -->
       <div class="commission-section">
         <div class="commission-header" id="commissionHeader">
           <div class="commission-header-left">
@@ -323,7 +277,6 @@ textarea.c-input{resize:vertical;min-height:78px;font-family:var(--serif);font-s
     loadMoreBtn: document.getElementById('loadMoreBtn')
   };
 
-  // ── Commission accordion ──
   const commissionHeader = document.getElementById('commissionHeader');
   const commissionBody   = document.getElementById('commissionBody');
   const commissionArrow  = document.getElementById('commissionArrow');
@@ -334,7 +287,6 @@ textarea.c-input{resize:vertical;min-height:78px;font-family:var(--serif);font-s
     commissionHeader.classList.toggle('open', open);
   });
 
-  // ── Commission submit ──
   document.getElementById('cSubmit').addEventListener('click', async () => {
     const btn    = document.getElementById('cSubmit');
     const status = document.getElementById('cStatus');
@@ -374,11 +326,10 @@ textarea.c-input{resize:vertical;min-height:78px;font-family:var(--serif);font-s
       console.error(err);
       status.textContent = 'Something went wrong. Please try again.';
       btn.disabled = false;
-      btn.textContent = 'Pay $25 & commission →';
+      btn.textContent = 'Pay $7 & commission →';
     }
   });
 
-  // ── Archive ──
   function debounce(fn, ms) {
     let t; return function(...a){ clearTimeout(t); t = setTimeout(() => fn.apply(this,a), ms); };
   }
@@ -484,7 +435,6 @@ textarea.c-input{resize:vertical;min-height:78px;font-family:var(--serif);font-s
     els.loadMoreBtn.disabled = true;
     els.loadMoreBtn.textContent = 'Loading...';
     if (skeletonTimer) clearTimeout(skeletonTimer);
-
     try {
       const { data, error } = await db
         .from('posts')
