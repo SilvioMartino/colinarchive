@@ -316,7 +316,7 @@ textarea.c-input{resize:vertical;min-height:78px;font-family:var(--serif);font-s
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, topic, details })
+          body: JSON.stringify({ name, email, topic, details, ref: localStorage.getItem('ref') || null })
         }
       );
       const json = await res.json();
