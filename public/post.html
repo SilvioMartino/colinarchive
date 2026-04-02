@@ -146,28 +146,15 @@
 
     /* ── COMMENTS ── */
     .comments-wrap { margin-top: 5rem; position: relative; }
-
     .comments-divider { position: relative; text-align: center; margin-bottom: 3rem; }
     .comments-divider::before { content: ''; position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--border); }
     .comments-divider-label { position: relative; display: inline-block; background: var(--paper); padding: 0 1rem; font-family: var(--hand); font-size: 1.1rem; color: var(--muted); opacity: 0.55; letter-spacing: 0.02em; }
-
-    .comment-form-section {
-      margin-bottom: 3.5rem;
-      background: rgba(255,255,255,0.02);
-      padding: 1.5rem;
-      border-radius: 12px;
-    }
+    .comment-form-section { margin-bottom: 3.5rem; background: rgba(255,255,255,0.02); padding: 1.5rem; border-radius: 12px; }
     .comment-form-title { font-family: var(--hand); font-size: 1.3rem; color: var(--fg); opacity: 0.5; margin-bottom: 1.25rem; letter-spacing: 0.01em; }
-
-    .reply-indicator {
-      display: none; align-items: center; gap: 0.5rem; margin-bottom: 1rem;
-      font-family: var(--hand); font-size: 0.9rem; color: var(--muted);
-      background: rgba(255,255,255,0.03); padding: 0.5rem 1rem; border-radius: 20px;
-    }
+    .reply-indicator { display: none; align-items: center; gap: 0.5rem; margin-bottom: 1rem; font-family: var(--hand); font-size: 0.9rem; color: var(--muted); background: rgba(255,255,255,0.03); padding: 0.5rem 1rem; border-radius: 20px; }
     .reply-indicator span { color: var(--type-color); }
     .reply-indicator .cancel-reply { cursor: pointer; font-size: 1.1rem; line-height: 1; padding: 0.2rem 0.5rem; transition: color 0.2s; border-radius: 50%; }
     .reply-indicator .cancel-reply:hover { color: var(--red); background: rgba(255,255,255,0.05); }
-
     .comment-form { display: flex; flex-direction: column; gap: 0; }
     .comment-form input, .comment-form textarea { background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--fg); font-family: var(--serif); font-size: 1rem; padding: 0.75rem 0; transition: border-color 0.2s; resize: none; outline: none; width: 100%; }
     .comment-form input::placeholder, .comment-form textarea::placeholder { color: var(--muted); opacity: 0.4; font-style: italic; font-family: var(--serif); }
@@ -179,51 +166,23 @@
     .comment-submit { padding: 0.5rem 1rem; background: transparent; border: 1px solid var(--border); border-radius: 30px; color: var(--muted); font-family: var(--hand); font-size: 1rem; cursor: pointer; transition: all 0.2s; line-height: 1; flex-shrink: 0; letter-spacing: 0.01em; }
     .comment-submit:hover { border-color: var(--type-color); color: var(--type-color); }
     .comment-submit:disabled { opacity: 0.25; cursor: not-allowed; }
-
     .comments-header { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 1.75rem; }
     .comments-header h3 { font-family: var(--hand); font-size: 1.15rem; color: var(--muted); font-weight: 400; opacity: 0.5; letter-spacing: 0.01em; }
     .comments-count { font-family: var(--mono); font-size: 0.62rem; color: var(--type-color); opacity: 0.7; }
-
     .comment-thread { margin-left: 0; }
     .comment-thread .comment-thread { margin-left: 1.5rem; }
-
-    /* No hover — comments are read-only content, not interactive list items */
-    .comment-item {
-      background: rgba(255,255,255,0.02);
-      border-radius: 12px;
-      padding: 1.5rem;
-      margin-bottom: 1rem;
-      border-left: 3px solid var(--type-color);
-    }
-
+    .comment-item { background: rgba(255,255,255,0.02); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border-left: 3px solid var(--type-color); }
     .comment-item-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
     .comment-item-name { font-family: var(--hand); font-size: 1.1rem; color: var(--fg); letter-spacing: 0.01em; display: flex; align-items: center; gap: 0.4rem; }
     .comment-item-name::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--type-color); display: inline-block; }
     .comment-item-date { font-family: var(--mono); font-size: 0.58rem; color: var(--muted); opacity: 0.5; }
     .comment-item-body { font-family: var(--serif); font-size: 0.98rem; line-height: 1.75; color: var(--muted); white-space: pre-wrap; word-break: break-word; }
-
-    .comment-reply-btn, .show-replies-btn {
-      margin-top: 0.75rem;
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 0.35rem 1rem;
-      color: var(--muted);
-      font-family: var(--hand);
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: border-color 0.2s, color 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-    }
+    .comment-reply-btn, .show-replies-btn { margin-top: 0.75rem; background: transparent; border: 1px solid var(--border); border-radius: 20px; padding: 0.35rem 1rem; color: var(--muted); font-family: var(--hand); font-size: 0.85rem; cursor: pointer; transition: border-color 0.2s, color 0.2s; display: inline-flex; align-items: center; gap: 0.3rem; }
     .comment-reply-btn:hover { border-color: var(--type-color); color: var(--type-color); }
     .show-replies-btn { margin-left: 0.5rem; }
     .show-replies-btn:hover { border-color: var(--muted); color: var(--fg); }
-
     .replies-container { display: none; }
     .replies-container.visible { display: block; }
-
     .comments-empty { font-family: var(--hand); font-size: 1.1rem; color: var(--muted); opacity: 0.3; padding: 1rem 0; letter-spacing: 0.01em; text-align: center; }
 
     @media (max-width: 700px) {
@@ -285,11 +244,9 @@
     </div>
 
     <div class="comments-wrap" id="commentsWrap" style="display:none;">
-
       <div class="comments-divider">
         <span class="comments-divider-label">reader notes</span>
       </div>
-
       <div class="comment-form-section">
         <div class="comment-form-title">add your note</div>
         <div class="reply-indicator" id="replyIndicator">
@@ -306,7 +263,6 @@
           </div>
         </form>
       </div>
-
       <div class="comments-list-section">
         <div class="comments-header">
           <h3>Comments</h3>
@@ -314,7 +270,6 @@
         </div>
         <div class="comment-list" id="commentList"></div>
       </div>
-
     </div>
 
   </div>
@@ -418,7 +373,6 @@
     document.getElementById('commentBody').focus();
   }
 
-  // FIX: compare null correctly — Supabase returns null for top-level, not undefined
   function buildCommentTree(comments, parentId=null) {
     return comments
       .filter(c => (c.parent_id ?? null) === parentId)
@@ -431,16 +385,13 @@
     return comments.map(c => {
       const date=relTime(c.created_at), name=escapeHtml(c.name), body=escapeHtml(c.content);
       const replyBtn=`<button class="comment-reply-btn" data-parent-id="${c.id}" data-parent-name="${c.name}"><i class="fas fa-reply"></i> reply</button>`;
-
       let showRepliesBtn='', repliesHtml='';
       if (c.replies.length) {
         const count = c.replies.length;
         const label = `${count} repl${count>1?'ies':'y'}`;
-        // FIX: store count in data-count so toggle always uses the original number
         showRepliesBtn = `<button class="show-replies-btn" data-target="replies-${c.id}" data-count="${count}"><i class="fas fa-chevron-down"></i> show ${label}</button>`;
         repliesHtml = `<div class="replies-container" id="replies-${c.id}">${renderCommentTree(c.replies, depth+1)}</div>`;
       }
-
       return `
         <div class="comment-item" data-comment-id="${c.id}">
           <div class="comment-item-header">
@@ -462,15 +413,12 @@
     const tree = buildCommentTree(data);
     if (countEl) countEl.textContent=`(${data.length})`;
     list.innerHTML = renderCommentTree(tree);
-
     list.querySelectorAll('.comment-reply-btn').forEach(btn => {
       btn.addEventListener('click', () => setReply(btn.dataset.parentId, btn.dataset.parentName));
     });
-
     list.querySelectorAll('.show-replies-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const targetEl = document.getElementById(btn.dataset.target);
-        // FIX: use data-count stored at render time, not a DOM recount
         const count = parseInt(btn.dataset.count);
         if (!targetEl) return;
         targetEl.classList.toggle('visible');
@@ -510,12 +458,19 @@
   }
 
   loadPost();
+
+  // ── View tracking (deduplicated per post per browser) ──
   const _pid = getPostId();
   if (_pid) {
     const viewKey = 'viewed_' + _pid;
     if (!localStorage.getItem(viewKey)) {
       localStorage.setItem(viewKey, '1');
       db.rpc('increment_post_views', { post_id: _pid }).then(() => {}).catch(() => {});
+      // Track referral post view if visitor came from Gabi's link
+      const ref = localStorage.getItem('ref');
+      if (ref) {
+        db.from('referral_visits').insert({ ref, page: 'post:' + _pid }).then(() => {}).catch(() => {});
+      }
     }
   }
 </script>
