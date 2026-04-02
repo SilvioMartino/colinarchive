@@ -481,6 +481,7 @@ textarea.c-input{resize:vertical;min-height:78px;font-family:var(--serif);font-s
     updateLoadMoreVisibility();
     const skeletonTimer = setTimeout(() => { els.entryList.innerHTML = SKELETON_HTML; }, 150);
     await fetchPostsPage(skeletonTimer);
+    db.rpc('increment_stat', { stat_key: 'homepage_visits' }).catch(() => {});
   }
 
   init().catch(err => { console.error(err); renderEmpty('Could not load posts. Please try again later.'); });
