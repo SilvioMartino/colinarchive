@@ -484,7 +484,7 @@ textarea.c-input{resize:vertical;min-height:78px;font-family:var(--serif);font-s
     const todayKey = 'hp_visited_' + new Date().toDateString();
     if (!localStorage.getItem(todayKey)) {
       localStorage.setItem(todayKey, '1');
-      db.rpc('increment_stat', { stat_key: 'homepage_visits' }).catch(() => {});
+      db.rpc('increment_stat', { stat_key: 'homepage_visits' }).then(() => {}).catch(() => {});
       const ref = localStorage.getItem('ref');
       if (ref) db.from('referral_visits').insert({ ref, page: 'homepage' }).catch(() => {});
     }
