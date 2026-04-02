@@ -51,7 +51,7 @@ header{padding:2rem 3rem;border-bottom:1px solid var(--border);background:var(--
 @keyframes slideInLeft{0%{opacity:0;transform:translateX(-20px)}100%{opacity:1;transform:translateX(0)}}
 .updates-sidebar{position:sticky;top:100px;height:fit-content;animation:slideInRight 0.8s ease forwards;}
 @keyframes slideInRight{0%{opacity:0;transform:translateX(20px)}100%{opacity:1;transform:translateX(0)}}
-
+  
 .section-header{margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
 .section-header h1{font-family:var(--serif);font-size:2.5rem;font-weight:600;margin-bottom:0.5rem;}
 .section-subtitle{font-style:italic;color:var(--muted);font-size:1rem;margin-bottom:1.5rem;}
@@ -486,7 +486,7 @@ textarea.c-input{resize:vertical;min-height:78px;font-family:var(--serif);font-s
       localStorage.setItem(todayKey, '1');
       db.rpc('increment_stat', { stat_key: 'homepage_visits' }).then(() => {}).catch(() => {});
       const ref = localStorage.getItem('ref');
-      if (ref) db.from('referral_visits').insert({ ref, page: 'homepage' }).catch(() => {});
+      if (ref) db.from('referral_visits').insert({ ref, page: 'homepage' }).then(() => {}).catch(() => {});
     }
   }
 
