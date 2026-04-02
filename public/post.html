@@ -510,6 +510,8 @@
   }
 
   loadPost();
+  const _pid = getPostId();
+  if (_pid) db.rpc('increment_post_views', { post_id: _pid }).catch(() => {});
 </script>
 
 </body>
