@@ -22,7 +22,7 @@ app.get("/g", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "g.html"));
 });
 
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Ensure posts directory exists
 async function ensurePostsDir() {
