@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  const { name, email, topic, details } = await req.json()
+  const { name, email, topic, details, ref } = await req.json()
 
   const res = await fetch(`${supabaseUrl}/rest/v1/commissions`, {
     method: 'POST',
@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
       'Authorization': `Bearer ${supabaseKey}`,
       'Prefer': 'return=representation'
     },
-    body: JSON.stringify({ name, email, topic, details, amount: 100, status: 'pending' })
+    body: JSON.stringify({ name, email, topic, details, ref: ref || null, amount: 100, status: 'pending' })
   })
   const [commission] = await res.json()
 
