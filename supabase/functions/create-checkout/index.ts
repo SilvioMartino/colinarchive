@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
       price_data: {
         currency: 'usd',
         product_data: { name: `Post commission: ${topic}` },
-        unit_amount: 700,
+        unit_amount: 100,
       },
       quantity: 1,
     }],
