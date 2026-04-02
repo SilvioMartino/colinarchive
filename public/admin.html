@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin — Colin Archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #0e0e0e;
+  --surface: #161616;
+  --surface2: #1c1c1c;
+  --fg: #e8e8e8;
+  --muted: #777;
+  --soft: #3a3a3a;
+  --border: #1e1e1e;
+  --border2: #252525;
+  --red: #ff6b6b;
+  --blue: #4ecdc4;
+  --green: #51cf66;
+  --yellow: #ffe66d;
+  --gold: #e8b84b;
+  --mono: 'IBM Plex Mono', monospace;
+  --serif: 'Crimson Text', Georgia, serif;
+  --radius: 14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;}
+body{background:var(--paper);color:var(--fg);font-family:var(--mono);min-height:100vh;overflow-x:hidden;}
+
+/* ── LOGIN ── */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;background:radial-gradient(ellipse at 50% -20%,rgba(78,205,196,0.07),transparent 55%);}
+.login-box{width:100%;max-width:360px;}
+.login-brand{display:flex;align-items:center;gap:0.6rem;margin-bottom:2rem;}
+.login-brand-dot{width:8px;height:8px;border-radius:50%;background:var(--red);animation:pulse 2s ease-in-out infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.35;transform:scale(0.65)}}
+.login-brand-name{font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);}
+.login-card{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:1.75rem;}
+.login-title{font-size:1.25rem;color:var(--fg);margin-bottom:0.25rem;font-family:var(--serif);font-weight:600;}
+.login-sub{font-size:0.68rem;color:var(--muted);margin-bottom:1.75rem;line-height:1.6;}
+.l-label{font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.35rem;display:block;}
+.l-input{width:100%;padding:0.8rem 1rem;background:rgba(255,255,255,0.03);border:1px solid var(--border2);color:var(--fg);font-family:var(--mono);font-size:0.85rem;border-radius:10px;outline:none;margin-bottom:0.85rem;transition:border-color 0.2s,background 0.2s;-webkit-appearance:none;}
+.l-input:focus{border-color:rgba(78,205,196,0.4);background:rgba(78,205,196,0.025);}
+.l-input::placeholder{color:var(--soft);}
+.l-btn{width:100%;padding:0.85rem;background:rgba(78,205,196,0.08);border:1px solid rgba(78,205,196,0.2);color:var(--blue);font-family:var(--mono);font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:10px;transition:background 0.2s,border-color 0.2s;margin-top:0.15rem;}
+.l-btn:hover,.l-btn:active{background:rgba(78,205,196,0.15);border-color:rgba(78,205,196,0.45);}
+.l-err{font-size:0.65rem;color:var(--red);margin-top:0.65rem;min-height:1rem;text-align:center;}
+
+/* ── APP SHELL ── */
+.app{display:none;}
+.app.visible{display:flex;flex-direction:column;min-height:100vh;}
+
+/* Header */
+.app-header{padding:0.9rem 1.25rem;border-bottom:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.hdr-left{display:flex;align-items:center;gap:0.6rem;}
+.hdr-live{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;box-shadow:0 0 6px rgba(81,207,102,0.5);}
+.hdr-name{font-size:0.65rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--fg);}
+.hdr-tag{font-size:0.55rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);background:var(--border2);padding:0.18rem 0.5rem;border-radius:4px;}
+.hdr-logout{font-size:0.6rem;color:var(--muted);background:none;border:1px solid var(--border2);cursor:pointer;font-family:var(--mono);letter-spacing:0.06em;text-transform:uppercase;padding:0.3rem 0.65rem;border-radius:6px;transition:color 0.15s,border-color 0.15s;-webkit-appearance:none;}
+.hdr-logout:hover{color:var(--red);border-color:rgba(255,107,107,0.3);}
+
+/* Bottom nav (mobile) */
+.bottom-nav{display:flex;border-top:1px solid var(--border);background:var(--surface);position:fixed;bottom:0;left:0;right:0;z-index:100;padding-bottom:env(safe-area-inset-bottom);}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.25rem;padding:0.65rem 0.25rem;font-family:var(--mono);font-size:0.52rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);background:none;border:none;cursor:pointer;transition:color 0.15s;position:relative;}
+.nav-btn.active{color:var(--blue);}
+.nav-btn.active::after{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:var(--blue);border-radius:0 0 2px 2px;}
+.nav-icon{font-size:1.1rem;line-height:1;}
+.nav-badge{position:absolute;top:6px;right:calc(50% - 18px);background:var(--red);color:#fff;font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:999px;min-width:14px;text-align:center;display:none;}
+.nav-badge.show{display:block;}
+
+/* Desktop tabs (hidden on mobile) */
+.desk-tabs{display:none;}
+
+/* Content area */
+.app-body{flex:1;padding:1.25rem;padding-bottom:calc(70px + env(safe-area-inset-bottom));overflow-y:auto;}
+.panel{display:none;}
+.panel.active{display:block;}
+
+/* ── SHARED COMPONENTS ── */
+
+/* Stat cards */
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:1.25rem;}
+.stat-row.four{grid-template-columns:1fr 1fr;}
+.stat-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:1rem 1.1rem;}
+.stat-label{font-size:0.55rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);margin-bottom:0.45rem;}
+.stat-val{font-size:1.6rem;font-weight:500;line-height:1;letter-spacing:-0.02em;}
+.stat-sub{font-size:0.58rem;color:var(--muted);margin-top:0.3rem;}
+.c-blue .stat-val,.v-blue{color:var(--blue);}
+.c-green .stat-val,.v-green{color:var(--green);}
+.c-gold .stat-val,.v-gold{color:var(--gold);}
+.c-red .stat-val{color:var(--red);}
+.c-blue{border-color:rgba(78,205,196,0.12);background:rgba(78,205,196,0.025);}
+.c-green{border-color:rgba(81,207,102,0.12);background:rgba(81,207,102,0.025);}
+.c-gold{border-color:rgba(232,184,75,0.12);background:rgba(232,184,75,0.025);}
+.c-red{border-color:rgba(255,107,107,0.12);background:rgba(255,107,107,0.025);}
+
+/* Section header */
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin:1.25rem 0 0.7rem;}
+.sec-title{font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted);}
+.sec-action{font-size:0.58rem;color:var(--muted);background:none;border:1px solid var(--border2);cursor:pointer;font-family:var(--mono);padding:0.25rem 0.6rem;border-radius:5px;transition:color 0.15s;}
+.sec-action:hover{color:var(--fg);}
+
+/* Card list (used for posts, commissions on mobile) */
+.card-list{display:flex;flex-direction:column;gap:0.55rem;margin-bottom:1.25rem;}
+.card-item{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:1rem 1.1rem;}
+.card-item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;margin-bottom:0.5rem;}
+.card-item-title{font-family:var(--serif);font-size:0.95rem;color:var(--fg);line-height:1.4;flex:1;min-width:0;}
+.card-item-badge{flex-shrink:0;}
+.card-item-meta{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;}
+.card-item-sub{font-size:0.62rem;color:var(--muted);}
+.card-item-body{font-size:0.8rem;color:var(--muted);line-height:1.5;margin-top:0.4rem;word-break:break-word;}
+.card-item-footer{display:flex;align-items:center;justify-content:space-between;margin-top:0.65rem;padding-top:0.65rem;border-top:1px solid var(--border);}
+
+/* Post view rows */
+.view-row{display:flex;align-items:center;gap:0.75rem;padding:0.8rem 0;border-bottom:1px solid var(--border);}
+.view-row:last-child{border-bottom:none;}
+.view-rank{font-size:0.58rem;color:var(--soft);width:18px;flex-shrink:0;text-align:center;}
+.view-title{flex:1;min-width:0;font-family:var(--serif);font-size:0.88rem;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.view-bar-wrap{width:50px;flex-shrink:0;}
+.view-bar-bg{height:3px;background:var(--border2);border-radius:2px;overflow:hidden;}
+.view-bar-fill{height:100%;border-radius:2px;transition:width 0.4s ease;}
+.view-count{font-size:0.68rem;flex-shrink:0;text-align:right;min-width:52px;}
+.view-type{font-size:0.55rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);flex-shrink:0;width:36px;}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:0.18rem 0.55rem;border-radius:5px;font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;font-weight:500;}
+.b-paid{background:rgba(81,207,102,0.1);color:var(--green);border:1px solid rgba(81,207,102,0.2);}
+.b-pending{background:rgba(255,230,109,0.08);color:var(--yellow);border:1px solid rgba(255,230,109,0.15);}
+.b-ref{background:rgba(232,184,75,0.08);color:var(--gold);border:1px solid rgba(232,184,75,0.15);}
+.b-type{background:rgba(255,255,255,0.04);color:var(--muted);border:1px solid var(--border2);}
+
+/* Del button */
+.del-btn{background:none;border:none;color:var(--soft);cursor:pointer;font-size:0.62rem;font-family:var(--mono);padding:0.3rem 0.6rem;border-radius:5px;transition:color 0.15s,background 0.15s;}
+.del-btn:hover{color:var(--red);background:rgba(255,107,107,0.07);}
+
+/* Referral bar chart */
+.ref-bar-item{margin-bottom:0.7rem;}
+.ref-bar-item:last-child{margin-bottom:0;}
+.ref-bar-top{display:flex;justify-content:space-between;font-size:0.6rem;color:var(--muted);margin-bottom:0.2rem;}
+.ref-bar-bg{height:5px;background:var(--border2);border-radius:3px;overflow:hidden;}
+.ref-bar-fill{height:100%;background:var(--gold);border-radius:3px;transition:width 0.5s ease;}
+
+/* Referral link box */
+.ref-link-card{background:var(--surface);border:1px solid rgba(232,184,75,0.18);border-radius:var(--radius);padding:1.1rem 1.2rem;margin-bottom:1.25rem;}
+.ref-link-label{font-size:0.58rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:0.35rem;}
+.ref-link-url{font-size:1.05rem;color:var(--gold);margin-bottom:0.25rem;word-break:break-all;}
+.ref-link-note{font-size:0.62rem;color:var(--soft);line-height:1.5;}
+
+/* Empty state */
+.empty-state{padding:2.5rem 1rem;text-align:center;color:var(--muted);font-size:0.7rem;line-height:1.7;}
+
+/* Loading */
+.loading-msg{padding:2rem;text-align:center;color:var(--soft);font-size:0.7rem;}
+
+/* Comments section header with count */
+.comments-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;}
+.comments-filter{display:flex;gap:0.4rem;}
+.filter-pill{font-size:0.58rem;letter-spacing:0.06em;text-transform:uppercase;padding:0.28rem 0.65rem;border-radius:999px;border:1px solid var(--border2);color:var(--muted);background:none;cursor:pointer;font-family:var(--mono);transition:all 0.15s;}
+.filter-pill.active{border-color:var(--blue);color:var(--blue);background:rgba(78,205,196,0.07);}
+
+/* Desktop overrides */
+@media(min-width:700px){
+  .bottom-nav{display:none;}
+  .desk-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface);padding:0 2rem;overflow-x:auto;}
+  .desk-tab{padding:0.85rem 1.25rem;font-size:0.63rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:color 0.15s,border-color 0.15s;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--mono);white-space:nowrap;display:flex;align-items:center;gap:0.5rem;}
+  .desk-tab:hover{color:var(--fg);}
+  .desk-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
+  .dtab-badge{background:var(--border2);color:var(--muted);font-size:0.55rem;padding:0.1rem 0.4rem;border-radius:999px;}
+  .desk-tab.active .dtab-badge{background:rgba(78,205,196,0.12);color:var(--blue);}
+  .app-body{padding:2rem;padding-bottom:2rem;}
+  .stat-row{grid-template-columns:repeat(4,1fr);}
+  .stat-row.four{grid-template-columns:repeat(4,1fr);}
+  .card-list.table-mode{display:block;}
+  .card-list.table-mode .card-item{display:none;}
+  .table-wrap{display:block;}
+}
+
+/* Table (desktop only) */
+.table-wrap{display:none;border:1px solid var(--border2);border-radius:var(--radius);overflow:hidden;margin-bottom:1.25rem;}
+table{width:100%;border-collapse:collapse;font-size:0.72rem;}
+th{text-align:left;padding:0.65rem 1rem;font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border2);background:var(--surface);white-space:nowrap;}
+td{padding:0.85rem 1rem;border-bottom:1px solid var(--border);color:var(--fg);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.012);}
+.td-m{color:var(--muted);}
+.td-trunc{max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.empty-row td{text-align:center;color:var(--soft);padding:2.5rem;}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <div class="login-brand">
+      <span class="login-brand-dot"></span>
+      <span class="login-brand-name">Colin Archive</span>
+    </div>
+    <div class="login-card">
+      <div class="login-title">Admin</div>
+      <div class="login-sub">Enter your password to access the dashboard.</div>
+      <label class="l-label" for="pw">Password</label>
+      <input class="l-input" type="password" id="pw" placeholder="••••••••••" autocomplete="current-password"/>
+      <button class="l-btn" id="loginBtn">Enter →</button>
+      <div class="l-err" id="loginErr"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div class="app" id="app">
+
+  <div class="app-header">
+    <div class="hdr-left">
+      <span class="hdr-live"></span>
+      <span class="hdr-name">Colin Archive</span>
+      <span class="hdr-tag">Admin</span>
+    </div>
+    <button class="hdr-logout" id="logoutBtn">Sign out</button>
+  </div>
+
+  <!-- Desktop tabs -->
+  <div class="desk-tabs">
+    <button class="desk-tab active" data-tab="overview">Overview</button>
+    <button class="desk-tab" data-tab="commissions">Commissions <span class="dtab-badge" id="dtbC">—</span></button>
+    <button class="desk-tab" data-tab="comments">Comments <span class="dtab-badge" id="dtbCo">—</span></button>
+    <button class="desk-tab" data-tab="referrals">Gabi <span class="dtab-badge" id="dtbR">—</span></button>
+  </div>
+
+  <!-- Content -->
+  <div class="app-body">
+
+    <!-- ── OVERVIEW ── -->
+    <div class="panel active" id="panel-overview">
+      <div class="stat-row four" id="overviewStats">
+        <div class="loading-msg" style="grid-column:1/-1">Loading…</div>
+      </div>
+      <div class="sec-head"><div class="sec-title">Posts by views</div></div>
+      <div id="postViewsList"><div class="loading-msg">Loading…</div></div>
+    </div>
+
+    <!-- ── COMMISSIONS ── -->
+    <div class="panel" id="panel-commissions">
+      <div class="stat-row four" id="commissionStats"></div>
+      <div class="sec-head">
+        <div class="sec-title">All commissions</div>
+        <button class="sec-action" onclick="loadCommissions()">↻ Refresh</button>
+      </div>
+      <!-- Mobile cards -->
+      <div class="card-list" id="commissionCards"></div>
+      <!-- Desktop table -->
+      <div class="table-wrap" id="commissionTable">
+        <table>
+          <thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Topic</th><th>Details</th><th>Status</th><th>Ref</th></tr></thead>
+          <tbody id="commissionTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── COMMENTS ── -->
+    <div class="panel" id="panel-comments">
+      <div class="stat-row" id="commentStats"></div>
+      <div class="sec-head">
+        <div class="sec-title">Comments</div>
+        <button class="sec-action" onclick="loadComments()">↻ Refresh</button>
+      </div>
+      <div class="comments-filter" style="margin-bottom:0.85rem;">
+        <button class="filter-pill active" data-filter="all">All</button>
+        <button class="filter-pill" data-filter="approved">Approved</button>
+        <button class="filter-pill" data-filter="pending">Pending</button>
+      </div>
+      <div class="card-list" id="commentCards"></div>
+      <div class="table-wrap" id="commentTable">
+        <table>
+          <thead><tr><th>Date</th><th>Name</th><th>Comment</th><th>Post</th><th>Status</th><th></th></tr></thead>
+          <tbody id="commentTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── REFERRALS / GABI ── -->
+    <div class="panel" id="panel-referrals">
+      <div class="stat-row four" id="refStats"></div>
+
+      <div class="sec-head"><div class="sec-title">Gabi's referral link</div></div>
+      <div class="ref-link-card">
+        <div class="ref-link-label">Share this link</div>
+        <div class="ref-link-url">colinarchive.com/g</div>
+        <div class="ref-link-note">Visitors are tracked silently — the link looks clean, no ?ref= visible</div>
+      </div>
+
+      <div class="sec-head"><div class="sec-title">Daily visits</div></div>
+      <div class="card-item" id="refBreakdown" style="margin-bottom:1.25rem;"><div class="loading-msg">Loading…</div></div>
+
+      <div class="sec-head"><div class="sec-title">Posts his visitors read</div></div>
+      <div class="card-item" id="refPostsList" style="margin-bottom:1.25rem;"><div class="loading-msg">Loading…</div></div>
+
+      <div class="sec-head"><div class="sec-title">Commissions from Gabi</div></div>
+      <div class="card-list" id="refCommCards"></div>
+      <div class="table-wrap" id="refCommTable">
+        <table>
+          <thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Topic</th><th>Status</th></tr></thead>
+          <tbody id="refCommTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Mobile bottom nav -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" data-tab="overview">
+      <span class="nav-icon">📊</span>
+      Overview
+    </button>
+    <button class="nav-btn" data-tab="commissions">
+      <span class="nav-icon">💳</span>
+      <span class="nav-badge" id="nbC"></span>
+      Commissions
+    </button>
+    <button class="nav-btn" data-tab="comments">
+      <span class="nav-icon">💬</span>
+      <span class="nav-badge" id="nbCo"></span>
+      Comments
+    </button>
+    <button class="nav-btn" data-tab="referrals">
+      <span class="nav-icon">🔗</span>
+      Gabi
+    </button>
+  </nav>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(() => {
+  'use strict';
+
+  const PASSWORD = 'BryhanJhonson';
+  const SESSION_KEY = 'ca_admin_auth';
+  const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const esc = v => String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const relTime = iso => {
+    if(!iso) return ''; const d=new Date(iso),s=Math.floor((Date.now()-d)/1000),m=Math.floor(s/60),h=Math.floor(m/60),dy=Math.floor(h/24);
+    if(s<60) return 'just now'; if(m<60) return m+'m ago'; if(h<24) return h+'h ago';
+    if(dy===1) return 'yesterday'; if(dy<7) return dy+'d ago'; return d.toLocaleDateString();
+  };
+
+  // ── Auth ──
+  document.getElementById('loginBtn').addEventListener('click', login);
+  document.getElementById('pw').addEventListener('keydown', e => { if(e.key==='Enter') login(); });
+  function login() {
+    const val = document.getElementById('pw').value;
+    if(val === PASSWORD) { sessionStorage.setItem(SESSION_KEY,'1'); showApp(); }
+    else { document.getElementById('loginErr').textContent = 'Incorrect password.'; document.getElementById('pw').value=''; document.getElementById('pw').focus(); }
+  }
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    sessionStorage.removeItem(SESSION_KEY);
+    document.getElementById('app').classList.remove('visible');
+    document.getElementById('loginWrap').style.display='flex';
+    document.getElementById('pw').value='';
+  });
+  function checkAuth() { if(sessionStorage.getItem(SESSION_KEY)==='1') showApp(); }
+  function showApp() {
+    document.getElementById('loginWrap').style.display='none';
+    document.getElementById('app').classList.add('visible');
+    loadAll();
+  }
+
+  // ── Tab switching ──
+  function switchTab(tab) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.desk-tab').forEach(b => b.classList.remove('active'));
+    document.getElementById('panel-'+tab).classList.add('active');
+    document.querySelectorAll(`[data-tab="${tab}"]`).forEach(b => b.classList.add('active'));
+  }
+  document.querySelectorAll('.nav-btn, .desk-tab').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  });
+
+  // ── Comment filter ──
+  let commentFilter = 'all';
+  let allCommentData = [], allPostMap = {};
+  document.querySelectorAll('.filter-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      commentFilter = pill.dataset.filter;
+      renderComments();
+    });
+  });
+
+  function loadAll() { loadOverview(); loadCommissions(); loadComments(); loadReferrals(); }
+
+  // ── OVERVIEW ──
+  async function loadOverview() {
+    const [{ data: stats }, { data: posts }, { data: commissions }] = await Promise.all([
+      db.from('site_stats').select('*'),
+      db.from('posts').select('id, title, views, type').order('views', { ascending: false }),
+      db.from('commissions').select('status, amount')
+    ]);
+    const hpVisits = stats?.find(s=>s.key==='homepage_visits')?.count || 0;
+    const totalViews = (posts||[]).reduce((s,p) => s+(p.views||0), 0);
+    const paid = (commissions||[]).filter(c=>c.status==='paid');
+    const revenue = paid.reduce((s,c) => s+(c.amount||0), 0);
+
+    document.getElementById('overviewStats').innerHTML = `
+      <div class="stat-card c-blue"><div class="stat-label">Homepage</div><div class="stat-val">${hpVisits.toLocaleString()}</div><div class="stat-sub">unique daily visits</div></div>
+      <div class="stat-card c-blue"><div class="stat-label">Post views</div><div class="stat-val">${totalViews.toLocaleString()}</div><div class="stat-sub">across all posts</div></div>
+      <div class="stat-card c-green"><div class="stat-label">Commissions</div><div class="stat-val">${(commissions||[]).length}</div><div class="stat-sub">${paid.length} paid</div></div>
+      <div class="stat-card c-gold"><div class="stat-label">Revenue</div><div class="stat-val">$${(revenue/100).toFixed(2)}</div><div class="stat-sub">~$${((revenue/100)*0.971-0.30*paid.length).toFixed(2)} net</div></div>
+    `;
+
+    const el = document.getElementById('postViewsList');
+    const rows = posts||[];
+    if(!rows.length){ el.innerHTML='<div class="empty-state">No posts yet.</div>'; return; }
+    const maxV = Math.max(...rows.map(p=>p.views||0), 1);
+    el.innerHTML = `<div class="card-item">${rows.map((p,i) => `
+      <div class="view-row">
+        <span class="view-rank">${i+1}</span>
+        <span class="view-title">${esc(p.title||'Untitled')}</span>
+        <span class="view-type">${esc(p.type||'essay')}</span>
+        <div class="view-bar-wrap"><div class="view-bar-bg"><div class="view-bar-fill" style="width:${Math.round(((p.views||0)/maxV)*100)}%;background:var(--blue);"></div></div></div>
+        <span class="view-count v-blue">${(p.views||0).toLocaleString()}</span>
+      </div>`).join('')}</div>`;
+  }
+
+  // ── COMMISSIONS ──
+  window.loadCommissions = async function() {
+    const { data } = await db.from('commissions').select('*').order('created_at', { ascending: false });
+    const rows = data||[];
+    const paid = rows.filter(r=>r.status==='paid');
+    const revenue = paid.reduce((s,r)=>s+(r.amount||0),0);
+
+    document.getElementById('dtbC').textContent = rows.length;
+    const nb = document.getElementById('nbC');
+    nb.textContent = rows.filter(r=>r.status==='pending').length;
+    nb.classList.toggle('show', rows.filter(r=>r.status==='pending').length > 0);
+
+    document.getElementById('commissionStats').innerHTML = `
+      <div class="stat-card c-green"><div class="stat-label">Total</div><div class="stat-val">${rows.length}</div></div>
+      <div class="stat-card c-green"><div class="stat-label">Paid</div><div class="stat-val">${paid.length}</div></div>
+      <div class="stat-card c-gold"><div class="stat-label">Revenue</div><div class="stat-val">$${(revenue/100).toFixed(2)}</div></div>
+      <div class="stat-card"><div class="stat-label">Pending</div><div class="stat-val" style="color:var(--yellow)">${rows.filter(r=>r.status==='pending').length}</div></div>
+    `;
+
+    // Mobile cards
+    const cards = document.getElementById('commissionCards');
+    if(!rows.length){ cards.innerHTML='<div class="empty-state">No commissions yet.</div>'; }
+    else { cards.innerHTML = rows.map(r => `
+      <div class="card-item">
+        <div class="card-item-top">
+          <div class="card-item-title">${esc(r.topic||'No topic')}</div>
+          <span class="badge ${r.status==='paid'?'b-paid':'b-pending'}">${esc(r.status||'pending')}</span>
+        </div>
+        <div class="card-item-meta">
+          <span class="card-item-sub">${esc(r.name||'—')}</span>
+          <span class="card-item-sub">·</span>
+          <span class="card-item-sub">${esc(r.email||'—')}</span>
+          ${r.ref?`<span class="badge b-ref">${esc(r.ref)}</span>`:''}
+        </div>
+        ${r.details?`<div class="card-item-body">${esc(r.details.slice(0,120))}${r.details.length>120?'…':''}</div>`:''}
+        <div class="card-item-footer">
+          <span class="card-item-sub">${relTime(r.created_at)}</span>
+        </div>
+      </div>`).join(''); }
+
+    // Desktop table
+    const tbody = document.getElementById('commissionTbody');
+    if(!rows.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="7">No commissions yet.</td></tr>'; return; }
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td class="td-m" style="white-space:nowrap;">${relTime(r.created_at)}</td>
+        <td>${esc(r.name||'—')}</td>
+        <td class="td-m">${esc(r.email||'—')}</td>
+        <td>${esc(r.topic||'—')}</td>
+        <td class="td-m td-trunc">${esc(r.details||'—')}</td>
+        <td><span class="badge ${r.status==='paid'?'b-paid':'b-pending'}">${esc(r.status||'pending')}</span></td>
+        <td>${r.ref?`<span class="badge b-ref">${esc(r.ref)}</span>`:'<span style="color:var(--soft)">—</span>'}</td>
+      </tr>`).join('');
+  };
+
+  // ── COMMENTS ──
+  window.loadComments = async function() {
+    const [{ data: comments }, { data: posts }] = await Promise.all([
+      db.from('comments').select('*').order('created_at', { ascending: false }),
+      db.from('posts').select('id, title')
+    ]);
+    allPostMap = {};
+    (posts||[]).forEach(p => allPostMap[p.id]=p.title);
+    allCommentData = comments||[];
+
+    const total = allCommentData.length;
+    const pending = allCommentData.filter(r=>!r.approved).length;
+    document.getElementById('dtbCo').textContent = total;
+    const nb = document.getElementById('nbCo');
+    nb.textContent = pending;
+    nb.classList.toggle('show', pending > 0);
+
+    document.getElementById('commentStats').innerHTML = `
+      <div class="stat-card c-blue"><div class="stat-label">Total</div><div class="stat-val">${total}</div></div>
+      <div class="stat-card c-green"><div class="stat-label">Approved</div><div class="stat-val">${allCommentData.filter(r=>r.approved).length}</div></div>
+      <div class="stat-card c-red"><div class="stat-label">Pending</div><div class="stat-val">${pending}</div></div>
+    `;
+    renderComments();
+  };
+
+  function renderComments() {
+    let rows = allCommentData;
+    if(commentFilter==='approved') rows = rows.filter(r=>r.approved);
+    if(commentFilter==='pending') rows = rows.filter(r=>!r.approved);
+
+    // Mobile cards
+    const cards = document.getElementById('commentCards');
+    if(!rows.length){ cards.innerHTML='<div class="empty-state">No comments here.</div>'; }
+    else { cards.innerHTML = rows.map(r => `
+      <div class="card-item">
+        <div class="card-item-top">
+          <div class="card-item-title" style="font-family:var(--mono);font-size:0.8rem;">${esc(r.name||'—')}</div>
+          <span class="badge ${r.approved?'b-paid':'b-pending'}">${r.approved?'approved':'pending'}</span>
+        </div>
+        <div class="card-item-body">${esc((r.content||'').slice(0,160))}${(r.content||'').length>160?'…':''}</div>
+        <div class="card-item-footer">
+          <span class="card-item-sub">${esc(allPostMap[r.post_id]||'Unknown post')} · ${relTime(r.created_at)}</span>
+          <button class="del-btn" onclick="deleteComment('${esc(r.id)}')">Delete</button>
+        </div>
+      </div>`).join(''); }
+
+    // Desktop table
+    const tbody = document.getElementById('commentTbody');
+    if(!rows.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="6">No comments here.</td></tr>'; return; }
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td class="td-m" style="white-space:nowrap;">${relTime(r.created_at)}</td>
+        <td>${esc(r.name||'—')}</td>
+        <td class="td-trunc" style="max-width:220px;">${esc((r.content||'').slice(0,100))}${(r.content||'').length>100?'…':''}</td>
+        <td class="td-m td-trunc">${esc(allPostMap[r.post_id]||'—')}</td>
+        <td><span class="badge ${r.approved?'b-paid':'b-pending'}">${r.approved?'approved':'pending'}</span></td>
+        <td><button class="del-btn" onclick="deleteComment('${esc(r.id)}')">Delete</button></td>
+      </tr>`).join('');
+  }
+
+  window.deleteComment = async (id) => {
+    if(!confirm('Delete this comment?')) return;
+    await db.from('comments').delete().eq('id', id);
+    loadComments();
+  };
+
+  // ── REFERRALS ──
+  async function loadReferrals() {
+    const [{ data: visits }, { data: commissions }, { data: posts }] = await Promise.all([
+      db.from('referral_visits').select('ref, page, created_at').eq('ref','gabi'),
+      db.from('commissions').select('*').eq('ref','gabi').order('created_at',{ascending:false}),
+      db.from('posts').select('id, title, type')
+    ]);
+    const postMap = {};
+    (posts||[]).forEach(p => postMap[p.id]=p);
+    const allVisits = visits||[];
+    const hpVisits = allVisits.filter(v=>v.page==='homepage');
+    const postVisits = allVisits.filter(v=>v.page.startsWith('post:'));
+    const refComm = commissions||[];
+    const paidRef = refComm.filter(r=>r.status==='paid');
+    const refRevenue = paidRef.reduce((s,r)=>s+(r.amount||0),0);
+    const convRate = hpVisits.length>0?((paidRef.length/hpVisits.length)*100).toFixed(1):'0.0';
+
+    document.getElementById('dtbR').textContent = allVisits.length;
+    document.getElementById('refStats').innerHTML = `
+      <div class="stat-card c-gold"><div class="stat-label">Total visits</div><div class="stat-val">${allVisits.length}</div><div class="stat-sub">${hpVisits.length} home · ${postVisits.length} posts</div></div>
+      <div class="stat-card c-green"><div class="stat-label">Commissions</div><div class="stat-val">${refComm.length}</div><div class="stat-sub">${paidRef.length} paid</div></div>
+      <div class="stat-card c-gold"><div class="stat-label">Revenue</div><div class="stat-val">$${(refRevenue/100).toFixed(2)}</div></div>
+      <div class="stat-card"><div class="stat-label">Conversion</div><div class="stat-val">${convRate}%</div></div>
+    `;
+
+    // Daily chart
+    const breakdown = document.getElementById('refBreakdown');
+    if(!allVisits.length){ breakdown.innerHTML='<div class="empty-state">No visits yet — share the link!</div>'; }
+    else {
+      const byDay = {};
+      allVisits.forEach(v => { const day=new Date(v.created_at).toLocaleDateString(); byDay[day]=(byDay[day]||0)+1; });
+      const maxVal = Math.max(...Object.values(byDay));
+      breakdown.innerHTML = Object.entries(byDay).slice(-14).reverse().map(([day,count]) => `
+        <div class="ref-bar-item">
+          <div class="ref-bar-top"><span>${day}</span><span>${count} visit${count>1?'s':''}</span></div>
+          <div class="ref-bar-bg"><div class="ref-bar-fill" style="width:${Math.round((count/maxVal)*100)}%"></div></div>
+        </div>`).join('');
+    }
+
+    // Posts read
+    const refPostsEl = document.getElementById('refPostsList');
+    if(!postVisits.length){ refPostsEl.innerHTML='<div class="empty-state">No post views from Gabi yet.</div>'; }
+    else {
+      const postCounts = {};
+      postVisits.forEach(v => { const pid=v.page.replace('post:',''); postCounts[pid]=(postCounts[pid]||0)+1; });
+      const sorted = Object.entries(postCounts).sort((a,b)=>b[1]-a[1]);
+      const maxC = sorted[0][1];
+      refPostsEl.innerHTML = sorted.map(([pid,count],i) => {
+        const post = postMap[pid];
+        return `<div class="view-row">
+          <span class="view-rank">${i+1}</span>
+          <span class="view-title">${esc(post?post.title:pid.slice(0,8)+'…')}</span>
+          <span class="view-type">${esc(post?post.type:'—')}</span>
+          <div class="view-bar-wrap"><div class="view-bar-bg"><div class="view-bar-fill" style="width:${Math.round((count/maxC)*100)}%;background:var(--gold);"></div></div></div>
+          <span class="view-count v-gold">${count}</span>
+        </div>`;
+      }).join('');
+    }
+
+    // Commissions cards (mobile)
+    const refCards = document.getElementById('refCommCards');
+    if(!refComm.length){ refCards.innerHTML='<div class="empty-state">No commissions from Gabi yet.</div>'; }
+    else { refCards.innerHTML = refComm.map(r => `
+      <div class="card-item">
+        <div class="card-item-top">
+          <div class="card-item-title">${esc(r.topic||'No topic')}</div>
+          <span class="badge ${r.status==='paid'?'b-paid':'b-pending'}">${esc(r.status)}</span>
+        </div>
+        <div class="card-item-meta">
+          <span class="card-item-sub">${esc(r.name||'—')}</span>
+          <span class="card-item-sub">·</span>
+          <span class="card-item-sub">${esc(r.email||'—')}</span>
+        </div>
+        <div class="card-item-footer"><span class="card-item-sub">${relTime(r.created_at)}</span></div>
+      </div>`).join(''); }
+
+    // Desktop table
+    const tbody = document.getElementById('refCommTbody');
+    if(!refComm.length){ tbody.innerHTML='<tr class="empty-row"><td colspan="5">No commissions from Gabi yet.</td></tr>'; return; }
+    tbody.innerHTML = refComm.map(r => `
+      <tr>
+        <td class="td-m" style="white-space:nowrap;">${relTime(r.created_at)}</td>
+        <td>${esc(r.name||'—')}</td>
+        <td class="td-m">${esc(r.email||'—')}</td>
+        <td>${esc(r.topic||'—')}</td>
+        <td><span class="badge ${r.status==='paid'?'b-paid':'b-pending'}">${esc(r.status)}</span></td>
+      </tr>`).join('');
+  }
+
+  checkAuth();
+})();
+</script>
+</body>
+</html>
