@@ -36,6 +36,7 @@
       --blue: #4ecdc4;
       --green: #51cf66;
       --yellow: #ffe66d;
+      --gold: #e8b84b;
       --type-color: var(--blue);
       --serif: 'Crimson Text', 'Georgia', serif;
       --mono: 'IBM Plex Mono', 'Courier New', monospace;
@@ -117,6 +118,102 @@
     .tag:hover { border-color: var(--blue); color: var(--blue); }
     .excerpt { font-size: 1.3rem; color: #bdbdbd; margin-bottom: 2.2rem; font-style: italic; border-left: 3px solid var(--blue); padding-left: 1rem; }
     .content { font-size: 1.18rem; line-height: 1.85; white-space: pre-wrap; color: var(--fg); display: block; }
+
+    /* ── Commissioned callout ── */
+    .commissioned-callout {
+      margin-bottom: 2rem;
+      border: 1px solid rgba(232,184,75,0.2);
+      border-radius: 10px;
+      overflow: hidden;
+      background: rgba(232,184,75,0.03);
+    }
+    .commissioned-callout-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s;
+    }
+    .commissioned-callout-header:hover {
+      background: rgba(232,184,75,0.05);
+    }
+    .commissioned-callout-left {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+    .commissioned-star {
+      color: var(--gold);
+      font-size: 0.65rem;
+      opacity: 0.8;
+    }
+    .commissioned-callout-title {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.8;
+    }
+    .commissioned-callout-chevron {
+      font-size: 0.6rem;
+      color: var(--gold);
+      opacity: 0.5;
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.2s;
+    }
+    .commissioned-callout.open .commissioned-callout-chevron {
+      transform: rotate(180deg);
+      opacity: 0.8;
+    }
+    /* Grid trick for smooth height */
+    .commissioned-callout-body {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    .commissioned-callout.open .commissioned-callout-body {
+      grid-template-rows: 1fr;
+    }
+    .commissioned-callout-inner {
+      overflow: hidden;
+    }
+    .commissioned-callout-content {
+      padding: 0 1rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      border-top: 1px solid rgba(232,184,75,0.1);
+    }
+    .commissioned-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .commissioned-field-label {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      opacity: 0.5;
+      padding-top: 0.75rem;
+    }
+    .commissioned-field-value {
+      font-family: var(--serif);
+      font-size: 0.98rem;
+      color: var(--muted);
+      line-height: 1.6;
+      font-style: italic;
+    }
+    .commissioned-field-name {
+      font-family: var(--hand);
+      font-size: 1.15rem;
+      color: var(--fg);
+      opacity: 0.85;
+      font-style: normal;
+    }
 
     .type-code .terminal { position: relative; background: #0c0c0c; border: 1px solid #2a2a2a; border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,255,0,0.05); font-family: var(--mono); font-size: 0.95rem; line-height: 1.6; color: #b0f0b0; overflow: hidden; }
     .terminal-header { background: #1a1a1a; padding: 0.5rem 1rem; border-bottom: 1px solid #2a2a2a; display: flex; align-items: center; gap: 0.5rem; }
@@ -330,6 +427,38 @@
   function normalizeIndent(text) { const lines=text.split('\n'); let min=Infinity; lines.forEach(l=>{if(l.trim())min=Math.min(min,l.match(/^(\s*)/)[0].length);}); if(!isFinite(min))min=0; return lines.map(l=>l.slice(min)).join('\n'); }
   function calcReadTime(text) { return Math.max(1,Math.round((text||'').trim().split(/\s+/).length/200)); }
 
+  function commissionedCalloutHtml(post) {
+    if (!post.commissioned) return '';
+    const name = escapeHtml(post.commissioner_name || '');
+    const request = escapeHtml(post.commissioner_request || '');
+    if (!name && !request) return '';
+    return `
+      <div class="commissioned-callout" id="commissionedCallout">
+        <div class="commissioned-callout-header" id="commissionedCalloutHeader">
+          <div class="commissioned-callout-left">
+            <span class="commissioned-star">✦</span>
+            <span class="commissioned-callout-title">Commissioned post</span>
+          </div>
+          <span class="commissioned-callout-chevron">▼</span>
+        </div>
+        <div class="commissioned-callout-body">
+          <div class="commissioned-callout-inner">
+            <div class="commissioned-callout-content">
+              ${name ? `<div class="commissioned-field"><span class="commissioned-field-label">Commissioned by</span><span class="commissioned-field-name">${name}</span></div>` : ''}
+              ${request ? `<div class="commissioned-field"><span class="commissioned-field-label">Their request</span><span class="commissioned-field-value">"${request}"</span></div>` : ''}
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function bindCallout() {
+    const header = document.getElementById('commissionedCalloutHeader');
+    const callout = document.getElementById('commissionedCallout');
+    if (!header || !callout) return;
+    header.addEventListener('click', () => callout.classList.toggle('open'));
+  }
+
   function renderPost(post) {
     setMeta(post);
     const type=post.type||'essay', isPaid=post.access==='paid';
@@ -341,6 +470,7 @@
     const tags=(post.tags||"").split(",").filter(Boolean).map(t=>`<span class="tag">${escapeHtml(t.trim())}</span>`).join("");
     let contentText=post.content||''; if(type==='code')contentText=normalizeIndent(contentText);
     const esc=escapeHtml(contentText);
+    const callout = commissionedCalloutHtml(post);
     let contentHtml;
     if(isPaid){
       contentHtml=`<div style="position:relative;"><i class="fas fa-lock locked-icon"></i><h1 class="title">${escapeHtml(post.title)}</h1><div class="meta">${metaDate} • ${readTime} min read</div>${tags?`<div class="tags">${tags}</div>`:""}<div class="locked-message"><h3>🔒 PAID ENTRY</h3><p>This post requires access.</p><a class="btn" href="#">Unlock</a></div></div>`;
@@ -348,9 +478,10 @@
       const lines=esc.split('\n');
       contentHtml=`<h1 class="title">${escapeHtml(post.title)}</h1><div class="meta">${metaDate} • ${readTime} min read</div>${tags?`<div class="tags">${tags}</div>`:""}<div class="terminal"><div class="terminal-header"><span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-dot"></span><span class="terminal-title">Terminal</span></div><div class="terminal-body"><div class="line-numbers">${lines.map((_,i)=>`<div>${i+1}</div>`).join('')}</div><div class="code-lines">${lines.map(l=>`<span class="code-line">${l||' '}</span>`).join('')}</div></div><button class="copy-btn" id="copyCodeBtn"><i class="far fa-copy"></i> Copy</button></div>`;
     } else {
-      contentHtml=`<h1 class="title">${escapeHtml(post.title)}</h1><div class="meta">${metaDate} • ${readTime} min read</div>${tags?`<div class="tags">${tags}</div>`:""}<div class="content">${esc}</div>`;
+      contentHtml=`<h1 class="title">${escapeHtml(post.title)}</h1><div class="meta">${metaDate} • ${readTime} min read</div>${callout}${tags?`<div class="tags">${tags}</div>`:""}<div class="content">${esc}</div>`;
     }
     container.innerHTML=`<div class="type-${type}">${contentHtml}</div>`;
+    bindCallout();
     if(type==='code'&&!isPaid){
       const btn=document.getElementById('copyCodeBtn');
       if(btn)btn.addEventListener('click',async()=>{ try{ await navigator.clipboard.writeText(contentText); btn.classList.add('copied'); btn.innerHTML='<i class="fas fa-check"></i> Copied!'; setTimeout(()=>{ btn.classList.remove('copied'); btn.innerHTML='<i class="far fa-copy"></i> Copy'; },2000); }catch(e){console.error(e);} });
@@ -459,14 +590,12 @@
 
   loadPost();
 
-  // ── View tracking (deduplicated per post per browser) ──
   const _pid = getPostId();
   if (_pid) {
     const viewKey = 'viewed_' + _pid;
     if (!localStorage.getItem(viewKey)) {
       localStorage.setItem(viewKey, '1');
       db.rpc('increment_post_views', { post_id: _pid }).then(() => {}).catch(() => {});
-      // Track referral post view if visitor came from Gabi's link
       const ref = localStorage.getItem('ref');
       if (ref) {
         db.from('referral_visits').insert({ ref, page: 'post:' + _pid }).then(() => {}).catch(() => {});
