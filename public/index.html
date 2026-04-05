@@ -43,35 +43,21 @@ body{background:var(--paper);color:var(--fg);font-family:var(--serif);min-height
 .container{width:100%;flex:1;display:flex;flex-direction:column;}
 
 /* ── Header ── */
-header{
-  padding:1.5rem 3rem;
-  border-bottom:1px solid var(--border);
-  background:var(--paper);
-  position:sticky;top:0;z-index:100;
-  display:flex;align-items:center;justify-content:space-between;gap:1rem;
-}
-
+header{padding:1.5rem 3rem;border-bottom:1px solid var(--border);background:var(--paper);position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;gap:1rem;}
 .logo{font-family:var(--mono);font-size:0.75rem;letter-spacing:0.15em;text-transform:uppercase;font-weight:500;text-decoration:none;color:var(--fg);display:inline-block;flex-shrink:0;}
 .logo::after{content:'|';color:var(--red);animation:blink 1s step-end infinite;margin-left:2px;}
 @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
 
-/* Mobile pill — hidden on desktop */
+/* Mobile pill */
 .mobile-pill{
-  display:none;
-  align-items:center;gap:0.4rem;
-  background:var(--red);
-  border:none;border-radius:20px;
-  padding:0.48rem 0.95rem;
-  cursor:pointer;
+  display:none;align-items:center;
+  background:#c0392b;border:none;border-radius:20px;
+  padding:0.48rem 0.95rem;cursor:pointer;
   font-family:var(--mono);font-size:0.6rem;letter-spacing:0.08em;text-transform:uppercase;
-  color:#fff;white-space:nowrap;
-  transition:opacity 0.18s,transform 0.12s;
-  flex-shrink:0;
+  color:#fff;white-space:nowrap;transition:opacity 0.18s,transform 0.12s;flex-shrink:0;
 }
 .mobile-pill:active{opacity:0.82;transform:scale(0.95);}
-.pill-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.75);flex-shrink:0;animation:pulse 2s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.65)}}
-.pill-price{opacity:0.85;font-size:0.58rem;}
 
 /* ── Grid ── */
 .main-grid{display:grid;grid-template-columns:1fr 380px;gap:3rem;padding:3rem;flex:1;align-items:start;}
@@ -105,39 +91,74 @@ header{
 .skeleton-line{border-radius:4px;height:14px;margin-bottom:10px;background:linear-gradient(90deg,var(--border) 25%,#333 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.5s ease-in-out infinite;}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
+/* ── Entry list ── */
 .entry-list{display:flex;flex-direction:column;gap:1.5rem;}
-.entry{position:relative;border-bottom:1px solid var(--border);border-radius:16px;overflow:hidden;padding:0;transition:background-color 0.3s,border-bottom-color 0.3s,margin 0.3s,padding 0.3s;display:flex;flex-direction:column;min-height:100px;}
+
+.entry-outer{
+  display:flex;
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+  transition:border-color 0.3s,margin 0.3s,background-color 0.3s;
+}
+@media(hover:hover){
+  .entry-outer:hover{margin-left:-0.5rem;margin-right:-0.5rem;}
+  .entry-outer.type-essay:hover{border-color:var(--blue);background-color:rgba(78,205,196,0.06);}
+  .entry-outer.type-code:hover{border-color:var(--green);background-color:rgba(81,207,102,0.06);}
+  .entry-outer.type-notes:hover{border-color:var(--yellow);background-color:rgba(255,230,109,0.06);}
+  .entry-outer:hover .entry-type-label{opacity:1;}
+  .entry-outer:hover .commissioned-label{
+    opacity:1;
+    background:linear-gradient(to bottom,rgba(232,184,75,0.05),rgba(232,184,75,0.14),rgba(232,184,75,0.05));
+  }
+}
+
+.entry{
+  position:relative;
+  flex:1;min-width:0;
+  overflow:hidden;
+  padding:0;
+  display:flex;flex-direction:column;min-height:100px;
+  border-right:4px solid transparent;
+  transition:background-color 0.3s;
+}
 .entry.has-cover{min-height:200px;}
+.entry.type-essay{border-right-color:var(--blue);}
+.entry.type-code{border-right-color:var(--green);}
+.entry.type-notes{border-right-color:var(--yellow);}
+
 .entry-img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;pointer-events:none;}
-.entry.has-cover::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1;pointer-events:none;border-radius:16px;}
-.entry.locked::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:repeating-linear-gradient(45deg,rgba(179,0,45,0.4) 0px,rgba(179,0,45,0.4) 10px,transparent 10px,transparent 20px);z-index:2;pointer-events:none;border-radius:16px;}
+.entry.has-cover::after{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1;pointer-events:none;}
+.entry.locked::before{content:'';position:absolute;top:0;left:0;width:100%;height:100%;background:repeating-linear-gradient(45deg,rgba(179,0,45,0.4) 0px,rgba(179,0,45,0.4) 10px,transparent 10px,transparent 20px);z-index:2;pointer-events:none;}
 .entry.locked .locked-icon{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:3rem;color:rgba(255,255,255,0.9);text-shadow:0 2px 10px rgba(0,0,0,0.5);z-index:3;pointer-events:none;}
-.entry-link{position:relative;z-index:3;display:flex;gap:1.5rem;align-items:flex-start;text-decoration:none;color:inherit;padding:1.5rem;width:100%;height:100%;flex:1;transition:transform 0.1s;}
+
+.entry-link{position:relative;z-index:3;display:flex;gap:1.5rem;align-items:flex-start;text-decoration:none;color:inherit;padding:1.5rem;width:100%;height:100%;flex:1;transition:padding-left 0.3s;}
 .entry-link:active{transform:scale(0.98);}
 @media(hover:hover){
-  .entry:hover{margin-left:-0.5rem;margin-right:-0.5rem;}
-  .entry:hover .entry-link{padding-left:calc(1.5rem + 0.5rem);padding-right:calc(1.5rem + 0.5rem);}
-  .entry.type-essay:not(.has-cover):hover{background-color:rgba(78,205,196,0.08);border-bottom-color:var(--blue);}
-  .entry.type-code:not(.has-cover):hover{background-color:rgba(81,207,102,0.08);border-bottom-color:var(--green);}
-  .entry.type-notes:not(.has-cover):hover{background-color:rgba(255,230,109,0.08);border-bottom-color:var(--yellow);}
-  .entry:hover .entry-type-label{opacity:1;}
+  .entry-outer:hover .entry-link{padding-left:calc(1.5rem + 0.5rem);}
 }
-.entry:last-child{border-bottom:none;}
-.entry.type-essay{border-right:4px solid var(--blue);}
-.entry.type-code{border-right:4px solid var(--green);}
-.entry.type-notes{border-right:4px solid var(--yellow);}
+
 .entry-type-label{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:0.6rem;letter-spacing:0.15em;text-transform:uppercase;writing-mode:vertical-rl;text-orientation:upright;color:var(--muted);opacity:0.6;transition:opacity 0.2s,color 0.2s;pointer-events:none;z-index:4;}
 .entry.type-essay .entry-type-label{color:var(--blue);}
 .entry.type-code .entry-type-label{color:var(--green);}
 .entry.type-notes .entry-type-label{color:var(--yellow);}
+
+.commissioned-label{
+  width:28px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:0.62rem;letter-spacing:0.22em;text-transform:uppercase;
+  writing-mode:vertical-rl;text-orientation:upright;
+  color:var(--gold);opacity:0.75;pointer-events:none;
+  border-left:1px solid rgba(232,184,75,0.18);
+  background:linear-gradient(to bottom,rgba(232,184,75,0.02),rgba(232,184,75,0.07),rgba(232,184,75,0.02));
+  transition:opacity 0.2s,background 0.3s;
+}
+
 .entry-content{flex:1;min-width:0;}
 .entry-header{margin-bottom:0.25rem;padding-right:2rem;}
 .entry-title{font-family:var(--serif);font-size:1.2rem;font-weight:600;line-height:1.4;color:var(--fg);margin-bottom:0.1rem;}
 .entry-meta{font-family:var(--mono);font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.4rem;}
 .entry-excerpt{line-height:1.6;font-size:0.95rem;color:var(--muted);max-width:80ch;}
-
-.commissioned-badge{display:inline-flex;align-items:center;gap:0.3rem;font-family:var(--mono);font-size:0.58rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--gold);border:1px solid rgba(232,184,75,0.25);background:rgba(232,184,75,0.06);padding:0.18rem 0.5rem;border-radius:4px;margin-bottom:0.35rem;}
-.commissioned-badge::before{content:'✦';font-size:0.5rem;}
 
 /* ── Sidebar ── */
 .sidebar-section{margin-bottom:2.5rem;}
@@ -161,14 +182,11 @@ header{
 .commission-price{font-family:var(--mono);font-size:0.68rem;color:var(--red);letter-spacing:0.06em;border:1px solid rgba(255,107,107,0.3);padding:0.22rem 0.6rem;border-radius:4px;background:rgba(255,107,107,0.06);}
 .commission-chevron{color:var(--muted);font-size:0.65rem;transition:transform 0.4s cubic-bezier(0.4,0,0.2,1),color 0.2s;flex-shrink:0;}
 .commission-section.is-open .commission-chevron{transform:rotate(180deg);color:var(--red);}
-
-/* Smooth height animation via grid trick */
 .commission-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows 0.42s cubic-bezier(0.4,0,0.2,1);}
 .commission-body.open{grid-template-rows:1fr;}
 .commission-body-inner{overflow:hidden;}
 .commission-inner{padding:1.4rem;display:flex;flex-direction:column;gap:0.7rem;}
 .commission-tagline{font-family:var(--serif);font-style:italic;color:var(--muted);font-size:0.92rem;line-height:1.55;margin-bottom:0.1rem;}
-
 .c-input{width:100%;padding:0.75rem 0.9rem;background:rgba(255,255,255,0.03);border:1px solid var(--border);color:var(--fg);font-family:var(--mono);font-size:0.78rem;border-radius:10px;outline:none;transition:border-color 0.25s,background 0.25s,box-shadow 0.25s;}
 .c-input::placeholder{color:rgba(255,255,255,0.18);}
 .c-input:focus{border-color:rgba(255,107,107,0.4);background:rgba(255,107,107,0.025);box-shadow:0 0 0 3px rgba(255,107,107,0.08);}
@@ -180,53 +198,32 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
 .c-status{font-family:var(--mono);font-size:0.7rem;color:var(--red);min-height:1rem;text-align:center;line-height:1.4;}
 .c-status.ok{color:var(--green);}
 
-/* ── Mobile commission sheet ── */
+/* ── Mobile commission sheet — fixed visibility so it never peeks ── */
 .commission-sheet{
   position:fixed;inset:0;z-index:400;
   background:var(--paper);
   display:flex;flex-direction:column;
   transform:translateY(100%);
-  transition:transform 0.4s cubic-bezier(0.4,0,0.2,1);
+  visibility:hidden;
+  pointer-events:none;
+  transition:transform 0.4s cubic-bezier(0.4,0,0.2,1), visibility 0s 0.4s;
   will-change:transform;
 }
-.commission-sheet.open{transform:translateY(0);}
-
-.sheet-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:1rem 1.25rem;
-  padding-top:calc(0.9rem + env(safe-area-inset-top));
-  border-bottom:1px solid var(--border);
-  background:var(--paper);
-  flex-shrink:0;
+.commission-sheet.open{
+  transform:translateY(0);
+  visibility:visible;
+  pointer-events:auto;
+  transition:transform 0.4s cubic-bezier(0.4,0,0.2,1), visibility 0s 0s;
 }
-.sheet-back{
-  display:flex;align-items:center;gap:0.35rem;
-  font-family:var(--mono);font-size:0.65rem;letter-spacing:0.06em;text-transform:uppercase;
-  color:var(--muted);background:none;border:none;cursor:pointer;
-  padding:0.4rem 0;transition:color 0.15s;
-}
+.sheet-header{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;padding-top:calc(0.9rem + env(safe-area-inset-top));border-bottom:1px solid var(--border);background:var(--paper);flex-shrink:0;}
+.sheet-back{display:flex;align-items:center;gap:0.35rem;font-family:var(--mono);font-size:0.65rem;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);background:none;border:none;cursor:pointer;padding:0.4rem 0;transition:color 0.15s;}
 .sheet-back:active{color:var(--fg);}
-
 .sheet-center{display:flex;align-items:center;gap:0.45rem;}
 .sheet-dot{width:6px;height:6px;border-radius:50%;background:var(--red);animation:pulse 2s ease-in-out infinite;}
 .sheet-title{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--fg);}
-
-.sheet-price{
-  font-family:var(--mono);font-size:0.65rem;font-weight:500;
-  color:#fff;background:var(--red);
-  padding:0.25rem 0.65rem;border-radius:20px;
-  letter-spacing:0.05em;
-}
-
-.sheet-body{
-  flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;
-  padding:1.5rem 1.25rem;
-  padding-bottom:calc(1.5rem + env(safe-area-inset-bottom));
-  display:flex;flex-direction:column;gap:0.85rem;
-}
+.sheet-price{font-family:var(--mono);font-size:0.65rem;font-weight:500;color:#fff;background:#c0392b;padding:0.25rem 0.65rem;border-radius:20px;letter-spacing:0.05em;}
+.sheet-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:1.5rem 1.25rem;padding-bottom:calc(1.5rem + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:0.85rem;}
 .sheet-tagline{font-family:var(--serif);font-style:italic;color:var(--muted);font-size:1.05rem;line-height:1.6;margin-bottom:0.1rem;}
-
-/* Sheet inputs same style as desktop */
 .sheet-body .c-input{font-size:1rem;padding:0.85rem 1rem;border-radius:12px;}
 .sheet-body textarea.c-input{min-height:100px;font-size:1rem;}
 .sheet-body .c-submit{padding:1rem;font-size:0.75rem;border-radius:12px;margin-top:0.25rem;}
@@ -245,6 +242,7 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
   .search-box{width:100%;}
   .entry-title{font-size:1.1rem;}
   .entry-type-label{font-size:0.55rem;right:8px;}
+  .commissioned-label{width:22px;font-size:0.52rem;letter-spacing:0.16em;}
   .commission-section{display:none;}
   .mobile-pill{display:flex;}
 }
@@ -252,6 +250,7 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
   .entry-link{padding:1.2rem;gap:1rem;}
   .entry-header{padding-right:1.2rem;}
   .entry-type-label{font-size:0.5rem;right:4px;letter-spacing:0.1em;}
+  .commissioned-label{width:18px;font-size:0.44rem;letter-spacing:0.12em;}
   .social-box{padding:1rem 0.3rem;}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms !important;transition-duration:0.01ms !important;}}
@@ -259,7 +258,6 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
 </head>
 <body>
 
-<!-- Mobile full-screen commission sheet -->
 <div class="commission-sheet" id="commissionSheet">
   <div class="sheet-header">
     <button class="sheet-back" id="sheetBack">← Back</button>
@@ -283,9 +281,7 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
 <div class="container">
   <header>
     <a href="/" class="logo">Colin Archive</a>
-    <button class="mobile-pill" id="mobilePill">
-  Commission · $7
-</button>
+    <button class="mobile-pill" id="mobilePill">Commission · $7</button>
   </header>
 
   <div class="main-grid">
@@ -294,7 +290,6 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
         <h1>Archive</h1>
         <p class="section-subtitle">Unfiltered documentation</p>
       </div>
-
       <div class="filters">
         <input type="text" class="search-box" id="searchBox" placeholder="Search entries...">
         <div class="filter-tags">
@@ -304,17 +299,13 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
           <button class="filter-tag" data-filter="notes">Notes</button>
         </div>
       </div>
-
       <div class="entry-list" id="entryList"></div>
-
       <div class="load-more-container" id="loadMoreContainer">
         <button class="load-more-btn" id="loadMoreBtn">Load more</button>
       </div>
     </section>
 
     <aside class="updates-sidebar">
-
-      <!-- Desktop commission -->
       <div class="commission-section" id="commissionSection">
         <div class="commission-header" id="commissionHeader">
           <div class="commission-header-left">
@@ -385,83 +376,52 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
     loadMoreBtn: document.getElementById('loadMoreBtn')
   };
 
-  // ── Desktop accordion ──
   const commissionSection = document.getElementById('commissionSection');
   const commissionHeader  = document.getElementById('commissionHeader');
   const commissionBody    = document.getElementById('commissionBody');
-
   commissionHeader.addEventListener('click', () => {
     const open = commissionBody.classList.toggle('open');
     commissionSection.classList.toggle('is-open', open);
   });
 
-  // ── Mobile sheet ──
-  const sheet    = document.getElementById('commissionSheet');
-  const pill     = document.getElementById('mobilePill');
+  const sheet   = document.getElementById('commissionSheet');
+  const pill    = document.getElementById('mobilePill');
   const sheetBack = document.getElementById('sheetBack');
-
-  pill.addEventListener('click', () => {
-    sheet.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  });
+  pill.addEventListener('click', () => { sheet.classList.add('open'); document.body.style.overflow='hidden'; });
   sheetBack.addEventListener('click', closeSheet);
-  function closeSheet() {
-    sheet.classList.remove('open');
-    document.body.style.overflow = '';
-  }
+  function closeSheet() { sheet.classList.remove('open'); document.body.style.overflow=''; }
 
-  // ── Commission submit ──
   async function submitCommission(name, email, topic, details, statusEl, btnEl) {
     statusEl.className = 'c-status';
-    if (!name || !email || !topic) { statusEl.textContent = 'Name, email and topic are required.'; return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { statusEl.textContent = 'Please enter a valid email address.'; return; }
-    btnEl.disabled = true;
-    btnEl.textContent = 'Redirecting to payment...';
-    statusEl.textContent = '';
+    if (!name||!email||!topic) { statusEl.textContent='Name, email and topic are required.'; return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { statusEl.textContent='Please enter a valid email address.'; return; }
+    btnEl.disabled=true; btnEl.textContent='Redirecting to payment...'; statusEl.textContent='';
     try {
       const res = await fetch('https://lbpkgvmxxcubzbzwoswd.supabase.co/functions/v1/create-checkout', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ name, email, topic, details, ref: localStorage.getItem('ref') || null })
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ name, email, topic, details, ref: localStorage.getItem('ref')||null })
       });
       const json = await res.json();
-      if (!res.ok || json.error) throw new Error(json.error || 'Server error');
+      if (!res.ok||json.error) throw new Error(json.error||'Server error');
       window.location.href = json.url;
-    } catch (err) {
+    } catch(err) {
       console.error(err);
-      statusEl.textContent = 'Something went wrong. Please try again.';
-      btnEl.disabled = false;
-      btnEl.textContent = 'Pay $7 & commission →';
+      statusEl.textContent='Something went wrong. Please try again.';
+      btnEl.disabled=false; btnEl.textContent='Pay $7 & commission →';
     }
   }
 
   document.getElementById('cSubmit').addEventListener('click', () => {
-    submitCommission(
-      document.getElementById('cName').value.trim(),
-      document.getElementById('cEmail').value.trim(),
-      document.getElementById('cTopic').value.trim(),
-      document.getElementById('cDetails').value.trim(),
-      document.getElementById('cStatus'),
-      document.getElementById('cSubmit')
-    );
+    submitCommission(document.getElementById('cName').value.trim(),document.getElementById('cEmail').value.trim(),document.getElementById('cTopic').value.trim(),document.getElementById('cDetails').value.trim(),document.getElementById('cStatus'),document.getElementById('cSubmit'));
   });
-
   document.getElementById('sSubmit').addEventListener('click', () => {
-    submitCommission(
-      document.getElementById('sName').value.trim(),
-      document.getElementById('sEmail').value.trim(),
-      document.getElementById('sTopic').value.trim(),
-      document.getElementById('sDetails').value.trim(),
-      document.getElementById('sStatus'),
-      document.getElementById('sSubmit')
-    );
+    submitCommission(document.getElementById('sName').value.trim(),document.getElementById('sEmail').value.trim(),document.getElementById('sTopic').value.trim(),document.getElementById('sDetails').value.trim(),document.getElementById('sStatus'),document.getElementById('sSubmit'));
   });
 
-  // ── Helpers ──
-  function debounce(fn, ms) { let t; return function(...a){ clearTimeout(t); t=setTimeout(()=>fn.apply(this,a),ms); }; }
-  function escapeHtml(v) { return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
-  function normalizeType(t) { const r=String(t||'essay').toLowerCase(); return (r==='essay'||r==='code'||r==='notes')?r:'essay'; }
-  function mapFilterToType(f) { if(f==='essays') return 'essay'; if(f==='code') return 'code'; if(f==='notes') return 'notes'; return null; }
+  function debounce(fn,ms){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms);};}
+  function escapeHtml(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');}
+  function normalizeType(t){const r=String(t||'essay').toLowerCase();return(r==='essay'||r==='code'||r==='notes')?r:'essay';}
+  function mapFilterToType(f){if(f==='essays')return 'essay';if(f==='code')return 'code';if(f==='notes')return 'notes';return null;}
 
   function getRelativeTime(d) {
     if(!d) return 'unknown date';
@@ -478,20 +438,17 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
     return y+' year'+(y>1?'s':'')+' ago';
   }
 
-  function getFilteredPosts() {
-    const tt=mapFilterToType(state.currentFilter), s=state.currentSearch.trim().toLowerCase();
-    return state.loadedPosts.filter(p => {
-      const type=normalizeType(p.type);
-      return (!tt||type===tt)&&(!s||String(p.title||'').toLowerCase().includes(s)||String(p.excerpt||'').toLowerCase().includes(s));
-    });
+  function getFilteredPosts(){
+    const tt=mapFilterToType(state.currentFilter),s=state.currentSearch.trim().toLowerCase();
+    return state.loadedPosts.filter(p=>{const type=normalizeType(p.type);return(!tt||type===tt)&&(!s||String(p.title||'').toLowerCase().includes(s)||String(p.excerpt||'').toLowerCase().includes(s));});
   }
 
-  function updateDerivedState() { state.filteredPosts=getFilteredPosts(); state.visiblePosts=state.filteredPosts.slice(0,PAGE_SIZE); }
-  function updateLoadMoreVisibility() { els.loadMoreContainer.style.display=(state.visiblePosts.length<state.filteredPosts.length||state.hasMoreServerPosts)?'flex':'none'; }
-  function renderEmpty(msg) { els.entryList.innerHTML=`<div style="padding:3rem;text-align:center;color:var(--muted);"><p style="font-family:var(--mono);font-size:0.875rem;">${escapeHtml(msg)}</p></div>`; }
+  function updateDerivedState(){state.filteredPosts=getFilteredPosts();state.visiblePosts=state.filteredPosts.slice(0,PAGE_SIZE);}
+  function updateLoadMoreVisibility(){els.loadMoreContainer.style.display=(state.visiblePosts.length<state.filteredPosts.length||state.hasMoreServerPosts)?'flex':'none';}
+  function renderEmpty(msg){els.entryList.innerHTML=`<div style="padding:3rem;text-align:center;color:var(--muted);"><p style="font-family:var(--mono);font-size:0.875rem;">${escapeHtml(msg)}</p></div>`;}
 
   function renderPosts(posts) {
-    if (!posts.length) { renderEmpty(state.currentSearch.trim()||state.currentFilter!=='all'?'No matching entries':'No entries yet'); return; }
+    if (!posts.length){renderEmpty(state.currentSearch.trim()||state.currentFilter!=='all'?'No matching entries':'No entries yet');return;}
     els.entryList.innerHTML = posts.map(post => {
       const isPaid=String(post.access||'free').toLowerCase()==='paid';
       const type=normalizeType(post.type);
@@ -499,49 +456,51 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
       const label=type==='code'?'code':type==='notes'?'note':'essay';
       const isCommissioned=post.commissioned===true;
       return `
-        <div class="entry type-${type}${isPaid?' locked':''}${cover?' has-cover':''}" data-id="${escapeHtml(String(post.id??''))}">
-          ${cover?`<img src="${escapeHtml(cover)}" alt="" class="entry-img" loading="lazy" onerror="this.style.display='none'">` :''}
-          ${isPaid?'<i class="fas fa-lock locked-icon"></i>':''}
-          <span class="entry-type-label">${escapeHtml(label)}</span>
-          <a href="/post.html?id=${encodeURIComponent(String(post.id??''))}" class="entry-link">
-            <div class="entry-content">
-              <div class="entry-header">
-                ${isCommissioned?'<span class="commissioned-badge">Commissioned</span><br>':''}
-                <h2 class="entry-title">${escapeHtml(post.title||'Untitled')}</h2>
+        <div class="entry-outer type-${type}">
+          <div class="entry type-${type}${isPaid?' locked':''}${cover?' has-cover':''}" data-id="${escapeHtml(String(post.id??''))}">
+            ${cover?`<img src="${escapeHtml(cover)}" alt="" class="entry-img" loading="lazy" onerror="this.style.display='none'">` :''}
+            ${isPaid?'<i class="fas fa-lock locked-icon"></i>':''}
+            <span class="entry-type-label">${escapeHtml(label)}</span>
+            <a href="/post.html?id=${encodeURIComponent(String(post.id??''))}" class="entry-link">
+              <div class="entry-content">
+                <div class="entry-header">
+                  <h2 class="entry-title">${escapeHtml(post.title||'Untitled')}</h2>
+                </div>
+                <div class="entry-meta">${escapeHtml(getRelativeTime(post.created_at))}</div>
+                <p class="entry-excerpt">${post.excerpt?escapeHtml(post.excerpt):'<em style="opacity:0.6">(no preview)</em>'}</p>
               </div>
-              <div class="entry-meta">${escapeHtml(getRelativeTime(post.created_at))}</div>
-              <p class="entry-excerpt">${post.excerpt?escapeHtml(post.excerpt):'<em style="opacity:0.6">(no preview)</em>'}</p>
-            </div>
-          </a>
+            </a>
+          </div>
+          ${isCommissioned?'<span class="commissioned-label">Commissioned</span>':''}
         </div>`;
     }).join('');
   }
 
-  function setActiveFilter(f) { els.filterTags.forEach(t=>t.classList.toggle('active',t.dataset.filter===f)); }
+  function setActiveFilter(f){els.filterTags.forEach(t=>t.classList.toggle('active',t.dataset.filter===f));}
 
   const SKELETON_HTML=`
     <div class="skeleton-entry"><div class="skeleton-line" style="width:60%;height:18px;margin-bottom:12px"></div><div class="skeleton-line" style="width:25%;height:10px;margin-bottom:14px"></div><div class="skeleton-line" style="width:90%;height:12px;margin-bottom:6px"></div><div class="skeleton-line" style="width:75%;height:12px"></div></div>
     <div class="skeleton-entry"><div class="skeleton-line" style="width:50%;height:18px;margin-bottom:12px"></div><div class="skeleton-line" style="width:30%;height:10px;margin-bottom:14px"></div><div class="skeleton-line" style="width:85%;height:12px;margin-bottom:6px"></div><div class="skeleton-line" style="width:65%;height:12px"></div></div>`;
 
   async function fetchPostsPage(skeletonTimer) {
-    if (state.isFetching||!state.hasMoreServerPosts) return;
-    state.isFetching=true; els.loadMoreBtn.disabled=true; els.loadMoreBtn.textContent='Loading...';
-    if(skeletonTimer) clearTimeout(skeletonTimer);
+    if(state.isFetching||!state.hasMoreServerPosts)return;
+    state.isFetching=true;els.loadMoreBtn.disabled=true;els.loadMoreBtn.textContent='Loading...';
+    if(skeletonTimer)clearTimeout(skeletonTimer);
     try {
-      const {data,error}=await db.from('posts').select('id,title,excerpt,type,access,cover_url,created_at,commissioned').order('created_at',{ascending:false}).range(state.nextOffset,state.nextOffset+PAGE_SIZE-1);
-      if(error) throw error;
+      const{data,error}=await db.from('posts').select('id,title,excerpt,type,access,cover_url,created_at,commissioned').order('created_at',{ascending:false}).range(state.nextOffset,state.nextOffset+PAGE_SIZE-1);
+      if(error)throw error;
       const rows=Array.isArray(data)?data:[];
       if(!rows.length){state.hasMoreServerPosts=false;updateLoadMoreVisibility();return;}
-      state.loadedPosts=state.loadedPosts.concat(rows); state.nextOffset+=rows.length;
-      if(rows.length<PAGE_SIZE) state.hasMoreServerPosts=false;
-      updateDerivedState(); renderPosts(state.visiblePosts); updateLoadMoreVisibility();
-    } catch(err){ console.error(err); if(!state.loadedPosts.length) renderEmpty('Could not load posts. Please try again later.'); }
-    finally { state.isFetching=false; els.loadMoreBtn.disabled=false; els.loadMoreBtn.textContent='Load more'; }
+      state.loadedPosts=state.loadedPosts.concat(rows);state.nextOffset+=rows.length;
+      if(rows.length<PAGE_SIZE)state.hasMoreServerPosts=false;
+      updateDerivedState();renderPosts(state.visiblePosts);updateLoadMoreVisibility();
+    }catch(err){console.error(err);if(!state.loadedPosts.length)renderEmpty('Could not load posts. Please try again later.');}
+    finally{state.isFetching=false;els.loadMoreBtn.disabled=false;els.loadMoreBtn.textContent='Load more';}
   }
 
-  async function handleLoadMore() {
+  async function handleLoadMore(){
     if(state.visiblePosts.length<state.filteredPosts.length){state.visiblePosts=state.filteredPosts.slice(0,state.visiblePosts.length+PAGE_SIZE);renderPosts(state.visiblePosts);updateLoadMoreVisibility();return;}
-    if(state.hasMoreServerPosts) await fetchPostsPage();
+    if(state.hasMoreServerPosts)await fetchPostsPage();
   }
 
   function applyFilterAndSearch(){updateDerivedState();renderPosts(state.visiblePosts);updateLoadMoreVisibility();}
@@ -555,7 +514,7 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
   }
 
   async function init(){
-    bindEvents(); updateLoadMoreVisibility();
+    bindEvents();updateLoadMoreVisibility();
     const skeletonTimer=setTimeout(()=>{els.entryList.innerHTML=SKELETON_HTML;},150);
     await fetchPostsPage(skeletonTimer);
     const todayKey='hp_visited_'+new Date().toDateString();
@@ -563,7 +522,7 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
       localStorage.setItem(todayKey,'1');
       db.rpc('increment_stat',{stat_key:'homepage_visits'}).then(()=>{}).catch(()=>{});
       const ref=localStorage.getItem('ref');
-      if(ref) db.from('referral_visits').insert({ref,page:'homepage'}).then(()=>{}).catch(()=>{});
+      if(ref)db.from('referral_visits').insert({ref,page:'homepage'}).then(()=>{}).catch(()=>{});
     }
   }
 
