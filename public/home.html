@@ -265,6 +265,41 @@
     text-decoration: none; transition: color 0.2s;
   }
   .foot-link:hover { color: var(--fg); }
+
+  /* Scroll hint */
+  #scroll-hint {
+    position: fixed;
+    bottom: calc(var(--ui) + 0.1rem);
+    left: 50%; translate: -50% 0;
+    z-index: 100;
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 1s ease;
+    animation: hint-fade-in 1.2s ease forwards;
+  }
+  @keyframes hint-fade-in {
+    0%   { opacity: 0; }
+    40%  { opacity: 0; }
+    100% { opacity: 1; }
+  }
+  #scroll-hint-text {
+    font-family: var(--mono);
+    font-size: 0.44rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--dim);
+    opacity: 0.6;
+  }
+  #scroll-hint-arrow {
+    width: 1px; height: 20px;
+    background: linear-gradient(to bottom, transparent, var(--dim));
+    animation: hint-arrow 1.8s ease-in-out infinite;
+  }
+  @keyframes hint-arrow {
+    0%,100% { opacity: 0.3; transform: scaleY(0.6) translateY(-4px); }
+    50%     { opacity: 0.7; transform: scaleY(1)   translateY(0); }
+  }
 }
 
 @layer cards {
@@ -493,6 +528,12 @@
   <a href="/chat.html" class="foot-link">Chat</a>
   <a href="#" class="foot-link">Twitter</a>
   <a href="#" class="foot-link">GitHub</a>
+</div>
+
+<!-- Scroll hint -->
+<div id="scroll-hint">
+  <span id="scroll-hint-text">scroll or drag</span>
+  <div id="scroll-hint-arrow"></div>
 </div>
 
 <!-- Scroll sections -->
@@ -790,6 +831,107 @@
   });
 
   applyFace(0);
+
+  /* ── SCROLL HINT — fades after first scroll ── */
+  const hint = document.getElementById('scroll-hint');
+  let hintGone = false;
+  function hideHint() {
+    if (hintGone) return;
+    hintGone = true;
+    hint.style.opacity = '0';
+    hint.style.pointerEvents = 'none';
+  }
+  window.addEventListener('scroll', hideHint, { once: true, passive: true });
+  window.addEventListener('wheel',  hideHint, { once: true, passive: true });
+  /* Also hide after 6s automatically */
+  setTimeout(hideHint, 6000);
+
+  /* ── DRAG TO SCROLL — all four directions, desktop + mobile ── */
+  /* Translates pointer/touch drag distance into scroll position.
+     Horizontal drag = also advances sections (mapped to vertical scroll).
+     Diagonal = whichever axis is dominant. */
+
+  let dragActive  = false;
+  let dragStartX  = 0;
+  let dragStartY  = 0;
+  let dragStartScroll = 0;
+  const DRAG_SENS = 2.2; /* px of drag per px of scroll — higher = more sensitive */
+
+  function onDragStart(x, y) {
+    dragActive      = true;
+    dragStartX      = x;
+    dragStartY      = y;
+    dragStartScroll = window.scrollY;
+    stopAnchor();
+    velocity = 0;
+    document.body.style.cursor = 'grabbing';
+  }
+
+  function onDragMove(x, y) {
+    if (!dragActive) return;
+    const dx = x - dragStartX;
+    const dy = y - dragStartY;
+    /* Use whichever axis has more movement */
+    const delta = Math.abs(dx) > Math.abs(dy) ? -dx : -dy;
+    const newY = Math.max(0, Math.min(dragStartScroll + delta * DRAG_SENS, maxScroll));
+    window.scrollTo(0, newY);
+    tgt = newY / maxScroll;
+    smooth = tgt;
+  }
+
+  function onDragEnd() {
+    if (!dragActive) return;
+    dragActive = false;
+    document.body.style.cursor = '';
+    hideHint();
+  }
+
+  /* Desktop mouse drag — on the scene (cube area) and everywhere */
+  const sceneEl = document.getElementById('scene');
+  sceneEl.style.pointerEvents = 'auto';
+  sceneEl.style.cursor = 'grab';
+
+  sceneEl.addEventListener('mousedown', e => {
+    if (e.button !== 0) return;
+    onDragStart(e.clientX, e.clientY);
+    e.preventDefault();
+  });
+
+  window.addEventListener('mousemove', e => {
+    if (!dragActive) return;
+    onDragMove(e.clientX, e.clientY);
+  });
+
+  window.addEventListener('mouseup', onDragEnd);
+
+  /* Mobile touch drag — all directions */
+  let touchId = null;
+
+  document.addEventListener('touchstart', e => {
+    if (touchId !== null) return;
+    /* Don't intercept taps on links/buttons */
+    if (e.target.closest('a,button')) return;
+    const t = e.changedTouches[0];
+    touchId = t.identifier;
+    onDragStart(t.clientX, t.clientY);
+  }, { passive: true });
+
+  document.addEventListener('touchmove', e => {
+    if (touchId === null) return;
+    let t = null;
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      if (e.changedTouches[i].identifier === touchId) { t = e.changedTouches[i]; break; }
+    }
+    if (!t) return;
+    onDragMove(t.clientX, t.clientY);
+  }, { passive: true });
+
+  document.addEventListener('touchend', e => {
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      if (e.changedTouches[i].identifier === touchId) { touchId = null; onDragEnd(); break; }
+    }
+  }, { passive: true });
+
 })();
 </script>
 </body>
