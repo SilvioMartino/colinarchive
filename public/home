@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Colin Archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+@layer reset, tokens, base, layout, cube, ui, cards, reveal, responsive;
+
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+}
+
+@layer tokens {
+  :root {
+    --bg:     #1a1a1a;
+    --fg:     #e8e8e8;
+    --muted:  #b8b8b8;
+    --dim:    #555;
+    --border: #2a2a2a;
+
+    --c1: #888888;
+    --c2: #9b8fff;
+    --c3: #d4a84b;
+    --c4: #ff6b6b;
+    --c5: #51cf66;
+    --c6: #4ecdc4;
+
+    /* Page bg tones per face — dark tints */
+    --bg1: #161616;
+    --bg2: #110d1a;
+    --bg3: #1a1500;
+    --bg4: #1a0808;
+    --bg5: #081508;
+    --bg6: #081515;
+
+    /* Face surface tones */
+    --f1: #141414;
+    --f2: #0e0b16;
+    --f3: #181200;
+    --f4: #180707;
+    --f5: #071207;
+    --f6: #071212;
+
+    --serif:  'Crimson Text', Georgia, serif;
+    --mono:   'IBM Plex Mono', 'Courier New', monospace;
+    --hairline: 1px;
+    --ui: 2rem;
+    --s: min(74vw, 74vh, 560px);
+    --half: calc(var(--s) / 2);
+    --card-bg: rgba(20,20,20,0.92);
+    --active: var(--c1);
+  }
+}
+
+@layer base {
+  html { color-scheme: dark; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--mono);
+    overflow-x: hidden;
+    transition: background 0.8s ease;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(
+      0deg, transparent 0, transparent 2px,
+      rgba(0,0,0,0.032) 2px, rgba(0,0,0,0.032) 4px
+    );
+    pointer-events: none; z-index: 9999;
+  }
+}
+
+@layer layout {
+  #scene {
+    position: fixed; inset: 0; z-index: 0;
+    display: flex; align-items: center; justify-content: center;
+    perspective: 1100px;
+    pointer-events: none;
+  }
+  #scroll_container { position: relative; z-index: 1; }
+  section {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 6rem calc(5rem + var(--ui)) 6rem 5rem;
+  }
+}
+
+@layer cube {
+  #cube {
+    width: var(--s); height: var(--s);
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateX(90deg) rotateY(0deg);
+    will-change: transform;
+  }
+
+  .face {
+    position: absolute; inset: 0;
+    overflow: hidden;
+    backface-visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.8s ease;
+  }
+
+  /* Grid texture */
+  .face::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      repeating-linear-gradient(0deg,  rgba(255,255,255,0.02) 0, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 48px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.02) 0, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 48px);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* Face surface colors */
+  .face[data-face="top"]    { background: var(--f1); border: 1px solid rgba(136,136,136,0.18); }
+  .face[data-face="front"]  { background: var(--f2); border: 1px solid rgba(155,143,255,0.18); }
+  .face[data-face="right"]  { background: var(--f3); border: 1px solid rgba(212,168,75,0.18);  }
+  .face[data-face="back"]   { background: var(--f4); border: 1px solid rgba(255,107,107,0.18); }
+  .face[data-face="left"]   { background: var(--f5); border: 1px solid rgba(81,207,102,0.18);  }
+  .face[data-face="bottom"] { background: var(--f6); border: 1px solid rgba(78,205,196,0.18);  }
+
+  /* Corner TL */
+  .face::after {
+    content: '';
+    position: absolute; top: 14px; left: 14px;
+    width: 22px; height: 22px;
+    pointer-events: none; z-index: 3;
+  }
+
+  /* Face number */
+  .face-num {
+    position: absolute; top: 18px; left: 20px;
+    font-size: 0.5rem; letter-spacing: 0.22em;
+    text-transform: uppercase; opacity: 0.35;
+    z-index: 3; font-family: var(--mono);
+  }
+
+  /* Corner BR */
+  .face-cbr {
+    position: absolute; bottom: 14px; right: 14px;
+    width: 22px; height: 22px;
+    pointer-events: none; z-index: 3;
+  }
+
+  /* Watermark — giant faint bg icon */
+  .face-wm {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none; z-index: 1;
+    opacity: 0.032;
+  }
+  .face-wm svg {
+    width: 85%; height: 85%;
+  }
+
+  /* Main icon + label */
+  .face-icon {
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 1.4rem;
+  }
+  .face-icon svg {
+    width: clamp(64px, 13vw, 108px);
+    height: clamp(64px, 13vw, 108px);
+    opacity: 0.82;
+    filter: drop-shadow(0 0 18px currentColor);
+    transition: opacity 0.3s, filter 0.3s;
+  }
+  .face-icon-label {
+    font-family: var(--mono);
+    font-size: clamp(0.52rem, 1vw, 0.68rem);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+
+  /* Face transforms */
+  .face[data-face="top"]    { transform: rotateX(-90deg) translateZ(var(--half)); }
+  .face[data-face="front"]  { transform: translateZ(var(--half)); }
+  .face[data-face="right"]  { transform: rotateY(90deg)  translateZ(var(--half)); }
+  .face[data-face="back"]   { transform: rotateY(180deg) translateZ(var(--half)); }
+  .face[data-face="left"]   { transform: rotateY(-90deg) translateZ(var(--half)); }
+  .face[data-face="bottom"] { transform: rotateX(90deg)  translateZ(var(--half)); }
+}
+
+@layer ui {
+  #logo {
+    position: fixed; top: var(--ui); left: var(--ui);
+    z-index: 100; font-family: var(--mono);
+    font-size: 0.7rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--fg);
+    text-decoration: none;
+  }
+  #logo::after {
+    content: '|'; color: var(--active);
+    animation: blink 1s step-end infinite; margin-left: 2px;
+    transition: color 0.6s;
+  }
+  @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:0} }
+
+  #hud {
+    position: fixed; top: var(--ui); right: var(--ui);
+    z-index: 100; text-align: right;
+    font-size: 0.62rem; letter-spacing: 0.15em;
+    color: var(--dim); text-transform: uppercase;
+  }
+  #hud_pct { color: var(--active); transition: color 0.6s; margin-bottom: 0.4rem; font-size: 0.68rem; }
+  .progress-bar {
+    width: 7rem; height: 1px;
+    background: rgba(255,255,255,0.07);
+    margin-left: auto; position: relative; overflow: hidden;
+  }
+  .progress-fill {
+    position: absolute; inset: 0; width: 0%;
+    background: var(--active);
+    transition: width 0.1s linear, background 0.6s;
+  }
+  .scene-label { font-size: 0.52rem; color: var(--active); margin-top: 0.35rem; transition: color 0.6s; }
+
+  #scene_strip {
+    position: fixed; left: calc(var(--ui) + 2px); top: 50%;
+    translate: -50% -50%; z-index: 100;
+    display: flex; flex-direction: column; gap: 0.8rem;
+  }
+  .scene-dot {
+    display: block; width: 4px; height: 4px; border-radius: 50%;
+    background: var(--dim); cursor: pointer;
+    transition: background 0.4s, scale 0.3s; position: relative;
+  }
+  .scene-dot::before { content: ''; position: absolute; inset: -5px; }
+  .scene-dot.active { background: var(--active); scale: 1.8; }
+
+  #face_caption {
+    position: fixed; bottom: var(--ui); left: 50%;
+    translate: -50% 0; z-index: 100;
+    text-align: center; pointer-events: none; user-select: none;
+  }
+  #face_caption_num {
+    font-size: 0.52rem; letter-spacing: 0.28em;
+    color: var(--active); text-transform: uppercase;
+    margin-bottom: 0.12rem; transition: color 0.6s;
+  }
+  #face_caption_name {
+    font-family: var(--serif);
+    font-size: clamp(1.6rem, 5vw, 3.2rem);
+    font-style: italic; font-weight: 400;
+    color: var(--dim); opacity: 0.4; line-height: 1;
+  }
+
+  #foot {
+    position: fixed; bottom: var(--ui); right: var(--ui);
+    z-index: 100; display: flex; gap: 1.5rem;
+  }
+  .foot-link {
+    font-size: 0.48rem; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--dim);
+    text-decoration: none; transition: color 0.2s;
+  }
+  .foot-link:hover { color: var(--fg); }
+}
+
+@layer cards {
+  .text-card {
+    max-width: 23rem; padding: 2rem 1.75rem;
+    background: var(--card-bg);
+    border-left: var(--hairline) solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(10px) saturate(120%);
+    -webkit-backdrop-filter: blur(10px) saturate(120%);
+    transition: border-color 0.6s;
+  }
+  .text-card.right {
+    margin-inline-start: auto; border-left: none;
+    border-right: var(--hairline) solid rgba(255,255,255,0.06);
+    text-align: right;
+  }
+  .text-card.right .h-line { transform-origin: right; margin-inline-start: auto; }
+  .text-card.right .cta-row { justify-content: flex-end; }
+
+  .tag {
+    font-size: 0.55rem; letter-spacing: 0.25em; text-transform: uppercase;
+    color: var(--active); margin-bottom: 1rem; transition: color 0.6s;
+  }
+  h1, h2 {
+    font-family: var(--serif); font-weight: 600;
+    line-height: 1.05; letter-spacing: -0.01em;
+  }
+  h1 { font-size: clamp(2.6rem, 7vw, 5.5rem); }
+  h2 { font-size: clamp(2rem, 4.5vw, 3.6rem); }
+  h1 em, h2 em { font-style: italic; font-weight: 400; color: rgba(232,232,232,0.45); }
+
+  .body-text {
+    font-family: var(--serif); font-style: italic;
+    font-size: clamp(0.85rem, 1.4vw, 1rem);
+    line-height: 1.75; color: rgba(232,232,232,0.42);
+    margin-top: 1.1rem;
+  }
+  .h-line {
+    width: 3rem; height: 1px; background: var(--active);
+    margin-bottom: 1.1rem; transform-origin: left;
+    transition: background 0.6s;
+  }
+  .cta-row {
+    display: flex; align-items: center; gap: 0.75rem;
+    margin-top: 1.6rem; justify-content: flex-start;
+  }
+  .cta {
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    padding: 0.6rem 1.2rem;
+    border: 1px solid var(--active); color: var(--active);
+    font-family: var(--mono); font-size: 0.58rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    text-decoration: none; cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.6s;
+  }
+  .cta:hover { background: var(--active); color: #0d0d0d; }
+  .cta svg { width: 10px; height: 10px; }
+  .cta-back {
+    display: inline-flex; align-items: center; gap: 0.55rem;
+    padding: 0.6rem 1.2rem;
+    border: 1px solid rgba(85,85,85,0.4); color: var(--dim);
+    font-family: var(--mono); font-size: 0.58rem;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .cta-back:hover { background: rgba(85,85,85,0.1); border-color: var(--dim); color: var(--fg); }
+  .cta-back svg { width: 10px; height: 10px; }
+}
+
+@layer reveal {
+  .tag, h1, h2, .body-text, .cta, .cta-back { opacity: 0; translate: 0 10px; }
+  h1, h2 { translate: 0 18px; transition: opacity 0.5s ease 0.08s, translate 0.5s ease 0.08s; }
+  .tag    { transition: opacity 0.5s ease, translate 0.5s ease; }
+  .body-text { transition: opacity 0.5s ease 0.18s, translate 0.5s ease 0.18s; }
+  .cta, .cta-back { transition: opacity 0.5s ease 0.3s, translate 0.5s ease 0.3s, background 0.2s, color 0.2s, border-color 0.6s; }
+  .h-line { opacity: 0; scale: 0 1; transform-origin: left; transition: opacity 0.4s, scale 0.4s, background 0.6s; }
+  .text-card.right .h-line { transform-origin: right; }
+  .visible.tag, .visible.body-text, .visible.cta, .visible.cta-back { opacity: 1; translate: 0 0; }
+  h1.visible, h2.visible { opacity: 1; translate: 0 0; }
+  .h-line.visible { opacity: 1; scale: 1 1; }
+}
+
+@layer responsive {
+  @media (width <= 56.25em) {
+    #hud { top: 1rem; right: 1rem; }
+    #scene_strip { display: none; }
+    #face_caption { bottom: 1rem; }
+    #foot { display: none; }
+    section { min-height: 150vh; align-items: flex-end; padding: 0 1.5rem 3.5rem; }
+    #s0 { min-height: 100vh; align-items: center; padding: 4rem 1.5rem; }
+    .text-card, .text-card.right { max-width: 100%; padding: 1.5rem 1.25rem; }
+    .body-text { line-height: 1.6; }
+    .cta-row { margin-top: 1.25rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; }
+  }
+}
+</style>
+</head>
+<body>
+
+<div id="scene">
+  <div id="cube">
+
+    <!-- SVG defs reused for both watermark and icon -->
+    <!-- 1. ARCHIVE — grey -->
+    <div class="face" data-face="top" data-idx="0">
+      <div class="face-num">01</div>
+      <div class="face-cbr" style="border-bottom:1px solid rgba(136,136,136,0.3);border-right:1px solid rgba(136,136,136,0.3);"></div>
+      <div class="face-wm">
+        <svg viewBox="0 0 80 80" fill="none" stroke="#888" stroke-width="1" stroke-linecap="round"><rect x="8" y="18" width="64" height="7"/><rect x="8" y="31" width="64" height="7"/><rect x="8" y="44" width="64" height="7"/><rect x="8" y="57" width="64" height="7"/><line x1="18" y1="18" x2="18" y2="64"/></svg>
+      </div>
+      <div class="face-icon">
+        <svg viewBox="0 0 80 80" fill="none" stroke="#888888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#888888">
+          <rect x="8" y="18" width="64" height="7" rx="1"/><rect x="8" y="31" width="64" height="7" rx="1"/>
+          <rect x="8" y="44" width="64" height="7" rx="1"/><rect x="8" y="57" width="64" height="7" rx="1"/>
+          <line x1="18" y1="18" x2="18" y2="64"/>
+        </svg>
+        <span class="face-icon-label" style="color:#888888">Archive</span>
+      </div>
+    </div>
+
+    <!-- 2. CHAT — purple -->
+    <div class="face" data-face="front" data-idx="1">
+      <div class="face-num">02</div>
+      <div class="face-cbr" style="border-bottom:1px solid rgba(155,143,255,0.3);border-right:1px solid rgba(155,143,255,0.3);"></div>
+      <div class="face-wm">
+        <svg viewBox="0 0 80 80" fill="none" stroke="#9b8fff" stroke-width="1" stroke-linecap="round"><path d="M12 16h56a2 2 0 0 1 2 2v30a2 2 0 0 1-2 2H26l-14 10V18a2 2 0 0 1 0-2z"/><line x1="22" y1="28" x2="58" y2="28"/><line x1="22" y1="38" x2="50" y2="38"/></svg>
+      </div>
+      <div class="face-icon">
+        <svg viewBox="0 0 80 80" fill="none" stroke="#9b8fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#9b8fff">
+          <path d="M12 16h56a2 2 0 0 1 2 2v30a2 2 0 0 1-2 2H26l-14 10V18a2 2 0 0 1 0-2z"/>
+          <line x1="22" y1="28" x2="58" y2="28"/><line x1="22" y1="38" x2="50" y2="38"/>
+        </svg>
+        <span class="face-icon-label" style="color:#9b8fff">Chat</span>
+      </div>
+    </div>
+
+    <!-- 3. COMMISSION — gold -->
+    <div class="face" data-face="right" data-idx="2">
+      <div class="face-num">03</div>
+      <div class="face-cbr" style="border-bottom:1px solid rgba(212,168,75,0.3);border-right:1px solid rgba(212,168,75,0.3);"></div>
+      <div class="face-wm">
+        <svg viewBox="0 0 80 80" fill="none" stroke="#d4a84b" stroke-width="1" stroke-linecap="round"><polygon points="40,8 50,28 72,31 56,47 60,68 40,57 20,68 24,47 8,31 30,28"/></svg>
+      </div>
+      <div class="face-icon">
+        <svg viewBox="0 0 80 80" fill="none" stroke="#d4a84b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#d4a84b">
+          <polygon points="40,8 50,28 72,31 56,47 60,68 40,57 20,68 24,47 8,31 30,28"/>
+        </svg>
+        <span class="face-icon-label" style="color:#d4a84b">Commission</span>
+      </div>
+    </div>
+
+    <!-- 4. CONTACT — red -->
+    <div class="face" data-face="back" data-idx="3">
+      <div class="face-num">04</div>
+      <div class="face-cbr" style="border-bottom:1px solid rgba(255,107,107,0.3);border-right:1px solid rgba(255,107,107,0.3);"></div>
+      <div class="face-wm">
+        <svg viewBox="0 0 80 80" fill="none" stroke="#ff6b6b" stroke-width="1" stroke-linecap="round"><rect x="8" y="20" width="64" height="44" rx="2"/><polyline points="8,20 40,48 72,20"/></svg>
+      </div>
+      <div class="face-icon">
+        <svg viewBox="0 0 80 80" fill="none" stroke="#ff6b6b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#ff6b6b">
+          <rect x="8" y="20" width="64" height="44" rx="2"/>
+          <polyline points="8,20 40,48 72,20"/>
+        </svg>
+        <span class="face-icon-label" style="color:#ff6b6b">Contact</span>
+      </div>
+    </div>
+
+    <!-- 5. CUSTOM CODE — green -->
+    <div class="face" data-face="left" data-idx="4">
+      <div class="face-num">05</div>
+      <div class="face-cbr" style="border-bottom:1px solid rgba(81,207,102,0.3);border-right:1px solid rgba(81,207,102,0.3);"></div>
+      <div class="face-wm">
+        <svg viewBox="0 0 80 80" fill="none" stroke="#51cf66" stroke-width="1" stroke-linecap="round"><polyline points="26,22 8,40 26,58"/><polyline points="54,22 72,40 54,58"/><line x1="46" y1="14" x2="34" y2="66"/></svg>
+      </div>
+      <div class="face-icon">
+        <svg viewBox="0 0 80 80" fill="none" stroke="#51cf66" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#51cf66">
+          <polyline points="26,22 8,40 26,58"/>
+          <polyline points="54,22 72,40 54,58"/>
+          <line x1="46" y1="14" x2="34" y2="66"/>
+        </svg>
+        <span class="face-icon-label" style="color:#51cf66">Custom Code</span>
+      </div>
+    </div>
+
+    <!-- 6. COLLABORATION — teal -->
+    <div class="face" data-face="bottom" data-idx="5">
+      <div class="face-num">06</div>
+      <div class="face-cbr" style="border-bottom:1px solid rgba(78,205,196,0.3);border-right:1px solid rgba(78,205,196,0.3);"></div>
+      <div class="face-wm">
+        <svg viewBox="0 0 80 80" fill="none" stroke="#4ecdc4" stroke-width="1" stroke-linecap="round"><circle cx="28" cy="40" r="18"/><circle cx="52" cy="40" r="18"/></svg>
+      </div>
+      <div class="face-icon">
+        <svg viewBox="0 0 80 80" fill="none" stroke="#4ecdc4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#4ecdc4">
+          <circle cx="28" cy="40" r="18"/>
+          <circle cx="52" cy="40" r="18"/>
+        </svg>
+        <span class="face-icon-label" style="color:#4ecdc4">Collaboration</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Chrome -->
+<a href="/" id="logo">Colin Archive</a>
+
+<div id="hud">
+  <div id="hud_pct">000%</div>
+  <div class="progress-bar"><div class="progress-fill" id="prog_fill"></div></div>
+  <div class="scene-label" id="scene_name">Archive</div>
+</div>
+
+<div id="scene_strip"></div>
+
+<div id="face_caption">
+  <div id="face_caption_num">01</div>
+  <div id="face_caption_name">Archive</div>
+</div>
+
+<div id="foot">
+  <a href="/archive.html" class="foot-link">Archive</a>
+  <a href="/chat.html" class="foot-link">Chat</a>
+  <a href="#" class="foot-link">Twitter</a>
+  <a href="#" class="foot-link">GitHub</a>
+</div>
+
+<!-- Scroll sections -->
+<div id="scroll_container">
+  <section id="s0">
+    <div class="text-card">
+      <div class="tag">01 — Archive</div>
+      <h1>The<br><em>Archive.</em></h1>
+      <p class="body-text">Essays, code, and notes. Unfiltered documentation of a mind that won't stop. Everything published, nothing hidden.</p>
+      <div class="cta-row">
+        <a class="cta" href="/archive.html">Enter<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h10M6 1l5 5-5 5"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="s1">
+    <div class="text-card right">
+      <div class="h-line"></div>
+      <div class="tag">02 — Chat</div>
+      <h2>The<br><em>Room.</em></h2>
+      <p class="body-text">Real-time. Swipe to reply. Typing indicators. Seen receipts. The kind of chat that knows it's being watched and doesn't care.</p>
+      <div class="cta-row">
+        <a class="cta-back" href="#s0"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 6H1M6 11L1 6l5-5"/></svg>Back</a>
+        <a class="cta" href="/chat.html">Enter<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h10M6 1l5 5-5 5"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="s2">
+    <div class="text-card">
+      <div class="h-line"></div>
+      <div class="tag">03 — Commission</div>
+      <h2>Pay me<br><em>to think.</em></h2>
+      <p class="body-text">$7. Tell me the topic. One or two days, posted to the archive. Cheaper than therapy. Better than silence.</p>
+      <div class="cta-row">
+        <a class="cta-back" href="#s1"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 6H1M6 11L1 6l5-5"/></svg>Back</a>
+        <a class="cta" href="/archive.html#commission">Commission<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h10M6 1l5 5-5 5"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="s3">
+    <div class="text-card right">
+      <div class="h-line"></div>
+      <div class="tag">04 — Contact</div>
+      <h2>Say<br><em>something.</em></h2>
+      <p class="body-text">No contact form. No ticketing system. No auto-reply. Just a real person who will read it.</p>
+      <div class="cta-row">
+        <a class="cta-back" href="#s2"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 6H1M6 11L1 6l5-5"/></svg>Back</a>
+        <a class="cta" href="mailto:colin@colinarchive.com">Write<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h10M6 1l5 5-5 5"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="s4">
+    <div class="text-card">
+      <div class="h-line"></div>
+      <div class="tag">05 — Custom Code</div>
+      <h2>Built<br><em>for you.</em></h2>
+      <p class="body-text">Node, Supabase, Stripe, vanilla JS. Tell me what you need. I'll tell you if I can build it and what it costs.</p>
+      <div class="cta-row">
+        <a class="cta-back" href="#s3"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 6H1M6 11L1 6l5-5"/></svg>Back</a>
+        <a class="cta" href="mailto:colin@colinarchive.com">Enquire<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h10M6 1l5 5-5 5"/></svg></a>
+      </div>
+    </div>
+  </section>
+
+  <section id="s5">
+    <div class="text-card right">
+      <div class="h-line"></div>
+      <div class="tag">06 — Collaboration</div>
+      <h2>Two<br><em>minds.</em></h2>
+      <p class="body-text">Got a project that needs a second brain? Essays, code, design. Let's make something neither of us could alone.</p>
+      <div class="cta-row">
+        <a class="cta-back" href="#s4"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 6H1M6 11L1 6l5-5"/></svg>Back</a>
+        <a class="cta" href="mailto:colin@colinarchive.com">Propose<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h10M6 1l5 5-5 5"/></svg></a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  const FACES = [
+    { name:'Archive',       color:'#888888', bg:'#161616' },
+    { name:'Chat',          color:'#9b8fff', bg:'#110d1a' },
+    { name:'Commission',    color:'#d4a84b', bg:'#1a1500' },
+    { name:'Contact',       color:'#ff6b6b', bg:'#1a0808' },
+    { name:'Custom Code',   color:'#51cf66', bg:'#081508' },
+    { name:'Collaboration', color:'#4ecdc4', bg:'#081515' },
+  ];
+
+  const N = FACES.length;
+
+  const STOPS = [
+    {rx:90,  ry:0},
+    {rx:0,   ry:0},
+    {rx:0,   ry:-90},
+    {rx:0,   ry:-180},
+    {rx:0,   ry:-270},
+    {rx:-90, ry:-360},
+  ];
+
+  const root      = document.documentElement;
+  const body      = document.body;
+  const cube      = document.getElementById('cube');
+  const strip     = document.getElementById('scene_strip');
+  const hudPct    = document.getElementById('hud_pct');
+  const progFill  = document.getElementById('prog_fill');
+  const sceneName = document.getElementById('scene_name');
+  const capNum    = document.getElementById('face_caption_num');
+  const capName   = document.getElementById('face_caption_name');
+  const scrollEl  = document.getElementById('scroll_container');
+
+  /* Build nav dots */
+  strip.innerHTML = '';
+  for (let i = 0; i < N; i++) {
+    const a = document.createElement('a');
+    a.href = `#s${i}`;
+    a.className = 'scene-dot' + (i === 0 ? ' active' : '');
+    strip.appendChild(a);
+  }
+  const sceneDots = [...document.querySelectorAll('.scene-dot')];
+  const sections  = [...document.querySelectorAll('#scroll_container section')];
+
+  let lastFaceIdx = -1;
+
+  function applyFace(idx) {
+    if (idx === lastFaceIdx) return;
+    lastFaceIdx = idx;
+    const f = FACES[idx];
+    root.style.setProperty('--active', f.color);
+    body.style.background = f.bg;
+    sceneName.textContent = f.name;
+    capNum.textContent    = String(idx + 1).padStart(2, '0');
+    capName.textContent   = f.name;
+    sceneDots.forEach((d, i) => d.classList.toggle('active', i === idx));
+  }
+
+  /* Cube rotation */
+  const easeIO = t => t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+
+  /* Base rotation from scroll */
+  let baseRX = 90, baseRY = 0;
+
+  function setCubeTransform(scrollRX, scrollRY) {
+    cube.style.transform = `rotateX(${scrollRX}deg) rotateY(${scrollRY}deg)`;
+  }
+
+  function computeScrollRotation(s) {
+    const t = s * (N - 1);
+    const i = Math.min(Math.floor(t), N - 2);
+    const f = easeIO(t - i);
+    const a = STOPS[i], b = STOPS[i + 1];
+    return {
+      rx: a.rx + (b.rx - a.rx) * f,
+      ry: a.ry + (b.ry - a.ry) * f,
+    };
+  }
+
+  /* Section tops */
+  let sectionTops = [];
+  const buildTops = () => {
+    sectionTops = sections.map(s => s.getBoundingClientRect().top + window.scrollY);
+  };
+  buildTops();
+
+  const sectionIdx = y => {
+    const mid = y + innerHeight * 0.5;
+    let idx = 0;
+    sectionTops.forEach((top, i) => { if (mid >= top) idx = i; });
+    return Math.min(idx, N - 1);
+  };
+
+  /* Scroll physics */
+  let maxScroll = 1;
+  const resize = () => {
+    maxScroll = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+    buildTops();
+  };
+  resize();
+
+  const ro = new ResizeObserver(() => {
+    requestAnimationFrame(() => {
+      resize();
+      tgt = maxScroll > 0 ? scrollY / maxScroll : 0;
+      smooth = tgt;
+    });
+  });
+  ro.observe(document.documentElement);
+  window.addEventListener('resize', () => {
+    resize();
+    tgt = maxScroll > 0 ? scrollY / maxScroll : 0;
+    smooth = tgt;
+  });
+
+  let tgt = 0, smooth = 0, velocity = 0;
+  const friction = v => Math.abs(v) > 200 ? 0.8 : 0.9;
+
+  window.addEventListener('scroll', () => {
+    tgt = Math.max(0, Math.min(1, maxScroll > 0 ? scrollY / maxScroll : 0));
+  }, { passive: true });
+
+  window.addEventListener('wheel', e => {
+    e.preventDefault();
+    const lp = 16, pp = innerHeight * 0.9;
+    const d = e.deltaMode === 1 ? e.deltaY * lp : e.deltaMode === 2 ? e.deltaY * pp : e.deltaY;
+    if (Math.abs(d) < 5) return;
+    stopAnchor();
+    velocity += d;
+    velocity = Math.max(-600, Math.min(600, velocity));
+  }, { passive: false });
+
+  /* Reveal */
+  const revEls = [...document.querySelectorAll('.tag,h1,h2,.body-text,.cta,.cta-back,.h-line')];
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.1 });
+  revEls.forEach(el => io.observe(el));
+
+  /* RAF loop */
+  let lastNow = performance.now();
+
+  const frame = now => {
+    requestAnimationFrame(frame);
+    if (document.hidden) { lastNow = now; return; }
+    const dt = Math.min((now - lastNow) / 1000, 0.05);
+    lastNow = now;
+
+    /* Scroll physics */
+    velocity *= Math.pow(friction(velocity), dt * 60);
+    if (Math.abs(velocity) < 0.01) velocity = 0;
+
+    if (Math.abs(velocity) > 0.2) {
+      const next = Math.max(0, Math.min(scrollY + velocity * 0.1, maxScroll));
+      window.scrollTo(0, next);
+      tgt = next / maxScroll;
+    }
+
+    smooth += (tgt - smooth) * (1 - Math.exp(-dt * 8));
+    smooth = Math.max(0, Math.min(1, smooth));
+
+    const rot = computeScrollRotation(smooth);
+    setCubeTransform(rot.rx, rot.ry);
+
+    const pct = Math.round(smooth * 100);
+    hudPct.textContent   = String(pct).padStart(3, '0') + '%';
+    progFill.style.width = `${pct}%`;
+
+    const si = sectionIdx(scrollY);
+    applyFace(si);
+  };
+  requestAnimationFrame(frame);
+
+  /* Anchor scroll */
+  let anchorAnim = null;
+  const stopAnchor = () => {
+    if (anchorAnim) { cancelAnimationFrame(anchorAnim); anchorAnim = null; }
+  };
+  const easeC = t => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+
+  const smoothTo = (targetY, dur = 900) => {
+    stopAnchor(); velocity = 0;
+    const startY = scrollY, diff = targetY - startY, start = performance.now();
+    const tick = now => {
+      const p = Math.min(1, (now - start) / dur);
+      const y = startY + diff * easeC(p);
+      window.scrollTo(0, y); tgt = y / maxScroll; smooth = tgt;
+      if (p < 1) anchorAnim = requestAnimationFrame(tick); else anchorAnim = null;
+    };
+    anchorAnim = requestAnimationFrame(tick);
+  };
+
+  window.addEventListener('touchstart', stopAnchor, { passive: true });
+  window.addEventListener('mousedown',  stopAnchor, { passive: true });
+  window.addEventListener('keydown',    stopAnchor);
+
+  const mqSmall = window.matchMedia('(max-width: 56.25em)');
+
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href^="#s"]');
+    if (!a) return;
+    const target = document.querySelector(a.getAttribute('href'));
+    if (!target) return;
+    e.preventDefault();
+    const idx = sections.indexOf(target);
+    const isHero = a.getAttribute('href') === '#s0';
+    const baseY = idx >= 0 ? sectionTops[idx] : target.getBoundingClientRect().top + scrollY;
+    const extra = mqSmall.matches && !isHero ? Math.max(0, target.offsetHeight - innerHeight) : 0;
+    smoothTo(Math.max(0, baseY + extra));
+  });
+
+  applyFace(0);
+})();
+</script>
+</body>
+</html>
