@@ -575,6 +575,18 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
   }
 
   init().catch(err=>{console.error(err);renderEmpty('Could not load posts. Please try again later.');});
+  if (window.location.hash === '#commissionSection') {
+  if (window.innerWidth > 1024) {
+    commissionBody.classList.add('open');
+    commissionSection.classList.add('is-open');
+    setTimeout(() => commissionSection.scrollIntoView({ behavior:'smooth', block:'center' }), 400);
+  } else {
+    setTimeout(() => {
+      sheet.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }, 300);
+  }
+}
 })();
 </script>
 </body>
