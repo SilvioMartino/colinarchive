@@ -778,6 +778,10 @@ function renderPost(post) {
   const readTime = post.readtime || calcReadTime(post.content);
   const metaDate = new Date(post.created_at).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
   setNav(type, readTime);
+  // If loaded via ?id= URL, rewrite to clean /p/slug URL so sharing gives the clean link
+  if (post.slug && !location.pathname.startsWith('/p/')) {
+    history.replaceState(null, '', '/p/' + post.slug);
+  }
   initShare(post);
 
   const tags = (post.tags || '').split(',').filter(Boolean).map(t => `<span class="tag">${esc(t.trim())}</span>`).join('');
