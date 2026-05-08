@@ -22,6 +22,11 @@ app.get("/g", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "g.html"));
 });
 
+// Clean URL support: /p/:slug → post.html
+app.get('/p/:slug', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'post.html'));
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Ensure posts directory exists
