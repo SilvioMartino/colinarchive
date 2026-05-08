@@ -636,12 +636,12 @@ const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
   window.addEventListener('scroll', () => {
     const content = $('postContainer');
     if (!content) return;
-    const contentTop    = window.scrollY + content.getBoundingClientRect().top;
-    const contentBottom = contentTop + content.offsetHeight;
-    const start  = contentTop - window.innerHeight;
-    const total  = contentBottom - window.innerHeight - start;
-    const pct    = total > 0 ? Math.min((window.scrollY - start) / total * 100, 100) : 0;
-    bar.style.width = Math.max(0, pct) + '%';
+    // Start: top of page (scrollY = 0)
+    // End: bottom of post content scrolled to top of viewport
+    const contentBottom = window.scrollY + content.getBoundingClientRect().top + content.offsetHeight;
+    const total = contentBottom - window.innerHeight;
+    const pct = total > 0 ? Math.min(window.scrollY / total * 100, 100) : 0;
+    bar.style.width = pct + '%';
   }, { passive: true });
 })();
 
