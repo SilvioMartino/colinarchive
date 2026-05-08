@@ -21,16 +21,13 @@
   --blue: #4ecdc4;
   --yellow: #ffe66d;
   --green: #51cf66;
+  --gold: #e8b84b;
   --serif: 'Crimson Text', 'Georgia', serif;
   --mono: 'IBM Plex Mono', 'Courier New', monospace;
   --hand: 'Caveat', cursive;
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   background: var(--bg);
@@ -44,385 +41,121 @@ body::before {
   content: '';
   position: fixed;
   inset: 0;
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(255, 255, 255, 0.01) 2px,
-      rgba(255, 255, 255, 0.01) 4px
-    );
+  background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.01) 2px, rgba(255,255,255,0.01) 4px);
   pointer-events: none;
   z-index: 0;
   animation: paperSlide 20s linear infinite;
 }
+@keyframes paperSlide { 0%{transform:translateY(0)} 100%{transform:translateY(4px)} }
 
-@keyframes paperSlide {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(4px); }
-}
+.container { max-width: 900px; margin: 0 auto; position: relative; z-index: 2; padding: 3rem 2rem; }
 
-.container {
-  max-width: 900px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 2;
-  padding: 3rem 2rem;
-}
+header { padding-bottom: 2rem; border-bottom: 1px solid var(--border); margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
 
-header {
-  padding-bottom: 2rem;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 3rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
+.logo { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; font-weight: 500; color: var(--fg); }
 
-.logo {
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  font-weight: 500;
-  color: var(--fg);
-}
+.header-actions { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
 
-.header-actions {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  flex-wrap: wrap;
-}
+.btn { padding: 0.5rem 1rem; background: transparent; color: var(--muted); border: 1px solid var(--border); font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.3s; text-decoration: none; display: inline-block; }
+.btn:hover { border-color: var(--blue); color: var(--blue); }
+.btn.primary { background: var(--green); color: var(--bg); border-color: var(--green); }
+.btn.primary:hover { background: var(--fg); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
 
-.btn {
-  padding: 0.5rem 1rem;
-  background: transparent;
-  color: var(--muted);
-  border: 1px solid var(--border);
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.3s;
-  text-decoration: none;
-  display: inline-block;
-}
+.user-menu { display: flex; align-items: center; gap: 1rem; color: var(--blue); }
+.user-email { font-size: 0.7rem; text-transform: none; letter-spacing: 0; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.logout-btn { color: var(--red); }
+.logout-btn:hover { color: #ff8a8a; }
 
-.btn:hover {
-  border-color: var(--blue);
-  color: var(--blue);
-}
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); align-items: center; justify-content: center; z-index: 1000; }
+.modal.active { display: flex; }
+.modal-content { background: var(--paper); border: 1px solid var(--border); padding: 2rem; max-width: 350px; width: 90%; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+.modal-content h3 { margin-bottom: 1rem; font-family: var(--mono); color: var(--fg); }
+.modal-content input { width: 100%; padding: 0.75rem; margin-bottom: 1rem; background: var(--highlight); border: 1px solid var(--border); color: var(--fg); font-family: var(--mono); }
+.modal-content button { width: 100%; padding: 0.75rem; background: var(--blue); border: none; color: #000; font-family: var(--mono); font-weight: bold; cursor: pointer; margin-bottom: 0.5rem; }
+.modal-content button:hover { opacity: 0.9; }
+.modal-close { background: transparent !important; color: var(--muted) !important; border: 1px solid var(--border) !important; }
+.modal-err { color: var(--red); font-size: 0.8rem; margin-top: 0.5rem; font-family: var(--mono); }
 
-.btn.primary {
-  background: var(--green);
-  color: var(--bg);
-  border-color: var(--green);
-}
+h1 { font-family: var(--serif); font-size: 2rem; font-weight: 600; margin-bottom: 2rem; }
 
-.btn.primary:hover {
-  background: var(--fg);
-}
+.form-group { margin-bottom: 2rem; }
 
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
+label { display: block; font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
 
-/* User menu / login button */
-.user-menu {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  color: var(--blue);
+input[type="text"], textarea, select {
+  width: 100%; background: var(--highlight); border: 1px solid var(--border); color: var(--fg);
+  font-family: var(--serif); font-size: 1rem; padding: 0.75rem 1rem; transition: all 0.3s; resize: vertical;
 }
-.user-email {
-  font-size: 0.7rem;
-  text-transform: none;
-  letter-spacing: 0;
-  max-width: 150px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.logout-btn {
-  color: var(--red);
-}
-.logout-btn:hover {
-  color: #ff8a8a;
-}
-
-/* Login modal */
-.modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.7);
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-.modal.active {
-  display: flex;
-}
-.modal-content {
-  background: var(--paper);
-  border: 1px solid var(--border);
-  padding: 2rem;
-  max-width: 350px;
-  width: 90%;
-  border-radius: 8px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-.modal-content h3 {
-  margin-bottom: 1rem;
-  font-family: var(--mono);
-  color: var(--fg);
-}
-.modal-content input {
-  width: 100%;
-  padding: 0.75rem;
-  margin-bottom: 1rem;
-  background: var(--highlight);
-  border: 1px solid var(--border);
-  color: var(--fg);
-  font-family: var(--mono);
-}
-.modal-content button {
-  width: 100%;
-  padding: 0.75rem;
-  background: var(--blue);
-  border: none;
-  color: #000;
-  font-family: var(--mono);
-  font-weight: bold;
-  cursor: pointer;
-  margin-bottom: 0.5rem;
-}
-.modal-content button:hover {
-  opacity: 0.9;
-}
-.modal-close {
-  background: transparent !important;
-  color: var(--muted) !important;
-  border: 1px solid var(--border) !important;
-}
-.error-message {
-  color: var(--red);
-  font-size: 0.8rem;
-  margin-top: 0.5rem;
-  font-family: var(--mono);
-}
-
-h1 {
-  font-family: var(--serif);
-  font-size: 2rem;
-  font-weight: 600;
-  margin-bottom: 2rem;
-}
-
-.form-group {
-  margin-bottom: 2rem;
-}
-
-label {
-  display: block;
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 0.5rem;
-}
-
-input[type="text"],
-textarea,
-select {
-  width: 100%;
-  background: var(--highlight);
-  border: 1px solid var(--border);
-  color: var(--fg);
-  font-family: var(--serif);
-  font-size: 1rem;
-  padding: 0.75rem 1rem;
-  transition: all 0.3s;
-  resize: vertical;
-}
-
 select {
   appearance: none;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a8a8a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 1rem center;
-  background-size: 1rem;
-  padding-right: 2.5rem;
+  background-repeat: no-repeat; background-position: right 1rem center; background-size: 1rem; padding-right: 2.5rem;
 }
+input[type="text"]:focus, textarea:focus, select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 2px rgba(78,205,196,0.1); }
 
-input[type="text"]:focus,
-textarea:focus,
-select:focus {
-  outline: none;
-  border-color: var(--blue);
-  box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.1);
-}
+#title { font-size: 1.5rem; font-weight: 600; }
+#content { min-height: 400px; line-height: 1.8; font-size: 1.125rem; }
+#excerpt { min-height: 80px; }
 
-#title {
-  font-size: 1.5rem;
-  font-weight: 600;
-}
+.word-count { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); text-align: right; margin-top: 0.5rem; }
 
-#content {
-  min-height: 400px;
-  line-height: 1.8;
-  font-size: 1.125rem;
-}
+.tags-container { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+.tag-item { padding: 0.35rem 0.75rem; background: var(--highlight); border: 1px solid var(--border); font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.05em; text-transform: uppercase; display: flex; align-items: center; gap: 0.5rem; }
+.tag-remove { cursor: pointer; color: var(--red); font-weight: bold; }
+.tag-input-wrapper { display: flex; gap: 0.5rem; }
+#tagInput { flex: 1; }
 
-#excerpt {
-  min-height: 80px;
-}
+.access-toggle { display: flex; gap: 1rem; margin-top: 0.5rem; }
+.toggle-option { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.5rem 1rem; border: 1px solid var(--border); font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase; transition: all 0.3s; }
+.toggle-option:hover { border-color: var(--blue); }
+.toggle-option.active { border-color: var(--blue); background: rgba(78,205,196,0.1); }
 
-.word-count {
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  color: var(--muted);
-  text-align: right;
-  margin-top: 0.5rem;
-}
-
-.tags-container {
+/* ── Commissioned section ── */
+.commissioned-toggle {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.tag-item {
-  padding: 0.35rem 0.75rem;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  padding: 0.85rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
   background: var(--highlight);
-  border: 1px solid var(--border);
-  font-family: var(--mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  transition: border-color 0.2s, background 0.2s;
+  user-select: none;
 }
+.commissioned-toggle:hover { border-color: var(--gold); }
+.commissioned-toggle.active { border-color: var(--gold); background: rgba(232,184,75,0.06); }
+.commissioned-toggle-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex-shrink: 0; transition: background 0.2s; }
+.commissioned-toggle.active .commissioned-toggle-dot { background: var(--gold); }
+.commissioned-toggle-label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); transition: color 0.2s; }
+.commissioned-toggle.active .commissioned-toggle-label { color: var(--gold); }
+.commissioned-toggle-sub { font-family: var(--mono); font-size: 0.62rem; color: var(--muted); opacity: 0.6; margin-left: auto; }
 
-.tag-remove {
-  cursor: pointer;
-  color: var(--red);
-  font-weight: bold;
-}
+.commissioned-fields { display: none; margin-top: 1.25rem; padding: 1.25rem; border: 1px solid rgba(232,184,75,0.2); border-radius: 10px; background: rgba(232,184,75,0.03); }
+.commissioned-fields.visible { display: block; }
+.commissioned-fields .form-group { margin-bottom: 1.25rem; }
+.commissioned-fields .form-group:last-child { margin-bottom: 0; }
+.commissioned-fields label { color: var(--gold); opacity: 0.8; }
+.commissioned-fields input[type="text"]:focus,
+.commissioned-fields textarea:focus { border-color: rgba(232,184,75,0.4); box-shadow: 0 0 0 2px rgba(232,184,75,0.08); }
 
-.tag-input-wrapper {
-  display: flex;
-  gap: 0.5rem;
-}
+.success-message { position: fixed; top: 2rem; right: 2rem; padding: 1rem 2rem; background: var(--green); color: var(--bg); font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0; transform: translateY(-20px); transition: all 0.4s ease; z-index: 1000; }
+.success-message.show { opacity: 1; transform: translateY(0); }
+.error-message { position: fixed; top: 2rem; right: 2rem; padding: 1rem 2rem; background: var(--red); color: var(--bg); font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0; transform: translateY(-20px); transition: all 0.4s ease; z-index: 1000; }
+.error-message.show { opacity: 1; transform: translateY(0); }
 
-#tagInput {
-  flex: 1;
-}
-
-.access-toggle {
-  display: flex;
-  gap: 1rem;
-  margin-top: 0.5rem;
-}
-
-.toggle-option {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--border);
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  transition: all 0.3s;
-}
-
-.toggle-option:hover {
-  border-color: var(--blue);
-}
-
-.toggle-option.active {
-  border-color: var(--blue);
-  background: rgba(78, 205, 196, 0.1);
-}
-
-.success-message {
-  position: fixed;
-  top: 2rem;
-  right: 2rem;
-  padding: 1rem 2rem;
-  background: var(--green);
-  color: var(--bg);
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  opacity: 0;
-  transform: translateY(-20px);
-  transition: all 0.4s ease;
-  z-index: 1000;
-}
-
-.success-message.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.error-message {
-  position: fixed;
-  top: 2rem;
-  right: 2rem;
-  padding: 1rem 2rem;
-  background: var(--red);
-  color: var(--bg);
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  opacity: 0;
-  transform: translateY(-20px);
-  transition: all 0.4s ease;
-  z-index: 1000;
-}
-
-.error-message.show {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-@media (max-width: 768px) {
-  .container {
-    padding: 2rem 1.5rem;
-  }
-
-  header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+@media(max-width:768px) {
+  .container { padding: 2rem 1.5rem; }
+  header { flex-direction: column; align-items: flex-start; }
 }
 </style>
 </head>
-
 <body>
 
 <div class="success-message" id="successMessage">✓ Published</div>
 <div class="error-message" id="errorMessage">✗ Error</div>
 
-<!-- Login Modal -->
 <div class="modal" id="loginModal">
   <div class="modal-content">
     <h3>Log in to Archive</h3>
@@ -430,16 +163,14 @@ select:focus {
     <input type="password" id="loginPassword" placeholder="Password" />
     <button id="loginSubmit">Log In</button>
     <button class="modal-close" id="closeModal">Cancel</button>
-    <div class="error-message" id="loginError"></div>
+    <div class="modal-err" id="loginError"></div>
   </div>
 </div>
 
 <div class="container">
   <header>
     <div class="logo">Colin Archive / Write</div>
-    <div class="header-actions" id="headerActions">
-      <!-- Dynamic auth content will go here -->
-    </div>
+    <div class="header-actions" id="headerActions"></div>
   </header>
 
   <h1 id="formTitle">New Entry</h1>
@@ -452,7 +183,6 @@ select:focus {
       <input type="text" id="title" required>
     </div>
 
-    <!-- New Cover Image URL field -->
     <div class="form-group">
       <label for="cover">Cover Image URL</label>
       <input type="text" id="cover" placeholder="https://site.com/image.jpg">
@@ -472,7 +202,7 @@ select:focus {
     </div>
 
     <div class="form-group">
-      <label for="type">Type (main category)</label>
+      <label for="type">Type</label>
       <select id="type" required>
         <option value="essay">Essay</option>
         <option value="code">Code</option>
@@ -481,7 +211,7 @@ select:focus {
     </div>
 
     <div class="form-group">
-      <label for="tagInput">Tags (additional)</label>
+      <label for="tagInput">Tags</label>
       <div class="tags-container" id="tagsContainer"></div>
       <div class="tag-input-wrapper">
         <input type="text" id="tagInput" placeholder="e.g., philosophy, tutorial, update...">
@@ -503,6 +233,26 @@ select:focus {
       </div>
     </div>
 
+    <!-- ── Commissioned ── -->
+    <div class="form-group">
+      <label>Commission</label>
+      <div class="commissioned-toggle" id="commissionedToggle">
+        <span class="commissioned-toggle-dot"></span>
+        <span class="commissioned-toggle-label">This is a commissioned post</span>
+        <span class="commissioned-toggle-sub">tap to toggle</span>
+      </div>
+      <div class="commissioned-fields" id="commissionedFields">
+        <div class="form-group">
+          <label for="commissionerName">Commissioner's name</label>
+          <input type="text" id="commissionerName" placeholder="e.g. John">
+        </div>
+        <div class="form-group">
+          <label for="commissionerRequest">Their original request</label>
+          <textarea id="commissionerRequest" rows="3" placeholder="What they asked you to write..."></textarea>
+        </div>
+      </div>
+    </div>
+
     <div class="form-group">
       <button type="button" class="btn primary" id="publishBtn" onclick="publishPost()">Publish</button>
       <a href="/archive.html" class="btn">← Archive</a>
@@ -520,39 +270,37 @@ window.db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let tags = [];
 let editingId = null;
 let currentUser = null;
+let isCommissioned = false;
 
-// DOM elements for auth
 const headerActions = document.getElementById('headerActions');
-const loginModal = document.getElementById('loginModal');
-const loginEmail = document.getElementById('loginEmail');
+const loginModal    = document.getElementById('loginModal');
+const loginEmail    = document.getElementById('loginEmail');
 const loginPassword = document.getElementById('loginPassword');
-const loginSubmit = document.getElementById('loginSubmit');
-const closeModal = document.getElementById('closeModal');
-const loginError = document.getElementById('loginError');
-const publishBtn = document.getElementById('publishBtn');
+const loginSubmit   = document.getElementById('loginSubmit');
+const closeModal    = document.getElementById('closeModal');
+const loginError    = document.getElementById('loginError');
+const publishBtn    = document.getElementById('publishBtn');
 
-// ---------- Auth functions (same as archive) ----------
+// ── Commissioned toggle ──
+document.getElementById('commissionedToggle').addEventListener('click', () => {
+  isCommissioned = !isCommissioned;
+  document.getElementById('commissionedToggle').classList.toggle('active', isCommissioned);
+  document.getElementById('commissionedFields').classList.toggle('visible', isCommissioned);
+});
+
+// ── Auth ──
 function updateHeaderUI() {
-  let html = '';
   if (currentUser) {
-    html = `
+    headerActions.innerHTML = `
       <span class="user-menu">
         <span class="user-email">${escapeHtml(currentUser.email)}</span>
         <button class="logout-btn btn" id="logoutBtn">Logout</button>
-      </span>
-    `;
-  } else {
-    html = `<button class="btn" id="loginBtn">Login</button>`;
-  }
-  headerActions.innerHTML = html;
-
-  if (currentUser) {
-    document.getElementById('logoutBtn')?.addEventListener('click', logout);
+      </span>`;
+    document.getElementById('logoutBtn').addEventListener('click', logout);
     publishBtn.disabled = false;
   } else {
-    document.getElementById('loginBtn')?.addEventListener('click', () => {
-      loginModal.classList.add('active');
-    });
+    headerActions.innerHTML = `<button class="btn" id="loginBtn">Login</button>`;
+    document.getElementById('loginBtn').addEventListener('click', () => loginModal.classList.add('active'));
     publishBtn.disabled = true;
   }
 }
@@ -562,54 +310,31 @@ async function logout() {
   currentUser = null;
   updateHeaderUI();
   publishBtn.disabled = true;
-  // Optionally redirect to archive
-  // location.href = '/archive.html';
 }
 
 async function checkSession() {
   const { data: { session } } = await window.db.auth.getSession();
-  if (session?.user) {
-    currentUser = session.user;
-  }
+  if (session?.user) currentUser = session.user;
   updateHeaderUI();
 }
 
 loginSubmit.addEventListener('click', async () => {
-  const email = loginEmail.value.trim();
-  const password = loginPassword.value.trim();
-  if (!email || !password) {
-    loginError.textContent = 'Email and password required';
-    return;
-  }
+  const email = loginEmail.value.trim(), password = loginPassword.value.trim();
+  if (!email || !password) { loginError.textContent = 'Email and password required'; return; }
   const { data, error } = await window.db.auth.signInWithPassword({ email, password });
-  if (error) {
-    loginError.textContent = error.message;
-  } else {
-    currentUser = data.user;
-    loginModal.classList.remove('active');
-    loginEmail.value = '';
-    loginPassword.value = '';
-    loginError.textContent = '';
-    updateHeaderUI();
-  }
-});
-
-closeModal.addEventListener('click', () => {
+  if (error) { loginError.textContent = error.message; return; }
+  currentUser = data.user;
   loginModal.classList.remove('active');
-  loginError.textContent = '';
+  loginEmail.value = ''; loginPassword.value = ''; loginError.textContent = '';
+  updateHeaderUI();
 });
 
-loginModal.addEventListener('click', (e) => {
-  if (e.target === loginModal) {
-    loginModal.classList.remove('active');
-    loginError.textContent = '';
-  }
-});
+closeModal.addEventListener('click', () => { loginModal.classList.remove('active'); loginError.textContent = ''; });
+loginModal.addEventListener('click', e => { if(e.target===loginModal){ loginModal.classList.remove('active'); loginError.textContent=''; } });
 
-// ---------- Existing write page functionality ----------
+// ── Edit mode ──
 const urlParams = new URLSearchParams(window.location.search);
 editingId = urlParams.get('id');
-
 if (editingId) {
   document.getElementById('formTitle').textContent = 'Edit Entry';
   document.getElementById('publishBtn').textContent = 'Update';
@@ -618,10 +343,7 @@ if (editingId) {
 
 async function loadPostForEditing(id) {
   const { data, error } = await window.db.from('posts').select('*').eq('id', id).single();
-  if (error || !data) {
-    showMessage('error', 'Post not found');
-    return;
-  }
+  if (error || !data) { showMessage('error', 'Post not found'); return; }
 
   document.getElementById('postId').value = data.id;
   document.getElementById('title').value = data.title || '';
@@ -634,10 +356,15 @@ async function loadPostForEditing(id) {
     document.getElementById('paidOption').classList.add('active');
     document.getElementById('freeOption').classList.remove('active');
     document.querySelector('input[name="access"][value="paid"]').checked = true;
-  } else {
-    document.getElementById('freeOption').classList.add('active');
-    document.getElementById('paidOption').classList.remove('active');
-    document.querySelector('input[name="access"][value="free"]').checked = true;
+  }
+
+  // Load commissioned fields
+  if (data.commissioned) {
+    isCommissioned = true;
+    document.getElementById('commissionedToggle').classList.add('active');
+    document.getElementById('commissionedFields').classList.add('visible');
+    document.getElementById('commissionerName').value = data.commissioner_name || '';
+    document.getElementById('commissionerRequest').value = data.commissioner_request || '';
   }
 
   tags = (data.tags || "").split(",").map(t => t.trim()).filter(Boolean);
@@ -645,43 +372,26 @@ async function loadPostForEditing(id) {
   contentTextarea.dispatchEvent(new Event('input'));
 }
 
+// ── Content ──
 const contentTextarea = document.getElementById('content');
 contentTextarea.addEventListener('input', () => {
-  const text = contentTextarea.value;
-  const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
-  const readTime = Math.max(1, Math.ceil(words / 200));
+  const words = contentTextarea.value.trim().split(/\s+/).filter(w=>w.length>0).length;
+  const readTime = Math.max(1, Math.ceil(words/200));
   document.getElementById('wordCount').textContent = `${words} words`;
   document.getElementById('readTime').textContent = `${readTime} min read`;
 });
 
-document.getElementById('tagInput').addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    addTag();
-  }
-});
+document.getElementById('tagInput').addEventListener('keypress', e => { if(e.key==='Enter'){ e.preventDefault(); addTag(); } });
 
 function addTag() {
   const input = document.getElementById('tagInput');
   const tag = input.value.trim();
-  if (tag && !tags.includes(tag)) {
-    tags.push(tag);
-    renderTags();
-    input.value = '';
-  }
+  if (tag && !tags.includes(tag)) { tags.push(tag); renderTags(); input.value = ''; }
 }
-
-function removeTag(tag) {
-  tags = tags.filter(t => t !== tag);
-  renderTags();
-}
-
+function removeTag(tag) { tags = tags.filter(t=>t!==tag); renderTags(); }
 function renderTags() {
   document.getElementById('tagsContainer').innerHTML = tags.map(tag => `
-    <div class="tag-item">
-      <span>${escapeHtml(tag)}</span>
-      <span class="tag-remove" onclick="removeTag('${tag}')">×</span>
-    </div>
+    <div class="tag-item"><span>${escapeHtml(tag)}</span><span class="tag-remove" onclick="removeTag('${tag}')">×</span></div>
   `).join('');
 }
 
@@ -690,7 +400,6 @@ document.getElementById('freeOption').addEventListener('click', () => {
   document.getElementById('paidOption').classList.remove('active');
   document.querySelector('input[name="access"][value="free"]').checked = true;
 });
-
 document.getElementById('paidOption').addEventListener('click', () => {
   document.getElementById('paidOption').classList.add('active');
   document.getElementById('freeOption').classList.remove('active');
@@ -698,68 +407,54 @@ document.getElementById('paidOption').addEventListener('click', () => {
 });
 
 function showMessage(type, text) {
-  const el = document.getElementById(type === 'success' ? 'successMessage' : 'errorMessage');
-  el.textContent = type === 'success' ? `✓ ${text}` : `✗ ${text}`;
+  const el = document.getElementById(type==='success'?'successMessage':'errorMessage');
+  el.textContent = type==='success'?`✓ ${text}`:`✗ ${text}`;
   el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 3000);
+  setTimeout(()=>el.classList.remove('show'), 3000);
 }
 
 async function publishPost() {
-  if (!currentUser) {
-    showMessage('error', 'You must be logged in to publish');
-    loginModal.classList.add('active');
-    return;
-  }
+  if (!currentUser) { showMessage('error', 'You must be logged in'); loginModal.classList.add('active'); return; }
 
   const id = document.getElementById('postId').value;
-  const title = document.getElementById('title').value.trim();       // safe to trim
-  const cover = document.getElementById('cover').value.trim();       // safe to trim
-  const rawExcerpt = document.getElementById('excerpt').value;       // keep raw
-  const rawContent = document.getElementById('content').value;       // keep raw
+  const title = document.getElementById('title').value.trim();
+  const cover = document.getElementById('cover').value.trim();
+  const rawExcerpt = document.getElementById('excerpt').value;
+  const rawContent = document.getElementById('content').value;
   const type = document.getElementById('type').value;
   const access = document.querySelector('input[name="access"]:checked').value;
+  const commissionerName = document.getElementById('commissionerName').value.trim();
+  const commissionerRequest = document.getElementById('commissionerRequest').value.trim();
 
-  // Validate using trimmed versions
-  if (!title) {
-    showMessage('error', 'Title required');
-    return;
-  }
-  if (!rawContent.trim()) {
-    showMessage('error', 'Content required');
-    return;
-  }
+  if (!title) { showMessage('error', 'Title required'); return; }
+  if (!rawContent.trim()) { showMessage('error', 'Content required'); return; }
 
   const originalText = publishBtn.textContent;
   publishBtn.disabled = true;
   publishBtn.textContent = id ? 'Updating...' : 'Publishing...';
 
-  // Word count uses trimmed content for splitting, but we save the raw version
-  const words = rawContent.trim().split(/\s+/).filter(w => w.length > 0).length;
-  const readtime = Math.max(1, Math.ceil(words / 200));
+  const words = rawContent.trim().split(/\s+/).filter(w=>w.length>0).length;
+  const readtime = Math.max(1, Math.ceil(words/200));
+
+  const payload = {
+    title,
+    cover_url: cover,
+    excerpt: rawExcerpt,
+    content: rawContent,
+    type,
+    tags: tags.join(", "),
+    access,
+    readtime,
+    commissioned: isCommissioned,
+    commissioner_name: isCommissioned ? commissionerName || null : null,
+    commissioner_request: isCommissioned ? commissionerRequest || null : null,
+  };
 
   let error;
   if (id) {
-    ({ error } = await window.db.from('posts').update({
-      title,
-      cover_url: cover,
-      excerpt: rawExcerpt,         // preserve leading/trailing spaces
-      content: rawContent,         // preserve leading/trailing spaces
-      type,
-      tags: tags.join(", "),
-      access,
-      readtime
-    }).eq('id', id));
+    ({ error } = await window.db.from('posts').update(payload).eq('id', id));
   } else {
-    ({ error } = await window.db.from('posts').insert([{
-      title,
-      cover_url: cover,
-      excerpt: rawExcerpt,
-      content: rawContent,
-      type,
-      tags: tags.join(", "),
-      access,
-      readtime
-    }]));
+    ({ error } = await window.db.from('posts').insert([payload]));
   }
 
   if (error) {
@@ -771,24 +466,15 @@ async function publishPost() {
   }
 
   showMessage('success', id ? 'Updated' : 'Published');
-  // Cache‑busting redirect
   setTimeout(() => location.href = '/archive.html?t=' + Date.now(), 1000);
 }
 
 function escapeHtml(unsafe) {
   if (!unsafe) return '';
-  return unsafe
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+  return unsafe.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
 }
 
-// Initialize
 checkSession();
 </script>
-
 </body>
 </html>
-
