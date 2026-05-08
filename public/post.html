@@ -832,6 +832,7 @@ function renderPost(post) {
     });
   }
   if (!isPaid) initComments(post.id);
+  trackView(post.id);
 }
 
 /* ── Comments ── */
@@ -923,8 +924,10 @@ function initComments(postId) {
 
 /* ── Load post ── */
 async function loadPost() {
-  const id = new URLSearchParams(location.search).get('id');
-  if (!id) {
+  // Support /p/slug URLs and legacy ?id= URLs
+  const pathSlug = location.pathname.startsWith('/p/') ? location.pathname.split('/p/')[1].replace(/\/+$/,'') : null;
+  const idParam  = new URLSearchParams(location.search).get('id');
+  if (!pathSlug && !idParam) {
     $('postContainer').innerHTML = `<div class="error-state">
       <div class="error-code">400</div>
       <h1 class="error-title">No post specified</h1>
@@ -933,7 +936,11 @@ async function loadPost() {
     </div>`;
     return;
   }
-  const { data, error } = await db.from('posts').select('*').eq('id', id).single();
+  // Query by slug (new) or UUID (legacy)
+  const query = pathSlug
+    ? db.from('posts').select('*').eq('slug', pathSlug).single()
+    : db.from('posts').select('*').eq('id', idParam).single();
+  const { data, error } = await query;
   if (error || !data) {
     $('postContainer').innerHTML = `<div class="error-state">
       <div class="error-code">404</div>
@@ -948,15 +955,15 @@ async function loadPost() {
 
 loadPost();
 
-/* ── View tracking ── */
-const _pid = new URLSearchParams(location.search).get('id');
-if (_pid) {
-  const vk = 'viewed_' + _pid;
+/* ── View tracking — called after post loads with real UUID ── */
+function trackView(postId) {
+  if (!postId) return;
+  const vk = 'viewed_' + postId;
   if (!localStorage.getItem(vk)) {
     localStorage.setItem(vk, '1');
-    db.rpc('increment_post_views', { post_id: _pid }).catch(() => {});
+    db.rpc('increment_post_views', { post_id: postId }).catch(() => {});
     const ref = localStorage.getItem('ref');
-    if (ref) db.from('referral_visits').insert({ ref, page: 'post:' + _pid }).catch(() => {});
+    if (ref) db.from('referral_visits').insert({ ref, page: 'post:' + postId }).catch(() => {});
   }
 }
 </script>
