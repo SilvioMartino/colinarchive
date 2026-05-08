@@ -634,8 +634,14 @@ const esc = s => String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 (function() {
   const bar = $('progressBar');
   window.addEventListener('scroll', () => {
-    const h = document.documentElement.scrollHeight - window.innerHeight;
-    bar.style.width = (h > 0 ? (window.scrollY / h * 100) : 0) + '%';
+    const content = $('postContainer');
+    if (!content) return;
+    const contentTop    = window.scrollY + content.getBoundingClientRect().top;
+    const contentBottom = contentTop + content.offsetHeight;
+    const start  = contentTop - window.innerHeight;
+    const total  = contentBottom - window.innerHeight - start;
+    const pct    = total > 0 ? Math.min((window.scrollY - start) / total * 100, 100) : 0;
+    bar.style.width = Math.max(0, pct) + '%';
   }, { passive: true });
 })();
 
