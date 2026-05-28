@@ -19,8 +19,8 @@
 html { color-scheme: dark; }
 body {
   background: var(--bg); color: var(--fg);
-  font-family: var(--mono); overflow: hidden;
-  width: 100vw; height: 100dvh; cursor: crosshair;
+  font-family: var(--mono); overflow-y: auto; overflow-x: hidden;
+  width: 100vw; min-height: 100dvh; cursor: crosshair;
   transform: translateX(100%);
   transition: transform 0.72s cubic-bezier(.77,0,.18,1);
 }
@@ -65,13 +65,8 @@ body::before {
 }
 #back:hover { border-color: var(--sc); color: var(--sc); }
 #scroll-wrap {
-  position: fixed; inset: 0; overflow-y: scroll;
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-  scrollbar-width: none;
-  overscroll-behavior: contain;
+  width: 100%;
 }
-#scroll-wrap::-webkit-scrollbar { display: none; }
 #progress {
   position: fixed; left: 0; top: 0; bottom: 0; width: 2px;
   z-index: 600; background: rgba(255,255,255,0.04); pointer-events: none;
@@ -693,11 +688,11 @@ SECTIONS.forEach(s => { const el = document.getElementById(s.id); if (el) io.obs
 document.getElementById('s-colin').classList.add('visible');
 setColor('#888888');
 wrap.addEventListener('scroll', () => {
-  const p  = wrap.scrollTop / (wrap.scrollHeight - wrap.clientHeight);
+  const p  = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
   const pN = Math.round(p * 100);
   fill.style.height = pN + '%';
   pctEl.textContent = String(pN).padStart(3, '0');
-  cue.style.opacity = wrap.scrollTop > 80 ? '0' : '1';
+  cue.style.opacity = window.scrollY > 80 ? '0' : '1';
 }, { passive: true });
 function closeAbout() {
   document.body.style.transition = 'transform 0.65s cubic-bezier(.77,0,.18,1)';
@@ -706,14 +701,14 @@ function closeAbout() {
 }
 window.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeAbout();
-  if (e.key === 'ArrowDown') wrap.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
-  if (e.key === 'ArrowUp')   wrap.scrollBy({ top: -window.innerHeight, behavior: 'smooth' });
+  if (e.key === 'ArrowDown') window.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
+  if (e.key === 'ArrowUp')   window.scrollBy({ top: -window.innerHeight, behavior: 'smooth' });
 });
 let ty0 = 0;
-wrap.addEventListener('touchstart', e => { ty0 = e.touches[0].clientY; }, { passive: true });
-wrap.addEventListener('touchend', e => {
+window.addEventListener('touchstart', e => { ty0 = e.touches[0].clientY; }, { passive: true });
+window.addEventListener('touchend', e => {
   const dy = ty0 - e.changedTouches[0].clientY;
-  if (Math.abs(dy) > 60) wrap.scrollBy({ top: dy > 0 ? window.innerHeight : -window.innerHeight, behavior: 'smooth' });
+  if (Math.abs(dy) > 60) window.scrollBy({ top: dy > 0 ? window.innerHeight : -window.innerHeight, behavior: 'smooth' });
 }, { passive: true });
 </script>
 </body>
