@@ -684,11 +684,11 @@ const io = new IntersectionObserver(entries => {
     const meta = SECTIONS.find(s => s.id === e.target.id);
     if (meta) { setColor(meta.color); slabel.textContent = meta.label; }
   });
-}, { threshold: 0.3 });
+}, { threshold: 0.15 });
 SECTIONS.forEach(s => { const el = document.getElementById(s.id); if (el) io.observe(el); });
 document.getElementById('s-colin').classList.add('visible');
 setColor('#888888');
-wrap.addEventListener('scroll', () => {
+window.addEventListener('scroll', () => {
   const p  = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
   const pN = Math.round(p * 100);
   fill.style.height = pN + '%';
