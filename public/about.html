@@ -665,6 +665,12 @@ window.addEventListener('pageshow', e => {
 
 requestAnimationFrame(() => document.body.classList.add('entered'));
 
+// Push a history entry so the first back press doesn't leave the page
+history.pushState({ page: 'about' }, '', window.location.href);
+window.addEventListener('popstate', () => {
+  closeAbout();
+});
+
 function toggleColin() {
   const expanded = document.getElementById('colin-expanded');
   const arrow    = document.getElementById('colin-arrow');
