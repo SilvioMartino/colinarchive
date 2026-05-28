@@ -64,9 +64,7 @@ body::before {
   transition: border-color 0.25s, color 0.25s;
 }
 #back:hover { border-color: var(--sc); color: var(--sc); }
-#scroll-wrap {
-  width: 100%;
-}
+#scroll-wrap { width: 100%; }
 #progress {
   position: fixed; left: 0; top: 0; bottom: 0; width: 2px;
   z-index: 600; background: rgba(255,255,255,0.04); pointer-events: none;
@@ -223,8 +221,6 @@ body::before {
   animation: nameIn 0.9s 0.4s cubic-bezier(.22,1,.36,1) forwards;
 }
 .name-giant span { color: var(--fg); -webkit-text-stroke: 0; }
-
-/* bio — short line + read more */
 .name-bio {
   max-width: 52ch; text-align: center;
   display: flex; flex-direction: column; align-items: center; gap: 1rem;
@@ -258,8 +254,7 @@ body::before {
   display: flex; flex-direction: column; gap: 1.2rem;
   max-height: 0; overflow: hidden; opacity: 0; margin-top: 0;
   transition: max-height 0.7s cubic-bezier(.22,1,.36,1),
-              opacity 0.5s ease 0.08s,
-              margin-top 0.4s ease;
+              opacity 0.5s ease 0.08s, margin-top 0.4s ease;
 }
 .name-bio-expanded.open { max-height: 700px; opacity: 1; margin-top: 0.8rem; }
 .name-bio-expanded p {
@@ -269,7 +264,6 @@ body::before {
 }
 .name-bio-expanded p strong { color: var(--fg); font-style: normal; }
 .name-bio-expanded p em { color: #888; font-style: italic; }
-
 .name-tags {
   display: flex; gap: 0.6rem; flex-wrap: wrap;
   justify-content: center; margin-top: 1.8rem;
@@ -289,10 +283,7 @@ body::before {
 }
 
 /* big email */
-.contact-email {
-  margin-top: clamp(1rem,2vh,1.8rem);
-  text-align: center;
-}
+.contact-email { margin-top: clamp(1rem,2vh,1.8rem); text-align: center; }
 .contact-email-link {
   font-family: var(--mono); font-weight: 800;
   font-size: clamp(1rem,2.8vw,2.2rem);
@@ -340,13 +331,13 @@ body::before {
 .goal-count {
   font-family: var(--mono); font-weight: 800;
   font-size: clamp(0.9rem,1.8vw,1.2rem);
-  color: var(--sc); letter-spacing: -0.01em;
-  transition: color 0.55s;
+  color: var(--sc); letter-spacing: -0.01em; transition: color 0.55s;
 }
 .goal-pct {
   font-family: var(--mono); font-size: 0.4rem; letter-spacing: 0.18em;
   text-transform: uppercase; color: rgba(255,255,255,0.2);
 }
+
 #s-archive    { --sc: #888888; }
 #s-rooms      { --sc: #9b8fff; }
 #s-commission { --sc: #d4a84b; }
@@ -438,10 +429,8 @@ body::before {
   #back  { font-size: 0.42rem; }
   .body, .name-bio, .quote { padding: 0 0.3rem; }
   .code-hero { white-space: pre-wrap; word-break: break-all; font-size: 0.58rem; }
-  /* mobile animation — blur fade, GPU only, no translateY */
   .rev {
-    opacity: 0 !important;
-    filter: blur(6px) !important;
+    opacity: 0 !important; filter: blur(6px) !important;
     transform: none !important;
     transition: opacity 0.55s ease, filter 0.55s ease !important;
   }
@@ -642,7 +631,6 @@ body::before {
 </div>
 
 <script>
-// visitor goal counter
 const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
 const GOAL = 10000;
@@ -665,6 +653,16 @@ async function loadVisitorCount() {
   }
 }
 loadVisitorCount();
+
+// Fix back button black screen — browser restores from cache with transform still applied
+window.addEventListener('pageshow', e => {
+  if (e.persisted) {
+    document.body.style.transition = 'none';
+    document.body.style.transform  = 'translateX(0)';
+    document.body.classList.add('entered');
+  }
+});
+
 requestAnimationFrame(() => document.body.classList.add('entered'));
 
 function toggleColin() {
@@ -676,7 +674,6 @@ function toggleColin() {
   btn.childNodes[0].textContent = open ? 'read less ' : 'read more ';
 }
 
-const wrap   = document.getElementById('scroll-wrap');
 const fill   = document.getElementById('progress-fill');
 const pctEl  = document.getElementById('hud-pct');
 const cue    = document.getElementById('scroll-cue');
