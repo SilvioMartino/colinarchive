@@ -65,7 +65,7 @@
   #scroll_container { position: relative; z-index: 10; }
   section {
     min-height: 100vh; display: flex; align-items: center;
-    padding: 6rem calc(5rem + var(--ui)) 6rem 5rem;
+    padding: 6rem calc(5rem + var(--ui)) 8rem 5rem;
   }
 }
 
@@ -190,16 +190,17 @@
 
   #about-trigger {
     position: fixed; bottom: var(--ui); right: var(--ui);
-    z-index: 15; cursor: pointer; text-align: right;
+    z-index: 200; cursor: pointer; text-align: right;
     border: none; background: none; padding: 0; line-height: 1.25;
+    transition: opacity 0.3s ease;
   }
   #about-trigger span {
     display: block; font-family: var(--serif); font-style: italic;
-    font-weight: 400; color: rgba(232,232,232,0.18); transition: color 0.4s;
+    font-weight: 400; color: rgba(232,232,232,0.35); transition: color 0.4s;
   }
   #about-trigger span:first-child { font-size: clamp(1.1rem, 2.2vw, 1.7rem); }
   #about-trigger span:last-child  { font-size: clamp(0.85rem, 1.6vw, 1.25rem); }
-  #about-trigger:hover span { color: rgba(232,232,232,0.55); }
+  #about-trigger:hover span { color: rgba(232,232,232,0.7); }
 
   #scroll-hint {
     position: fixed; top: 5rem; left: 50%; translate: -50% 0;
@@ -217,9 +218,7 @@
   @media (max-width: 56.25em) {
     #scroll-hint { top: 4.5rem; }
     #scroll-hint-text { font-size: 1.1rem; }
-    #about-trigger { bottom: 1.25rem; right: 1.25rem; }
-    #about-trigger span:first-child { font-size: 1rem; }
-    #about-trigger span:last-child  { font-size: 0.8rem; }
+    #about-trigger { display: none; }
   }
 }
 
