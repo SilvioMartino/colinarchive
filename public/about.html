@@ -66,7 +66,10 @@ body::before {
 #back:hover { border-color: var(--sc); color: var(--sc); }
 #scroll-wrap {
   position: fixed; inset: 0; overflow-y: scroll;
-  -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
 }
 #scroll-wrap::-webkit-scrollbar { display: none; }
 #progress {
