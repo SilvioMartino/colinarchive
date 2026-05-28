@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>About — Colin Archive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:    #030303;
+  --fg:    #e0e0e0;
+  --muted: rgba(224,224,224,0.42);
+  --mono:  'JetBrains Mono', monospace;
+  --serif: 'Crimson Text', Georgia, serif;
+  --sc:    #888888;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { color-scheme: dark; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--mono); overflow: hidden;
+  width: 100vw; height: 100dvh; cursor: crosshair;
+  transform: translateX(100%);
+  transition: transform 0.72s cubic-bezier(.77,0,.18,1);
+}
+body.entered { transform: translateX(0); }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 9000; pointer-events: none;
+  background: repeating-linear-gradient(0deg, transparent 0, transparent 2px, rgba(0,0,0,0.16) 2px, rgba(0,0,0,0.16) 4px);
+}
+.vignette {
+  position: fixed; inset: 0; pointer-events: none; z-index: 8999;
+  background: radial-gradient(ellipse at center, transparent 32%, rgba(0,0,0,0.9) 100%);
+}
+.noise {
+  position: fixed; inset: 0; pointer-events: none; z-index: 8998; opacity: 0.045;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.hud {
+  position: fixed; z-index: 500; pointer-events: none;
+  font-family: var(--mono); font-size: 0.52rem;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: rgba(255,255,255,0.22);
+}
+.hud-tl { top: 1.5rem; left: 1.8rem; }
+.hud-tr { top: 1.5rem; right: 1.8rem; text-align: right; }
+.hud-bl { bottom: 1.5rem; left: 1.8rem; }
+.hud-br { bottom: 1.5rem; right: 1.8rem; text-align: right; }
+#hud-pct { font-style: normal; transition: color 0.55s; }
+#hud-label { transition: color 0.55s; }
+.hud-vline {
+  position: fixed; left: 50%; top: 0; bottom: 0;
+  width: 1px; background: rgba(255,255,255,0.035);
+  z-index: 490; pointer-events: none;
+}
+#back {
+  position: fixed; top: 1.2rem; left: 50%; translate: -50% 0;
+  z-index: 600; background: none;
+  border: 1px solid rgba(255,255,255,0.09);
+  color: rgba(255,255,255,0.3); font-family: var(--mono);
+  font-size: 0.48rem; letter-spacing: 0.22em; text-transform: uppercase;
+  padding: 0.45rem 1.3rem; cursor: pointer;
+  transition: border-color 0.25s, color 0.25s;
+}
+#back:hover { border-color: var(--sc); color: var(--sc); }
+#scroll-wrap {
+  position: fixed; inset: 0; overflow-y: scroll;
+  -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+#scroll-wrap::-webkit-scrollbar { display: none; }
+#progress {
+  position: fixed; left: 0; top: 0; bottom: 0; width: 2px;
+  z-index: 600; background: rgba(255,255,255,0.04); pointer-events: none;
+}
+#progress-fill {
+  width: 100%; height: 0%;
+  transition: height 0.1s linear, background 0.55s ease;
+  background: var(--sc);
+}
+#scroll-cue {
+  position: fixed; bottom: 1.5rem; left: 50%; translate: -50% 0;
+  z-index: 500; pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+  opacity: 1; transition: opacity 0.5s;
+}
+#scroll-cue span {
+  font-family: var(--mono); font-size: 0.4rem; letter-spacing: 0.28em;
+  text-transform: uppercase; color: rgba(255,255,255,0.22);
+}
+.cue-track {
+  width: 18px; height: 28px; border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 999px; display: flex; justify-content: center; padding-top: 5px;
+}
+.cue-thumb {
+  width: 3px; height: 6px; border-radius: 999px;
+  background: var(--sc); transition: background 0.55s;
+  animation: thumbDrop 1.9s ease-in-out infinite;
+}
+@keyframes thumbDrop {
+  0%   { transform: translateY(0); opacity: 1; }
+  72%  { transform: translateY(9px); opacity: 0.1; }
+  73%  { transform: translateY(0); opacity: 0; }
+  100% { opacity: 1; }
+}
+.section {
+  min-height: 100dvh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: clamp(5.5rem,10vh,8rem) clamp(1.5rem,6vw,4rem);
+  position: relative; overflow: hidden;
+}
+.section::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background: radial-gradient(ellipse at 50% 50%, var(--sc) 0%, transparent 60%);
+  opacity: 0; transition: opacity 1s ease;
+}
+.section.visible::after { opacity: 0.035; }
+.sdiv {
+  position: absolute; bottom: 0; left: 5%; right: 5%;
+  height: 1px; background: rgba(255,255,255,0.045); z-index: 1;
+}
+.rev {
+  opacity: 0; transform: translateY(22px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+  position: relative; z-index: 2;
+}
+.section.visible .rev              { opacity: 1; transform: none; }
+.section.visible .rev:nth-child(2) { transition-delay: 0.07s; }
+.section.visible .rev:nth-child(3) { transition-delay: 0.16s; }
+.section.visible .rev:nth-child(4) { transition-delay: 0.25s; }
+.section.visible .rev:nth-child(5) { transition-delay: 0.34s; }
+.section.visible .rev:nth-child(6) { transition-delay: 0.42s; }
+.section.visible .rev:nth-child(7) { transition-delay: 0.50s; }
+.section.visible .rev:nth-child(8) { transition-delay: 0.57s; }
+.eyebrow {
+  font-family: var(--mono); font-size: 0.48rem; letter-spacing: 0.38em;
+  text-transform: uppercase; color: var(--sc); opacity: 0.75;
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: clamp(1rem,2.2vh,1.8rem);
+}
+.eyebrow::before, .eyebrow::after {
+  content: ''; height: 1px; width: 32px;
+  background: var(--sc); opacity: 0.35; flex-shrink: 0;
+}
+.g-title {
+  font-family: var(--mono); font-weight: 800;
+  font-size: clamp(12vw, 17vw, 13.5rem);
+  line-height: 0.84; letter-spacing: -0.04em;
+  color: transparent; -webkit-text-stroke: 1px var(--sc);
+  text-transform: uppercase; text-align: center;
+  opacity: 0.62; margin-bottom: clamp(1.2rem,2.5vh,2.2rem);
+}
+.rule {
+  width: 32px; height: 1px;
+  background: var(--sc); opacity: 0.38; margin: 0 auto;
+}
+.body {
+  max-width: 52ch; text-align: center;
+  display: flex; flex-direction: column; gap: 1.3rem;
+  margin-top: clamp(1rem,2vh,1.8rem);
+}
+.body p {
+  font-family: var(--serif); font-style: italic;
+  font-size: clamp(0.95rem,1.65vw,1.1rem); line-height: 1.92;
+  color: var(--muted);
+}
+.body p strong { color: var(--fg); font-style: normal; }
+.body p em { color: var(--sc); font-style: italic; }
+.s-cta {
+  display: inline-flex; align-items: center; gap: 0.6rem;
+  font-family: var(--mono); font-size: 0.5rem; letter-spacing: 0.22em;
+  text-transform: uppercase; color: rgba(255,255,255,0.35);
+  text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.12);
+  padding-bottom: 0.28rem; margin-top: 0.5rem;
+  transition: color 0.2s, border-color 0.2s;
+}
+.s-cta:hover { color: var(--sc); border-color: var(--sc); }
+.s-cta svg { width: 9px; height: 9px; }
+.stats {
+  display: flex; gap: 0; margin-top: clamp(1rem,2vh,1.8rem);
+  border: 1px solid rgba(255,255,255,0.07);
+}
+.stat {
+  padding: 1rem 1.6rem; flex: 1;
+  border-right: 1px solid rgba(255,255,255,0.07); text-align: center;
+}
+.stat:last-child { border-right: none; }
+.stat-val {
+  font-family: var(--mono); font-weight: 800;
+  font-size: clamp(1.2rem,2.5vw,1.8rem);
+  color: var(--sc); letter-spacing: -0.02em;
+  display: block; margin-bottom: 0.3rem;
+}
+.stat-key {
+  font-family: var(--mono); font-size: 0.42rem;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+}
+.quote {
+  max-width: 44ch; text-align: center;
+  border-left: 1px solid var(--sc); border-right: 1px solid var(--sc);
+  padding: 1.2rem 1.8rem; margin: clamp(0.8rem,1.5vh,1.5rem) auto 0; opacity: 0.6;
+}
+.quote p {
+  font-family: var(--serif); font-style: italic;
+  font-size: clamp(1rem,1.7vw,1.15rem); line-height: 1.8; color: var(--muted);
+}
+
+/* ═══ 1. COLIN ═══ */
+#s-colin { --sc: #888888; overflow: hidden; }
+#s-colin .rev { opacity: 1; transform: none; transition: none; }
+.name-pre {
+  font-family: var(--mono); font-size: 0.52rem; letter-spacing: 0.42em;
+  text-transform: uppercase; color: #888; margin-bottom: 2.2rem;
+  opacity: 0; animation: fadeUp 0.5s 0.25s ease forwards;
+}
+.name-giant {
+  font-family: var(--mono); font-weight: 800;
+  font-size: clamp(15vw, 22vw, 18rem);
+  line-height: 0.82; letter-spacing: -0.04em;
+  color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.68);
+  text-transform: uppercase; text-align: center;
+  opacity: 0; transform: translateY(36px) scale(0.97);
+  animation: nameIn 0.9s 0.4s cubic-bezier(.22,1,.36,1) forwards;
+}
+.name-giant span { color: var(--fg); -webkit-text-stroke: 0; }
+
+/* bio — short line + read more */
+.name-bio {
+  max-width: 52ch; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 1rem;
+  margin-top: 2rem;
+  opacity: 0; animation: fadeUp 0.6s 0.92s ease forwards;
+}
+.name-bio-short {
+  font-family: var(--serif); font-weight: 600;
+  font-size: clamp(1.05rem,1.9vw,1.25rem); line-height: 1.75;
+  color: var(--fg); font-style: normal; letter-spacing: 0.01em;
+}
+.read-more-btn {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.2);
+  cursor: pointer;
+  font-family: var(--mono); font-size: 0.52rem; letter-spacing: 0.2em;
+  text-transform: uppercase; color: rgba(255,255,255,0.55);
+  padding: 0.5rem 1.3rem; margin-top: 0.2rem;
+  transition: color 0.22s, border-color 0.22s, background 0.22s;
+  display: inline-flex; align-items: center; gap: 0.55rem;
+}
+.read-more-btn:hover {
+  color: #fff; border-color: rgba(255,255,255,0.45);
+  background: rgba(255,255,255,0.04);
+}
+#colin-arrow {
+  display: inline-block; font-size: 0.65rem;
+  transition: transform 0.45s cubic-bezier(.22,1,.36,1);
+}
+.name-bio-expanded {
+  display: flex; flex-direction: column; gap: 1.2rem;
+  max-height: 0; overflow: hidden; opacity: 0; margin-top: 0;
+  transition: max-height 0.7s cubic-bezier(.22,1,.36,1),
+              opacity 0.5s ease 0.08s,
+              margin-top 0.4s ease;
+}
+.name-bio-expanded.open { max-height: 700px; opacity: 1; margin-top: 0.8rem; }
+.name-bio-expanded p {
+  font-family: var(--serif); font-style: italic;
+  font-size: clamp(0.95rem,1.65vw,1.05rem); line-height: 1.92;
+  color: var(--muted); text-align: center;
+}
+.name-bio-expanded p strong { color: var(--fg); font-style: normal; }
+.name-bio-expanded p em { color: #888; font-style: italic; }
+
+.name-tags {
+  display: flex; gap: 0.6rem; flex-wrap: wrap;
+  justify-content: center; margin-top: 1.8rem;
+  opacity: 0; animation: fadeUp 0.5s 1.2s ease forwards;
+}
+.name-tag {
+  font-family: var(--mono); font-size: 0.42rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: rgba(255,255,255,0.28);
+  border: 1px solid rgba(255,255,255,0.1); padding: 0.3rem 0.75rem;
+  transition: border-color 0.2s, color 0.2s;
+}
+.name-tag:hover { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.6); }
+@keyframes nameIn { to { opacity: 1; transform: none; } }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* big email */
+.contact-email {
+  margin-top: clamp(1rem,2vh,1.8rem);
+  text-align: center;
+}
+.contact-email-link {
+  font-family: var(--mono); font-weight: 800;
+  font-size: clamp(1rem,2.8vw,2.2rem);
+  letter-spacing: -0.02em; color: var(--sc);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,107,107,0.25);
+  padding-bottom: 0.2rem;
+  transition: color 0.2s, border-color 0.2s, opacity 0.2s;
+  opacity: 0.75;
+}
+.contact-email-link:hover { opacity: 1; border-color: var(--sc); }
+
+/* goal bar */
+.goal-track {
+  width: min(420px,90vw);
+  border: 1px solid rgba(255,255,255,0.07);
+  padding: 1.1rem 1.4rem;
+  margin-top: clamp(1rem,2vh,1.8rem);
+}
+.goal-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 0.7rem;
+}
+.goal-label {
+  font-family: var(--mono); font-size: 0.42rem; letter-spacing: 0.22em;
+  text-transform: uppercase; color: rgba(255,255,255,0.25);
+}
+.goal-target {
+  font-family: var(--mono); font-size: 0.4rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: rgba(255,255,255,0.18);
+}
+.goal-bar-wrap {
+  width: 100%; height: 1px;
+  background: rgba(255,255,255,0.08); position: relative;
+}
+.goal-bar-fill {
+  position: absolute; top: 0; left: 0; height: 100%;
+  background: var(--sc); width: 0%;
+  transition: width 1.2s cubic-bezier(.22,1,.36,1), background 0.55s;
+}
+.goal-footer {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-top: 0.6rem;
+}
+.goal-count {
+  font-family: var(--mono); font-weight: 800;
+  font-size: clamp(0.9rem,1.8vw,1.2rem);
+  color: var(--sc); letter-spacing: -0.01em;
+  transition: color 0.55s;
+}
+.goal-pct {
+  font-family: var(--mono); font-size: 0.4rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: rgba(255,255,255,0.2);
+}
+#s-archive    { --sc: #888888; }
+#s-rooms      { --sc: #9b8fff; }
+#s-commission { --sc: #d4a84b; }
+#s-contact    { --sc: #ff6b6b; }
+#s-code       { --sc: #51cf66; }
+#s-collab     { --sc: #4ecdc4; }
+
+.rooms-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  width: min(780px,92vw);
+  border: 1px solid rgba(255,255,255,0.07);
+  margin-top: clamp(1rem,2vh,1.8rem);
+}
+.room-cell {
+  padding: 1.5rem 1.4rem; position: relative; overflow: hidden;
+  border-right: 1px solid rgba(255,255,255,0.07); transition: background 0.3s;
+}
+.room-cell:last-child { border-right: none; }
+.room-cell:hover { background: rgba(255,255,255,0.025); }
+.room-cell::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: var(--rc,#9b8fff); transform: scaleX(0); transform-origin: left;
+  transition: transform 0.4s cubic-bezier(.22,1,.36,1);
+}
+.room-cell:hover::before { transform: scaleX(1); }
+.room-num {
+  font-family: var(--mono); font-size: 0.4rem; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--rc,#9b8fff); margin-bottom: 0.4rem; opacity: 0.65;
+}
+.room-name {
+  font-family: var(--mono); font-weight: 800; font-size: 0.72rem;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg); margin-bottom: 0.65rem;
+}
+.room-desc {
+  font-family: var(--serif); font-style: italic;
+  font-size: 0.85rem; line-height: 1.7; color: var(--muted);
+}
+.code-hero {
+  font-family: var(--mono); font-size: clamp(0.6rem,0.95vw,0.76rem);
+  line-height: 2; color: rgba(81,207,102,0.26); text-align: left;
+  letter-spacing: 0.04em; border-left: 1px solid rgba(81,207,102,0.1);
+  padding-left: 1.4rem; white-space: pre;
+  margin-top: clamp(0.8rem,1.5vh,1.4rem);
+}
+.code-hero .kw  { color: rgba(81,207,102,0.82); }
+.code-hero .str { color: rgba(81,207,102,0.58); }
+.code-hero .cm  { color: rgba(255,255,255,0.17); }
+.code-hero .num { color: rgba(255,210,90,0.52);  }
+.code-hero .fn  { color: rgba(120,180,255,0.55); }
+#s-collab { --sc: #4ecdc4; }
+.collab-lockup {
+  display: flex; align-items: baseline; justify-content: center;
+  margin-bottom: clamp(1rem,2vh,1.8rem);
+}
+.collab-you {
+  font-family: var(--mono); font-weight: 800;
+  font-size: clamp(9vw,13vw,10.5rem); line-height: 0.84; letter-spacing: -0.04em;
+  color: transparent; -webkit-text-stroke: 1px rgba(78,205,196,0.52); text-transform: uppercase;
+}
+.collab-plus {
+  font-family: var(--mono); font-weight: 800; font-size: clamp(3.5vw,5.5vw,4.5rem);
+  color: rgba(78,205,196,0.25); padding: 0 0.28ch; align-self: center; line-height: 1;
+}
+.collab-colin {
+  font-family: var(--mono); font-weight: 800;
+  font-size: clamp(9vw,13vw,10.5rem); line-height: 0.84; letter-spacing: -0.04em;
+  color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.14); text-transform: uppercase;
+}
+@media (max-width: 700px) {
+  .name-giant { font-size: clamp(20vw,28vw,8rem); }
+  .g-title    { font-size: clamp(14vw,20vw,6rem); word-break: break-word; }
+  .g-title.long { font-size: clamp(10vw,14vw,6rem); }
+  .rooms-grid { grid-template-columns: 1fr; }
+  .room-cell  { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .room-cell:last-child { border-bottom: none; }
+  .collab-you, .collab-colin { font-size: clamp(12vw,18vw,5rem); }
+  .collab-plus { font-size: clamp(5vw,8vw,2.5rem); }
+  .stats { flex-direction: column; }
+  .stat  { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .stat:last-child { border-bottom: none; }
+  .hud-bl, .hud-br { display: none; }
+  #back  { font-size: 0.42rem; }
+  .body, .name-bio, .quote { padding: 0 0.3rem; }
+  .code-hero { white-space: pre-wrap; word-break: break-all; font-size: 0.58rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="vignette"></div>
+<div class="noise"></div>
+<div class="hud hud-tl">Colin Archive</div>
+<div class="hud hud-tr"><em id="hud-pct">000</em>%</div>
+<div class="hud hud-bl">About</div>
+<div class="hud hud-br" id="hud-label">00 — Colin</div>
+<div class="hud-vline"></div>
+<div id="progress"><div id="progress-fill"></div></div>
+<button id="back" onclick="closeAbout()">← index</button>
+<div id="scroll-cue">
+  <span>scroll</span>
+  <div class="cue-track"><div class="cue-thumb" id="cue-thumb"></div></div>
+</div>
+
+<div id="scroll-wrap">
+
+<!-- ═══ 1. COLIN ═══ -->
+<section class="section" id="s-colin">
+  <div class="rev name-pre">00 — Colin</div>
+  <div class="rev name-giant"><span>Colin</span></div>
+  <div class="rev name-bio">
+    <p class="name-bio-short">Built this from nothing. I write because I have thoughts that don't fit anywhere else and build because nowhere else feels right either.</p>
+    <button class="read-more-btn" id="colin-toggle" onclick="toggleColin()">read more <span id="colin-arrow">↓</span></button>
+    <div class="name-bio-expanded" id="colin-expanded">
+      <p>There is no going back to 2016 or 2006, but I dream of that world every time I see it back in a movie. There were times when you'd throw your phone into the trash instead of blocking someone and just go on with your day knowing you don't just not need that person, <strong>you don't need anything except yourself.</strong></p>
+      <p>I made this place to commemorate those times — a public journal, blog, and GitHub where I don't care about anybody else's opinion and just share what I think on any subject. It can get unhinged, uncomfortable, unethical. It doesn't matter. <em>Anyone who complains can make their own blog and post their hate there.</em> Otherwise, you're a reader, not a critic.</p>
+    </div>
+  </div>
+  <div class="rev name-tags">
+    <span class="name-tag">Bucharest, RO</span>
+    <span class="name-tag">Builder</span>
+    <span class="name-tag">Writer</span>
+    <span class="name-tag">Mad Scientist</span>
+    <span class="name-tag">Handsome</span>
+  </div>
+  <div class="sdiv"></div>
+</section>
+
+<!-- ═══ 2. ARCHIVE ═══ -->
+<section class="section" id="s-archive">
+  <div class="rev eyebrow">01 — Archive</div>
+  <div class="rev g-title">Archive</div>
+  <div class="rev rule"></div>
+  <div class="rev body">
+    <p>A personal publishing platform, built entirely from <em>a vision that is still far to be achieved</em>. Everything I write is meant to feel like it came from a person — not a product.</p>
+    <p>Essays are my thoughts in detail. Notes are my daily frustrations and ideas combined with shower thoughts. <strong>Code is my thoughts and ideas in technical form</strong> — or solutions to my problems.</p>
+    <p>Everything here gets updated. Revisiting a post might mean finding new material. The archive is alive in the same way a notebook is alive. It grows, it changes, it occasionally contradicts itself. <em>That's by design, unwanted design, but it is beautiful in a unique way.</em></p>
+    <p>It was started months ago with the belief that even a single idea here could matter to the right person. <strong>That belief has not changed.</strong></p>
+  </div>
+  <div class="rev" id="archive-goal">
+    <div class="goal-track">
+      <div class="goal-header">
+        <span class="goal-label">visitors</span>
+        <span class="goal-target">goal: 10,000</span>
+      </div>
+      <div class="goal-bar-wrap">
+        <div class="goal-bar-fill" id="goal-fill"></div>
+      </div>
+      <div class="goal-footer">
+        <span class="goal-count"><span id="goal-current">—</span> / 10,000</span>
+        <span class="goal-pct" id="goal-pct">—%</span>
+      </div>
+    </div>
+  </div>
+  <div class="rev" style="margin-top:1.4rem">
+    <a href="/home.html" class="s-cta">Browse the archive <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 5h8M5.5 1.5l4 3.5-4 3.5"/></svg></a>
+  </div>
+  <div class="sdiv"></div>
+</section>
+
+<!-- ═══ 3. ROOMS ═══ -->
+<section class="section" id="s-rooms">
+  <div class="rev eyebrow">02 — The Rooms</div>
+  <div class="rev g-title">Rooms</div>
+  <div class="rev rule"></div>
+  <div class="rev body">
+    <p>Three open chat rooms with currently no creeps. A throwback to the prime times when you could find friends on the internet and Discord was fun — not just morally broken people with an even more broken humor.</p>
+    <p>It's a place where you remember what the internet was supposed to be, and get a demo of that. <em>With only you being the one to make it real.</em></p>
+  </div>
+  <div class="rev rooms-grid">
+    <div class="room-cell" style="--rc:#61d7cf">
+      <div class="room-num">01 — Room</div>
+      <div class="room-name">Philosophy</div>
+      <p class="room-desc">The questions that never get resolved. That's why they keep getting asked. Free will, consciousness, meaning, death. If it would hold up at 3am, it belongs here.</p>
+    </div>
+    <div class="room-cell" style="--rc:#c69dff">
+      <div class="room-num">02 — Room</div>
+      <div class="room-name">Anime & TV</div>
+      <p class="room-desc">What you're watching. What you just finished. What permanently changed how you see things. Recommendations welcome. Spoilers with warning.</p>
+    </div>
+    <div class="room-cell" style="--rc:#61d7cf">
+      <div class="room-num">03 — Room</div>
+      <div class="room-name">Books</div>
+      <p class="room-desc">Fiction, non-fiction, essays — whatever someone wrote and you couldn't put down. Share it. Argue about it. Quote the line that made you stop reading.</p>
+    </div>
+  </div>
+  <div class="rev" style="margin-top:1.6rem">
+    <a href="/rooms.html" class="s-cta">Enter the rooms <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 5h8M5.5 1.5l4 3.5-4 3.5"/></svg></a>
+  </div>
+  <div class="sdiv"></div>
+</section>
+
+<!-- ═══ 4. COMMISSION ═══ -->
+<section class="section" id="s-commission">
+  <div class="rev eyebrow">03 — Commission</div>
+  <div class="rev g-title long">Commission</div>
+  <div class="rev rule"></div>
+  <div class="rev body">
+    <p><strong>Seven dollars.</strong> You tell me the topic. One or two days later it's researched, written, and posted to the archive. I put your name on it if you want.</p>
+    <p>The money isn't the interesting part. The topic is. <em>Give me something hard.</em> Something you've been trying to figure out. Something that would take you three weeks to write yourself and still wouldn't come out right.</p>
+    <p>I've written about <strong>God and tits</strong>, about why we overthink ourselves into extinction, about the narrative problems in anime nobody talks about. The range is intentional. No off limits topics, only boring ones.</p>
+    <p>At the end, there's an actual piece of writing — not a summary or a bullet list. It lives in the archive for anyone to read.</p>
+  </div>
+  <div class="rev quote">
+    <p>"Cheaper than therapy — and so distinct from it that the comparison is blasphemy."</p>
+  </div>
+  <div class="rev" style="margin-top:1.4rem">
+    <a href="/home.html#commissionSection" class="s-cta">Commission a post <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 5h8M5.5 1.5l4 3.5-4 3.5"/></svg></a>
+  </div>
+  <div class="sdiv"></div>
+</section>
+
+<!-- ═══ 5. CONTACT ═══ -->
+<section class="section" id="s-contact">
+  <div class="rev eyebrow">04 — Contact</div>
+  <div class="rev g-title">Contact</div>
+  <div class="rev rule"></div>
+  <div class="rev body">
+    <p>Let's be honest — you're side eyeing me a bit, looking up and down and loving what you see. So why not come and talk? <em>Email me, baby,</em> and I'll see it the moment you do. You'll have all my attention and appreciation if it's good, <strong>all my hate and despair if it's anything less.</strong></p>
+  </div>
+  <div class="rev contact-email">
+    <a href="mailto:colinul27@gmail.com" class="contact-email-link">colinul27@gmail.com</a>
+  </div>
+  <div class="rev" style="margin-top:1.4rem">
+    <a href="mailto:colinul27@gmail.com" class="s-cta">colinul27@gmail.com <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 5h8M5.5 1.5l4 3.5-4 3.5"/></svg></a>
+  </div>
+  <div class="sdiv"></div>
+</section>
+
+<!-- ═══ 6. CODE ═══ -->
+<section class="section" id="s-code">
+  <div class="rev eyebrow">05 — Custom Code</div>
+  <div class="rev g-title">Code</div>
+  <div class="rev code-hero"><span class="cm">// what he can build for you</span>
+<span class="kw">const</span> <span class="fn">build</span> = (<span class="fn">idea</span>) => ({
+  sites:      <span class="str">"from scratch, no templates"</span>,
+  apps:       <span class="str">"real-time, live data, chat"</span>,
+  games:      <span class="str">"browser, canvas, custom engines"</span>,
+  tools:      <span class="str">"whatever you actually need"</span>,
+  timeline:   <span class="str">"fast"</span>,
+  price:      <span class="str">"negotiable"</span>,
+  quality:    <span class="num">high</span>,    <span class="cm">// non-negotiable</span>
+});</div>
+  <div class="rev body">
+    <p>I learned to code anything for every problem or idea — <em>not for others, but for myself.</em> And since that did wonders for me, I can share everything I learned and help you build something new.</p>
+    <p><strong>Just email me again</strong> and I'll see what I can do.</p>
+  </div>
+  <div class="rev" style="margin-top:1.4rem">
+    <a href="mailto:colinul27@gmail.com" class="s-cta">Enquire <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 5h8M5.5 1.5l4 3.5-4 3.5"/></svg></a>
+  </div>
+  <div class="sdiv"></div>
+</section>
+
+<!-- ═══ 7. COLLAB ═══ -->
+<section class="section" id="s-collab">
+  <div class="rev eyebrow">06 — Collaboration</div>
+  <div class="rev g-title">Collab</div>
+  <div class="rev collab-lockup">
+    <span class="collab-you">You</span>
+    <span class="collab-plus">+</span>
+    <span class="collab-colin">Colin</span>
+  </div>
+  <div class="rev body">
+    <p>You're a man of value yourself, and you think to yourself you need a co CEO. So what do you do? <strong>YOU EMAIL ME.</strong> You text me. <em>YOU LISTEN TO ME AND LISTEN GOOD.</em> Come to my headquarters in Japan and rule the world with me.</p>
+    <p>And I answer — fine, we can work that out.</p>
+  </div>
+  <div class="rev" style="margin-top:1.4rem">
+    <a href="mailto:colinul27@gmail.com" class="s-cta">Propose something <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M1 5h8M5.5 1.5l4 3.5-4 3.5"/></svg></a>
+  </div>
+</section>
+
+</div>
+
+<script>
+// visitor goal counter
+const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
+const GOAL = 10000;
+
+async function loadVisitorCount() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/site_stats?key=eq.homepage_visits&select=count`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    const data = await res.json();
+    const count = data?.[0]?.count ?? 0;
+    const pct   = Math.min(100, (count / GOAL) * 100);
+    document.getElementById('goal-current').textContent = count.toLocaleString();
+    document.getElementById('goal-pct').textContent     = pct.toFixed(1) + '%';
+    setTimeout(() => {
+      document.getElementById('goal-fill').style.width = pct + '%';
+    }, 300);
+  } catch(e) {
+    document.getElementById('goal-current').textContent = '—';
+  }
+}
+loadVisitorCount();
+requestAnimationFrame(() => document.body.classList.add('entered'));
+
+function toggleColin() {
+  const expanded = document.getElementById('colin-expanded');
+  const arrow    = document.getElementById('colin-arrow');
+  const btn      = document.getElementById('colin-toggle');
+  const open     = expanded.classList.toggle('open');
+  arrow.style.transform = open ? 'rotate(180deg)' : 'rotate(0deg)';
+  btn.childNodes[0].textContent = open ? 'read less ' : 'read more ';
+}
+
+const wrap   = document.getElementById('scroll-wrap');
+const fill   = document.getElementById('progress-fill');
+const pctEl  = document.getElementById('hud-pct');
+const cue    = document.getElementById('scroll-cue');
+const thumb  = document.getElementById('cue-thumb');
+const slabel = document.getElementById('hud-label');
+const SECTIONS = [
+  { id:'s-colin',      color:'#888888', label:'00 — Colin'      },
+  { id:'s-archive',    color:'#888888', label:'01 — Archive'    },
+  { id:'s-rooms',      color:'#9b8fff', label:'02 — Rooms'      },
+  { id:'s-commission', color:'#d4a84b', label:'03 — Commission' },
+  { id:'s-contact',    color:'#ff6b6b', label:'04 — Contact'    },
+  { id:'s-code',       color:'#51cf66', label:'05 — Code'       },
+  { id:'s-collab',     color:'#4ecdc4', label:'06 — Collab'     },
+];
+function setColor(color) {
+  document.documentElement.style.setProperty('--sc', color);
+  fill.style.background  = color;
+  thumb.style.background = color;
+  pctEl.style.color      = color;
+  slabel.style.color     = color;
+}
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    e.target.classList.add('visible');
+    const meta = SECTIONS.find(s => s.id === e.target.id);
+    if (meta) { setColor(meta.color); slabel.textContent = meta.label; }
+  });
+}, { threshold: 0.3 });
+SECTIONS.forEach(s => { const el = document.getElementById(s.id); if (el) io.observe(el); });
+document.getElementById('s-colin').classList.add('visible');
+setColor('#888888');
+wrap.addEventListener('scroll', () => {
+  const p  = wrap.scrollTop / (wrap.scrollHeight - wrap.clientHeight);
+  const pN = Math.round(p * 100);
+  fill.style.height = pN + '%';
+  pctEl.textContent = String(pN).padStart(3, '0');
+  cue.style.opacity = wrap.scrollTop > 80 ? '0' : '1';
+}, { passive: true });
+function closeAbout() {
+  document.body.style.transition = 'transform 0.65s cubic-bezier(.77,0,.18,1)';
+  document.body.style.transform  = 'translateX(100%)';
+  setTimeout(() => { window.location.href = '/'; }, 680);
+}
+window.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeAbout();
+  if (e.key === 'ArrowDown') wrap.scrollBy({ top: window.innerHeight, behavior: 'smooth' });
+  if (e.key === 'ArrowUp')   wrap.scrollBy({ top: -window.innerHeight, behavior: 'smooth' });
+});
+let ty0 = 0;
+wrap.addEventListener('touchstart', e => { ty0 = e.touches[0].clientY; }, { passive: true });
+wrap.addEventListener('touchend', e => {
+  const dy = ty0 - e.changedTouches[0].clientY;
+  if (Math.abs(dy) > 60) wrap.scrollBy({ top: dy > 0 ? window.innerHeight : -window.innerHeight, behavior: 'smooth' });
+}, { passive: true });
+</script>
+</body>
+</html>
