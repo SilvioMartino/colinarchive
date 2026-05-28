@@ -43,7 +43,7 @@
 }
 
 @layer base {
-  html { color-scheme: dark; }
+  html { color-scheme: dark; overflow-x: hidden; }
   body {
     background: var(--bg); color: var(--fg);
     font-family: var(--mono); overflow-x: hidden;
@@ -62,7 +62,9 @@
     display: flex; align-items: center; justify-content: center;
     perspective: 1100px; pointer-events: none;
   }
-  #scroll_container { position: relative; z-index: 10; }
+  #scroll_container { position: relative; z-index: 10; pointer-events: none; }
+  #scroll_container section { pointer-events: none; }
+  #scroll_container .text-card { pointer-events: auto; }
   section {
     min-height: 100vh; display: flex; align-items: center;
     padding: 6rem calc(5rem + var(--ui)) 6rem 5rem;
@@ -188,9 +190,12 @@
     font-style: italic; font-weight: 400; color: var(--dim); opacity: 0.4; line-height: 1;
   }
 
+  /* about trigger — z-index 8 so cards (z-index 10) render on top visually
+     but the trigger area is in bottom-right where right-aligned cards never reach
+     so it stays clickable at all scroll positions */
   #about-trigger {
     position: fixed; bottom: var(--ui); right: var(--ui);
-    z-index: 15; cursor: pointer; text-align: right;
+    z-index: 8; cursor: pointer; text-align: right;
     border: none; background: none; padding: 0; line-height: 1.25;
   }
   #about-trigger span {
@@ -387,6 +392,7 @@
   <div id="face_caption_name">Archive</div>
 </div>
 
+<!-- about trigger is outside scroll_container so it never competes with card z-index -->
 <button id="about-trigger" onclick="navigateToAbout()">
   <span>who am I</span>
   <span>and what is this place</span>
