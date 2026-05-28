@@ -8,6 +8,7 @@
 <link rel="apple-touch-icon" href="/icon-192.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Colin Archive</title>
+<meta name="description" content="Essays, code, and notes by Colin. An archive, a chat, a commission. Unfiltered.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -61,7 +62,7 @@
     display: flex; align-items: center; justify-content: center;
     perspective: 1100px; pointer-events: none;
   }
-  #scroll_container { position: relative; z-index: 1; }
+  #scroll_container { position: relative; z-index: 10; }
   section {
     min-height: 100vh; display: flex; align-items: center;
     padding: 6rem calc(5rem + var(--ui)) 6rem 5rem;
@@ -187,43 +188,38 @@
     font-style: italic; font-weight: 400; color: var(--dim); opacity: 0.4; line-height: 1;
   }
 
-  #foot {
+  #about-trigger {
     position: fixed; bottom: var(--ui); right: var(--ui);
-    z-index: 100; display: flex; gap: 1.5rem;
+    z-index: 15; cursor: pointer; text-align: right;
+    border: none; background: none; padding: 0; line-height: 1.25;
   }
-  .foot-link {
-    font-size: 0.48rem; letter-spacing: 0.15em; text-transform: uppercase;
-    color: var(--dim); text-decoration: none; transition: color 0.2s;
+  #about-trigger span {
+    display: block; font-family: var(--serif); font-style: italic;
+    font-weight: 400; color: rgba(232,232,232,0.18); transition: color 0.4s;
   }
-  .foot-link:hover { color: var(--fg); }
+  #about-trigger span:first-child { font-size: clamp(1.1rem, 2.2vw, 1.7rem); }
+  #about-trigger span:last-child  { font-size: clamp(0.85rem, 1.6vw, 1.25rem); }
+  #about-trigger:hover span { color: rgba(232,232,232,0.55); }
 
-  /* ── SCROLL HINT ── */
   #scroll-hint {
-    position: fixed;
-    top: 5rem; left: 50%; translate: -50% 0;
-    z-index: 100;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 1s ease;
-    animation: hint-fade-in 1.4s ease forwards;
+    position: fixed; top: 5rem; left: 50%; translate: -50% 0;
+    z-index: 100; pointer-events: none; opacity: 0;
+    transition: opacity 1s ease; animation: hint-fade-in 1.4s ease forwards;
   }
-  @keyframes hint-fade-in {
-    0%,35% { opacity: 0; }
-    100%   { opacity: 1; }
-  }
+  @keyframes hint-fade-in { 0%,35%{opacity:0} 100%{opacity:1} }
   #scroll-hint-text {
     font-family: var(--serif); font-style: italic;
-    font-size: 1.4rem; color: var(--muted);
-    opacity: 0.55;
-    letter-spacing: 0.02em;
-    white-space: nowrap;
+    font-size: 1.4rem; color: var(--muted); opacity: 0.55;
+    letter-spacing: 0.02em; white-space: nowrap;
   }
-  #scroll-hint-arrow { display: none; }
-  #scroll-hint-keys  { display: none; }
+  #scroll-hint-arrow, #scroll-hint-keys { display: none; }
 
   @media (max-width: 56.25em) {
     #scroll-hint { top: 4.5rem; }
     #scroll-hint-text { font-size: 1.1rem; }
+    #about-trigger { bottom: 1.25rem; right: 1.25rem; }
+    #about-trigger span:first-child { font-size: 1rem; }
+    #about-trigger span:last-child  { font-size: 0.8rem; }
   }
 }
 
@@ -299,7 +295,6 @@
     #hud { top: 1rem; right: 1rem; }
     #scene_strip { display: none; }
     #face_caption { bottom: 1rem; }
-    #foot { display: none; }
     section { min-height: 150vh; align-items: flex-end; padding: 0 1.5rem 3.5rem; }
     #s0 { min-height: 100vh; align-items: center; padding: 4rem 1.5rem; }
     .text-card, .text-card.right { max-width: 100%; padding: 1.5rem 1.25rem; }
@@ -317,7 +312,6 @@
 <div id="scene">
   <div id="cube">
 
-    <!-- 1. ARCHIVE — grey -->
     <div class="face" data-face="top" data-idx="0">
       <div class="face-num">01</div>
       <div class="face-cbr" style="border-bottom:1px solid rgba(136,136,136,0.3);border-right:1px solid rgba(136,136,136,0.3);"></div>
@@ -328,7 +322,6 @@
       </div>
     </div>
 
-    <!-- 2. CHAT — purple -->
     <div class="face" data-face="front" data-idx="1">
       <div class="face-num">02</div>
       <div class="face-cbr" style="border-bottom:1px solid rgba(155,143,255,0.3);border-right:1px solid rgba(155,143,255,0.3);"></div>
@@ -339,7 +332,6 @@
       </div>
     </div>
 
-    <!-- 3. COMMISSION — gold -->
     <div class="face" data-face="right" data-idx="2">
       <div class="face-num">03</div>
       <div class="face-cbr" style="border-bottom:1px solid rgba(212,168,75,0.3);border-right:1px solid rgba(212,168,75,0.3);"></div>
@@ -350,7 +342,6 @@
       </div>
     </div>
 
-    <!-- 4. CONTACT — red -->
     <div class="face" data-face="back" data-idx="3">
       <div class="face-num">04</div>
       <div class="face-cbr" style="border-bottom:1px solid rgba(255,107,107,0.3);border-right:1px solid rgba(255,107,107,0.3);"></div>
@@ -361,7 +352,6 @@
       </div>
     </div>
 
-    <!-- 5. CUSTOM CODE — green -->
     <div class="face" data-face="left" data-idx="4">
       <div class="face-num">05</div>
       <div class="face-cbr" style="border-bottom:1px solid rgba(81,207,102,0.3);border-right:1px solid rgba(81,207,102,0.3);"></div>
@@ -372,7 +362,6 @@
       </div>
     </div>
 
-    <!-- 6. COLLABORATION — teal -->
     <div class="face" data-face="bottom" data-idx="5">
       <div class="face-num">06</div>
       <div class="face-cbr" style="border-bottom:1px solid rgba(78,205,196,0.3);border-right:1px solid rgba(78,205,196,0.3);"></div>
@@ -397,12 +386,12 @@
   <div id="face_caption_num">01</div>
   <div id="face_caption_name">Archive</div>
 </div>
-<div id="foot">
-  <a href="/home.html" class="foot-link">Archive</a>
-  <a href="/rooms.html" class="foot-link">Chat</a>
-  <a href="#" class="foot-link">Twitter</a>
-  <a href="#" class="foot-link">GitHub</a>
-</div>
+
+<button id="about-trigger" onclick="navigateToAbout()">
+  <span>who am I</span>
+  <span>and what is this place</span>
+</button>
+
 <div id="scroll-hint">
   <span id="scroll-hint-text">scroll down</span>
   <div id="scroll-hint-arrow"></div>
@@ -450,7 +439,7 @@
       <p class="body-text">Ever had a question for Jesus? Ask me instead. Just an email, and I promise to read it.</p>
       <div class="cta-row">
         <a class="cta-back" href="#s2"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 6H1M6 11L1 6l5-5"/></svg>Back</a>
-        <a class="cta" href="mailto:colin@colinarchive.com">Write<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h10M6 1l5 5-5 5"/></svg></a>
+        <a class="cta" href="mailto:colinul27@gmail.com">Write<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h10M6 1l5 5-5 5"/></svg></a>
       </div>
     </div>
   </section>
@@ -462,7 +451,7 @@
       <p class="body-text">Anywhere from sites, to games, to killer bots and sentient AI.</p>
       <div class="cta-row">
         <a class="cta-back" href="#s3"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 6H1M6 11L1 6l5-5"/></svg>Back</a>
-        <a class="cta" href="mailto:colin@colinarchive.com">Enquire<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h10M6 1l5 5-5 5"/></svg></a>
+        <a class="cta" href="mailto:colinul27@gmail.com">Enquire<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h10M6 1l5 5-5 5"/></svg></a>
       </div>
     </div>
   </section>
@@ -474,7 +463,7 @@
       <p class="body-text">Got a project that needs a second, better brain? Essays, code, design. Let's make something neither of us could alone.</p>
       <div class="cta-row">
         <a class="cta-back" href="#s4"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 6H1M6 11L1 6l5-5"/></svg>Back</a>
-        <a class="cta" href="mailto:colin@colinarchive.com">Propose<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h10M6 1l5 5-5 5"/></svg></a>
+        <a class="cta" href="mailto:colinul27@gmail.com">Propose<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h10M6 1l5 5-5 5"/></svg></a>
       </div>
     </div>
   </section>
@@ -532,12 +521,9 @@
     sceneDots.forEach((d, i) => d.classList.toggle('active', i === idx));
   }
 
-  /* Scroll hint — declared early so wheel handler can call it */
   let hintGone = false;
   function hideHint() {
-    if (hintGone) return;
-    hintGone = true;
-    hint.style.opacity = '0';
+    if (hintGone) return; hintGone = true; hint.style.opacity = '0';
   }
 
   const easeIO = t => t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
@@ -571,10 +557,8 @@
 
   window.addEventListener('scroll', () => { tgt = Math.max(0, Math.min(1, maxScroll > 0 ? scrollY / maxScroll : 0)); }, { passive: true });
 
-  /* Wheel: hideHint called here because this is the only guaranteed-to-run handler */
   window.addEventListener('wheel', e => {
-    e.preventDefault();
-    hideHint();
+    e.preventDefault(); hideHint();
     const lp = 16, pp = innerHeight * 0.9;
     const d = e.deltaMode === 1 ? e.deltaY * lp : e.deltaMode === 2 ? e.deltaY * pp : e.deltaY;
     if (Math.abs(d) < 5) return;
@@ -642,7 +626,6 @@
   applyFace(0);
   setTimeout(hideHint, 5000);
 
-  /* Arrow keys */
   window.addEventListener('keydown', e => {
     if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
       e.preventDefault(); stopAnchor(); velocity = 0;
@@ -652,6 +635,14 @@
       smoothTo(sectionTops[Math.max(sectionIdx(scrollY) - 1, 0)] || 0); hideHint();
     }
   });
+
+  function navigateToAbout() {
+    body.style.transition = 'transform 0.65s cubic-bezier(.77,0,.18,1), opacity 0.65s ease';
+    body.style.transform  = 'translateX(-30%) scale(0.95)';
+    body.style.opacity    = '0.4';
+    setTimeout(() => { window.location.href = '/about.html'; }, 680);
+  }
+  window.navigateToAbout = navigateToAbout;
 
 })();
 </script>
