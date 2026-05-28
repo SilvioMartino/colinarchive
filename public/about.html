@@ -705,12 +705,6 @@ window.addEventListener('keydown', e => {
   if (e.key === 'ArrowDown') window.scrollBy({ top: window.innerHeight });
   if (e.key === 'ArrowUp')   window.scrollBy({ top: -window.innerHeight });
 });
-let ty0 = 0;
-window.addEventListener('touchstart', e => { ty0 = e.touches[0].clientY; }, { passive: true });
-window.addEventListener('touchend', e => {
-  const dy = ty0 - e.changedTouches[0].clientY;
-  if (Math.abs(dy) > 60) window.scrollBy({ top: dy > 0 ? window.innerHeight : -window.innerHeight });
-}, { passive: true });
 </script>
 </body>
 </html>
