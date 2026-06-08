@@ -38,6 +38,7 @@
   --paper: #1a1a1a;
   --fg: #e8e8e8;
   --muted: #b8b8b8;
+  --dim: #8a8a8a;
   --border: #2a2a2a;
   --highlight: rgba(31,31,31,0.85);
   --red: #ff6b6b;
@@ -133,7 +134,8 @@ header{padding:1.5rem 3rem;border-bottom:1px solid var(--border);background:var(
 /* ── Focus visible ── */
 :focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
 .entry-link:focus-visible{outline:2px solid var(--blue);outline-offset:-2px;}
-.filter-tag:focus-visible,.c-submit:focus-visible,.load-more-btn:focus-visible,.mobile-pill:focus-visible{outline:2px solid var(--blue);}
+.filter-tag:focus-visible,.c-submit:focus-visible,.load-more-btn:focus-visible,.mobile-pill:focus-visible,.commission-header:focus-visible{outline:2px solid var(--blue);}
+.commission-header:focus-visible{outline-offset:-2px;}
 
 /* ── Sidebar ── */
 .sidebar-section{margin-bottom:2.5rem;}
@@ -169,17 +171,6 @@ header{padding:1.5rem 3rem;border-bottom:1px solid var(--border);background:var(
 .commission-label{font-family:var(--mono);font-size:0.74rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--fg);}
 .commission-price{font-family:var(--mono);font-size:0.68rem;color:var(--red);letter-spacing:0.06em;border:1px solid rgba(255,107,107,0.3);padding:0.22rem 0.6rem;border-radius:4px;background:rgba(255,107,107,0.06);}
 .commission-header-right{display:flex;align-items:center;gap:0.6rem;}
-
-.commission-price {
-  font-family: var(--mono); font-size: 0.68rem; color: var(--red);
-  letter-spacing: 0.06em; border: 1px solid rgba(255,107,107,0.3);
-  padding: 0.22rem 0.6rem; border-radius: 4px; background: rgba(255,107,107,0.06);
-  transition: margin-right 0.35s cubic-bezier(0.4,0,0.2,1) 0.2s;
-  margin-right: 0;
-}
-.commission-section.is-open .commission-price {
-  margin-right: 0;
-}
 .commission-chevron{color:var(--muted);font-size:0.65rem;transition:transform 0.4s cubic-bezier(0.4,0,0.2,1),color 0.2s;flex-shrink:0;}
 .commission-section.is-open .commission-chevron{transform:rotate(180deg);color:var(--red);}
 
@@ -371,15 +362,15 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
 </head>
 <body>
 
-<div class="soon-toast" id="soonToast"></div>
+<div class="soon-toast" id="soonToast" role="status" aria-live="polite"></div>
 
 <!-- Expanded commission panel -->
-<div class="commission-expanded" id="commissionExpanded">
+<div class="commission-expanded" id="commissionExpanded" role="dialog" aria-modal="true" aria-label="Commission a post" inert>
   <div class="expanded-backdrop" id="expandedBackdrop"></div>
   <div class="expanded-panel">
     <div class="expanded-header">
       <div class="expanded-header-left">
-        <span class="expanded-dot"></span>
+        <span class="expanded-dot" aria-hidden="true"></span>
         <span class="expanded-title">Commission a post</span>
       </div>
       <div style="display:flex;align-items:center;gap:0.75rem;">
@@ -392,35 +383,35 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
     <div class="expanded-body">
       <p class="expanded-tagline">Tell me the topic. In one or two days it's researched, written, and posted to the archive.</p>
       <div class="expanded-fields-row">
-        <input class="c-input" id="eName"  type="text"  placeholder="Your name"  autocomplete="name"/>
-        <input class="c-input" id="eEmail" type="email" placeholder="Your email" autocomplete="email"/>
+        <input class="c-input" id="eName"  type="text"  placeholder="Your name"  autocomplete="name"  aria-label="Your name"/>
+        <input class="c-input" id="eEmail" type="email" placeholder="Your email" autocomplete="email" aria-label="Your email"/>
       </div>
-      <input class="c-input" id="eTopic" type="text" placeholder="What do you want written?"/>
-      <textarea class="expanded-textarea" id="eDetails" placeholder="Any extra details — tone, references, context, links. The more I have, the better the piece."></textarea>
+      <input class="c-input" id="eTopic" type="text" placeholder="What do you want written?" aria-label="Topic"/>
+      <textarea class="expanded-textarea" id="eDetails" placeholder="Any extra details — tone, references, context, links. The more I have, the better the piece." aria-label="Extra details"></textarea>
       <button class="expanded-submit" id="eSubmit">Pay $7 &amp; commission →</button>
-      <div class="expanded-status" id="eStatus"></div>
+      <div class="expanded-status" id="eStatus" role="status" aria-live="polite"></div>
     </div>
   </div>
 </div>
 
 <!-- Mobile sheet -->
-<div class="commission-sheet" id="commissionSheet">
+<div class="commission-sheet" id="commissionSheet" role="dialog" aria-modal="true" aria-label="Commission a post" inert>
   <div class="sheet-header">
     <button class="sheet-back" id="sheetBack">← Back</button>
     <div class="sheet-center">
-      <span class="sheet-dot"></span>
+      <span class="sheet-dot" aria-hidden="true"></span>
       <span class="sheet-title">Commission a post</span>
     </div>
     <span class="sheet-price">$7</span>
   </div>
   <div class="sheet-body">
     <p class="sheet-tagline">Have something you want written? Tell me the topic and I'll research and write it in one or two days and post it.</p>
-    <input class="c-input" id="sName"    type="text"  placeholder="Your name"  autocomplete="name"/>
-    <input class="c-input" id="sEmail"   type="email" placeholder="Your email" autocomplete="email"/>
-    <input class="c-input" id="sTopic"   type="text"  placeholder="What do you want written?"/>
-    <textarea class="c-input" id="sDetails" placeholder="Any extra details, references, tone..." rows="4"></textarea>
+    <input class="c-input" id="sName"    type="text"  placeholder="Your name"  autocomplete="name"  aria-label="Your name"/>
+    <input class="c-input" id="sEmail"   type="email" placeholder="Your email" autocomplete="email" aria-label="Your email"/>
+    <input class="c-input" id="sTopic"   type="text"  placeholder="What do you want written?" aria-label="Topic"/>
+    <textarea class="c-input" id="sDetails" placeholder="Any extra details, references, tone..." rows="4" aria-label="Extra details"></textarea>
     <button class="c-submit" id="sSubmit">Pay $7 &amp; commission →</button>
-    <div class="c-status" id="sStatus"></div>
+    <div class="c-status" id="sStatus" role="status" aria-live="polite"></div>
   </div>
 </div>
 
@@ -437,12 +428,12 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
         <p class="section-subtitle">Unfiltered documentation</p>
       </div>
       <div class="filters">
-        <input type="text" class="search-box" id="searchBox" placeholder="Search entries...">
-        <div class="filter-tags">
-          <button class="filter-tag active" data-filter="all">All</button>
-          <button class="filter-tag" data-filter="essays">Essays</button>
-          <button class="filter-tag" data-filter="code">Code</button>
-          <button class="filter-tag" data-filter="notes">Notes</button>
+        <input type="text" class="search-box" id="searchBox" placeholder="Search entries..." aria-label="Search entries">
+        <div class="filter-tags" role="group" aria-label="Filter entries by type">
+          <button class="filter-tag active" data-filter="all" aria-pressed="true">All</button>
+          <button class="filter-tag" data-filter="essays" aria-pressed="false">Essays</button>
+          <button class="filter-tag" data-filter="code" aria-pressed="false">Code</button>
+          <button class="filter-tag" data-filter="notes" aria-pressed="false">Notes</button>
         </div>
       </div>
       <div class="entry-list" id="entryList"></div>
@@ -453,51 +444,51 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
 
     <aside class="updates-sidebar">
       <div class="commission-section" id="commissionSection">
-        <div class="commission-header" id="commissionHeader">
+        <div class="commission-header" id="commissionHeader" role="button" tabindex="0" aria-expanded="false" aria-controls="commissionBody">
           <div class="commission-header-left">
-            <span class="commission-dot"></span>
+            <span class="commission-dot" aria-hidden="true"></span>
             <span class="commission-label">Commission a post</span>
           </div>
           <div class="commission-header-right">
             <span class="commission-price">$7</span>
-            <button class="commission-expand-btn" id="commissionExpandBtn" title="Expand form">
-              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <button class="commission-expand-btn" id="commissionExpandBtn" title="Expand form" aria-label="Expand form to full panel" inert>
+              <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
                 <path d="M1 5V1h4M11 7v4H7M1 5l4-4M11 7l-4 4"/>
               </svg>
               Expand
             </button>
-            <span class="commission-chevron">▼</span>
+            <span class="commission-chevron" aria-hidden="true">▼</span>
           </div>
         </div>
-        <div class="commission-body" id="commissionBody">
+        <div class="commission-body" id="commissionBody" inert>
           <div class="commission-body-inner">
             <div class="commission-inner">
               <p class="commission-tagline">Have something you want written? Tell me the topic and I'll research and write it in one or two days and post it.</p>
-              <input class="c-input" id="cName"    type="text"  placeholder="Your name"  autocomplete="name"/>
-              <input class="c-input" id="cEmail"   type="email" placeholder="Your email" autocomplete="email"/>
-              <input class="c-input" id="cTopic"   type="text"  placeholder="What do you want written?"/>
-              <textarea class="c-input" id="cDetails" placeholder="Any extra details, references, tone..." rows="3"></textarea>
+              <input class="c-input" id="cName"    type="text"  placeholder="Your name"  autocomplete="name"  aria-label="Your name"/>
+              <input class="c-input" id="cEmail"   type="email" placeholder="Your email" autocomplete="email" aria-label="Your email"/>
+              <input class="c-input" id="cTopic"   type="text"  placeholder="What do you want written?" aria-label="Topic"/>
+              <textarea class="c-input" id="cDetails" placeholder="Any extra details, references, tone..." rows="3" aria-label="Extra details"></textarea>
               <button class="c-submit" id="cSubmit">Pay $7 &amp; commission →</button>
-              <div class="c-status" id="cStatus"></div>
+              <div class="c-status" id="cStatus" role="status" aria-live="polite"></div>
             </div>
           </div>
         </div>
       </div>
 
       <div class="sidebar-section">
-        <h3 class="sidebar-title">How this place works</h3>
+        <h2 class="sidebar-title">How this place works</h2>
         <div class="rules-content">
           <p>This is my personal archive where I publish essays, notes, and code. Essays and code are updated periodically, so revisiting them may reveal new material, while notes generally remain unchanged. I created this site as a place to document and share my work, in the belief that even a single idea here could matter to the right person.</p>
         </div>
       </div>
 
       <div class="sidebar-section">
-        <h3 class="sidebar-title">Elsewhere</h3>
+        <h2 class="sidebar-title">Elsewhere</h2>
         <div class="social-grid">
-          <a href="#" class="social-box soon-link" data-name="Twitter"><i class="fab fa-twitter social-icon"></i><span>Twitter</span></a>
-          <a href="#" class="social-box soon-link" data-name="GitHub"><i class="fab fa-github social-icon"></i><span>GitHub</span></a>
-          <a href="#" class="social-box soon-link" data-name="Instagram"><i class="fab fa-instagram social-icon"></i><span>Instagram</span></a>
-          <a href="mailto:colinul27@gmail.com" class="social-box"><i class="fas fa-envelope social-icon"></i><span>Email</span></a>
+          <a href="#" class="social-box soon-link" data-name="Twitter"><i class="fab fa-twitter social-icon" aria-hidden="true"></i><span>Twitter</span></a>
+          <a href="#" class="social-box soon-link" data-name="GitHub"><i class="fab fa-github social-icon" aria-hidden="true"></i><span>GitHub</span></a>
+          <a href="#" class="social-box soon-link" data-name="Instagram"><i class="fab fa-instagram social-icon" aria-hidden="true"></i><span>Instagram</span></a>
+          <a href="mailto:colinul27@gmail.com" class="social-box"><i class="fas fa-envelope social-icon" aria-hidden="true"></i><span>Email</span></a>
         </div>
       </div>
     </aside>
@@ -513,6 +504,9 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
   const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
   const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   const PAGE_SIZE = 10;
+
+  const container = document.querySelector('.container');
+  let lastFocus = null;
 
   const state = {
     loadedPosts:[], filteredPosts:[], visiblePosts:[],
@@ -547,10 +541,24 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
   const commissionBody    = document.getElementById('commissionBody');
   const expandBtn         = document.getElementById('commissionExpandBtn');
 
+  function setAccordion(open) {
+    commissionBody.classList.toggle('open', open);
+    commissionSection.classList.toggle('is-open', open);
+    commissionHeader.setAttribute('aria-expanded', open ? 'true' : 'false');
+    // Keep collapsed inputs and the hidden Expand button out of the tab order.
+    commissionBody.toggleAttribute('inert', !open);
+    expandBtn.toggleAttribute('inert', !open);
+  }
   commissionHeader.addEventListener('click', e => {
     if (e.target.closest('#commissionExpandBtn')) return;
-    const open = commissionBody.classList.toggle('open');
-    commissionSection.classList.toggle('is-open', open);
+    setAccordion(!commissionBody.classList.contains('open'));
+  });
+  commissionHeader.addEventListener('keydown', e => {
+    if (e.target.closest('#commissionExpandBtn')) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setAccordion(!commissionBody.classList.contains('open'));
+    }
   });
 
   // ── Expanded panel ──
@@ -570,10 +578,13 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
   }
 
   function openExpanded() {
+    lastFocus = document.activeElement;
     syncToExpanded();
     const sb = window.innerWidth - document.documentElement.clientWidth;
     document.body.style.overflow = 'hidden';
     document.body.style.paddingRight = sb + 'px';
+    container.setAttribute('inert', '');   // trap focus inside the panel
+    expanded.removeAttribute('inert');
     expanded.classList.add('open');
     setTimeout(() => document.getElementById('eDetails').focus(), 460);
   }
@@ -595,17 +606,19 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
       panel.style.transform     = '';
       document.body.style.overflow = '';
       document.body.style.paddingRight = '';
+      expanded.setAttribute('inert', '');
+      container.removeAttribute('inert');
+      if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
     }, 720);
   }
 
   expandBtn.addEventListener('click', e => { e.stopPropagation(); openExpanded(); });
   document.getElementById('expandedBackdrop').addEventListener('click', closeExpanded);
   document.getElementById('expandedClose').addEventListener('click', closeExpanded);
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && expanded.classList.contains('open')) closeExpanded(); });
 
   // ── Commission submit ──
   async function submitCommission(name, email, topic, details, statusEl, btnEl) {
-    statusEl.className = statusEl.className.replace('ok','');
+    statusEl.classList.remove('ok');
     if (!name || !email || !topic) { statusEl.textContent = 'Name, email and topic are required.'; return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { statusEl.textContent = 'Please enter a valid email address.'; return; }
     btnEl.disabled = true; btnEl.textContent = 'Redirecting to payment...';
@@ -634,21 +647,39 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
   });
 
   // ── Mobile sheet ──
-  const sheet    = document.getElementById('commissionSheet');
-  const pill     = document.getElementById('mobilePill');
+  const sheet     = document.getElementById('commissionSheet');
+  const pill      = document.getElementById('mobilePill');
   const sheetBack = document.getElementById('sheetBack');
-  pill.addEventListener('click', () => {
+
+  function openSheet() {
+    lastFocus = document.activeElement;
     const sb = window.innerWidth - document.documentElement.clientWidth;
     document.body.style.paddingRight = sb + 'px';
     document.body.style.overflow = 'hidden';
+    container.setAttribute('inert', '');
+    expanded.setAttribute('inert', '');
+    sheet.removeAttribute('inert');
     sheet.classList.add('open');
-  });
-  sheetBack.addEventListener('click', closeSheet);
+    setTimeout(() => { const n = document.getElementById('sName'); if (n) n.focus(); }, 420);
+  }
   function closeSheet() {
     sheet.classList.remove('open');
     document.body.style.overflow = '';
     document.body.style.paddingRight = '';
+    sheet.setAttribute('inert', '');
+    container.removeAttribute('inert');
+    if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
   }
+
+  pill.addEventListener('click', openSheet);
+  sheetBack.addEventListener('click', closeSheet);
+
+  // ── Escape closes whichever overlay is open ──
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if (expanded.classList.contains('open')) closeExpanded();
+    else if (sheet.classList.contains('open')) closeSheet();
+  });
 
   // ── Helpers ──
   function debounce(fn, ms) { let t; return function(...a){ clearTimeout(t); t=setTimeout(()=>fn.apply(this,a),ms); }; }
@@ -694,7 +725,7 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
       return `
         <div class="entry type-${type}${isPaid?' locked':''}${cover?' has-cover':''}" data-id="${escapeHtml(String(post.id??''))}">
           ${cover?`<img src="${escapeHtml(cover)}" alt="" class="entry-img" loading="lazy" onerror="this.style.display='none'">` :''}
-          ${isPaid?'<i class="fas fa-lock locked-icon"></i>':''}
+          ${isPaid?'<i class="fas fa-lock locked-icon" aria-hidden="true"></i>':''}
           <span class="entry-type-label">${escapeHtml(label)}</span>
           <a href="/post.html?id=${encodeURIComponent(String(post.id??''))}" class="entry-link">
             <div class="entry-content">
@@ -710,7 +741,13 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
     }).join('');
   }
 
-  function setActiveFilter(f) { els.filterTags.forEach(t=>t.classList.toggle('active',t.dataset.filter===f)); }
+  function setActiveFilter(f) {
+    els.filterTags.forEach(t => {
+      const on = t.dataset.filter === f;
+      t.classList.toggle('active', on);
+      t.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
 
   const SKELETON_HTML=`
     <div class="skeleton-entry"><div class="skeleton-line" style="width:60%;height:18px;margin-bottom:12px"></div><div class="skeleton-line" style="width:25%;height:10px;margin-bottom:14px"></div><div class="skeleton-line" style="width:90%;height:12px;margin-bottom:6px"></div><div class="skeleton-line" style="width:75%;height:12px"></div></div>
@@ -770,16 +807,10 @@ textarea.c-input{resize:vertical;min-height:80px;font-family:var(--serif);font-s
   if (window.location.hash === '#commissionSection') {
     const sidebarVisible = getComputedStyle(commissionSection).display !== 'none';
     if (sidebarVisible) {
-      commissionBody.classList.add('open');
-      commissionSection.classList.add('is-open');
+      setAccordion(true);
       setTimeout(() => openExpanded(), 500);
     } else {
-      setTimeout(() => {
-        const sb = window.innerWidth - document.documentElement.clientWidth;
-        document.body.style.paddingRight = sb + 'px';
-        document.body.style.overflow = 'hidden';
-        sheet.classList.add('open');
-      }, 300);
+      setTimeout(() => openSheet(), 300);
     }
   }
 
