@@ -54,6 +54,18 @@
     background: repeating-linear-gradient(0deg, transparent 0, transparent 2px, rgba(0,0,0,0.032) 2px, rgba(0,0,0,0.032) 4px);
     pointer-events: none; z-index: 9999;
   }
+
+  /* Visible focus ring for keyboard users. Uses the active accent so it
+     reads as part of the design rather than a browser default. */
+  :focus-visible {
+    outline: 2px solid var(--active);
+    outline-offset: 3px;
+    border-radius: 1px;
+  }
+  /* Don't show the ring for mouse clicks on these (focus-visible already
+     handles that, but be explicit so the dark theme doesn't hide it). */
+  a:focus:not(:focus-visible),
+  button:focus:not(:focus-visible) { outline: none; }
 }
 
 @layer layout {
@@ -175,6 +187,8 @@
   }
   .scene-dot::before { content: ''; position: absolute; inset: -5px; }
   .scene-dot.active { background: var(--active); scale: 1.8; }
+  /* Keyboard focus needs room around the 4px dot so the ring is visible */
+  .scene-dot:focus-visible { outline-offset: 5px; }
 
   #face_caption {
     position: fixed; bottom: var(--ui); left: 50%;
@@ -192,11 +206,13 @@
 
   /* about trigger — z-index 8 so cards (z-index 10) render on top visually
      but the trigger area is in bottom-right where right-aligned cards never reach
-     so it stays clickable at all scroll positions */
+     so it stays clickable at all scroll positions. Now an <a> so middle-click /
+     open-in-new-tab / copy-link all work and it survives JS being disabled. */
   #about-trigger {
     position: fixed; bottom: var(--ui); right: var(--ui);
     z-index: 8; cursor: pointer; text-align: right;
     border: none; background: none; padding: 0; line-height: 1.25;
+    text-decoration: none; display: block;
   }
   #about-trigger span {
     display: block; font-family: var(--serif); font-style: italic;
@@ -204,7 +220,8 @@
   }
   #about-trigger span:first-child { font-size: clamp(1.1rem, 2.2vw, 1.7rem); }
   #about-trigger span:last-child  { font-size: clamp(0.85rem, 1.6vw, 1.25rem); }
-  #about-trigger:hover span { color: rgba(232,232,232,0.55); }
+  #about-trigger:hover span,
+  #about-trigger:focus-visible span { color: rgba(232,232,232,0.55); }
 
   #scroll-hint {
     position: fixed; top: 5rem; left: 50%; translate: -50% 0;
@@ -308,13 +325,16 @@
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; }
+    /* Drop the permanent compositor layer when motion is off — the cube
+       no longer animates, so there's nothing to optimize for. */
+    #cube { will-change: auto; }
   }
 }
 </style>
 </head>
 <body>
 
-<div id="scene">
+<div id="scene" aria-hidden="true">
   <div id="cube">
 
     <div class="face" data-face="top" data-idx="0">
@@ -381,24 +401,25 @@
 </div>
 
 <a href="/" id="logo">Colin Archive</a>
-<div id="hud">
+<div id="hud" aria-hidden="true">
   <div id="hud_pct">000%</div>
   <div class="progress-bar"><div class="progress-fill" id="prog_fill"></div></div>
   <div class="scene-label" id="scene_name">Archive</div>
 </div>
-<div id="scene_strip"></div>
-<div id="face_caption">
+<nav id="scene_strip" aria-label="Section navigation"></nav>
+<div id="face_caption" aria-hidden="true">
   <div id="face_caption_num">01</div>
   <div id="face_caption_name">Archive</div>
 </div>
 
-<!-- about trigger is outside scroll_container so it never competes with card z-index -->
-<button id="about-trigger" onclick="navigateToAbout()">
+<!-- about trigger is outside scroll_container so it never competes with card z-index.
+     Now a real link with the transition layered on as enhancement. -->
+<a id="about-trigger" href="/about.html">
   <span>who am I</span>
   <span>and what is this place</span>
-</button>
+</a>
 
-<div id="scroll-hint">
+<div id="scroll-hint" aria-hidden="true">
   <span id="scroll-hint-text">scroll down</span>
   <div id="scroll-hint-arrow"></div>
   <span id="scroll-hint-keys">↑ ↓ arrow keys</span>
@@ -430,7 +451,7 @@
       <div class="h-line"></div>
       <div class="tag">03 — Commission</div>
       <h2>Pay me<br><em>to think.</em></h2>
-      <p class="body-text">$7. Tell me the topic. In one or two days, posted to the archive. Cheaper than therapy — and so distinct from it that the comparison is blasphemy.</p>
+      <p class="body-text">$7. Tell me the topic. In one or two days, posted to the archive. Cheaper than therapy, and so distinct from it that the comparison is blasphemy.</p>
       <div class="cta-row">
         <a class="cta-back" href="#s1"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 6H1M6 11L1 6l5-5"/></svg>Back</a>
         <a class="cta" href="/home.html#commissionSection">Commission<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 6h10M6 1l5 5-5 5"/></svg></a>
@@ -479,6 +500,12 @@
 (() => {
   'use strict';
 
+  // Respect the OS "reduce motion" setting. When on, we skip the whole
+  // velocity / scroll-hijack / cube-spin system and let native scroll drive
+  // a simple face update. This is checked live so toggling it re-evaluates
+  // on next load.
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
   const FACES = [
     { name:'Archive',       color:'#888888', bg:'#161616' },
     { name:'Chat',          color:'#9b8fff', bg:'#110d1a' },
@@ -509,6 +536,8 @@
     const a = document.createElement('a');
     a.href = `#s${i}`;
     a.className = 'scene-dot' + (i === 0 ? ' active' : '');
+    // Labelled so screen readers announce a destination, not just "link".
+    a.setAttribute('aria-label', `Section ${i + 1}: ${FACES[i].name}`);
     strip.appendChild(a);
   }
   const sceneDots = [...document.querySelectorAll('.scene-dot')];
@@ -532,6 +561,55 @@
     if (hintGone) return; hintGone = true; hint.style.opacity = '0';
   }
 
+  let sectionTops = [];
+  const buildTops = () => { sectionTops = sections.map(s => s.getBoundingClientRect().top + window.scrollY); };
+  buildTops();
+  const sectionIdx = y => {
+    const mid = y + innerHeight * 0.5; let idx = 0;
+    sectionTops.forEach((top, i) => { if (mid >= top) idx = i; });
+    return Math.min(idx, N - 1);
+  };
+
+  // Hide the hint on ANY scroll, however it was triggered (scrollbar drag,
+  // keyboard, trackpad gesture that bypassed the wheel handler, etc).
+  // First real scroll movement is enough.
+  let hintScrollArmed = false;
+  window.addEventListener('scroll', () => {
+    if (!hintScrollArmed) { hintScrollArmed = true; return; }
+    if (window.scrollY > 2) hideHint();
+  }, { passive: true });
+
+  applyFace(0);
+
+  // ---------- Reduced-motion path: no cube spin, no scroll hijack ----------
+  if (reduceMotion.matches) {
+    // Park the cube on its first face and leave it. The HUD still updates
+    // a static percentage so the page doesn't feel broken.
+    let maxScrollR = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+    const updateStatic = () => {
+      const s = Math.max(0, Math.min(1, scrollY / maxScrollR));
+      hudPct.textContent   = String(Math.round(s * 100)).padStart(3, '0') + '%';
+      progFill.style.width = `${Math.round(s * 100)}%`;
+      applyFace(sectionIdx(scrollY));
+    };
+    window.addEventListener('scroll', updateStatic, { passive: true });
+    window.addEventListener('resize', () => {
+      maxScrollR = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+      buildTops(); updateStatic();
+    });
+    updateStatic();
+
+    // Reveal everything immediately rather than animating it in.
+    document.querySelectorAll('.tag,h1,h2,.body-text,.cta,.cta-back,.h-line')
+      .forEach(el => el.classList.add('visible'));
+
+    // Anchor links: let the browser do a plain instant jump. Native #hash
+    // behavior already works since these are real anchors, so nothing to do.
+    setTimeout(hideHint, 5000);
+    return; // <-- skip the entire kinetic engine below
+  }
+
+  // ---------- Full motion path ----------
   const easeIO = t => t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
   function setCubeTransform(rx, ry) { cube.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`; }
   function computeScrollRotation(s) {
@@ -541,15 +619,6 @@
     const a = STOPS[i], b = STOPS[i + 1];
     return { rx: a.rx + (b.rx - a.rx) * f, ry: a.ry + (b.ry - a.ry) * f };
   }
-
-  let sectionTops = [];
-  const buildTops = () => { sectionTops = sections.map(s => s.getBoundingClientRect().top + window.scrollY); };
-  buildTops();
-  const sectionIdx = y => {
-    const mid = y + innerHeight * 0.5; let idx = 0;
-    sectionTops.forEach((top, i) => { if (mid >= top) idx = i; });
-    return Math.min(idx, N - 1);
-  };
 
   let maxScroll = 1;
   const resize = () => { maxScroll = Math.max(1, document.documentElement.scrollHeight - innerHeight); buildTops(); };
@@ -561,9 +630,17 @@
   let tgt = 0, smooth = 0, velocity = 0;
   const friction = v => Math.abs(v) > 200 ? 0.8 : 0.9;
 
-  window.addEventListener('scroll', () => { tgt = Math.max(0, Math.min(1, maxScroll > 0 ? scrollY / maxScroll : 0)); }, { passive: true });
+  // Native scroll updates the target — UNLESS an anchor animation is currently
+  // driving the scroll position itself. Letting both write `tgt` in the same
+  // frame is what caused micro-stutter; the anchor owns `tgt` while it runs.
+  window.addEventListener('scroll', () => {
+    if (anchorAnim) return;
+    tgt = Math.max(0, Math.min(1, maxScroll > 0 ? scrollY / maxScroll : 0));
+  }, { passive: true });
 
   window.addEventListener('wheel', e => {
+    // Let the browser handle pinch-zoom (ctrl/cmd + wheel) instead of eating it.
+    if (e.ctrlKey || e.metaKey) return;
     e.preventDefault(); hideHint();
     const lp = 16, pp = innerHeight * 0.9;
     const d = e.deltaMode === 1 ? e.deltaY * lp : e.deltaMode === 2 ? e.deltaY * pp : e.deltaY;
@@ -629,7 +706,6 @@
     smoothTo(Math.max(0, baseY + extra));
   });
 
-  applyFace(0);
   setTimeout(hideHint, 5000);
 
   window.addEventListener('keydown', e => {
@@ -642,13 +718,19 @@
     }
   });
 
-  function navigateToAbout() {
+  // About-trigger transition as progressive enhancement. It's a real <a>, so
+  // if JS is off the browser just follows the href. With JS, we play the slide
+  // and then navigate. Modified/middle clicks fall through to default behavior
+  // so "open in new tab" still works.
+  const aboutTrigger = document.getElementById('about-trigger');
+  aboutTrigger.addEventListener('click', e => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
     body.style.transition = 'transform 0.55s cubic-bezier(.77,0,.18,1), opacity 0.45s ease';
     body.style.transform  = 'translateX(-100%)';
     body.style.opacity    = '0';
-    setTimeout(() => { window.location.href = '/about.html'; }, 580);
-  }
-  window.navigateToAbout = navigateToAbout;
+    setTimeout(() => { window.location.href = aboutTrigger.getAttribute('href'); }, 580);
+  });
 
 })();
 </script>
