@@ -74,7 +74,7 @@ body::before {
   width: 100%;
   max-width: none;
   margin: 0;
-  position: relative;t
+  position: relative;
   z-index: 2;
 }
 
@@ -208,6 +208,11 @@ header {
   color: var(--fg);
   font-family: var(--mono);
 }
+.modal-content input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.1);
+}
 .modal-content button {
   width: 100%;
   padding: 0.75rem;
@@ -222,6 +227,10 @@ header {
 .modal-content button:hover {
   opacity: 0.9;
 }
+.modal-content button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .modal-close {
   background: transparent !important;
   color: var(--muted) !important;
@@ -232,6 +241,8 @@ header {
   font-size: 0.8rem;
   margin-top: 0.5rem;
   font-family: var(--mono);
+  line-height: 1.4;
+  min-height: 1.1rem;
 }
 
 /* ---------- GRID: sidebar right, content left ---------- */
@@ -650,11 +661,14 @@ header {
   <div class="modal" id="loginModal">
     <div class="modal-content">
       <h3>Log in to Archive</h3>
-      <input type="email" id="loginEmail" placeholder="Email" />
-      <input type="password" id="loginPassword" placeholder="Password" />
-      <button id="loginSubmit">Log In</button>
-      <button class="modal-close" id="closeModal">Cancel</button>
-      <div class="error-message" id="loginError"></div>
+      <!-- (1) Inputs wrapped in a real <form> so Enter submits -->
+      <form id="loginForm" novalidate>
+        <input type="email" id="loginEmail" name="email" placeholder="Email" autocomplete="email" required />
+        <input type="password" id="loginPassword" name="password" placeholder="Password" autocomplete="current-password" required />
+        <button type="submit" id="loginSubmit">Log In</button>
+        <button type="button" class="modal-close" id="closeModal">Cancel</button>
+      </form>
+      <div class="error-message" id="loginError" role="alert" aria-live="polite"></div>
     </div>
   </div>
 
@@ -719,7 +733,7 @@ header {
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ---------- Your original working code (with auth) ----------
+// ---------- Supabase init ----------
 const SUPABASE_URL = "https://lbpkgvmxxcubzbzwoswd.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicGtndm14eGN1Ynpiendvc3dkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEyNzM2OTQsImV4cCI6MjA4Njg0OTY5NH0.BaP0JY9v74qJPu9qRYoL1Mn3NWM3I-VB51dczOvxnrI";
 
@@ -732,6 +746,7 @@ let currentUser = null;
 // DOM elements
 const headerNav = document.getElementById('headerNav');
 const loginModal = document.getElementById('loginModal');
+const loginForm = document.getElementById('loginForm');
 const loginEmail = document.getElementById('loginEmail');
 const loginPassword = document.getElementById('loginPassword');
 const loginSubmit = document.getElementById('loginSubmit');
@@ -758,10 +773,19 @@ function updateHeaderUI() {
     document.getElementById('editModeToggle')?.addEventListener('click', toggleEditMode);
     document.getElementById('logoutBtn')?.addEventListener('click', logout);
   } else {
-    document.getElementById('loginBtn')?.addEventListener('click', () => {
-      loginModal.classList.add('active');
-    });
+    document.getElementById('loginBtn')?.addEventListener('click', openLoginModal);
   }
+}
+
+function openLoginModal() {
+  loginError.textContent = '';
+  loginModal.classList.add('active');
+  loginEmail.focus();
+}
+
+function closeLoginModal() {
+  loginModal.classList.remove('active');
+  loginError.textContent = '';
 }
 
 function toggleEditMode() {
@@ -788,36 +812,63 @@ async function checkSession() {
   updateHeaderUI();
 }
 
-loginSubmit.addEventListener('click', async () => {
-  const email = loginEmail.value.trim();
-  const password = loginPassword.value.trim();
-  if (!email || !password) {
-    loginError.textContent = 'Email and password required';
+// (1)(2)(3)(4) Login handler — submit on the form so Enter works,
+// no trim on password, non-empty validation, surface exact Supabase error.
+async function handleLogin(e) {
+  e.preventDefault();
+
+  const email = loginEmail.value.trim();      // email: trimming whitespace is safe & desirable
+  const password = loginPassword.value;       // (2) password: NO trim — spaces may be valid
+
+  // (3) Validate non-empty before hitting Supabase
+  if (!email) {
+    loginError.textContent = 'Email is required.';
+    loginEmail.focus();
     return;
   }
-  const { data, error } = await window.db.auth.signInWithPassword({ email, password });
-  if (error) {
-    loginError.textContent = error.message;
-  } else {
+  if (!password) {
+    loginError.textContent = 'Password is required.';
+    loginPassword.focus();
+    return;
+  }
+
+  loginSubmit.disabled = true;
+  const originalLabel = loginSubmit.textContent;
+  loginSubmit.textContent = 'Logging in…';
+  loginError.textContent = '';
+
+  try {
+    const { data, error } = await window.db.auth.signInWithPassword({ email, password });
+    if (error) {
+      // (4) Show the exact Supabase message
+      loginError.textContent = error.message || 'Login failed. Please try again.';
+      return;
+    }
     currentUser = data.user;
-    loginModal.classList.remove('active');
-    loginEmail.value = '';
-    loginPassword.value = '';
-    loginError.textContent = '';
+    closeLoginModal();
+    loginForm.reset();
     updateHeaderUI();
     renderPosts(allPosts);
+  } catch (err) {
+    // Network / unexpected failure (CORS, offline, etc.)
+    loginError.textContent = err?.message || 'Network error. Please try again.';
+  } finally {
+    loginSubmit.disabled = false;
+    loginSubmit.textContent = originalLabel;
   }
-});
+}
 
-closeModal.addEventListener('click', () => {
-  loginModal.classList.remove('active');
-  loginError.textContent = '';
-});
+loginForm.addEventListener('submit', handleLogin);
+closeModal.addEventListener('click', closeLoginModal);
 
 loginModal.addEventListener('click', (e) => {
-  if (e.target === loginModal) {
-    loginModal.classList.remove('active');
-    loginError.textContent = '';
+  if (e.target === loginModal) closeLoginModal();
+});
+
+// Esc closes the modal
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && loginModal.classList.contains('active')) {
+    closeLoginModal();
   }
 });
 
@@ -982,4 +1033,3 @@ loadPosts();
 
 </body>
 </html>
-
